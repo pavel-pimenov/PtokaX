@@ -224,7 +224,7 @@ int __cdecl main(int argc, char* argv[]) {
 
 	clsServerManager::sTitle = "PtokaX DC Hub " + string(PtokaXVersionString);
 #ifdef _DEBUG
-	sTitle += " [debug]";
+	clsServerManager::sTitle += " [debug]";
 #endif
 
 #ifdef _DEBUG
