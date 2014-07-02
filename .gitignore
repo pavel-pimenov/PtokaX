@@ -29,3 +29,8 @@
 /obj/PtokaX.vcxprojResolveAssemblyReference.cache
 
 /obj/*.lastbuildstate
+
+/obj/PtokaX.log
+/compiled/cfg
+
+/compiled/logs
