@@ -396,7 +396,7 @@ void clsSettingManager::Save() {
     TiXmlElement booleans("Booleans");
     for(size_t szi = 0; szi < SETBOOL_IDS_END; szi++) {
         // Don't save setting with default value
-        if(bBools[szi] == SetBoolDef[szi] || strlen(SetBoolXmlStr[szi]) == 0) {
+        if(bBools[szi] == SetBoolDef[szi] || SetBoolXmlStr[szi][0] == 0) {
             continue;
         }
 
@@ -412,7 +412,7 @@ void clsSettingManager::Save() {
     char msg[8];
     for(size_t szi = 0; szi < SETSHORT_IDS_END; szi++) {
         // Don't save setting with default value
-        if(iShorts[szi] == SetShortDef[szi] || strlen(SetShortXmlStr[szi]) == 0) {
+        if(iShorts[szi] == SetShortDef[szi] || SetShortXmlStr[szi][0] == 0) {
             continue;
         }
 
@@ -428,9 +428,9 @@ void clsSettingManager::Save() {
     TiXmlElement setstrings("Strings");
     for(size_t szi = 0; szi < SETTXT_IDS_END; szi++) {
         // Don't save setting with default value
-        if((sTexts[szi] == NULL && strlen(SetTxtDef[szi]) == 0) ||
+        if((sTexts[szi] == NULL && SetTxtDef[szi][0] == 0) ||
             (sTexts[szi] != NULL && strcmp(sTexts[szi], SetTxtDef[szi]) == 0) ||
-            strlen(SetTxtXmlStr[szi]) == 0) {
+            SetTxtXmlStr[szi][0] == 0) {
             continue;
         }
 
