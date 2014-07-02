@@ -25,9 +25,12 @@
 #include "utility.h"
 //---------------------------------------------------------------------------
 #pragma hdrstop
+#ifdef PTOKAX_USE_EXCEPTION_HANDLING 
 //---------------------------------------------------------------------------
 #include <Dbghelp.h>
 #include <delayimp.h>
+
+#pragma comment(lib, "Dbghelp.lib")
 //---------------------------------------------------------------------------
 LPTOP_LEVEL_EXCEPTION_FILTER pOldTLEF = NULL;
 string sLogPath = "", sDebugSymbolsFile = "";
@@ -297,3 +300,4 @@ void ExceptionHandlingUnitialize() {
     SetUnhandledExceptionFilter(pOldTLEF);
 }
 //---------------------------------------------------------------------------
+#endif

@@ -22,8 +22,10 @@
 #define ExceptionHandlingH
 //---------------------------------------------------------------------------
 
+#ifdef PTOKAX_USE_EXCEPTION_HANDLING 
 void ExceptionHandlingInitialize(const string &sPath, char * sAppPath);
 void ExceptionHandlingUnitialize();
+#endif
 //---------------------------------------------------------------------------
 
 #endif

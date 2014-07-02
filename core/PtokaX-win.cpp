@@ -199,7 +199,9 @@ static void WINAPI StartService(DWORD /*argc*/, char* argv[]) {
 	    }
 	}
 
-    ExceptionHandlingUnitialize();
+#ifdef PTOKAX_USE_EXCEPTION_HANDLING 
+	ExceptionHandlingUnitialize();
+#endif
 
 	ss.dwCurrentState = SERVICE_STOPPED;
 	SetServiceStatus(ssh, &ss);
@@ -314,15 +316,18 @@ int __cdecl main(int argc, char* argv[]) {
 		}
 	}
 
-    ExceptionHandlingInitialize(PATH, sBuf);
+#ifdef PTOKAX_USE_EXCEPTION_HANDLING 
+	ExceptionHandlingInitialize(PATH, sBuf);
+#endif
 
 	if(bService == false) {
 	    ServerInitialize();
 	
 	    if(ServerStart() == false) {
 	        printf("Server start failed!");
-
+#ifdef PTOKAX_USE_EXCEPTION_HANDLING 
             ExceptionHandlingUnitialize();
+#endif
 
 	        return EXIT_FAILURE;
 	    } else {
@@ -354,7 +359,9 @@ int __cdecl main(int argc, char* argv[]) {
 	        }
 	    }
 
-        ExceptionHandlingUnitialize();
+#ifdef PTOKAX_USE_EXCEPTION_HANDLING 
+		ExceptionHandlingUnitialize();
+#endif
 	} else {
 	    SERVICE_TABLE_ENTRY DispatchTable[] = {
 	        { sServiceName, StartService },
@@ -364,7 +371,9 @@ int __cdecl main(int argc, char* argv[]) {
 	    if(StartServiceCtrlDispatcher(DispatchTable) == false) {
 			AppendLog("StartServiceCtrlDispatcher failed ("+string((uint32_t)GetLastError())+")!");
 
-            ExceptionHandlingUnitialize();
+#ifdef PTOKAX_USE_EXCEPTION_HANDLING 
+			ExceptionHandlingUnitialize();
+#endif
 
 	        return EXIT_FAILURE;
 	    }
