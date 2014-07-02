@@ -52,7 +52,7 @@ void AppendLog(const char * sData) {
 	struct tm * acc_tm;
 	acc_tm = localtime(&acc_time);
 
-	strftime(sDebugBuf, 128, "%d.%m.%Y %H:%M:%S", acc_tm);
+	strftime(sDebugBuf, sizeof(sDebugBuf), "%d.%m.%Y %H:%M:%S", acc_tm);
 
 	fprintf(fw, "%s - %s\n", sDebugBuf, sData);
 
@@ -176,7 +176,7 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
     time(&acc_time);
 
     struct tm *tm = localtime(&acc_time);
-    strftime(sDebugBuf, 128, "Crash-%d.%m.%Y-%H.%M.%S.log", tm);
+    strftime(sDebugBuf, sizeof(sDebugBuf), "Crash-%d.%m.%Y-%H.%M.%S.log", tm);
 
     // Open crash file
     FILE * fw = fopen((sLogPath + sDebugBuf).c_str(), "w");
@@ -219,8 +219,8 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
     }
 
     // Write date and time when crash happen
-    strftime(sDebugBuf, 128, "Date and time: %d.%m.%Y %H:%M:%S\n\n", tm);
-    fprintf(fw, sDebugBuf);
+    strftime(sDebugBuf, sizeof(sDebugBuf), "Date and time: %d.%m.%Y %H:%M:%S\n\n", tm);
+    fprintf(fw, "%s", sDebugBuf);
 
     STACKFRAME64 sf64CallStack;
     memset(&sf64CallStack, 0, sizeof(STACKFRAME64));
