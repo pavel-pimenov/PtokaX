@@ -549,14 +549,14 @@ bool clsUdpDebug::CheckUdpSub(User * u, bool bSndMess/* = false*/) const {
 }
 //---------------------------------------------------------------------------
 
-void clsUdpDebug::Send(char * sScriptName, char * sMessage, const size_t &szMsgLen) const {
+void clsUdpDebug::Send(const char * sScriptName, char * sMessage, const size_t &szMsgLen) const {
     UdpDbgItem *next = ScriptList;
+    const size_t szNameLen = strlen(sScriptName);
 	while(next != NULL) {
         UdpDbgItem *cur = next;
         next = cur->next;
 
 		if(strcasecmp(cur->Nick, sScriptName) == 0) {
-            size_t szNameLen = strlen(sScriptName);
             size_t szLen = 4+clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME]+szNameLen+2+szMsgLen;
 
 #ifdef _WIN32
