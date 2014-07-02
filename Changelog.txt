@@ -1,12 +1,34 @@
-﻿PtokaX DC hub software - Ptaczek/Frontline3k/aMutex (c) 2oo2/2oo3
+PtokaX DC hub software - Ptaczek/Frontline3k/aMutex (c) 2oo2/2oo3
 PtokaX DC hub software - Ptaczek/PPK (c) 2004/2005
-PtokaX DC hub software - PPK (c) 2006/2012
+PtokaX DC hub software - PPK (c) 2006/2014
 ------------------------------------------------------------------------------
 
 
 ----------------------------------------Next Release...---------------------------------------
+
+
+----------------------------------------0.5.0.2 13 April 2014-----------------------------
+Added: Makefile recursion to automatically compile skein and tinyxml on unix os.
+Fixed: When xml file fail to load then it is reported and not silently replaced with default (thx dmvn for report).
+Fixed: Missing $MyINFO for bot in some cases (thx Alexey and alex82 for report).
+Fixed: Not working change password in some cases (thx zog for report).
+Fixed: Crash on bans loading in some cases.
+Fixed: Max users logins in gui range (thx alex82 for report).
+Fixed: NoBadCharsInNick language string has obsolete chars (thx Alexey for report).
+Fixed: !tempban with offline user and wrong time value was returning !nicktempban message (thx sphinx for report).
+Fixed: Change password for registered user from Lua (thx alex82 for report).
+Fixed: When hub description was removed then after restart was changed to default one (thx alex82 for report).
+Fixed: Missing $OpList and/or $UserIP in some cases (thx alex82 for report).
+Fixed: Few compiler warning in ubuntu.
+Changed: os.exit in Lua now correctly shutdown PtokaX.
+
+----------------------------------------0.5.0.1 11 December 2013-----------------------------
 Added: White space characters (ascii chars below 32) are not allowed in nicks anymore.
 Added: Option to store passwords for registered users as hashes.
+Added: Registered users autosave after every 100 regs changes and every 15 minutes when regs change.
+Added: AddTimer(iTimerInterval, fFunction) to Lua api.
+Added: ProfMan.RemoveProfile in Lua api now accept profile number as param.
+Added: Error message on script error now contains traceback, when available.
 Fixed: IpToCountry for IPv4 ignored first and last ip in country range (thx Alexey and alex82 for report).
 Fixed: Crash in windows version when script send some global data as reaction to chat without blocking it (thx Alexey for report).
 Fixed: Wrong chat lines order when multiple messages was received in one loop and script send global data reply for one of them.
@@ -14,6 +36,11 @@ Fixed: On hub bot nick change old bot was not removed from userlist (thx Alexey 
 Fixed: Few other issues related to hub bot nick and info changes.
 Fixed: Issues related to OpChat bot nick and info changes.
 Fixed: 64bit windoze build was limited to only 2 GB of memory.
+Fixed: Lua float/integer types for better performance with Lua 5.3.
+Fixed: Issues with signals on unix (thx dmvn for report).
+Fixed: Broken text input boxes in settings window in some cases.
+Fixed: Never ending loop on reading of registered users file longer than 128 kB (thx dmvn for report).
+
 
 
 ----------------------------------------0.5.0.0 23 December 2012-----------------------------

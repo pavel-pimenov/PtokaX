@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -22,7 +22,7 @@
 #define IP2CountryH
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class IP2CC {
+class clsIpP2Country {
 private:
     uint32_t ui32Size, ui32IPv6Size;
     uint32_t * ui32RangeFrom, * ui32RangeTo;
@@ -32,10 +32,12 @@ private:
     void LoadIPv4();
     void LoadIPv6();
 public:
+    static clsIpP2Country * mPtr;
+
     uint32_t ui32Count, ui32IPv6Count;
 
-	IP2CC();
-	~IP2CC();
+	clsIpP2Country();
+	~clsIpP2Country();
 
 	const char * Find(const uint8_t * ui128IpHash, const bool &bCountryName);
 	uint8_t Find(const uint8_t * ui128IpHash);
@@ -44,8 +46,6 @@ public:
 
     void Reload();
 };
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-extern IP2CC *IP2Country;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #endif

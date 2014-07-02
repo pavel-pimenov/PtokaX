@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -242,7 +242,7 @@ enum LangIds {
     LAN_NICK_MUST_SPECIFIED,
     LAN_PASS_MUST_SPECIFIED, 
     LAN_NO_BAD_CHARS_IN_NICK, 
-    LAN_NO_PIPE_IN_PASS, 
+    LAN_NO_PIPE_IN_PASS,
     LAN_USER_IS_ALREDY_REG, 
     LAN_NO_SYNERR_IN_SCRIPT_FILE,
     LAN_NO_SYNERR_IN_SCRIPT, 

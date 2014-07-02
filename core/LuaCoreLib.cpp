@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -53,7 +53,7 @@ static int Restart(lua_State * L) {
         return 0;
     }
 
-	eventqueue->AddNormal(eventq::EVENT_RESTART, NULL);
+	clsEventQueue::mPtr->AddNormal(clsEventQueue::EVENT_RESTART, NULL);
 
     return 0;
 }
@@ -66,7 +66,7 @@ static int Shutdown(lua_State * L) {
         return 0;
     }
 
-	eventqueue->AddNormal(eventq::EVENT_SHUTDOWN, NULL);
+	clsEventQueue::mPtr->AddNormal(clsEventQueue::EVENT_SHUTDOWN, NULL);
 
     return 0;
 }
@@ -79,7 +79,7 @@ static int ResumeAccepts(lua_State * L) {
         return 0;
     }
 
-	ServerResumeAccepts();
+	clsServerManager::ResumeAccepts();
 
     return 0;
 }
@@ -89,18 +89,22 @@ static int SuspendAccepts(lua_State * L) {
     int n = lua_gettop(L);
 
     if(n == 0) {
-        ServerSuspendAccepts(0);
+        clsServerManager::SuspendAccepts(0);
     } else if(n == 1) {
         if(lua_type(L, 1) != LUA_TNUMBER) {
             luaL_checktype(L, 1, LUA_TNUMBER);
     		lua_settop(L, 0);
             return 0;
         }
-    
-    	uint32_t iSec = (uint32_t)lua_tonumber(L, 1);
+
+#if LUA_VERSION_NUM < 503
+		uint32_t iSec = (uint32_t)lua_tonumber(L, 1);
+#else
+    	uint32_t iSec = (uint32_t)lua_tounsigned(L, 1);
+#endif
     
         if(iSec != 0) {
-            ServerSuspendAccepts(iSec);
+            clsServerManager::SuspendAccepts(iSec);
         }
         lua_settop(L, 0);
     } else {
@@ -113,7 +117,7 @@ static int SuspendAccepts(lua_State * L) {
 //------------------------------------------------------------------------------
 
 static int RegBot(lua_State * L) {
-    if(ScriptManager->ui8BotsCount > 63) {
+    if(clsScriptManager::mPtr->ui8BotsCount > 63) {
         lua_settop(L, 0);
 
         lua_pushnil(L);
@@ -149,24 +153,16 @@ static int RegBot(lua_State * L) {
     bool bIsOP = lua_toboolean(L, 4) == 0 ? false : true;
 
     if(szNickLen == 0 || szNickLen > 64 || strpbrk(nick, " $|") != NULL || szDescrLen > 64 || strpbrk(description, "$|") != NULL ||
-        szEmailLen > 64 || strpbrk(email, "$|") != NULL || hashManager->FindUser(nick, szNickLen) != NULL || ResNickManager->CheckReserved(nick, HashNick(nick, szNickLen)) != false) {
+        szEmailLen > 64 || strpbrk(email, "$|") != NULL || clsHashManager::mPtr->FindUser(nick, szNickLen) != NULL || clsReservedNicksManager::mPtr->CheckReserved(nick, HashNick(nick, szNickLen)) != false) {
 		lua_settop(L, 0);
 
 		lua_pushnil(L);
         return 1;
     }
 
-    ScriptBot * pNewBot = new ScriptBot(nick, szNickLen, description, szDescrLen, email, szEmailLen, bIsOP);
-    if(pNewBot == NULL || pNewBot->sNick == NULL || pNewBot->sMyINFO == NULL) {
-        if(pNewBot == NULL) {
-            AppendDebugLog("%s - [MEM] Cannot allocate pNewBot in Core.RegBot\n", 0);
-        } else if(pNewBot->sNick == NULL) {
-            delete pNewBot;
-            AppendDebugLog("%s - [MEM] Cannot allocate pNewBot->sNick in Core.RegBot\n", 0);
-        } else if(pNewBot->sMyINFO == NULL) {
-            delete pNewBot;
-            AppendDebugLog("%s - [MEM] Cannot allocate pNewBot->sMyINFO in Core.RegBot\n", 0);
-        }
+    ScriptBot * pNewBot = ScriptBot::CreateScriptBot(nick, szNickLen, description, szDescrLen, email, szEmailLen, bIsOP);
+    if(pNewBot == NULL) {
+        AppendDebugLog("%s - [MEM] Cannot allocate pNewBot in Core.RegBot\n", 0);
 
 		lua_settop(L, 0);
 
@@ -177,7 +173,7 @@ static int RegBot(lua_State * L) {
     // PPK ... finally we can clear stack
     lua_settop(L, 0);
 
-	Script * obj = ScriptManager->FindScript(L);
+	Script * obj = clsScriptManager::mPtr->FindScript(L);
 	if(obj == NULL) {
 		delete pNewBot;
 
@@ -207,22 +203,23 @@ static int RegBot(lua_State * L) {
         obj->BotList = pNewBot;
     }
 
-	ResNickManager->AddReservedNick(pNewBot->sNick, true);
+	clsReservedNicksManager::mPtr->AddReservedNick(pNewBot->sNick, true);
 
-	colUsers->AddBot2NickList(pNewBot->sNick, szNickLen, pNewBot->bIsOP);
+	clsUsers::mPtr->AddBot2NickList(pNewBot->sNick, szNickLen, pNewBot->bIsOP);
 
-    colUsers->AddBot2MyInfos(pNewBot->sMyINFO);
+    clsUsers::mPtr->AddBot2MyInfos(pNewBot->sMyINFO);
 
     // PPK ... fixed hello sending only to users without NoHello
-    int iMsgLen = sprintf(g_sBuffer, "$Hello %s|", pNewBot->sNick);
-    if(CheckSprintf(iMsgLen, g_szBufferSize, "RegBot") == true) {
-        g_GlobalDataQueue->AddQueueItem(g_sBuffer, iMsgLen, NULL, 0, GlobalDataQueue::CMD_HELLO);
+    int iMsgLen = sprintf(clsServerManager::sGlobalBuffer, "$Hello %s|", pNewBot->sNick);
+    if(CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "RegBot") == true) {
+        clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::sGlobalBuffer, iMsgLen, NULL, 0, clsGlobalDataQueue::CMD_HELLO);
     }
-    
-    g_GlobalDataQueue->AddQueueItem(pNewBot->sMyINFO, strlen(pNewBot->sMyINFO), NULL, 0, GlobalDataQueue::CMD_MYINFO);
+
+    size_t szMyINFOLen = strlen(pNewBot->sMyINFO);
+    clsGlobalDataQueue::mPtr->AddQueueItem(pNewBot->sMyINFO, szMyINFOLen, pNewBot->sMyINFO, szMyINFOLen, clsGlobalDataQueue::CMD_MYINFO);
         
     if(pNewBot->bIsOP == true) {
-        g_GlobalDataQueue->OpListStore(pNewBot->sNick);
+        clsGlobalDataQueue::mPtr->OpListStore(pNewBot->sNick);
     }
 
     lua_pushboolean(L, 1);
@@ -258,7 +255,7 @@ static int UnregBot(lua_State * L) {
         return 1;
     }
 
-	Script * obj = ScriptManager->FindScript(L);
+	Script * obj = clsScriptManager::mPtr->FindScript(L);
 	if(obj == NULL) {
 		lua_settop(L, 0);
 
@@ -273,15 +270,15 @@ static int UnregBot(lua_State * L) {
         next = cur->next;
 
 		if(strcasecmp(botnick, cur->sNick) == 0) {
-            ResNickManager->DelReservedNick(cur->sNick, true);
+            clsReservedNicksManager::mPtr->DelReservedNick(cur->sNick, true);
 
-            colUsers->DelFromNickList(cur->sNick, cur->bIsOP);
+            clsUsers::mPtr->DelFromNickList(cur->sNick, cur->bIsOP);
 
-            colUsers->DelBotFromMyInfos(cur->sMyINFO);
+            clsUsers::mPtr->DelBotFromMyInfos(cur->sMyINFO);
 
-            int iMsgLen = sprintf(g_sBuffer, "$Quit %s|", cur->sNick);
-            if(CheckSprintf(iMsgLen, g_szBufferSize, "UnregBot") == true) {
-                g_GlobalDataQueue->AddQueueItem(g_sBuffer, iMsgLen, NULL, 0, GlobalDataQueue::CMD_QUIT);
+            int iMsgLen = sprintf(clsServerManager::sGlobalBuffer, "$Quit %s|", cur->sNick);
+            if(CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "UnregBot") == true) {
+                clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::sGlobalBuffer, iMsgLen, NULL, 0, clsGlobalDataQueue::CMD_QUIT);
             }
 
             if(cur->prev == NULL) {
@@ -326,7 +323,7 @@ static int GetBots(lua_State * L) {
 
     int t = lua_gettop(L), i = 0;
 
-	Script *next = ScriptManager->RunningScriptS;
+	Script *next = clsScriptManager::mPtr->RunningScriptS;
 
     while(next != NULL) {
     	Script *cur = next;
@@ -338,7 +335,11 @@ static int GetBots(lua_State * L) {
             ScriptBot * bot = next;
             next = bot->next;
 
-            lua_pushnumber(L, ++i);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, ++i);
+#else
+            lua_pushunsigned(L, ++i);
+#endif
 
             lua_newtable(L);
 
@@ -377,8 +378,12 @@ static int GetActualUsersPeak(lua_State * L) {
         lua_pushnil(L);
         return 1;
     }
-    
-    lua_pushnumber(L, ui32Peak);
+
+#if LUA_VERSION_NUM < 503
+	lua_pushnumber(L, clsServerManager::ui32Peak);
+#else
+    lua_pushunsigned(L, clsServerManager::ui32Peak);
+#endif
 
     return 1;
 }
@@ -392,8 +397,12 @@ static int GetMaxUsersPeak(lua_State * L) {
         lua_pushnil(L);
         return 1;
     }
-    
-    lua_pushnumber(L, SettingManager->iShorts[SETSHORT_MAX_USERS_PEAK]);
+
+#if LUA_VERSION_NUM < 503
+	lua_pushnumber(L, clsSettingManager::mPtr->iShorts[SETSHORT_MAX_USERS_PEAK]);
+#else
+    lua_pushunsigned(L, clsSettingManager::mPtr->iShorts[SETSHORT_MAX_USERS_PEAK]);
+#endif
 
     return 1;
 }
@@ -407,8 +416,12 @@ static int GetCurrentSharedSize(lua_State * L) {
         lua_pushnil(L);
         return 1;
     }
-    
-    lua_pushnumber(L, (double)ui64TotalShare);
+
+#if LUA_VERSION_NUM < 503
+	lua_pushnumber(L, (double)clsServerManager::ui64TotalShare);
+#else
+    lua_pushunsigned(L, clsServerManager::ui64TotalShare);
+#endif
 
     return 1;
 }
@@ -423,8 +436,8 @@ static int GetHubIP(lua_State * L) {
         return 1;
     }
 
-    if(sHubIP[0] != '\0') {
-		lua_pushstring(L, sHubIP);
+    if(clsServerManager::sHubIP[0] != '\0') {
+		lua_pushstring(L, clsServerManager::sHubIP);
 	} else {
 		lua_pushnil(L);
 	}
@@ -442,7 +455,7 @@ static int GetHubIPs(lua_State * L) {
         return 1;
     }
 
-    if(sHubIP[0] == '\0' && sHubIP6[0] == '\0') {
+    if(clsServerManager::sHubIP[0] == '\0' && clsServerManager::sHubIP6[0] == '\0') {
         lua_pushnil(L);
         return 1;
     }
@@ -450,19 +463,29 @@ static int GetHubIPs(lua_State * L) {
     lua_newtable(L);
     int t = lua_gettop(L), i = 0;
 
-    if(sHubIP6[0] != '\0') {
+    if(clsServerManager::sHubIP6[0] != '\0') {
         i++;
 
-        lua_pushnumber(L, i);
-		lua_pushstring(L, sHubIP6);
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(L, i);
+#else
+        lua_pushunsigned(L, i);
+#endif
+
+		lua_pushstring(L, clsServerManager::sHubIP6);
 		lua_rawset(L, t);
 	}
 
-    if(sHubIP[0] != '\0') {
+    if(clsServerManager::sHubIP[0] != '\0') {
         i++;
 
-        lua_pushnumber(L, i);
-		lua_pushstring(L, sHubIP);
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(L, i);
+#else
+        lua_pushunsigned(L, i);
+#endif
+
+		lua_pushstring(L, clsServerManager::sHubIP);
 		lua_rawset(L, t);
 	}
 
@@ -479,8 +502,8 @@ static int GetHubSecAlias(lua_State * L) {
         return 1;
     }
     
-    lua_pushlstring(L, SettingManager->sPreTexts[SetMan::SETPRETXT_HUB_SEC], 
-        (size_t)SettingManager->ui16PreTextsLens[SetMan::SETPRETXT_HUB_SEC]);
+    lua_pushlstring(L, clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC],
+        (size_t)clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_HUB_SEC]);
 
     return 1;
 }
@@ -496,9 +519,9 @@ static int GetPtokaXPath(lua_State * L) {
     }
 
 #ifdef _WIN32
-    lua_pushlstring(L, PATH_LUA.c_str(), PATH_LUA.size());
+    lua_pushlstring(L, clsServerManager::sLuaPath.c_str(), clsServerManager::sLuaPath.size());
 #else
-    string path = PATH+"/";
+    string path = clsServerManager::sPath+"/";
     lua_pushlstring(L, path.c_str(), path.size());
 #endif
 
@@ -514,8 +537,12 @@ static int GetUsersCount(lua_State * L) {
         lua_pushnil(L);
         return 1;
     }
-    
-    lua_pushnumber(L, ui32Logged);
+
+#if LUA_VERSION_NUM < 503
+	lua_pushnumber(L, clsServerManager::ui32Logged);
+#else
+    lua_pushunsigned(L, clsServerManager::ui32Logged);
+#endif
 
     return 1;
 }
@@ -533,7 +560,11 @@ static int GetUpTime(lua_State * L) {
 	time_t t;
     time(&t);
 
-    lua_pushnumber(L, (double)(t-starttime));
+#if LUA_VERSION_NUM < 503
+	lua_pushnumber(L, (double)(t-clsServerManager::tStartTime));
+#else
+    lua_pushunsigned(L, t-clsServerManager::tStartTime);
+#endif
 
     return 1;
 }
@@ -573,14 +604,19 @@ static int GetOnlineByOpStatus(lua_State * L, const bool &bOperator) {
 
     int t = lua_gettop(L), i = 0;
 
-    User *next = colUsers->llist;
+    User *next = clsUsers::mPtr->llist;
 
     while(next != NULL) {
         User *curUser = next;
         next = curUser->next;
 
         if(curUser->ui8State == User::STATE_ADDED && ((curUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == bOperator) {
-            lua_pushnumber(L, ++i);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, ++i);
+#else
+            lua_pushunsigned(L, ++i);
+#endif
+
 			ScriptPushUser(L, curUser, bFullTable);
             lua_rawset(L, t);
         }
@@ -630,13 +666,18 @@ static int GetOnlineRegs(lua_State * L) {
 
     int t = lua_gettop(L), i = 0;
 
-    User *next = colUsers->llist;
+    User *next = clsUsers::mPtr->llist;
 
     while(next != NULL) {
         User *curUser = next;
         next = curUser->next;
         if(curUser->ui8State == User::STATE_ADDED && curUser->iProfile != -1) {
-            lua_pushnumber(L, ++i);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, ++i);
+#else
+            lua_pushunsigned(L, ++i);
+#endif
+
 			ScriptPushUser(L, curUser, bFullTable);
             lua_rawset(L, t);
         }
@@ -664,13 +705,13 @@ static int GetOnlineUsers(lua_State * L) {
             return 1;
         }
 
-        iProfile = (int32_t)lua_tonumber(L, 1);
+        iProfile = (int32_t)lua_tointeger(L, 1);
         bFullTable = lua_toboolean(L, 2) == 0 ? false : true;
 
         lua_settop(L, 0);
     } else if(n == 1) {
         if(lua_type(L, 1) == LUA_TNUMBER) {
-            iProfile = (int32_t)lua_tonumber(L, 1);
+            iProfile = (int32_t)lua_tointeger(L, 1);
         } else if(lua_type(L, 1) == LUA_TBOOLEAN) {
             bFullTable = lua_toboolean(L, 1) == 0 ? false : true;
         } else {
@@ -694,7 +735,7 @@ static int GetOnlineUsers(lua_State * L) {
 
     int t = lua_gettop(L), i = 0;
 
-    User *next = colUsers->llist;
+    User *next = clsUsers::mPtr->llist;
 
     if(iProfile == -2) {
 	    while(next != NULL) {
@@ -702,7 +743,12 @@ static int GetOnlineUsers(lua_State * L) {
 	        next = curUser->next;
 
 	        if(curUser->ui8State == User::STATE_ADDED) {
-	            lua_pushnumber(L, ++i);
+#if LUA_VERSION_NUM < 503
+				lua_pushnumber(L, ++i);
+#else
+	            lua_pushunsigned(L, ++i);
+#endif
+
 				ScriptPushUser(L, curUser, bFullTable);
 	            lua_rawset(L, t);
 	        }
@@ -713,7 +759,12 @@ static int GetOnlineUsers(lua_State * L) {
 		    next = curUser->next;
 
 		    if(curUser->ui8State == User::STATE_ADDED && curUser->iProfile == iProfile) {
-		        lua_pushnumber(L, ++i);
+#if LUA_VERSION_NUM < 503
+				lua_pushnumber(L, ++i);
+#else
+		        lua_pushunsigned(L, ++i);
+#endif
+
 				ScriptPushUser(L, curUser, bFullTable);
 		        lua_rawset(L, t);
 		    }
@@ -773,7 +824,7 @@ static int GetUser(lua_State * L) {
         return 1;
     }
     
-    User *u = hashManager->FindUser(nick, szLen);
+    User *u = clsHashManager::mPtr->FindUser(nick, szLen);
 
     lua_settop(L, 0);
 
@@ -839,7 +890,7 @@ static int GetUsers(lua_State * L) {
         return 1;
     }
 
-    User *next = hashManager->FindUser(ui128Hash);
+    User *next = clsHashManager::mPtr->FindUser(ui128Hash);
 
     lua_settop(L, 0);
 
@@ -856,7 +907,12 @@ static int GetUsers(lua_State * L) {
 		User *curUser = next;
         next = curUser->hashiptablenext;
 
-        lua_pushnumber(L, ++i);
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(L, ++i);
+#else
+        lua_pushunsigned(L, ++i);
+#endif
+
     	ScriptPushUser(L, curUser, bFullTable);
         lua_rawset(L, t);
     }
@@ -921,7 +977,11 @@ static int GetUserData(lua_State * L) {
         return 1;
     }
 
-    uint8_t ui8DataId = (uint8_t)lua_tonumber(L, 2);
+#if LUA_VERSION_NUM < 503
+	uint8_t ui8DataId = (uint8_t)lua_tonumber(L, 2);
+#else
+    uint8_t ui8DataId = (uint8_t)lua_tounsigned(L, 2);
+#endif
 
     switch(ui8DataId) {
         case 0:
@@ -1041,63 +1101,103 @@ static int GetUserData(lua_State * L) {
             break;
         case 15:
         	lua_pushliteral(L, "iProfile");
-        	lua_pushnumber(L, u->iProfile);
+        	lua_pushinteger(L, u->iProfile);
         	lua_rawset(L, 1);
             break;
         case 16:
         	lua_pushliteral(L, "iShareSize");
-        	lua_pushnumber(L, (double)u->ui64SharedSize);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, (double)u->ui64SharedSize);
+#else
+        	lua_pushunsigned(L, u->ui64SharedSize);
+#endif
         	lua_rawset(L, 1);
             break;
         case 17:
         	lua_pushliteral(L, "iHubs");
-        	lua_pushnumber(L, u->Hubs);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->Hubs);
+#else
+        	lua_pushunsigned(L, u->Hubs);
+#endif
         	lua_rawset(L, 1);
             break;
         case 18:
         	lua_pushliteral(L, "iNormalHubs");
-        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iNormalHubs);
+#if LUA_VERSION_NUM < 503
+			(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iNormalHubs);
+#else
+        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushunsigned(L, u->iNormalHubs);
+#endif
         	lua_rawset(L, 1);
             break;
         case 19:
         	lua_pushliteral(L, "iRegHubs");
-        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iRegHubs);
+#if LUA_VERSION_NUM < 503
+			(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iRegHubs);
+#else
+        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushunsigned(L, u->iRegHubs);
+#endif
         	lua_rawset(L, 1);
             break;
         case 20:
         	lua_pushliteral(L, "iOpHubs");
-        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iOpHubs);
+#if LUA_VERSION_NUM < 503
+			(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iOpHubs);
+#else
+        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushunsigned(L, u->iOpHubs);
+#endif
         	lua_rawset(L, 1);
             break;
         case 21:
         	lua_pushliteral(L, "iSlots");
-        	lua_pushnumber(L, u->Slots);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->Slots);
+#else
+        	lua_pushunsigned(L, u->Slots);
+#endif
         	lua_rawset(L, 1);
             break;
         case 22:
         	lua_pushliteral(L, "iLlimit");
-        	lua_pushnumber(L, u->LLimit);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->LLimit);
+#else
+        	lua_pushunsigned(L, u->LLimit);
+#endif
         	lua_rawset(L, 1);
             break;
         case 23:
         	lua_pushliteral(L, "iDefloodWarns");
-        	lua_pushnumber(L, u->iDefloodWarnings);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->iDefloodWarnings);
+#else
+        	lua_pushunsigned(L, u->iDefloodWarnings);
+#endif
         	lua_rawset(L, 1);
             break;
         case 24:
         	lua_pushliteral(L, "iMagicByte");
-        	lua_pushnumber(L, u->MagicByte);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->MagicByte);
+#else
+        	lua_pushunsigned(L, u->MagicByte);
+#endif
         	lua_rawset(L, 1);
             break;   
         case 25:
         	lua_pushliteral(L, "iLoginTime");
-        	lua_pushnumber(L, (double)u->LoginTime);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, (double)u->LoginTime);
+#else
+        	lua_pushunsigned(L, u->LoginTime);
+#endif
         	lua_rawset(L, 1);
             break;
         case 26:
         	lua_pushliteral(L, "sCountryCode");
-        	if(IP2Country->ui32Count != 0) {
-				lua_pushlstring(L, IP2Country->GetCountry(u->ui8Country, false), 2);
+        	if(clsIpP2Country::mPtr->ui32Count != 0) {
+				lua_pushlstring(L, clsIpP2Country::mPtr->GetCountry(u->ui8Country, false), 2);
 			} else {
 				lua_pushnil(L);
 			}
@@ -1213,12 +1313,20 @@ static int GetUserData(lua_State * L) {
             break;
         case 41:
             lua_pushliteral(L, "iScriptediShareSizeShort");
-        	lua_pushnumber(L, (double)u->ui64ChangedSharedSizeShort);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, (double)u->ui64ChangedSharedSizeShort);
+#else
+        	lua_pushunsigned(L, u->ui64ChangedSharedSizeShort);
+#endif
         	lua_rawset(L, 1);
             break;
         case 42:
             lua_pushliteral(L, "iScriptediShareSizeLong");
-        	lua_pushnumber(L, (double)u->ui64ChangedSharedSizeLong);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, (double)u->ui64ChangedSharedSizeLong);
+#else
+        	lua_pushunsigned(L, u->ui64ChangedSharedSizeLong);
+#endif
         	lua_rawset(L, 1);
             break;
         case 43: {
@@ -1227,12 +1335,20 @@ static int GetUserData(lua_State * L) {
 
             int t = lua_gettop(L);
 
-            lua_pushnumber(L, 1);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, 1);
+#else
+            lua_pushunsigned(L, 1);
+#endif
             lua_pushlstring(L, u->sIP, u->ui8IpLen);
             lua_rawset(L, t);
 
             if(u->sIPv4[0] != '\0') {
-                lua_pushnumber(L, 2);
+#if LUA_VERSION_NUM < 503
+				lua_pushnumber(L, 2);
+#else
+                lua_pushunsigned(L, 2);
+#endif
                 lua_pushlstring(L, u->sIPv4, u->ui8IPv4Len);
                 lua_rawset(L, t);
             }
@@ -1279,7 +1395,11 @@ static int GetUserValue(lua_State * L) {
         return 1;
     }
 
-    uint8_t ui8DataId = (uint8_t)lua_tonumber(L, 2);
+#if LUA_VERSION_NUM < 503
+	uint8_t ui8DataId = (uint8_t)lua_tonumber(L, 2);
+#else
+    uint8_t ui8DataId = (uint8_t)lua_tounsigned(L, 2);
+#endif
 
     lua_settop(L, 0);
 
@@ -1370,41 +1490,81 @@ static int GetUserValue(lua_State * L) {
         	(u->ui32BoolBits & User::BIT_HAVE_BADTAG) == User::BIT_HAVE_BADTAG ? lua_pushboolean(L, 1) : lua_pushboolean(L, 0);
         	return 1;
         case 15:
-        	lua_pushnumber(L, u->iProfile);
+        	lua_pushinteger(L, u->iProfile);
         	return 1;
         case 16:
-        	lua_pushnumber(L, (double)u->ui64SharedSize);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, (double)u->ui64SharedSize);
+#else
+        	lua_pushunsigned(L, u->ui64SharedSize);
+#endif
         	return 1;
         case 17:
-        	lua_pushnumber(L, u->Hubs);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->Hubs);
+#else
+        	lua_pushunsigned(L, u->Hubs);
+#endif
         	return 1;
         case 18:
-        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iNormalHubs);
+#if LUA_VERSION_NUM < 503
+			(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iNormalHubs);
+#else
+        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushunsigned(L, u->iNormalHubs);
+#endif
         	return 1;
         case 19:
-        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iRegHubs);
+#if LUA_VERSION_NUM < 503
+			(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iRegHubs);
+#else
+        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushunsigned(L, u->iRegHubs);
+#endif
         	return 1;
         case 20:
-        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iOpHubs);
+#if LUA_VERSION_NUM < 503
+			(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushnumber(L, u->iOpHubs);
+#else
+        	(u->ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(L) : lua_pushunsigned(L, u->iOpHubs);
+#endif
         	return 1;
         case 21:
-        	lua_pushnumber(L, u->Slots);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->Slots);
+#else
+        	lua_pushunsigned(L, u->Slots);
+#endif
         	return 1;
         case 22:
-        	lua_pushnumber(L, u->LLimit);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->LLimit);
+#else
+        	lua_pushunsigned(L, u->LLimit);
+#endif
         	return 1;
         case 23:
-        	lua_pushnumber(L, u->iDefloodWarnings);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->iDefloodWarnings);
+#else
+        	lua_pushunsigned(L, u->iDefloodWarnings);
+#endif
         	return 1;
         case 24:
-        	lua_pushnumber(L, u->MagicByte);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, u->MagicByte);
+#else
+        	lua_pushunsigned(L, u->MagicByte);
+#endif
         	return 1;  
         case 25:
-        	lua_pushnumber(L, (double)u->LoginTime);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, (double)u->LoginTime);
+#else
+        	lua_pushunsigned(L, u->LoginTime);
+#endif
         	return 1;
         case 26:
-        	if(IP2Country->ui32Count != 0) {
-				lua_pushlstring(L, IP2Country->GetCountry(u->ui8Country, false), 2);
+        	if(clsIpP2Country::mPtr->ui32Count != 0) {
+				lua_pushlstring(L, clsIpP2Country::mPtr->GetCountry(u->ui8Country, false), 2);
 			} else {
 				lua_pushnil(L);
 			}
@@ -1491,22 +1651,38 @@ static int GetUserValue(lua_State * L) {
 			}
         	return 1;
         case 41:
-        	lua_pushnumber(L, (double)u->ui64ChangedSharedSizeShort);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, (double)u->ui64ChangedSharedSizeShort);
+#else
+        	lua_pushunsigned(L, u->ui64ChangedSharedSizeShort);
+#endif
         	return 1;
         case 42:
-        	lua_pushnumber(L, (double)u->ui64ChangedSharedSizeLong);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, (double)u->ui64ChangedSharedSizeLong);
+#else
+        	lua_pushunsigned(L, u->ui64ChangedSharedSizeLong);
+#endif
         	return 1;
         case 43: {
             lua_newtable(L);
 
             int t = lua_gettop(L);
 
-            lua_pushnumber(L, 1);
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(L, 1);
+#else
+            lua_pushunsigned(L, 1);
+#endif
             lua_pushlstring(L, u->sIP, u->ui8IpLen);
             lua_rawset(L, t);
 
             if(u->sIPv4[0] != '\0') {
-                lua_pushnumber(L, 2);
+#if LUA_VERSION_NUM < 503
+				lua_pushnumber(L, 2);
+#else
+                lua_pushunsigned(L, 2);
+#endif
                 lua_pushlstring(L, u->sIPv4, u->ui8IPv4Len);
                 lua_rawset(L, t);
             }
@@ -1548,7 +1724,7 @@ static int Disconnect(lua_State * L) {
             return 0;
         }
     
-        u = hashManager->FindUser(nick, szLen);
+        u = clsHashManager::mPtr->FindUser(nick, szLen);
 
         if(u == NULL) {
     		lua_settop(L, 0);
@@ -1566,7 +1742,7 @@ static int Disconnect(lua_State * L) {
 
 //    int imsgLen = sprintf(g_sBuffer, "[SYS] User %s (%s) disconnected by script.", u->Nick, u->IP);
 //    UdpDebug->Broadcast(g_sBuffer, imsgLen);
-    UserClose(u);
+    u->Close();
 
     lua_settop(L, 0);
 
@@ -1612,37 +1788,37 @@ static int Kick(lua_State * L) {
         return 1;
     }
 
-    hashBanManager->TempBan(u, sReason, sKicker, 0, 0, false);
+    clsBanManager::mPtr->TempBan(u, sReason, sKicker, 0, 0, false);
 
-    int imsgLen = sprintf(g_sBuffer, "<%s> %s: %s|", SettingManager->sPreTexts[SetMan::SETPRETXT_HUB_SEC], LanguageManager->sTexts[LAN_YOU_BEING_KICKED_BCS], sReason);
-    if(CheckSprintf(imsgLen, g_szBufferSize, "Kick5") == true) {
-    	UserSendCharDelayed(u, g_sBuffer, imsgLen);
+    int imsgLen = sprintf(clsServerManager::sGlobalBuffer, "<%s> %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_BEING_KICKED_BCS], sReason);
+    if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "Kick5") == true) {
+    	u->SendCharDelayed(clsServerManager::sGlobalBuffer, imsgLen);
     }
 
-    if(SettingManager->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true) {
-    	if(SettingManager->bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true) {
-    	    imsgLen = sprintf(g_sBuffer, "%s $<%s> *** %s %s IP %s %s %s %s: %s|", SettingManager->sPreTexts[SetMan::SETPRETXT_HUB_SEC],
-                SettingManager->sPreTexts[SetMan::SETPRETXT_HUB_SEC], u->sNick, LanguageManager->sTexts[LAN_WITH_LWR], u->sIP, LanguageManager->sTexts[LAN_WAS_KICKED_BY], sKicker,
-                LanguageManager->sTexts[LAN_BECAUSE_LWR], sReason);
-            if(CheckSprintf(imsgLen, g_szBufferSize, "Kick6") == true) {
-				g_GlobalDataQueue->SingleItemStore(g_sBuffer, imsgLen, NULL, 0, GlobalDataQueue::SI_PM2OPS);
+    if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true) {
+    	if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true) {
+    	    imsgLen = sprintf(clsServerManager::sGlobalBuffer, "%s $<%s> *** %s %s IP %s %s %s %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC],
+                clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], u->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_LWR], u->sIP, clsLanguageManager::mPtr->sTexts[LAN_WAS_KICKED_BY], sKicker,
+                clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sReason);
+            if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "Kick6") == true) {
+				clsGlobalDataQueue::mPtr->SingleItemStore(clsServerManager::sGlobalBuffer, imsgLen, NULL, 0, clsGlobalDataQueue::SI_PM2OPS);
             }
     	} else {
-    	    imsgLen = sprintf(g_sBuffer, "<%s> *** %s %s IP %s %s %s %s: %s|", SettingManager->sPreTexts[SetMan::SETPRETXT_HUB_SEC], u->sNick,
-                LanguageManager->sTexts[LAN_WITH_LWR], u->sIP, LanguageManager->sTexts[LAN_WAS_KICKED_BY], sKicker, LanguageManager->sTexts[LAN_BECAUSE_LWR], sReason);
-            if(CheckSprintf(imsgLen, g_szBufferSize, "Kick7") == true) {
-                g_GlobalDataQueue->AddQueueItem(g_sBuffer, imsgLen, NULL, 0, GlobalDataQueue::CMD_OPS);
+    	    imsgLen = sprintf(clsServerManager::sGlobalBuffer, "<%s> *** %s %s IP %s %s %s %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], u->sNick,
+                clsLanguageManager::mPtr->sTexts[LAN_WITH_LWR], u->sIP, clsLanguageManager::mPtr->sTexts[LAN_WAS_KICKED_BY], sKicker, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sReason);
+            if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "Kick7") == true) {
+                clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::sGlobalBuffer, imsgLen, NULL, 0, clsGlobalDataQueue::CMD_OPS);
             }
     	}
     }
 
     // disconnect the user
-    imsgLen = sprintf(g_sBuffer, "[SYS] User %s (%s) kicked by script.", u->sNick, u->sIP);
-    if(CheckSprintf(imsgLen, g_szBufferSize, "Kick8") == true) {
-        UdpDebug->Broadcast(g_sBuffer, imsgLen);
+    imsgLen = sprintf(clsServerManager::sGlobalBuffer, "[SYS] User %s (%s) kicked by script.", u->sNick, u->sIP);
+    if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "Kick8") == true) {
+        clsUdpDebug::mPtr->Broadcast(clsServerManager::sGlobalBuffer, imsgLen);
     }
 
-    UserClose(u);
+    u->Close();
     
     lua_settop(L, 0);
 
@@ -1687,16 +1863,16 @@ static int Redirect(lua_State * L) {
         return 1;
     }
 
-    int imsgLen = sprintf(g_sBuffer, "<%s> %s %s. %s: %s|$ForceMove %s|", SettingManager->sPreTexts[SetMan::SETPRETXT_HUB_SEC], LanguageManager->sTexts[LAN_YOU_REDIR_TO],
-        sAddress, LanguageManager->sTexts[LAN_MESSAGE], sReason, sAddress);
-    if(CheckSprintf(imsgLen, g_szBufferSize, "Redirect2") == true) {
-        UserSendChar(u, g_sBuffer, imsgLen);
+    int imsgLen = sprintf(clsServerManager::sGlobalBuffer, "<%s> %s %s. %s: %s|$ForceMove %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_REDIR_TO],
+        sAddress, clsLanguageManager::mPtr->sTexts[LAN_MESSAGE], sReason, sAddress);
+    if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "Redirect2") == true) {
+        u->SendChar(clsServerManager::sGlobalBuffer, imsgLen);
     }
 
     //int imsgLen = sprintf(g_sBuffer, "[SYS] User %s (%s) redirected by script.", u->Nick, u->IP);
-    //UdpDebug->Broadcast(g_sBuffer, imsgLen);
+    //clsUdpDebug::mPtr->Broadcast(g_sBuffer, imsgLen);
 
-    UserClose(u);
+    u->Close();
     
     lua_settop(L, 0);
 
@@ -1731,49 +1907,49 @@ static int DefloodWarn(lua_State * L) {
 
     u->iDefloodWarnings++;
 
-    if(u->iDefloodWarnings >= (uint32_t)SettingManager->iShorts[SETSHORT_DEFLOOD_WARNING_COUNT]) {
+    if(u->iDefloodWarnings >= (uint32_t)clsSettingManager::mPtr->iShorts[SETSHORT_DEFLOOD_WARNING_COUNT]) {
         int imsgLen;
-        switch(SettingManager->iShorts[SETSHORT_DEFLOOD_WARNING_ACTION]) {
+        switch(clsSettingManager::mPtr->iShorts[SETSHORT_DEFLOOD_WARNING_ACTION]) {
             case 0:
                 break;
             case 1:
-				hashBanManager->TempBan(u, LanguageManager->sTexts[LAN_FLOODING], NULL, 0, 0, false);
+				clsBanManager::mPtr->TempBan(u, clsLanguageManager::mPtr->sTexts[LAN_FLOODING], NULL, 0, 0, false);
                 break;
             case 2:
-                hashBanManager->TempBan(u, LanguageManager->sTexts[LAN_FLOODING], NULL, 
-                    SettingManager->iShorts[SETSHORT_DEFLOOD_TEMP_BAN_TIME], 0, false);
+                clsBanManager::mPtr->TempBan(u, clsLanguageManager::mPtr->sTexts[LAN_FLOODING], NULL, 
+                    clsSettingManager::mPtr->iShorts[SETSHORT_DEFLOOD_TEMP_BAN_TIME], 0, false);
                 break;
             case 3: {
-                hashBanManager->Ban(u, LanguageManager->sTexts[LAN_FLOODING], NULL, false);
+                clsBanManager::mPtr->Ban(u, clsLanguageManager::mPtr->sTexts[LAN_FLOODING], NULL, false);
                 break;
             }
             default:
                 break;
         }
 
-        if(SettingManager->bBools[SETBOOL_DEFLOOD_REPORT] == true) {
-            if(SettingManager->bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true) {
-                imsgLen = sprintf(g_sBuffer, "%s $<%s> *** %s %s %s %s %s.|", SettingManager->sPreTexts[SetMan::SETPRETXT_HUB_SEC],
-                    SettingManager->sPreTexts[SetMan::SETPRETXT_HUB_SEC], LanguageManager->sTexts[LAN_FLOODER], u->sNick, LanguageManager->sTexts[LAN_WITH_IP], u->sIP,
-                    LanguageManager->sTexts[LAN_DISCONN_BY_SCRIPT]);
-                if(CheckSprintf(imsgLen, g_szBufferSize, "DefloodWarn1") == true) {
-                    g_GlobalDataQueue->SingleItemStore(g_sBuffer, imsgLen, NULL, 0, GlobalDataQueue::SI_PM2OPS);
+        if(clsSettingManager::mPtr->bBools[SETBOOL_DEFLOOD_REPORT] == true) {
+            if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true) {
+                imsgLen = sprintf(clsServerManager::sGlobalBuffer, "%s $<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC],
+                    clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_FLOODER], u->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], u->sIP,
+                    clsLanguageManager::mPtr->sTexts[LAN_DISCONN_BY_SCRIPT]);
+                if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "DefloodWarn1") == true) {
+                    clsGlobalDataQueue::mPtr->SingleItemStore(clsServerManager::sGlobalBuffer, imsgLen, NULL, 0, clsGlobalDataQueue::SI_PM2OPS);
                 }
             } else {
-                imsgLen = sprintf(g_sBuffer, "<%s> *** %s %s %s %s %s.|", SettingManager->sPreTexts[SetMan::SETPRETXT_HUB_SEC], LanguageManager->sTexts[LAN_FLOODER], u->sNick,
-                    LanguageManager->sTexts[LAN_WITH_IP], u->sIP, LanguageManager->sTexts[LAN_DISCONN_BY_SCRIPT]);
-                if(CheckSprintf(imsgLen, g_szBufferSize, "DefloodWarn2") == true) {
-                    g_GlobalDataQueue->AddQueueItem(g_sBuffer, imsgLen, NULL, 0, GlobalDataQueue::CMD_OPS);
+                imsgLen = sprintf(clsServerManager::sGlobalBuffer, "<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_FLOODER], u->sNick,
+                    clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], u->sIP, clsLanguageManager::mPtr->sTexts[LAN_DISCONN_BY_SCRIPT]);
+                if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "DefloodWarn2") == true) {
+                    clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::sGlobalBuffer, imsgLen, NULL, 0, clsGlobalDataQueue::CMD_OPS);
                 }
             }
         }
 
-        imsgLen = sprintf(g_sBuffer, "[SYS] Flood from %s (%s) - user closed by script.", u->sNick, u->sIP);
-        if(CheckSprintf(imsgLen, g_szBufferSize, "DefloodWarn3") == true) {
-            UdpDebug->Broadcast(g_sBuffer, imsgLen);
+        imsgLen = sprintf(clsServerManager::sGlobalBuffer, "[SYS] Flood from %s (%s) - user closed by script.", u->sNick, u->sIP);
+        if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "DefloodWarn3") == true) {
+            clsUdpDebug::mPtr->Broadcast(clsServerManager::sGlobalBuffer, imsgLen);
         }
 
-        UserClose(u);
+        u->Close();
     }
 
     lua_settop(L, 0);
@@ -1801,12 +1977,12 @@ static int SendToAll(lua_State * L) {
         char * sData = (char *)lua_tolstring(L, 1, &szLen);
         if(sData[0] != '\0' && szLen < 128001) {
 			if(sData[szLen-1] != '|') {
-                memcpy(g_sBuffer, sData, szLen);
-                g_sBuffer[szLen] = '|';
-                g_sBuffer[szLen+1] = '\0';
-				g_GlobalDataQueue->AddQueueItem(g_sBuffer, szLen+1, NULL, 0, GlobalDataQueue::CMD_LUA);
+                memcpy(clsServerManager::sGlobalBuffer, sData, szLen);
+                clsServerManager::sGlobalBuffer[szLen] = '|';
+                clsServerManager::sGlobalBuffer[szLen+1] = '\0';
+				clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::sGlobalBuffer, szLen+1, NULL, 0, clsGlobalDataQueue::CMD_LUA);
 			} else {
-				g_GlobalDataQueue->AddQueueItem(sData, szLen, NULL, 0, GlobalDataQueue::CMD_LUA);
+				clsGlobalDataQueue::mPtr->AddQueueItem(sData, szLen, NULL, 0, clsGlobalDataQueue::CMD_LUA);
             }
         }
     }
@@ -1839,15 +2015,15 @@ static int SendToNick(lua_State * L) {
         return 0;
     }
 
-    User *u = hashManager->FindUser(sNick, szNickLen);
+    User *u = clsHashManager::mPtr->FindUser(sNick, szNickLen);
     if(u != NULL) {
         if(sData[szDataLen-1] != '|') {
-            memcpy(g_sBuffer, sData, szDataLen);
-            g_sBuffer[szDataLen] = '|';
-            g_sBuffer[szDataLen+1] = '\0';
-            UserSendCharDelayed(u, g_sBuffer, szDataLen+1);
+            memcpy(clsServerManager::sGlobalBuffer, sData, szDataLen);
+            clsServerManager::sGlobalBuffer[szDataLen] = '|';
+            clsServerManager::sGlobalBuffer[szDataLen+1] = '\0';
+            u->SendCharDelayed(clsServerManager::sGlobalBuffer, szDataLen+1);
         } else {
-            UserSendCharDelayed(u, sData, szDataLen);
+            u->SendCharDelayed(sData, szDataLen);
         }
     }
 
@@ -1877,10 +2053,10 @@ static int SendToOpChat(lua_State * L) {
         return 0;
     }
 
-    if(SettingManager->bBools[SETBOOL_REG_OP_CHAT] == true) {
-        int iLen = sprintf(g_sBuffer, "%s $<%s> %s|", SettingManager->sTexts[SETTXT_OP_CHAT_NICK], SettingManager->sTexts[SETTXT_OP_CHAT_NICK], sData);
-        if(CheckSprintf(iLen, g_szBufferSize, "SendToOpChat") == true) {
-			g_GlobalDataQueue->SingleItemStore(g_sBuffer, iLen, NULL, 0, GlobalDataQueue::SI_OPCHAT);
+    if(clsSettingManager::mPtr->bBools[SETBOOL_REG_OP_CHAT] == true) {
+        int iLen = sprintf(clsServerManager::sGlobalBuffer, "%s $<%s> %s|", clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK], clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK], sData);
+        if(CheckSprintf(iLen, clsServerManager::szGlobalBufferSize, "SendToOpChat") == true) {
+			clsGlobalDataQueue::mPtr->SingleItemStore(clsServerManager::sGlobalBuffer, iLen, NULL, 0, clsGlobalDataQueue::SI_OPCHAT);
         }
     }
 
@@ -1911,12 +2087,12 @@ static int SendToOps(lua_State * L) {
     }
 
     if(sData[szLen-1] != '|') {
-        memcpy(g_sBuffer, sData, szLen);
-        g_sBuffer[szLen] = '|';
-        g_sBuffer[szLen+1] = '\0';
-        g_GlobalDataQueue->AddQueueItem(g_sBuffer, szLen+1, NULL, 0, GlobalDataQueue::CMD_OPS);
+        memcpy(clsServerManager::sGlobalBuffer, sData, szLen);
+        clsServerManager::sGlobalBuffer[szLen] = '|';
+        clsServerManager::sGlobalBuffer[szLen+1] = '\0';
+        clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::sGlobalBuffer, szLen+1, NULL, 0, clsGlobalDataQueue::CMD_OPS);
     } else {
-        g_GlobalDataQueue->AddQueueItem(sData, szLen, NULL, 0, GlobalDataQueue::CMD_OPS);
+        clsGlobalDataQueue::mPtr->AddQueueItem(sData, szLen, NULL, 0, clsGlobalDataQueue::CMD_OPS);
     }
 
     lua_settop(L, 0);
@@ -1938,7 +2114,7 @@ static int SendToProfile(lua_State * L) {
         return 0;
     }
 
-    int32_t i32Profile = (int32_t)lua_tonumber(L, 1);
+    int32_t i32Profile = (int32_t)lua_tointeger(L, 1);
 
     size_t szDataLen;
     char * sData = (char *)lua_tolstring(L, 2, &szDataLen);
@@ -1949,12 +2125,12 @@ static int SendToProfile(lua_State * L) {
     }
 
     if(sData[szDataLen-1] != '|') {
-        memcpy(g_sBuffer, sData, szDataLen);
-		g_sBuffer[szDataLen] = '|';
-        g_sBuffer[szDataLen+1] = '\0';
-		g_GlobalDataQueue->SingleItemStore(g_sBuffer, szDataLen+1, NULL, i32Profile, GlobalDataQueue::SI_TOPROFILE);
+        memcpy(clsServerManager::sGlobalBuffer, sData, szDataLen);
+		clsServerManager::sGlobalBuffer[szDataLen] = '|';
+        clsServerManager::sGlobalBuffer[szDataLen+1] = '\0';
+		clsGlobalDataQueue::mPtr->SingleItemStore(clsServerManager::sGlobalBuffer, szDataLen+1, NULL, i32Profile, clsGlobalDataQueue::SI_TOPROFILE);
     } else {
-		g_GlobalDataQueue->SingleItemStore(sData, szDataLen, NULL, i32Profile, GlobalDataQueue::SI_TOPROFILE);
+		clsGlobalDataQueue::mPtr->SingleItemStore(sData, szDataLen, NULL, i32Profile, clsGlobalDataQueue::SI_TOPROFILE);
     }
 
     lua_settop(L, 0);
@@ -1992,12 +2168,12 @@ static int SendToUser(lua_State * L) {
     }
 
     if(sData[szLen-1] != '|') {
-        memcpy(g_sBuffer, sData, szLen);
-        g_sBuffer[szLen] = '|';
-        g_sBuffer[szLen+1] = '\0';
-    	UserSendCharDelayed(u, g_sBuffer, szLen+1);
+        memcpy(clsServerManager::sGlobalBuffer, sData, szLen);
+        clsServerManager::sGlobalBuffer[szLen] = '|';
+        clsServerManager::sGlobalBuffer[szLen+1] = '\0';
+    	u->SendCharDelayed(clsServerManager::sGlobalBuffer, szLen+1);
     } else {
-        UserSendCharDelayed(u, sData, szLen);
+        u->SendCharDelayed(sData, szLen);
     }
 
     lua_settop(L, 0);
@@ -2028,9 +2204,9 @@ static int SendPmToAll(lua_State * L) {
         return 0;
     }
 
-    int imsgLen = sprintf(g_sBuffer, "%s $<%s> %s|", sFrom, sFrom, sData);
-    if(CheckSprintf(imsgLen, g_szBufferSize, "SendPmToAll") == true) {
-		g_GlobalDataQueue->SingleItemStore(g_sBuffer, imsgLen, NULL, 0, GlobalDataQueue::SI_PM2ALL);
+    int imsgLen = sprintf(clsServerManager::sGlobalBuffer, "%s $<%s> %s|", sFrom, sFrom, sData);
+    if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "SendPmToAll") == true) {
+		clsGlobalDataQueue::mPtr->SingleItemStore(clsServerManager::sGlobalBuffer, imsgLen, NULL, 0, clsGlobalDataQueue::SI_PM2ALL);
     }
 
     lua_settop(L, 0);
@@ -2063,11 +2239,11 @@ static int SendPmToNick(lua_State * L) {
         return 0;
     }
 
-    User *u = hashManager->FindUser(sTo, szToLen);
+    User *u = clsHashManager::mPtr->FindUser(sTo, szToLen);
     if(u != NULL) {
-        int iMsgLen = sprintf(g_sBuffer, "$To: %s From: %s $<%s> %s|", sTo, sFrom, sFrom, sData);
-        if(CheckSprintf(iMsgLen, g_szBufferSize, "SendPmToNick") == true) {
-            UserSendCharDelayed(u, g_sBuffer, iMsgLen);
+        int iMsgLen = sprintf(clsServerManager::sGlobalBuffer, "$To: %s From: %s $<%s> %s|", sTo, sFrom, sFrom, sData);
+        if(CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "SendPmToNick") == true) {
+            u->SendCharDelayed(clsServerManager::sGlobalBuffer, iMsgLen);
         }
     }
 
@@ -2099,9 +2275,9 @@ static int SendPmToOps(lua_State * L) {
         return 0;
     }
 
-    int imsgLen = sprintf(g_sBuffer, "%s $<%s> %s|", sFrom, sFrom, sData);
-    if(CheckSprintf(imsgLen, g_szBufferSize, "SendPmToOps") == true) {
-		g_GlobalDataQueue->SingleItemStore(g_sBuffer, imsgLen, NULL, 0, GlobalDataQueue::SI_PM2OPS);
+    int imsgLen = sprintf(clsServerManager::sGlobalBuffer, "%s $<%s> %s|", sFrom, sFrom, sData);
+    if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "SendPmToOps") == true) {
+		clsGlobalDataQueue::mPtr->SingleItemStore(clsServerManager::sGlobalBuffer, imsgLen, NULL, 0, clsGlobalDataQueue::SI_PM2OPS);
     }
 
     lua_settop(L, 0);
@@ -2124,7 +2300,7 @@ static int SendPmToProfile(lua_State * L) {
         return 0;
     }
 
-    int32_t iProfile = (int32_t)lua_tonumber(L, 1);
+    int32_t iProfile = (int32_t)lua_tointeger(L, 1);
 
     size_t szFromLen, szDataLen;
     char * sFrom = (char *)lua_tolstring(L, 2, &szFromLen);
@@ -2135,9 +2311,9 @@ static int SendPmToProfile(lua_State * L) {
         return 0;
     }
 
-    int imsgLen = sprintf(g_sBuffer, "%s $<%s> %s|", sFrom, sFrom, sData);
-    if(CheckSprintf(imsgLen, g_szBufferSize, "SendPmToProfile") == true) {
-		g_GlobalDataQueue->SingleItemStore(g_sBuffer, imsgLen, NULL, iProfile, GlobalDataQueue::SI_PM2PROFILE);
+    int imsgLen = sprintf(clsServerManager::sGlobalBuffer, "%s $<%s> %s|", sFrom, sFrom, sData);
+    if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "SendPmToProfile") == true) {
+		clsGlobalDataQueue::mPtr->SingleItemStore(clsServerManager::sGlobalBuffer, imsgLen, NULL, iProfile, clsGlobalDataQueue::SI_PM2PROFILE);
     }
 
     lua_settop(L, 0);
@@ -2176,9 +2352,9 @@ static int SendPmToUser(lua_State * L) {
         return 0;
     }
 
-    int imsgLen = sprintf(g_sBuffer, "$To: %s From: %s $<%s> %s|", u->sNick, sFrom, sFrom, sData);
-    if(CheckSprintf(imsgLen, g_szBufferSize, "SendPmToUser") == true) {
-        UserSendCharDelayed(u, g_sBuffer, imsgLen);
+    int imsgLen = sprintf(clsServerManager::sGlobalBuffer, "$To: %s From: %s $<%s> %s|", u->sNick, sFrom, sFrom, sData);
+    if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "SendPmToUser") == true) {
+        u->SendCharDelayed(clsServerManager::sGlobalBuffer, imsgLen);
     }
 
     lua_settop(L, 0);
@@ -2208,9 +2384,13 @@ static int SetUserInfo(lua_State * L) {
         return 0;
     }
 
-    int32_t iDataToChange = (int32_t)lua_tonumber(L, 2);
+#if LUA_VERSION_NUM < 503
+	uint32_t ui32DataToChange = (uint32_t)lua_tonumber(L, 2);
+#else
+    uint32_t ui32DataToChange = (uint32_t)lua_tounsigned(L, 2);
+#endif
 
-    if(iDataToChange < 0 || iDataToChange > 9) {
+    if(ui32DataToChange > 9) {
 		lua_settop(L, 0);
         return 0;
     }
@@ -2221,7 +2401,7 @@ static int SetUserInfo(lua_State * L) {
         "sChangedConnectionShort", "sChangedConnectionLong", "sChangedEmailShort", "sChangedEmailLong" };
 
     if(lua_type(L, 3) == LUA_TSTRING) {
-        if(iDataToChange > 7) {
+        if(ui32DataToChange > 7) {
             lua_settop(L, 0);
             return 0;
         }
@@ -2234,9 +2414,9 @@ static int SetUserInfo(lua_State * L) {
             return 0;
         }
 
-        switch(iDataToChange) {
+        switch(ui32DataToChange) {
             case 0:
-                pUser->sChangedDescriptionShort = UserSetUserInfo(pUser->sChangedDescriptionShort, pUser->ui8ChangedDescriptionShortLen, sData, szDataLen, sMyInfoPartsNames[iDataToChange]);
+                pUser->sChangedDescriptionShort = User::SetUserInfo(pUser->sChangedDescriptionShort, pUser->ui8ChangedDescriptionShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
                 if(bPermanent == true) {
                     pUser->ui32InfoBits |= User::INFOBIT_DESCRIPTION_SHORT_PERM;
                 } else {
@@ -2244,7 +2424,7 @@ static int SetUserInfo(lua_State * L) {
                 }
                 break;
             case 1:
-                pUser->sChangedDescriptionLong = UserSetUserInfo(pUser->sChangedDescriptionLong, pUser->ui8ChangedDescriptionLongLen, sData, szDataLen, sMyInfoPartsNames[iDataToChange]);
+                pUser->sChangedDescriptionLong = User::SetUserInfo(pUser->sChangedDescriptionLong, pUser->ui8ChangedDescriptionLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
                 if(bPermanent == true) {
                     pUser->ui32InfoBits |= User::INFOBIT_DESCRIPTION_LONG_PERM;
                 } else {
@@ -2252,7 +2432,7 @@ static int SetUserInfo(lua_State * L) {
                 }
                 break;
             case 2:
-                pUser->sChangedTagShort = UserSetUserInfo(pUser->sChangedTagShort, pUser->ui8ChangedTagShortLen, sData, szDataLen, sMyInfoPartsNames[iDataToChange]);
+                pUser->sChangedTagShort = User::SetUserInfo(pUser->sChangedTagShort, pUser->ui8ChangedTagShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
                 if(bPermanent == true) {
                     pUser->ui32InfoBits |= User::INFOBIT_TAG_SHORT_PERM;
                 } else {
@@ -2260,7 +2440,7 @@ static int SetUserInfo(lua_State * L) {
                 }
                 break;
             case 3:
-                pUser->sChangedTagLong = UserSetUserInfo(pUser->sChangedTagLong, pUser->ui8ChangedTagLongLen, sData, szDataLen, sMyInfoPartsNames[iDataToChange]);
+                pUser->sChangedTagLong = User::SetUserInfo(pUser->sChangedTagLong, pUser->ui8ChangedTagLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
                 if(bPermanent == true) {
                     pUser->ui32InfoBits |= User::INFOBIT_TAG_LONG_PERM;
                 } else {
@@ -2268,7 +2448,7 @@ static int SetUserInfo(lua_State * L) {
                 }
                 break;
             case 4:
-                pUser->sChangedConnectionShort = UserSetUserInfo(pUser->sChangedConnectionShort, pUser->ui8ChangedConnectionShortLen, sData, szDataLen, sMyInfoPartsNames[iDataToChange]);
+                pUser->sChangedConnectionShort = User::SetUserInfo(pUser->sChangedConnectionShort, pUser->ui8ChangedConnectionShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
                 if(bPermanent == true) {
                     pUser->ui32InfoBits |= User::INFOBIT_CONNECTION_SHORT_PERM;
                 } else {
@@ -2276,7 +2456,7 @@ static int SetUserInfo(lua_State * L) {
                 }
                 break;
             case 5:
-                pUser->sChangedConnectionLong = UserSetUserInfo(pUser->sChangedConnectionLong, pUser->ui8ChangedConnectionLongLen, sData, szDataLen, sMyInfoPartsNames[iDataToChange]);
+                pUser->sChangedConnectionLong = User::SetUserInfo(pUser->sChangedConnectionLong, pUser->ui8ChangedConnectionLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
                 if(bPermanent == true) {
                     pUser->ui32InfoBits |= User::INFOBIT_CONNECTION_LONG_PERM;
                 } else {
@@ -2284,7 +2464,7 @@ static int SetUserInfo(lua_State * L) {
                 }
                 break;
             case 6:
-                pUser->sChangedEmailShort = UserSetUserInfo(pUser->sChangedEmailShort, pUser->ui8ChangedEmailShortLen, sData, szDataLen, sMyInfoPartsNames[iDataToChange]);
+                pUser->sChangedEmailShort = User::SetUserInfo(pUser->sChangedEmailShort, pUser->ui8ChangedEmailShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
                 if(bPermanent == true) {
                     pUser->ui32InfoBits |= User::INFOBIT_EMAIL_SHORT_PERM;
                 } else {
@@ -2292,7 +2472,7 @@ static int SetUserInfo(lua_State * L) {
                 }
                 break;
             case 7:
-                pUser->sChangedEmailLong = UserSetUserInfo(pUser->sChangedEmailLong, pUser->ui8ChangedEmailLongLen, sData, szDataLen, sMyInfoPartsNames[iDataToChange]);
+                pUser->sChangedEmailLong = User::SetUserInfo(pUser->sChangedEmailLong, pUser->ui8ChangedEmailLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
                 if(bPermanent == true) {
                     pUser->ui32InfoBits |= User::INFOBIT_EMAIL_LONG_PERM;
                 } else {
@@ -2303,10 +2483,10 @@ static int SetUserInfo(lua_State * L) {
                 break;
         }
     } else if(lua_type(L, 3) == LUA_TNIL) {
-        switch(iDataToChange) {
+        switch(ui32DataToChange) {
             case 0:
                 if(pUser->sChangedDescriptionShort != NULL) {
-                    UserFreeInfo(pUser->sChangedDescriptionShort, sMyInfoPartsNames[iDataToChange]);
+                    User::FreeInfo(pUser->sChangedDescriptionShort, sMyInfoPartsNames[ui32DataToChange]);
                     pUser->sChangedDescriptionShort = NULL;
                     pUser->ui8ChangedDescriptionShortLen = 0;
                 }
@@ -2314,7 +2494,7 @@ static int SetUserInfo(lua_State * L) {
                 break;
             case 1:
                 if(pUser->sChangedDescriptionLong != NULL) {
-                    UserFreeInfo(pUser->sChangedDescriptionLong, sMyInfoPartsNames[iDataToChange]);
+                    User::FreeInfo(pUser->sChangedDescriptionLong, sMyInfoPartsNames[ui32DataToChange]);
                     pUser->sChangedDescriptionLong = NULL;
                     pUser->ui8ChangedDescriptionLongLen = 0;
                 }
@@ -2322,7 +2502,7 @@ static int SetUserInfo(lua_State * L) {
                 break;
             case 2:
                 if(pUser->sChangedTagShort != NULL) {
-                    UserFreeInfo(pUser->sChangedTagShort, sMyInfoPartsNames[iDataToChange]);
+                    User::FreeInfo(pUser->sChangedTagShort, sMyInfoPartsNames[ui32DataToChange]);
                     pUser->sChangedTagShort = NULL;
                     pUser->ui8ChangedTagShortLen = 0;
                 }
@@ -2330,7 +2510,7 @@ static int SetUserInfo(lua_State * L) {
                 break;
             case 3:
                 if(pUser->sChangedTagLong != NULL) {
-                    UserFreeInfo(pUser->sChangedTagLong, sMyInfoPartsNames[iDataToChange]);
+                    User::FreeInfo(pUser->sChangedTagLong, sMyInfoPartsNames[ui32DataToChange]);
                     pUser->sChangedTagLong = NULL;
                     pUser->ui8ChangedTagLongLen = 0;
                 }
@@ -2338,7 +2518,7 @@ static int SetUserInfo(lua_State * L) {
                 break;
             case 4:
                 if(pUser->sChangedConnectionShort != NULL) {
-                    UserFreeInfo(pUser->sChangedConnectionShort, sMyInfoPartsNames[iDataToChange]);
+                    User::FreeInfo(pUser->sChangedConnectionShort, sMyInfoPartsNames[ui32DataToChange]);
                     pUser->sChangedConnectionShort = NULL;
                     pUser->ui8ChangedConnectionShortLen = 0;
                 }
@@ -2346,7 +2526,7 @@ static int SetUserInfo(lua_State * L) {
                 break;
             case 5:
                 if(pUser->sChangedConnectionLong != NULL) {
-                    UserFreeInfo(pUser->sChangedConnectionLong, sMyInfoPartsNames[iDataToChange]);
+                    User::FreeInfo(pUser->sChangedConnectionLong, sMyInfoPartsNames[ui32DataToChange]);
                     pUser->sChangedConnectionLong = NULL;
                     pUser->ui8ChangedConnectionLongLen = 0;
                 }
@@ -2354,7 +2534,7 @@ static int SetUserInfo(lua_State * L) {
                 break;
             case 6:
                 if(pUser->sChangedEmailShort != NULL) {
-                    UserFreeInfo(pUser->sChangedEmailShort, sMyInfoPartsNames[iDataToChange]);
+                    User::FreeInfo(pUser->sChangedEmailShort, sMyInfoPartsNames[ui32DataToChange]);
                     pUser->sChangedEmailShort = NULL;
                     pUser->ui8ChangedEmailShortLen = 0;
                 }
@@ -2362,7 +2542,7 @@ static int SetUserInfo(lua_State * L) {
                 break;
             case 7:
                 if(pUser->sChangedEmailLong != NULL) {
-                    UserFreeInfo(pUser->sChangedEmailLong, sMyInfoPartsNames[iDataToChange]);
+                    User::FreeInfo(pUser->sChangedEmailLong, sMyInfoPartsNames[ui32DataToChange]);
                     pUser->sChangedEmailLong = NULL;
                     pUser->ui8ChangedEmailLongLen = 0;
                 }
@@ -2380,20 +2560,28 @@ static int SetUserInfo(lua_State * L) {
                 break;
         }
     } else if(lua_type(L, 3) == LUA_TNUMBER) {
-        if(iDataToChange < 8) {
+        if(ui32DataToChange < 8) {
             lua_settop(L, 0);
             return 0;
         }
 
-        if(iDataToChange == 8) {
-            pUser->ui64ChangedSharedSizeShort = (uint64_t)lua_tonumber(L, 3);
+        if(ui32DataToChange == 8) {
+#if LUA_VERSION_NUM < 503
+			pUser->ui64ChangedSharedSizeShort = (uint64_t)lua_tonumber(L, 3);
+#else
+            pUser->ui64ChangedSharedSizeShort = lua_tounsigned(L, 3);
+#endif
             if(bPermanent == true) {
                 pUser->ui32InfoBits |= User::INFOBIT_SHARE_SHORT_PERM;
             } else {
                 pUser->ui32InfoBits &= ~User::INFOBIT_SHARE_SHORT_PERM;
             }
-        } else if(iDataToChange == 9) {
-            pUser->ui64ChangedSharedSizeLong = (uint64_t)lua_tonumber(L, 3);
+        } else if(ui32DataToChange == 9) {
+#if LUA_VERSION_NUM < 503
+			pUser->ui64ChangedSharedSizeLong = (uint64_t)lua_tonumber(L, 3);
+#else
+            pUser->ui64ChangedSharedSizeLong = lua_tounsigned(L, 3);
+#endif
             if(bPermanent == true) {
                 pUser->ui32InfoBits |= User::INFOBIT_SHARE_LONG_PERM;
             } else {
@@ -2457,12 +2645,12 @@ static const luaL_Reg core[] = {
 };
 //---------------------------------------------------------------------------
 
-#if LUA_VERSION_NUM == 501
-void RegCore(lua_State * L) {
-    luaL_register(L, "Core", core);
-#else
+#if LUA_VERSION_NUM > 501
 int RegCore(lua_State * L) {
     luaL_newlib(L, core);
+#else
+void RegCore(lua_State * L) {
+    luaL_register(L, "Core", core);
 #endif
 
     lua_pushliteral(L, "Version");
@@ -2470,13 +2658,21 @@ int RegCore(lua_State * L) {
 	lua_settable(L, -3);
 	lua_pushliteral(L, "BuildNumber");
 #ifdef _WIN32
+#if LUA_VERSION_NUM < 503
 	lua_pushnumber(L, (double)_strtoui64(BUILD_NUMBER, NULL, 10));
 #else
-    lua_pushnumber(L, (double)strtoull(BUILD_NUMBER, NULL, 10));
+	lua_pushunsigned(L, _strtoui64(BUILD_NUMBER, NULL, 10));
+#endif
+#else
+#if LUA_VERSION_NUM < 503
+	lua_pushnumber(L, (double)strtoull(BUILD_NUMBER, NULL, 10));
+#else
+    lua_pushunsigned(L, strtoull(BUILD_NUMBER, NULL, 10));
+#endif
 #endif
 	lua_settable(L, -3);
 
-#if LUA_VERSION_NUM != 501
+#if LUA_VERSION_NUM > 501
     return 1;
 #endif
 }

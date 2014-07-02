@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -24,23 +24,23 @@
 #include "LanguageIds.h"
 //---------------------------------------------------------------------------
 
-class LangMan {
+class clsLanguageManager {
 private:
     // ...
 public:
+    static clsLanguageManager * mPtr;
+
     char * sTexts[LANG_IDS_END]; //LanguageManager->sTexts[]
     uint16_t ui16TextsLens[LANG_IDS_END]; //LanguageManager->ui16TextsLens[]
 
-    LangMan(void);
-    ~LangMan(void);
+    clsLanguageManager(void);
+    ~clsLanguageManager(void);
     
 	char * GetLangStr(size_t TextId); //LanguageManager->GetLangStr
-	void LoadLanguage();
+	void Load();
 	
 	static void GenerateXmlExample();
 };
-//--------------------------------------------------------------------------- 
-extern LangMan *LanguageManager;
 //---------------------------------------------------------------------------
 
 #endif

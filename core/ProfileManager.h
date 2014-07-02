@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -33,11 +33,13 @@ struct ProfileItem {
 };
 //---------------------------------------------------------------------------
 
-class ProfileManager {
-private:	// User declarations  
+class clsProfileManager {
+private: 
     static void CreateDefaultProfiles();
     ProfileItem * CreateProfile(const char * name);
-public:		// User declarations
+public:
+    static clsProfileManager * mPtr;
+
     enum ProfilePermissions {
         HASKEYICON,
         NODEFLOODGETNICKLIST,
@@ -100,8 +102,8 @@ public:		// User declarations
     uint16_t iProfileCount;
     ProfileItem **ProfilesTable;
 
-    ProfileManager();
-    ~ProfileManager();
+    clsProfileManager();
+    ~clsProfileManager();
 
     bool IsAllowed(User * u, const uint32_t &iOption) const;
     bool IsProfileAllowed(const int32_t &iProfile, const uint32_t &iOption) const;
@@ -115,9 +117,6 @@ public:		// User declarations
     void SaveProfiles();
     bool RemoveProfile(const uint16_t &iProfile);
 };
-
-//---------------------------------------------------------------------------
-extern ProfileManager *ProfileMan;
 //---------------------------------------------------------------------------
 
 #endif

@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -241,8 +241,8 @@ const char* LangStr[] = {
     "Error",
     "Nick must be specified!",
     "Password must be specified!", 
-    "No $<>:?*\"/\\ pipe and <space> in nickname!", 
-    "No pipe in Password!", 
+    "No $, pipe and space characters in nickname!",
+    "No pipe in Password!",
     "User is already registered!", 
     "No syntax errors in script file",
     "No syntax errors in the script.", 
@@ -791,7 +791,7 @@ const char* LangStr[] = {
     "register user with specified profile. User is asked by hub for password, and after he enter password then is added to regs",
     "in command, hub replaced it with your real IP",
     "Your nick contains illegal whitespace character",
-    "This box is empty because password si hashed",
+    "This box is empty because password is hashed",
     "Save passwords for registered users as hashes",
 };
 //---------------------------------------------------------------------------

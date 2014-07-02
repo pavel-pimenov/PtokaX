@@ -34,3 +34,5 @@
 /compiled/cfg
 
 /compiled/logs
+
+/obj/*.unsuccessfulbuild

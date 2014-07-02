@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -27,6 +27,8 @@ private:
     size_t szZbufferSize;
     char *sZbuffer;
 public:
+    static clsZlibUtility * mPtr;
+
 	clsZlibUtility();
 	~clsZlibUtility();
 	
@@ -35,7 +37,5 @@ public:
     char * CreateZPipe(char *sInData, const unsigned int &sInDataSize, char *sOutData, unsigned int &iOutDataLen, unsigned int &iOutDataSize, size_t (* pAllignFunc)(size_t n));
 };
 //---------------------------------------------------------------------------
-extern clsZlibUtility *ZlibUtility;
-//--------------------------------------------------------------------------- 
 
 #endif

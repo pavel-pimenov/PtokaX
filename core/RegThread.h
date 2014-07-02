@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -22,7 +22,7 @@
 #define RegThreadH
 //---------------------------------------------------------------------------
 
-class RegThread {
+class clsRegisterThread {
 private:
     struct RegSocket {
         RegSocket();
@@ -65,10 +65,12 @@ private:
     bool Send(RegSocket * Sock);
     void RemoveSock(RegSocket * Sock);
 public:
+    static clsRegisterThread * mPtr;
+
     uint32_t iBytesRead, iBytesSent;
 
-	RegThread();
-	~RegThread();
+	clsRegisterThread();
+	~clsRegisterThread();
 
 	void Setup(char * sAddresses, const uint16_t &ui16AddrsLen);
 	void Resume();
@@ -76,9 +78,6 @@ public:
 	void Close();
 	void WaitFor();
 };
-
-//---------------------------------------------------------------------------
-extern RegThread *RegisterThread;
 //---------------------------------------------------------------------------
 
 #endif

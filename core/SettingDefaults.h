@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -84,7 +84,7 @@ bool SetBoolDef[] = {
 };
 
 int16_t SetShortDef[] = {
-    250, //MAX_USERS
+    500, //MAX_USERS
     0, //MIN_SHARE_LIMIT
     0, //MIN_SHARE_UNITS
     0, //MAX_SHARE_LIMIT
@@ -207,7 +207,7 @@ const char* SetTxtDef[] = {
     "<Enter hub address here>", //HUB_ADDRESS
     "1209;411", //TCP_PORTS
     "0", //UDP_PORT
-    "<Enter hub description here>", //HUB_DESCRIPTION
+    "", //HUB_DESCRIPTION
     "PtokaX-Alpha.CzDC.org:6891", //REDIRECT_ADDRESS
     "reg.hublist.org;serv.hubs-list.com;hublist.cz;hublist.dreamland-net.eu;allhublista.myip.hu;hubinfo.myip.hu;publichublist-nl.no-ip.org;reg.hublist.dk", //REGISTER_SERVERS
     "Sorry, this hub is only for registered users.", //REG_ONLY_MSG

@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -18,8 +18,8 @@
  */
 
 //---------------------------------------------------------------------------
-#ifndef hashRegManH
-#define hashRegManH
+#ifndef hashRegManagerH
+#define hashRegManagerH
 //---------------------------------------------------------------------------
 struct User;
 //---------------------------------------------------------------------------
@@ -46,23 +46,27 @@ struct RegUser {
     bool bPassHash;
 
     RegUser();
-    ~RegUser(void);
+    ~RegUser();
 
     static RegUser * CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPassword, size_t szRegPassLen, uint8_t * ui8RegPassHash, const uint16_t &ui16RegProfile);
     bool UpdatePassword(char * sNewPass, size_t &szNewLen);
 }; 
 //---------------------------------------------------------------------------
 
-class hashRegMan {
+class clsRegManager {
 private:
     RegUser *table[65536];
 
+    uint8_t ui8SaveCalls;
+
     void LoadXML();
 public:
+    static clsRegManager * mPtr;
+
     RegUser *RegListS, *RegListE;
 
-    hashRegMan(void);
-    ~hashRegMan(void);
+    clsRegManager(void);
+    ~clsRegManager(void);
 
     bool AddNew(char * sNick, char * sPasswd, const uint16_t &iProfile);
 
@@ -78,13 +82,10 @@ public:
     RegUser* Find(uint32_t hash, char * sNick);
 
     void Load(void);
-    void Save(void) const;
+    void Save(const bool &bSaveOnChange = false, const bool &bSaveOnTime = false);
 
     void HashPasswords();
 };
-
-//--------------------------------------------------------------------------- 
-extern hashRegMan *hashRegManager;
 //---------------------------------------------------------------------------
 
 #endif

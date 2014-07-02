@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -24,7 +24,7 @@
 struct User;
 //---------------------------------------------------------------------------
 
-class theLoop {
+class clsServiceLoop {
 private:
     struct AcceptedSocket {
 #ifdef _WIN32
@@ -63,8 +63,14 @@ private:
     void AcceptUser(AcceptedSocket * AccptSocket);
 protected:
 public:
-	theLoop();
-	~theLoop();
+    static clsServiceLoop * mPtr;
+
+	clsServiceLoop();
+	~clsServiceLoop();
+
+#ifdef _WIN32
+    static UINT_PTR srvLoopTimer;
+#endif
 
     double dLoggedUsers, dActualSrvLoopLogins;
 
@@ -80,11 +86,6 @@ public:
 	void SendLoop();
 	void Looper();
 };
-//---------------------------------------------------------------------------
-extern theLoop *srvLoop;
-#ifdef _WIN32
-    extern UINT_PTR srvLoopTimer;
-#endif
 //---------------------------------------------------------------------------
 
 #endif

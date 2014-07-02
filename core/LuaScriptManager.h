@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -27,13 +27,15 @@ struct ScriptTimer;
 struct User;
 //------------------------------------------------------------------------------
 
-class ScriptMan {
+class clsScriptManager {
 private:
 	Script *RunningScriptE;
 
 	void AddRunningScript(Script * curScript);
 	void RemoveRunningScript(Script * curScript);
 public:
+    static clsScriptManager * mPtr;
+
     enum LuaArrivals {
         CHAT_ARRIVAL,
         KEY_ARRIVAL,
@@ -67,8 +69,8 @@ public:
 
     bool bMoved;
     
-    ScriptMan();
-    ~ScriptMan();
+    clsScriptManager();
+    ~clsScriptManager();
     
     void Start();
     void Stop();
@@ -101,9 +103,6 @@ public:
 
     void PrepareMove(lua_State * L);
 };
-
-//------------------------------------------------------------------------------
-extern ScriptMan *ScriptManager;
 //------------------------------------------------------------------------------
 
 #endif

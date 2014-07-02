@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -114,15 +114,6 @@ bool CheckAndResizeGlobalBuffer(const size_t &szWantedSize);
 void ReduceGlobalBuffer();
 
 bool HashPassword(char * sPassword, size_t &szPassLen, uint8_t * ui8PassHash);
-//---------------------------------------------------------------------------
-extern string PATH, SCRIPT_PATH, sTitle;
-extern size_t g_szBufferSize;
-extern char * g_sBuffer;
-extern bool bCmdAutoStart, bCmdNoAutoStart, bCmdNoTray, bUseIPv4, bUseIPv6, bIPv6DualStack;
-#ifdef _WIN32
-	extern HANDLE hConsole, hLuaHeap, hPtokaXHeap, hRecvHeap, hSendHeap;
-	extern string PATH_LUA, sOs;
-#endif
 //---------------------------------------------------------------------------
 
 #endif

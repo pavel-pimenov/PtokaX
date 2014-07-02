@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -24,7 +24,7 @@
 struct User;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class GlobalDataQueue {
+class clsGlobalDataQueue {
 private:
     struct QueueItem {
         size_t szLen1, szLen2;
@@ -62,7 +62,7 @@ private:
 
     GlobalQueue * pCreatedGlobalQueues;
 
-    QueueItem * pNewQueueItems[2];
+    QueueItem * pNewQueueItems[2], * pQueueItems;
     SingleDataItem * pNewSingleItems[2];
 
 	struct OpsQueue OpListQueue;
@@ -74,6 +74,8 @@ private:
 
     static void AddDataToQueue(GlobalQueue &pQueue, char * sData, const size_t &szLen);
 public:
+    static clsGlobalDataQueue * mPtr;
+
     enum {
         CMD_HUBNAME,
         CMD_CHAT,
@@ -115,11 +117,12 @@ public:
         SI_PM2PROFILE,
     };
 
-    QueueItem * pQueueItems;
     SingleDataItem * pSingleItems;
 
-    GlobalDataQueue();
-    ~GlobalDataQueue();
+    bool bHaveItems;
+
+    clsGlobalDataQueue();
+    ~clsGlobalDataQueue();
 
     void AddQueueItem(char * sCommand1, const size_t &szLen1, char * sCommand2, const size_t &szLen2, const uint8_t &ui8CmdType);
     void OpListStore(char * sNick);
@@ -135,9 +138,6 @@ public:
     void * InsertBlankQueueItem(void * pAfterItem, const uint8_t &ui8CmdType);
     void FillBlankQueueItem(char * sCommand, const size_t &szLen, void * pQueueItem);
 };
-
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-extern GlobalDataQueue * g_GlobalDataQueue;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #endif

@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -39,10 +39,10 @@
     #include "../gui.win/MainWindowPageScripts.h"
 #endif
 //------------------------------------------------------------------------------
-ScriptMan *ScriptManager = NULL;
+clsScriptManager * clsScriptManager::mPtr = NULL;
 //------------------------------------------------------------------------------
 
-ScriptMan::ScriptMan() {
+clsScriptManager::clsScriptManager() {
     RunningScriptS = NULL;
     RunningScriptE = NULL;
 
@@ -56,16 +56,28 @@ ScriptMan::ScriptMan() {
     bMoved = false;
 
 #ifdef _WIN32
-    hLuaHeap = ::HeapCreate(HEAP_NO_SERIALIZE, 0x80000, 0);
+    clsServerManager::hLuaHeap = ::HeapCreate(HEAP_NO_SERIALIZE, 0x80000, 0);
 #endif
 
 	// PPK ... first start all script in order from xml file
 #ifdef _WIN32
-	TiXmlDocument doc((PATH+"\\cfg\\Scripts.xml").c_str());
+	TiXmlDocument doc((clsServerManager::sPath+"\\cfg\\Scripts.xml").c_str());
 #else
-	TiXmlDocument doc((PATH+"/cfg/Scripts.xml").c_str());
+	TiXmlDocument doc((clsServerManager::sPath+"/cfg/Scripts.xml").c_str());
 #endif
-	if(doc.LoadFile()) {
+	if(doc.LoadFile() == false) {
+        if(doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY) {
+            char msg[2048];
+            int imsgLen = sprintf(msg, "Error loading file Scripts.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
+			CheckSprintf(imsgLen, 2048, "clsScriptManager::clsScriptManager");
+#ifdef _BUILD_GUI
+			::MessageBox(NULL, msg, clsServerManager::sTitle.c_str(), MB_OK | MB_ICONERROR);
+#else
+			AppendLog(msg);
+#endif
+            exit(EXIT_FAILURE);
+        }
+    } else {
 		TiXmlHandle cfg(&doc);
 		TiXmlNode *scripts = cfg.FirstChild("Scripts").Node();
 		if(scripts != NULL) {
@@ -79,7 +91,7 @@ ScriptMan::ScriptMan() {
     
 				char *name = (char *)script->Value();
 
-				if(FileExist((SCRIPT_PATH+string(name)).c_str()) == false) {
+				if(FileExist((clsServerManager::sScriptPath+string(name)).c_str()) == false) {
 					continue;
 				}
 
@@ -101,7 +113,7 @@ ScriptMan::ScriptMan() {
 }
 //------------------------------------------------------------------------------
 
-ScriptMan::~ScriptMan() {
+clsScriptManager::~clsScriptManager() {
     RunningScriptS = NULL;
     RunningScriptE = NULL;
 
@@ -110,8 +122,8 @@ ScriptMan::~ScriptMan() {
     }
 
 #ifdef _WIN32
-	if(HeapFree(hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ScriptTable) == 0) {
-		AppendDebugLog("%s - [MEM] Cannot deallocate ScriptTable in ScriptMan::~ScriptMan\n", 0);
+	if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ScriptTable) == 0) {
+		AppendDebugLog("%s - [MEM] Cannot deallocate ScriptTable in clsScriptManager::~clsScriptManager\n", 0);
 	}
 #else
 	free(ScriptTable);
@@ -126,12 +138,12 @@ ScriptMan::~ScriptMan() {
     ui8BotsCount = 0;
 
 #ifdef _WIN32
-    ::HeapDestroy(hLuaHeap);
+    ::HeapDestroy(clsServerManager::hLuaHeap);
 #endif
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::Start() {
+void clsScriptManager::Start() {
     ui8BotsCount = 0;
     ActualUser = NULL;
 
@@ -152,15 +164,15 @@ void ScriptMan::Start() {
 	}
 
 #ifdef _BUILD_GUI
-    pMainWindowPageScripts->AddScriptsToList(true);
+    clsMainWindowPageScripts::mPtr->AddScriptsToList(true);
 #endif
 }
 //------------------------------------------------------------------------------
 
 #ifdef _BUILD_GUI
-bool ScriptMan::AddScript(char * sName, const bool &bEnabled, const bool &bNew) {
+bool clsScriptManager::AddScript(char * sName, const bool &bEnabled, const bool &bNew) {
 #else
-bool ScriptMan::AddScript(char * sName, const bool &bEnabled, const bool &/*bNew*/) {
+bool clsScriptManager::AddScript(char * sName, const bool &bEnabled, const bool &/*bNew*/) {
 #endif
 	if(ui8ScriptCount == 254) {
         return false;
@@ -169,9 +181,9 @@ bool ScriptMan::AddScript(char * sName, const bool &bEnabled, const bool &/*bNew
     Script ** oldbuf = ScriptTable;
 #ifdef _WIN32
     if(ScriptTable == NULL) {
-        ScriptTable = (Script **)HeapAlloc(hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, (ui8ScriptCount+1)*sizeof(Script *));
+        ScriptTable = (Script **)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, (ui8ScriptCount+1)*sizeof(Script *));
     } else {
-		ScriptTable = (Script **)HeapReAlloc(hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, (ui8ScriptCount+1)*sizeof(Script *));
+		ScriptTable = (Script **)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, (ui8ScriptCount+1)*sizeof(Script *));
     }
 #else
 	ScriptTable = (Script **)realloc(oldbuf, (ui8ScriptCount+1)*sizeof(Script *));
@@ -179,19 +191,14 @@ bool ScriptMan::AddScript(char * sName, const bool &bEnabled, const bool &/*bNew
 	if(ScriptTable == NULL) {
         ScriptTable = oldbuf;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate ScriptTable in ScriptMan::AddScript\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot (re)allocate ScriptTable in clsScriptManager::AddScript\n", 0);
         return false;
     }
 
-    ScriptTable[ui8ScriptCount] = new Script(sName, bEnabled);
+    ScriptTable[ui8ScriptCount] = Script::CreateScript(sName, bEnabled);
 
-    if(ScriptTable[ui8ScriptCount] == NULL || ScriptTable[ui8ScriptCount]->sName == NULL) {
-        if(ScriptTable[ui8ScriptCount] == NULL) {
-            AppendDebugLog("%s - [MEM] Cannot allocate new Script in ScriptMan::AddScript\n", 0);
-        } else if(ScriptTable[ui8ScriptCount]->sName == NULL) {
-            delete ScriptTable[ui8ScriptCount];
-            AppendDebugLog("%s - [MEM] Cannot allocate Script->sName in ScriptMan::AddScript\n", 0);
-        }
+    if(ScriptTable[ui8ScriptCount] == NULL) {
+        AppendDebugLog("%s - [MEM] Cannot allocate new Script in clsScriptManager::AddScript\n", 0);
 
         return false;
     }
@@ -200,7 +207,7 @@ bool ScriptMan::AddScript(char * sName, const bool &bEnabled, const bool &/*bNew
 
 #ifdef _BUILD_GUI
     if(bNew == true) {
-        pMainWindowPageScripts->ScriptToList(ui8ScriptCount-1, true, false);
+        clsMainWindowPageScripts::mPtr->ScriptToList(ui8ScriptCount-1, true, false);
     }
 #endif
 
@@ -208,7 +215,7 @@ bool ScriptMan::AddScript(char * sName, const bool &bEnabled, const bool &/*bNew
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::Stop() {
+void clsScriptManager::Stop() {
 	Script *next = RunningScriptS;
 
     RunningScriptS = NULL;
@@ -224,12 +231,12 @@ void ScriptMan::Stop() {
 	ActualUser = NULL;
 
 #ifdef _BUILD_GUI
-    pMainWindowPageScripts->ClearMemUsageAll();
+    clsMainWindowPageScripts::mPtr->ClearMemUsageAll();
 #endif
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::AddRunningScript(Script * curScript) {
+void clsScriptManager::AddRunningScript(Script * curScript) {
 	if(RunningScriptS == NULL) {
 		RunningScriptS = curScript;
 		RunningScriptE = curScript;
@@ -242,7 +249,7 @@ void ScriptMan::AddRunningScript(Script * curScript) {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::RemoveRunningScript(Script * curScript) {
+void clsScriptManager::RemoveRunningScript(Script * curScript) {
 	// single entry
 	if(curScript->prev == NULL && curScript->next == NULL) {
     	RunningScriptS = NULL;
@@ -270,17 +277,17 @@ void ScriptMan::RemoveRunningScript(Script * curScript) {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::SaveScripts() {
+void clsScriptManager::SaveScripts() {
 #ifdef _WIN32
-    TiXmlDocument doc((PATH+"\\cfg\\Scripts.xml").c_str());
+    TiXmlDocument doc((clsServerManager::sPath+"\\cfg\\Scripts.xml").c_str());
 #else
-	TiXmlDocument doc((PATH+"/cfg/Scripts.xml").c_str());
+	TiXmlDocument doc((clsServerManager::sPath+"/cfg/Scripts.xml").c_str());
 #endif
     doc.InsertEndChild(TiXmlDeclaration("1.0", "windows-1252", "yes"));
     TiXmlElement scripts("Scripts");
 
 	for(uint8_t ui8i = 0; ui8i < ui8ScriptCount; ui8i++) {
-		if(FileExist((SCRIPT_PATH+string(ScriptTable[ui8i]->sName)).c_str()) == false) {
+		if(FileExist((clsServerManager::sScriptPath+string(ScriptTable[ui8i]->sName)).c_str()) == false) {
 			continue;
         }
 
@@ -305,11 +312,11 @@ void ScriptMan::SaveScripts() {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::CheckForDeletedScripts() {
+void clsScriptManager::CheckForDeletedScripts() {
     uint8_t ui8i = 0;
 
 	while(ui8i < ui8ScriptCount) {
-		if(FileExist((SCRIPT_PATH+string(ScriptTable[ui8i]->sName)).c_str()) == true || ScriptTable[ui8i]->LUA != NULL) {
+		if(FileExist((clsServerManager::sScriptPath+string(ScriptTable[ui8i]->sName)).c_str()) == true || ScriptTable[ui8i]->LUA != NULL) {
 			ui8i++;
 			continue;
         }
@@ -326,10 +333,10 @@ void ScriptMan::CheckForDeletedScripts() {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::CheckForNewScripts() {
+void clsScriptManager::CheckForNewScripts() {
 #ifdef _WIN32
     struct _finddata_t luafile;
-    intptr_t hFile = _findfirst((SCRIPT_PATH+"\\*.lua").c_str(), &luafile);
+    intptr_t hFile = _findfirst((clsServerManager::sScriptPath+"\\*.lua").c_str(), &luafile);
 
     if(hFile != -1) {
         do {
@@ -348,7 +355,7 @@ void ScriptMan::CheckForNewScripts() {
 		_findclose(hFile);
 	}
 #else
-    DIR * p_scriptdir = opendir(SCRIPT_PATH.c_str());
+    DIR * p_scriptdir = opendir(clsServerManager::sScriptPath.c_str());
 
     if(p_scriptdir == NULL) {
         return;
@@ -358,7 +365,7 @@ void ScriptMan::CheckForNewScripts() {
     struct stat s_buf;
 
     while((p_dirent = readdir(p_scriptdir)) != NULL) {
-        if(stat((SCRIPT_PATH + p_dirent->d_name).c_str(), &s_buf) != 0 || 
+        if(stat((clsServerManager::sScriptPath + p_dirent->d_name).c_str(), &s_buf) != 0 ||
             (s_buf.st_mode & S_IFDIR) != 0 || 
             strcasecmp(p_dirent->d_name + (strlen(p_dirent->d_name)-4), ".lua") != 0) {
             continue;
@@ -376,7 +383,7 @@ void ScriptMan::CheckForNewScripts() {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::Restart() {
+void clsScriptManager::Restart() {
 	OnExit();
 	Stop();
 
@@ -386,12 +393,12 @@ void ScriptMan::Restart() {
 	OnStartup();
 
 #ifdef _BUILD_GUI
-    pMainWindowPageScripts->AddScriptsToList(true);
+    clsMainWindowPageScripts::mPtr->AddScriptsToList(true);
 #endif
 }
 //------------------------------------------------------------------------------
 
-Script * ScriptMan::FindScript(char * sName) {
+Script * clsScriptManager::FindScript(char * sName) {
     for(uint8_t ui8i = 0; ui8i < ui8ScriptCount; ui8i++) {
 		if(strcasecmp(ScriptTable[ui8i]->sName, sName) == 0) {
             return ScriptTable[ui8i];
@@ -402,7 +409,7 @@ Script * ScriptMan::FindScript(char * sName) {
 }
 //------------------------------------------------------------------------------
 
-Script * ScriptMan::FindScript(lua_State * L) {
+Script * clsScriptManager::FindScript(lua_State * L) {
     Script *next = RunningScriptS;
 
     while(next != NULL) {
@@ -418,7 +425,7 @@ Script * ScriptMan::FindScript(lua_State * L) {
 }
 //------------------------------------------------------------------------------
 
-uint8_t ScriptMan::FindScriptIdx(char * sName) {
+uint8_t clsScriptManager::FindScriptIdx(char * sName) {
     for(uint8_t ui8i = 0; ui8i < ui8ScriptCount; ui8i++) {
 		if(strcasecmp(ScriptTable[ui8i]->sName, sName) == 0) {
             return ui8i;
@@ -429,7 +436,7 @@ uint8_t ScriptMan::FindScriptIdx(char * sName) {
 }
 //------------------------------------------------------------------------------
 
-bool ScriptMan::StartScript(Script * curScript, const bool &bEnable) {
+bool clsScriptManager::StartScript(Script * curScript, const bool &bEnable) {
     uint8_t ui8dx = 255;
     for(uint8_t ui8i = 0; ui8i < ui8ScriptCount; ui8i++) {
         if(curScript == ScriptTable[ui8i]) {
@@ -445,14 +452,14 @@ bool ScriptMan::StartScript(Script * curScript, const bool &bEnable) {
     if(bEnable == true) {
         curScript->bEnabled = true;
 #ifdef _BUILD_GUI
-        pMainWindowPageScripts->UpdateCheck(ui8dx);
+        clsMainWindowPageScripts::mPtr->UpdateCheck(ui8dx);
 #endif
     }
 
     if(ScriptStart(curScript) == false) {
         curScript->bEnabled = false;
 #ifdef _BUILD_GUI
-        pMainWindowPageScripts->UpdateCheck(ui8dx);
+        clsMainWindowPageScripts::mPtr->UpdateCheck(ui8dx);
 #endif
         return false;
     }
@@ -501,7 +508,7 @@ bool ScriptMan::StartScript(Script * curScript, const bool &bEnable) {
 	}
 
 
-	if(bServerRunning == true) {
+	if(clsServerManager::bServerRunning == true) {
         ScriptOnStartup(curScript);
     }
 
@@ -509,14 +516,14 @@ bool ScriptMan::StartScript(Script * curScript, const bool &bEnable) {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::StopScript(Script * curScript, const bool &bDisable) {
+void clsScriptManager::StopScript(Script * curScript, const bool &bDisable) {
     if(bDisable == true) {
 		curScript->bEnabled = false;
 
 #ifdef _BUILD_GUI
 	    for(uint8_t ui8i = 0; ui8i < ui8ScriptCount; ui8i++) {
             if(curScript == ScriptTable[ui8i]) {
-                pMainWindowPageScripts->UpdateCheck(ui8i);
+                clsMainWindowPageScripts::mPtr->UpdateCheck(ui8i);
                 break;
             }
         }
@@ -525,7 +532,7 @@ void ScriptMan::StopScript(Script * curScript, const bool &bDisable) {
 
 	RemoveRunningScript(curScript);
 
-    if(bServerRunning == true) {
+    if(clsServerManager::bServerRunning == true) {
         ScriptOnExit(curScript);
     }
 
@@ -533,7 +540,7 @@ void ScriptMan::StopScript(Script * curScript, const bool &bDisable) {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool &bUp) {
+void clsScriptManager::MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool &bUp) {
     if(bUp == true) {
 		if(ui8ScriptPosInTbl == 0) {
             return;
@@ -660,18 +667,18 @@ void ScriptMan::MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool &bUp) {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::DeleteScript(const uint8_t &ui8ScriptPosInTbl) {
+void clsScriptManager::DeleteScript(const uint8_t &ui8ScriptPosInTbl) {
     Script * cur = ScriptTable[ui8ScriptPosInTbl];
 
 	if(cur->LUA != NULL) {
-		ScriptManager->StopScript(cur, false);
+		StopScript(cur, false);
 	}
 
-	if(FileExist((SCRIPT_PATH+string(cur->sName)).c_str()) == true) {
+	if(FileExist((clsServerManager::sScriptPath+string(cur->sName)).c_str()) == true) {
 #ifdef _WIN32
-        DeleteFile((SCRIPT_PATH+string(cur->sName)).c_str());
+        DeleteFile((clsServerManager::sScriptPath+string(cur->sName)).c_str());
 #else
-		unlink((SCRIPT_PATH+string(cur->sName)).c_str());
+		unlink((clsServerManager::sScriptPath+string(cur->sName)).c_str());
 #endif
     }
 
@@ -686,8 +693,8 @@ void ScriptMan::DeleteScript(const uint8_t &ui8ScriptPosInTbl) {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::OnStartup() {
-    if(SettingManager->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
+void clsScriptManager::OnStartup() {
+    if(clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
         return;
     }
 
@@ -708,8 +715,8 @@ void ScriptMan::OnStartup() {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::OnExit(bool bForce/* = false*/) {
-    if(bForce == false && SettingManager->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
+void clsScriptManager::OnExit(bool bForce/* = false*/) {
+    if(bForce == false && clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
         return;
     }
 
@@ -730,8 +737,8 @@ void ScriptMan::OnExit(bool bForce/* = false*/) {
 }
 //------------------------------------------------------------------------------
 
-bool ScriptMan::Arrival(User * u, char * sData, const size_t &szLen, const unsigned char &uiType) {
-	if(SettingManager->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
+bool clsScriptManager::Arrival(User * u, char * sData, const size_t &szLen, const unsigned char &uiType) {
+	if(clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
 		return false;
 	}
 
@@ -772,6 +779,9 @@ bool ScriptMan::Arrival(User * u, char * sData, const size_t &szLen, const unsig
         if(((cur->ui32DataArrivals & iLuaArrivalBits[uiType]) == iLuaArrivalBits[uiType]) == true && (bMoved == false || cur->bProcessed == false)) {
             cur->bProcessed = true;
 
+            lua_pushcfunction(cur->LUA, ScriptTraceback);
+            int iTraceback = lua_gettop(cur->LUA);
+
             // PPK ... table of arrivals
             static const char* arrival[] = { "ChatArrival", "KeyArrival", "ValidateNickArrival", "PasswordArrival",
             "VersionArrival", "GetNickListArrival", "MyINFOArrival", "GetINFOArrival", "SearchArrival",
@@ -796,7 +806,7 @@ bool ScriptMan::Arrival(User * u, char * sData, const size_t &szLen, const unsig
             lua_pushlstring(cur->LUA, sData, szLen); // sData
 
             // two passed parameters, zero returned
-            if(lua_pcall(cur->LUA, 2, LUA_MULTRET, 0) != 0) {
+            if(lua_pcall(cur->LUA, 2, LUA_MULTRET, iTraceback) != 0) {
                 ScriptError(cur);
 
                 lua_settop(cur->LUA, 0);
@@ -833,8 +843,8 @@ bool ScriptMan::Arrival(User * u, char * sData, const size_t &szLen, const unsig
 }
 //------------------------------------------------------------------------------
 
-bool ScriptMan::UserConnected(User * u) {
-	if(SettingManager->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
+bool clsScriptManager::UserConnected(User * u) {
+	if(clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
         return false;
     }
 
@@ -859,6 +869,9 @@ bool ScriptMan::UserConnected(User * u) {
 
 		if(((cur->ui16Functions & iConnectedBits[ui8Type]) == iConnectedBits[ui8Type]) == true && (bMoved == false || cur->bProcessed == false)) {
             cur->bProcessed = true;
+
+            lua_pushcfunction(cur->LUA, ScriptTraceback);
+            int iTraceback = lua_gettop(cur->LUA);
 
             // PPK ... table of connected functions
             static const char* ConnectedFunction[] = { "UserConnected", "RegConnected", "OpConnected" };
@@ -889,7 +902,7 @@ bool ScriptMan::UserConnected(User * u) {
 			ScriptPushUser(cur->LUA, u); // usertable
 
             // 1 passed parameters, zero returned
-			if(lua_pcall(cur->LUA, 1, LUA_MULTRET, 0) != 0) {
+			if(lua_pcall(cur->LUA, 1, LUA_MULTRET, iTraceback) != 0) {
                 ScriptError(cur);
 
                 lua_settop(cur->LUA, 0);
@@ -928,8 +941,8 @@ bool ScriptMan::UserConnected(User * u) {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::UserDisconnected(User * u, Script * pScript/* = NULL*/) {
-	if(SettingManager->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
+void clsScriptManager::UserDisconnected(User * u, Script * pScript/* = NULL*/) {
+	if(clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == false) {
         return;
     }
 
@@ -958,6 +971,9 @@ void ScriptMan::UserDisconnected(User * u, Script * pScript/* = NULL*/) {
 
         if(((cur->ui16Functions & iDisconnectedBits[ui8Type]) == iDisconnectedBits[ui8Type]) == true && (bMoved == false || cur->bProcessed == false)) {
             cur->bProcessed = true;
+
+            lua_pushcfunction(cur->LUA, ScriptTraceback);
+            int iTraceback = lua_gettop(cur->LUA);
 
             // PPK ... table of disconnected functions
             static const char* DisconnectedFunction[] = { "UserDisconnected", "RegDisconnected", "OpDisconnected" };
@@ -988,7 +1004,7 @@ void ScriptMan::UserDisconnected(User * u, Script * pScript/* = NULL*/) {
 			ScriptPushUser(cur->LUA, u); // usertable
 
             // 1 passed parameters, zero returned
-			if(lua_pcall(cur->LUA, 1, 0, 0) != 0) {
+			if(lua_pcall(cur->LUA, 1, 0, iTraceback) != 0) {
                 ScriptError(cur);
 
                 lua_settop(cur->LUA, 0);
@@ -1004,7 +1020,7 @@ void ScriptMan::UserDisconnected(User * u, Script * pScript/* = NULL*/) {
 }
 //------------------------------------------------------------------------------
 
-void ScriptMan::PrepareMove(lua_State * L) {
+void clsScriptManager::PrepareMove(lua_State * L) {
     if(bMoved == true) {
         return;
     }
