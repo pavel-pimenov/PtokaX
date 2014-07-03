@@ -983,8 +983,8 @@ int main()
 					 " It also has &lt;, &gt;, and &amp;, as well as a fake copyright \xC2\xA9.' />",
 					 buf,
 					 true );
+			fclose( textfile );
 		}
-		fclose( textfile );
 	}
 
     {
