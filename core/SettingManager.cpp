@@ -61,7 +61,7 @@ clsSettingManager::clsSettingManager(void) {
 #else
 	pthread_mutex_init(&mtxSetting, NULL);
 #endif
-
+	memset(iShorts,0,sizeof(iShorts));
     sMOTD = NULL;
     ui16MOTDLen = 0;
 
