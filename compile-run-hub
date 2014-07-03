@@ -1,3 +1,4 @@
+git pull
 rm PtokaX
 make lua52
 valgrind --leak-check=full --leak-resolution=med ./PtokaX
