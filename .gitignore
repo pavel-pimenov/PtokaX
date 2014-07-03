@@ -43,3 +43,8 @@ PtokaX
 *.a
 
 *.o
+
+/cfg/*
+
+/logs/*
+
