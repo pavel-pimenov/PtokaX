@@ -31,8 +31,15 @@
 /obj/*.lastbuildstate
 
 /obj/PtokaX.log
+
 /compiled/cfg
 
 /compiled/logs
 
 /obj/*.unsuccessfulbuild
+
+PtokaX
+
+*.a
+
+*.o
