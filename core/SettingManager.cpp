@@ -65,8 +65,13 @@ clsSettingManager::clsSettingManager(void) {
     memset(iShorts,0,sizeof(iShorts));
     memset(sPreTexts,0,sizeof(sPreTexts));
     memset(sTexts,0,sizeof(sTexts));
+	memset(bBools,0,sizeof(bBools));
+	memset(iPortNumbers,0,sizeof(iPortNumbers));
+	memset(ui16PreTextsLens,0,sizeof(ui16PreTextsLens));
+	memset(ui16TextsLens,0,sizeof(ui16TextsLens));
+	
 
-    sMOTD = NULL;
+	sMOTD = NULL;
     ui16MOTDLen = 0;
 
     ui8FullMyINFOOption = 0;
@@ -77,15 +82,6 @@ clsSettingManager::clsSettingManager(void) {
     bBotsSameNick = false;
 
 	bFirstRun = false;
-
-    for(size_t szi = 0; szi < 25; szi++) {
-        iPortNumbers[szi] = 0;
-	}
-
-    for(size_t szi = 0; szi < SETPRETXT_IDS_END; szi++) {
-        sPreTexts[szi] = NULL;
-        ui16PreTextsLens[szi] = 0;
-	}
 
     // Read default bools
     for(size_t szi = 0; szi < SETBOOL_IDS_END; szi++) {
@@ -99,8 +95,6 @@ clsSettingManager::clsSettingManager(void) {
 
     // Read default texts
 	for(size_t szi = 0; szi < SETTXT_IDS_END; szi++) {
-        sTexts[szi] = NULL;
-		ui16TextsLens[szi] = 0;
 
 		SetText(szi, SetTxtDef[szi]);
 	}
