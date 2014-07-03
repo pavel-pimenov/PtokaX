@@ -48,3 +48,5 @@ PtokaX
 
 /logs/*
 
+valgrind*.log
+
