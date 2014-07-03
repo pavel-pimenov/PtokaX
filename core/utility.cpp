@@ -503,13 +503,12 @@ char * formatSecTime(uint64_t rest) {
 //---------------------------------------------------------------------------
 
 char* stristr(const char *str1, const char *str2) {
-	char *s1, *s2;
 	char *cp = (char *)str1;
 	if(*str2 == 0)
 		return (char *)str1;
 	while(*cp != 0) {
-		s1 = cp;
-		s2 = (char *) str2;
+		char *s1 = cp;
+		char *s2 = (char *) str2;
 		while(*s1 != 0 && *s2 != 0 && ((*s1-*s2) == 0 ||
 			(*s1-tolower(*s2)) == 0 || (*s1-toupper(*s2)) == 0))
 				s1++, s2++;
@@ -523,13 +522,12 @@ char* stristr(const char *str1, const char *str2) {
 //---------------------------------------------------------------------------
 
 char* stristr2(const char *str1, const char *str2) {
-	char *s1, *s2;
 	char *cp = (char *)str1;
 	if(*str2 == 0)
 		return (char *)str1;
 	while(*cp != 0) {
-		s1 = cp;
-		s2 = (char *) str2;
+		char *s1 = cp;
+		char *s2 = (char *) str2;
 		while(*s1 != 0 && *s2 != 0 && ((*s1-*s2) == 0 ||
 			(tolower(*s1)-*s2) == 0))
 				s1++, s2++;
@@ -568,11 +566,10 @@ bool isIP(char * sIP) {
 //---------------------------------------------------------------------------
 
 uint32_t HashNick(const char * sNick, const size_t &szNickLen) {
-	unsigned char c;
     uint32_t h = 5381;
 
 	for(size_t szi = 0; szi < szNickLen; szi++) {
-        c = (unsigned char)tolower(sNick[szi]);
+        unsigned char c = (unsigned char)tolower(sNick[szi]);
         h += (h << 5);
         h ^= c;
     }
