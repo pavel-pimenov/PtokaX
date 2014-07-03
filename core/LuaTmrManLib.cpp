@@ -129,9 +129,9 @@ static int AddTimer(lua_State * L) {
     }
 
 #ifndef _WIN32
-    timer_t scrtimer;
+    timer_t scrtimer = {0};
 
-    struct sigevent sigev;
+    struct sigevent sigev = {0};
     sigev.sigev_notify = SIGEV_SIGNAL;
     sigev.sigev_signo = SIGSCRTMR;
     sigev.sigev_value.sival_ptr = pNewtimer;

@@ -424,7 +424,7 @@ void clsServerManager::Initialize() {
         exit(EXIT_FAILURE);
     }
 
-    struct sigevent sigevsec;
+    struct sigevent sigevsec = {0};
     sigevsec.sigev_notify = SIGEV_SIGNAL;
     sigevsec.sigev_signo = SIGSECTMR;
 
@@ -435,7 +435,7 @@ void clsServerManager::Initialize() {
         exit(EXIT_FAILURE);
     }
 
-    struct sigevent sigevreg;
+    struct sigevent sigevreg = {0};
     sigevreg.sigev_notify = SIGEV_SIGNAL;
     sigevreg.sigev_signo = SIGREGTMR;
 
