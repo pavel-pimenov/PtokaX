@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -24,8 +24,10 @@
 struct RegUser;
 //------------------------------------------------------------------------------
 
-class RegisteredUsersDialog {
+class clsRegisteredUsersDialog {
 public:
+    static clsRegisteredUsersDialog * mPtr;
+
     HWND hWndWindowItems[6];
 
     enum enmWindowItems {
@@ -37,8 +39,8 @@ public:
         CB_FILTER,
     };
 
-    RegisteredUsersDialog();
-    ~RegisteredUsersDialog();
+    clsRegisteredUsersDialog();
+    ~clsRegisteredUsersDialog();
 
     static LRESULT CALLBACK StaticRegisteredUsersDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     static int CompareRegs(const void * pItem, const void * pOtherItem);
@@ -64,8 +66,6 @@ private:
     void OnContextMenu(HWND hWindow, LPARAM lParam);
     void ChangeReg();
 };
-//------------------------------------------------------------------------------
-extern RegisteredUsersDialog * pRegisteredUsersDialog;
 //------------------------------------------------------------------------------
 
 #endif

@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -24,27 +24,49 @@
 #include "GuiSettingIds.h"
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class GuiSettingManager {
+class clsGuiSettingManager {
 private:
     void Load();
 public:
-    int32_t iIntegers[GUISETINT_IDS_END]; //g_GuiSettingManager->iIntegers[]
+    static clsGuiSettingManager * mPtr;
 
-    bool bBools[GUISETBOOL_IDS_END]; //g_GuiSettingManager->bBools[]
+    static float fScaleFactor;
 
-    GuiSettingManager(void);
-    ~GuiSettingManager(void);
+    static int iGroupBoxMargin;
+    static int iCheckHeight;
+    static int iEditHeight;
+    static int iTextHeight;
+    static int iUpDownWidth;
+    static int iOneLineGB;
+    static int iOneLineOneChecksGB;
+    static int iOneLineTwoChecksGB;
+
+    static HFONT hFont;
+    static HCURSOR hArrowCursor;
+    static HCURSOR hVerticalCursor;
+    static WNDPROC wpOldButtonProc;
+    static WNDPROC wpOldEditProc;
+    static WNDPROC wpOldListViewProc;
+    static WNDPROC wpOldMultiRichEditProc;
+    static WNDPROC wpOldNumberEditProc;
+    static WNDPROC wpOldTabsProc;
+    static WNDPROC wpOldTreeProc;
+
+    int32_t iIntegers[GUISETINT_IDS_END]; //clsGuiSettingManager::mPtr->iIntegers[]
+
+    bool bBools[GUISETBOOL_IDS_END]; //clsGuiSettingManager::mPtr->bBools[]
+
+    clsGuiSettingManager(void);
+    ~clsGuiSettingManager(void);
 
     static bool GetDefaultBool(const size_t &szBoolId);
     static int32_t GetDefaultInteger(const size_t &szIntegerId);
 
-    void SetBool(const size_t &szBoolId, const bool &bValue); //g_GuiSettingManager->SetBool()
-    void SetInteger(const size_t &szIntegerId, const int32_t &i32Value); //g_GuiSettingManager->SetInteger()
+    void SetBool(const size_t &szBoolId, const bool &bValue); //clsGuiSettingManager::mPtr->SetBool()
+    void SetInteger(const size_t &szIntegerId, const int32_t &i32Value); //clsGuiSettingManager::mPtr->SetInteger()
 
     void Save() const;
 };
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-extern GuiSettingManager * g_GuiSettingManager;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #endif

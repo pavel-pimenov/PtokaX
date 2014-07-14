@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -33,30 +33,30 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Testing|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Testing|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -128,7 +128,6 @@
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Testing|x64'">false</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Testing|x64'">false</PostBuildEventUseInBuild>
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Testing|Win32'">false</PreBuildEventUseInBuild>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;C:\src\BCGSoft\BCGControlBarPro\BCGCBPro;$(SolutionDir)\tinyxml;$(SolutionDir)\skein\Optimized_32bit;$(SolutionDir)\zlib\lua;$(SolutionDir)\zlib\src</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -157,7 +156,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.1,processorArchitecture=x86,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.0.2,processorArchitecture=x86,type=win32</AssemblyIdentity>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -184,6 +183,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAs>CompileAsCpp</CompileAs>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -217,7 +217,7 @@
       <TerminalServerAware>false</TerminalServerAware>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.1,processorArchitecture=x86,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.0.2,processorArchitecture=x86,type=win32</AssemblyIdentity>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Testing|Win32'">
@@ -244,6 +244,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAs>CompileAsCpp</CompileAs>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -277,7 +278,7 @@
       <TerminalServerAware>false</TerminalServerAware>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.1,processorArchitecture=x86,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.0.2,processorArchitecture=x86,type=win32</AssemblyIdentity>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -307,7 +308,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.1,processorArchitecture=amd64,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.0.2,processorArchitecture=amd64,type=win32</AssemblyIdentity>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -361,10 +362,11 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX64</TargetMachine>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <LargeAddressAware>true</LargeAddressAware>
       <TerminalServerAware>false</TerminalServerAware>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.1,processorArchitecture=amd64,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.0.2,processorArchitecture=amd64,type=win32</AssemblyIdentity>
     </Manifest>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -421,10 +423,11 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX64</TargetMachine>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <LargeAddressAware>true</LargeAddressAware>
       <TerminalServerAware>false</TerminalServerAware>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.1,processorArchitecture=amd64,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.0.2,processorArchitecture=amd64,type=win32</AssemblyIdentity>
     </Manifest>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -477,49 +480,6 @@
     <ClInclude Include="core\User.h" />
     <ClInclude Include="core\utility.h" />
     <ClInclude Include="core\ZlibUtility.h" />
-    <ClInclude Include="lua\src\lapi.h" />
-    <ClInclude Include="lua\src\lauxlib.h" />
-    <ClInclude Include="lua\src\lcode.h" />
-    <ClInclude Include="lua\src\ldebug.h" />
-    <ClInclude Include="lua\src\ldo.h" />
-    <ClInclude Include="lua\src\lfunc.h" />
-    <ClInclude Include="lua\src\lgc.h" />
-    <ClInclude Include="lua\src\llex.h" />
-    <ClInclude Include="lua\src\llimits.h" />
-    <ClInclude Include="lua\src\lmem.h" />
-    <ClInclude Include="lua\src\lobject.h" />
-    <ClInclude Include="lua\src\lopcodes.h" />
-    <ClInclude Include="lua\src\lparser.h" />
-    <ClInclude Include="lua\src\lstate.h" />
-    <ClInclude Include="lua\src\lstring.h" />
-    <ClInclude Include="lua\src\ltable.h" />
-    <ClInclude Include="lua\src\ltm.h" />
-    <ClInclude Include="lua\src\lua.h" />
-    <ClInclude Include="lua\src\luaconf.h" />
-    <ClInclude Include="lua\src\lualib.h" />
-    <ClInclude Include="lua\src\lundump.h" />
-    <ClInclude Include="lua\src\lvm.h" />
-    <ClInclude Include="lua\src\lzio.h" />
-    <ClInclude Include="skein\Optimized_32bit\brg_endian.h" />
-    <ClInclude Include="skein\Optimized_32bit\brg_types.h" />
-    <ClInclude Include="skein\Optimized_32bit\SHA3api_ref.h" />
-    <ClInclude Include="skein\Optimized_32bit\skein.h" />
-    <ClInclude Include="skein\Optimized_32bit\skein_debug.h" />
-    <ClInclude Include="skein\Optimized_32bit\skein_iv.h" />
-    <ClInclude Include="skein\Optimized_32bit\skein_port.h" />
-    <ClInclude Include="tinyxml\tinystr.h" />
-    <ClInclude Include="tinyxml\tinyxml.h" />
-    <ClInclude Include="zlib\src\crc32.h" />
-    <ClInclude Include="zlib\src\deflate.h" />
-    <ClInclude Include="zlib\src\gzguts.h" />
-    <ClInclude Include="zlib\src\inffast.h" />
-    <ClInclude Include="zlib\src\inffixed.h" />
-    <ClInclude Include="zlib\src\inflate.h" />
-    <ClInclude Include="zlib\src\inftrees.h" />
-    <ClInclude Include="zlib\src\trees.h" />
-    <ClInclude Include="zlib\src\zconf.h" />
-    <ClInclude Include="zlib\src\zlib.h" />
-    <ClInclude Include="zlib\src\zutil.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="core\PtokaX.rc" />
@@ -568,59 +528,6 @@
     <ClCompile Include="core\User.cpp" />
     <ClCompile Include="core\utility.cpp" />
     <ClCompile Include="core\ZlibUtility.cpp" />
-    <ClCompile Include="lua\src\lapi.c" />
-    <ClCompile Include="lua\src\lauxlib.c" />
-    <ClCompile Include="lua\src\lbaselib.c" />
-    <ClCompile Include="lua\src\lcode.c" />
-    <ClCompile Include="lua\src\ldblib.c" />
-    <ClCompile Include="lua\src\ldebug.c" />
-    <ClCompile Include="lua\src\ldo.c" />
-    <ClCompile Include="lua\src\ldump.c" />
-    <ClCompile Include="lua\src\lfunc.c" />
-    <ClCompile Include="lua\src\lgc.c" />
-    <ClCompile Include="lua\src\linit.c" />
-    <ClCompile Include="lua\src\liolib.c" />
-    <ClCompile Include="lua\src\llex.c" />
-    <ClCompile Include="lua\src\lmathlib.c" />
-    <ClCompile Include="lua\src\lmem.c" />
-    <ClCompile Include="lua\src\loadlib.c" />
-    <ClCompile Include="lua\src\lobject.c" />
-    <ClCompile Include="lua\src\lopcodes.c" />
-    <ClCompile Include="lua\src\loslib.c" />
-    <ClCompile Include="lua\src\lparser.c" />
-    <ClCompile Include="lua\src\lstate.c" />
-    <ClCompile Include="lua\src\lstring.c" />
-    <ClCompile Include="lua\src\lstrlib.c" />
-    <ClCompile Include="lua\src\ltable.c" />
-    <ClCompile Include="lua\src\ltablib.c" />
-    <ClCompile Include="lua\src\ltm.c" />
-    <ClCompile Include="lua\src\lundump.c" />
-    <ClCompile Include="lua\src\lvm.c" />
-    <ClCompile Include="lua\src\lzio.c" />
-    <ClCompile Include="lua\src\print.c" />
-    <ClCompile Include="skein\Optimized_32bit\SHA3api_ref.c" />
-    <ClCompile Include="skein\Optimized_32bit\skein.c" />
-    <ClCompile Include="skein\Optimized_32bit\skein_block.c" />
-    <ClCompile Include="skein\Optimized_32bit\skein_debug.c" />
-    <ClCompile Include="tinyxml\tinystr.cpp" />
-    <ClCompile Include="tinyxml\tinyxml.cpp" />
-    <ClCompile Include="tinyxml\tinyxmlerror.cpp" />
-    <ClCompile Include="tinyxml\tinyxmlparser.cpp" />
-    <ClCompile Include="zlib\src\adler32.c" />
-    <ClCompile Include="zlib\src\compress.c" />
-    <ClCompile Include="zlib\src\crc32.c" />
-    <ClCompile Include="zlib\src\deflate.c" />
-    <ClCompile Include="zlib\src\gzclose.c" />
-    <ClCompile Include="zlib\src\gzlib.c" />
-    <ClCompile Include="zlib\src\gzread.c" />
-    <ClCompile Include="zlib\src\gzwrite.c" />
-    <ClCompile Include="zlib\src\infback.c" />
-    <ClCompile Include="zlib\src\inffast.c" />
-    <ClCompile Include="zlib\src\inflate.c" />
-    <ClCompile Include="zlib\src\inftrees.c" />
-    <ClCompile Include="zlib\src\trees.c" />
-    <ClCompile Include="zlib\src\uncompr.c" />
-    <ClCompile Include="zlib\src\zutil.c" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="core\PtokaX.Manifest" />
