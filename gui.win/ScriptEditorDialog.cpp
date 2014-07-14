@@ -336,8 +336,8 @@ void ScriptEditorDialog::OnUpdate() {
     ::ReleaseDC(hWndWindowItems[REDT_SCRIPT], hDC);
 }
 //------------------------------------------------------------------------------
-
-void ScriptEditorDialog::OnLoadScript() {
+string ScriptEditorDialog::prepareLoadSaveScript(OPENFILENAME& OpenFileName, bool isSave)
+{
     char buf[MAX_PATH];
     if(sScriptPath.size() != 0) {
         strncpy(buf, sScriptPath.c_str(), MAX_PATH);
@@ -345,8 +345,7 @@ void ScriptEditorDialog::OnLoadScript() {
     } else {
         buf[0] = '\0';
     }
-
-    OPENFILENAME OpenFileName = { 0 };
+    memset(&OpenFileName,0,sizeof(OpenFileName));
     OpenFileName.lStructSize = sizeof(OPENFILENAME);
     OpenFileName.hwndOwner = hWndWindowItems[WINDOW_HANDLE];
     OpenFileName.lpstrFilter = "Lua Scripts\0*.lua\0All Files\0*.*\0\0";
@@ -354,11 +353,20 @@ void ScriptEditorDialog::OnLoadScript() {
     OpenFileName.lpstrFile = buf;
     OpenFileName.nMaxFile = MAX_PATH;
     OpenFileName.lpstrInitialDir = clsServerManager::sScriptPath.c_str();
-    OpenFileName.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;//OFN_OVERWRITEPROMPT
+	  if(isSave)
+      OpenFileName.Flags = OFN_OVERWRITEPROMPT;
+   	else
+      OpenFileName.Flags  = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;//OFN_OVERWRITEPROMPT
     OpenFileName.lpstrDefExt = "lua";
+	return buf;
+}
+
+void ScriptEditorDialog::OnLoadScript() {
+    OPENFILENAME OpenFileName = { 0 };
+	const string buf = prepareLoadSaveScript(OpenFileName,false);
 
     if(::GetOpenFileName(&OpenFileName) != 0) {
-        LoadScript(buf);
+        LoadScript(buf.c_str());
     }
 }
 //------------------------------------------------------------------------------
@@ -450,25 +458,8 @@ void ScriptEditorDialog::OnCheckSyntax() {
 //------------------------------------------------------------------------------
 
 void ScriptEditorDialog::OnSaveScript() {
-    char buf[MAX_PATH];
-    if(sScriptPath.size() != 0) {
-        strncpy(buf, sScriptPath.c_str(), MAX_PATH);
-        buf[MAX_PATH-1] = '\0';
-    } else {
-        buf[0] = '\0';
-    }
-
     OPENFILENAME OpenFileName = { 0 };
-    OpenFileName.lStructSize = sizeof(OPENFILENAME);
-    OpenFileName.hwndOwner = hWndWindowItems[WINDOW_HANDLE];
-    OpenFileName.lpstrFilter = "Lua Scripts\0*.lua\0All Files\0*.*\0\0";
-    OpenFileName.nFilterIndex = 1;
-    OpenFileName.lpstrFile = buf;
-    OpenFileName.nMaxFile = MAX_PATH;
-    OpenFileName.lpstrInitialDir = clsServerManager::sScriptPath.c_str();
-    OpenFileName.Flags = OFN_OVERWRITEPROMPT;
-    OpenFileName.lpstrDefExt = "lua";
-
+	const string buf = prepareLoadSaveScript(OpenFileName,true);
     if(::GetSaveFileName(&OpenFileName) == 0) {
         return;
     }
@@ -485,7 +476,7 @@ void ScriptEditorDialog::OnSaveScript() {
 
     int iLen = ::GetWindowText(hWndWindowItems[REDT_SCRIPT], sBuf, iAllocLen+1);
 
-    FILE * pFile = fopen(buf, "wb");
+	FILE * pFile = fopen(buf.c_str(), "wb");
 
     if(pFile == NULL) {
         ::MessageBox(hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_FAILED_TO_SAVE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FAILED_TO_SAVE]) + ": "+ buf).c_str(),
