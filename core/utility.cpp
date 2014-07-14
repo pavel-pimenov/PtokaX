@@ -1074,7 +1074,7 @@ bool FileExist(char * sPath) {
 bool DirExist(char * sPath) {
 #ifdef _WIN32
 	DWORD code = GetFileAttributes(sPath);
-	if(code != INVALID_FILE_ATTRIBUTES && code == FILE_ATTRIBUTE_DIRECTORY) {
+	if(code == FILE_ATTRIBUTE_DIRECTORY) {
 #else
     struct stat st;
 	if(stat(sPath, &st) == 0 && S_ISDIR(st.st_mode)) {
@@ -1430,7 +1430,7 @@ void ReduceGlobalBuffer() {
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool HashPassword(char * sPassword, size_t &szPassLen, uint8_t * ui8PassHash) {
+bool HashPassword(char * sPassword, const size_t &szPassLen, uint8_t * ui8PassHash) {
     Skein1024_Ctxt_t ctx1024;
 
     if(Skein1024_Init(&ctx1024, 512) == SKEIN_SUCCESS) {

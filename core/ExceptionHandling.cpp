@@ -83,7 +83,7 @@ void GetSourceFileInfo(DWORD64 dw64Address, FILE * fw) {
 
     DWORD dwDisplacement = 0;
 
-	if(SymGetLineFromAddr64(GetCurrentProcess(), dw64Address, &dwDisplacement, &il64LineInfo) == TRUE) {
+	if(SymGetLineFromAddr64(GetCurrentProcess(), dw64Address, &dwDisplacement, &il64LineInfo) != FALSE) { // V676 It is incorrect to compare the variable of BOOL type with TRUE. http://www.viva64.com/en/d/0310/print/		
         // We have sourcefile and linenumber info, write it.
         fprintf(fw, "%s(%d): ", il64LineInfo.FileName, il64LineInfo.LineNumber);
 	} else {
@@ -113,7 +113,7 @@ void GetFunctionInfo(DWORD64 dw64Address, FILE * fw) {
     pSym->SizeOfStruct = sizeof(SYMBOL_INFO);
     pSym->MaxNameLen = MAX_SYM_NAME;
 
-	if(SymFromAddr(GetCurrentProcess(), dw64Address, &dw64Displacement, pSym) == TRUE) {
+	if(SymFromAddr(GetCurrentProcess(), dw64Address, &dw64Displacement, pSym) != FALSE) { // V676 It is incorrect to compare the variable of BOOL type with TRUE. http://www.viva64.com/en/d/0310/print/
         // We have decorated name, try to make it readable
         if(UnDecorateSymbolName(pSym->Name, sDebugBuf, szDebugBufLen, UNDNAME_COMPLETE | UNDNAME_NO_THISTYPE | UNDNAME_NO_SPECIAL_SYMS | UNDNAME_NO_MEMBER_TYPE |
             UNDNAME_NO_MS_KEYWORDS | UNDNAME_NO_ACCESS_SPECIFIERS) > 0) {
@@ -221,7 +221,7 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
 
     // Write date and time when crash happen
     strftime(sDebugBuf, szDebugBufLen, "Date and time: %d.%m.%Y %H:%M:%S\n\n", tm);
-    fprintf(fw, sDebugBuf);
+    fprintf(fw, "%s", sDebugBuf);
 
     STACKFRAME64 sf64CallStack;
     memset(&sf64CallStack, 0, sizeof(STACKFRAME64));
