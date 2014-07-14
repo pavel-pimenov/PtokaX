@@ -341,7 +341,7 @@ void ScriptEditorDialog::OnLoadScript() {
     char buf[MAX_PATH];
     if(sScriptPath.size() != 0) {
         strncpy(buf, sScriptPath.c_str(), MAX_PATH);
-        buf[MAX_PATH] = '\0';
+        buf[MAX_PATH-1] = '\0';
     } else {
         buf[0] = '\0';
     }
@@ -453,7 +453,7 @@ void ScriptEditorDialog::OnSaveScript() {
     char buf[MAX_PATH];
     if(sScriptPath.size() != 0) {
         strncpy(buf, sScriptPath.c_str(), MAX_PATH);
-        buf[MAX_PATH] = '\0';
+        buf[MAX_PATH-1] = '\0';
     } else {
         buf[0] = '\0';
     }
