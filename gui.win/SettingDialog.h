@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -24,8 +24,10 @@
 #include "SettingPage.h"
 //---------------------------------------------------------------------------
 
-class SettingDialog {
+class clsSettingDialog {
 public:
+    static clsSettingDialog * mPtr;
+
     HWND hWndWindowItems[4];
 
     enum enmWindowItems {
@@ -35,8 +37,8 @@ public:
         BTN_CANCEL
     };
 
-    SettingDialog();
-    ~SettingDialog();
+    clsSettingDialog();
+    ~clsSettingDialog();
 
     static LRESULT CALLBACK StaticSettingDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -48,8 +50,6 @@ private:
 
     void OnSelChanged();
 };
-//------------------------------------------------------------------------------
-extern SettingDialog * pSettingDialog;
 //------------------------------------------------------------------------------
 
 #endif

@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -28,8 +28,10 @@
 #define WM_UPDATE_CHECK_DATA (WM_USER+13)
 //------------------------------------------------------------------------------
 
-class MainWindow {
+class clsMainWindow {
 public:
+    static clsMainWindow * mPtr;
+
     HWND m_hWnd;
 
     HWND hWndWindowItems[1];
@@ -38,8 +40,8 @@ public:
         TC_TABS
     };
 
-    MainWindow();
-    ~MainWindow();
+    clsMainWindow();
+    ~clsMainWindow();
 
     static LRESULT CALLBACK StaticMainWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -64,8 +66,6 @@ private:
 
     void OnSelChanged();
 };
-//------------------------------------------------------------------------------
-extern MainWindow * pMainWindow;
 //------------------------------------------------------------------------------
 
 #endif

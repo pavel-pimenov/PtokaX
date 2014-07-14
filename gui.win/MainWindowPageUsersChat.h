@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -27,8 +27,10 @@
 struct User;
 //---------------------------------------------------------------------------
 
-class MainWindowPageUsersChat : public MainWindowPage, private BasicSplitter {
+class clsMainWindowPageUsersChat : public MainWindowPage, private BasicSplitter {
 public:
+    static clsMainWindowPageUsersChat * mPtr;
+
     HWND hWndPageItems[7];
 
     enum enmPageItems {
@@ -41,8 +43,8 @@ public:
         BTN_UPDATE_USERS
     };
 
-    MainWindowPageUsersChat();
-    ~MainWindowPageUsersChat();
+    clsMainWindowPageUsersChat();
+    ~clsMainWindowPageUsersChat();
 
     bool CreateMainWindowPage(HWND hOwner);
     void UpdateLanguage();
@@ -67,8 +69,6 @@ private:
     HWND GetWindowHandle();
     void UpdateSplitterParts();
 };
-//------------------------------------------------------------------------------
-extern MainWindowPageUsersChat * pMainWindowPageUsersChat;
 //------------------------------------------------------------------------------
 
 #endif

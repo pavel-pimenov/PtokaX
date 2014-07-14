@@ -607,7 +607,7 @@ bool HashIP(const char * sIP, uint8_t * ui128IpHash) {
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 uint16_t GetIpTableIdx(const uint8_t * ui128IpHash) {
-	unsigned char c;
+	unsigned char c = 0;
     uint32_t h = 5381;
 
 	for(uint8_t ui8i = 0; ui8i < 16; ui8i++) {
@@ -1289,7 +1289,7 @@ bool GetMacAddress(const char * sIP, char * sMac) {
 #ifdef _WIN32
     uint32_t uiIP = ::inet_addr(sIP);
 
-    MIB_IPNETTABLE * pINT = (MIB_IPNETTABLE *)new char[131072];
+    MIB_IPNETTABLE * pINT = (MIB_IPNETTABLE *)new (std::nothrow) char[131072];
     if(pINT == NULL) {
         return false;
     }
@@ -1310,12 +1310,15 @@ bool GetMacAddress(const char * sIP, char * sMac) {
 #else
     FILE *fp = fopen("/proc/net/arp", "r");
     if(fp != NULL) {
+        bool bLastCharSpace = true;
+        uint8_t ui8NonSpaces = 0;
         uint16_t ui16IpLen = (uint16_t)strlen(sIP);
         char buf[1024];
+
         while(fgets(buf, 1024, fp) != NULL) {
             if(strncmp(buf, sIP, ui16IpLen) == 0 && buf[ui16IpLen] == ' ') {
-                bool bLastCharSpace = true;
-                uint8_t ui8NonSpaces = 0;
+                bLastCharSpace = true;
+                ui8NonSpaces = 0;
                 while(buf[ui16IpLen] != '\0') {
                     if(buf[ui16IpLen] == ' ') {
                         bLastCharSpace = true;

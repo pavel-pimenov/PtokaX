@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -20,25 +20,6 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #ifndef GuiUtilH
 #define GuiUtilH
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-extern float fScaleFactor;
-extern int iGroupBoxMargin;
-extern int iCheckHeight;
-extern int iEditHeight;
-extern int iTextHeight;
-extern int iUpDownWidth;
-extern int iOneLineGB;
-extern int iOneLineOneChecksGB;
-extern int iOneLineTwoChecksGB;
-extern HFONT hFont;
-extern HCURSOR hArrowCursor;
-extern HCURSOR hVerticalCursor;
-extern WNDPROC wpOldButtonProc;
-extern WNDPROC wpOldEditProc;
-extern WNDPROC wpOldListViewProc;
-extern WNDPROC wpOldMultiRichEditProc;
-extern WNDPROC wpOldTabsProc;
-extern WNDPROC wpOldTreeProc;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int ScaleGui(const int &iValue);

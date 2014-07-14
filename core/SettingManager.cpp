@@ -62,15 +62,6 @@ clsSettingManager::clsSettingManager(void) {
 	pthread_mutex_init(&mtxSetting, NULL);
 #endif
     
-    memset(iShorts,0,sizeof(iShorts));
-    memset(sPreTexts,0,sizeof(sPreTexts));
-    memset(sTexts,0,sizeof(sTexts));
-	memset(bBools,0,sizeof(bBools));
-	memset(iPortNumbers,0,sizeof(iPortNumbers));
-	memset(ui16PreTextsLens,0,sizeof(ui16PreTextsLens));
-	memset(ui16TextsLens,0,sizeof(ui16TextsLens));
-	
-
 	sMOTD = NULL;
     ui16MOTDLen = 0;
 
@@ -82,6 +73,18 @@ clsSettingManager::clsSettingManager(void) {
     bBotsSameNick = false;
 
 	bFirstRun = false;
+
+    memset(sPreTexts, 0 , sizeof(sPreTexts));
+    memset(ui16PreTextsLens, 0 , sizeof(ui16PreTextsLens));
+
+    memset(sTexts, 0 , sizeof(sTexts));
+    memset(ui16TextsLens, 0 , sizeof(ui16TextsLens));
+
+    memset(iShorts, 0 , sizeof(iShorts));
+
+    memset(iPortNumbers, 0 , sizeof(iPortNumbers));
+    
+    memset(bBools, 0 , sizeof(bBools));
 
     // Read default bools
     for(size_t szi = 0; szi < SETBOOL_IDS_END; szi++) {
@@ -95,7 +98,6 @@ clsSettingManager::clsSettingManager(void) {
 
     // Read default texts
 	for(size_t szi = 0; szi < SETTXT_IDS_END; szi++) {
-
 		SetText(szi, SetTxtDef[szi]);
 	}
 
@@ -394,7 +396,7 @@ void clsSettingManager::Save() {
     TiXmlElement booleans("Booleans");
     for(size_t szi = 0; szi < SETBOOL_IDS_END; szi++) {
         // Don't save setting with default value
-        if(bBools[szi] == SetBoolDef[szi] || SetBoolXmlStr[szi][0] == 0) {
+        if(bBools[szi] == SetBoolDef[szi] || SetBoolXmlStr[szi][0] == '\0') {
             continue;
         }
 
@@ -410,7 +412,7 @@ void clsSettingManager::Save() {
     char msg[8];
     for(size_t szi = 0; szi < SETSHORT_IDS_END; szi++) {
         // Don't save setting with default value
-        if(iShorts[szi] == SetShortDef[szi] || SetShortXmlStr[szi][0] == 0) {
+        if(iShorts[szi] == SetShortDef[szi] || SetShortXmlStr[szi][0] == '\0') {
             continue;
         }
 
@@ -426,9 +428,9 @@ void clsSettingManager::Save() {
     TiXmlElement setstrings("Strings");
     for(size_t szi = 0; szi < SETTXT_IDS_END; szi++) {
         // Don't save setting with default value
-        if((sTexts[szi] == NULL && SetTxtDef[szi][0] == 0) ||
+        if((sTexts[szi] == NULL && SetTxtDef[szi][0] == '\0') ||
             (sTexts[szi] != NULL && strcmp(sTexts[szi], SetTxtDef[szi]) == 0) ||
-            SetTxtXmlStr[szi][0] == 0) {
+            SetTxtXmlStr[szi][0] == '\0') {
             continue;
         }
 
@@ -1372,7 +1374,7 @@ void clsSettingManager::UpdateHubNameWelcome() {
     }
 
 #ifdef _PtokaX_TESTING_
-    szNeededMem += 9 + strlen(BUILD_NUMBER);
+    szNeededMem += 9 + sizeof(BUILD_NUMBER);
 #endif
 
     char * sOldWelcome = sPreTexts[SETPRETXT_HUB_NAME_WLCM];
@@ -2315,6 +2317,7 @@ void clsSettingManager::UpdateBotsSameNick() {
     }
 }
 //---------------------------------------------------------------------------
+
 void clsSettingManager::UpdateLanguage() {
     if(bUpdateLocked == true) {
         return;
@@ -2407,7 +2410,7 @@ void clsSettingManager::UpdateBot(const bool &bNickChanged/* = true*/) {
     clsGlobalDataQueue::mPtr->AddQueueItem(sPreTexts[SETPRETXT_HUB_BOT_MYINFO], ui16PreTextsLens[SETPRETXT_HUB_BOT_MYINFO],
         sPreTexts[SETPRETXT_HUB_BOT_MYINFO], ui16PreTextsLens[SETPRETXT_HUB_BOT_MYINFO], clsGlobalDataQueue::CMD_MYINFO);
 
-    if(bNickChanged == true && bBotsSameNick == false) {
+    if(bNickChanged == true) {
         clsGlobalDataQueue::mPtr->OpListStore(sTexts[SETTXT_BOT_NICK]);
     }
 }
@@ -2428,9 +2431,11 @@ void clsSettingManager::DisableBot(const bool &bNickChanged/* = true*/, const bo
         if(CheckSprintf(iMsgLen, 128, "clsSettingManager::DisableBot") == true) {
             if(bBotsSameNick == true) {
                 // PPK ... send Quit only to users without opchat permission...
-                User *next = clsUsers::mPtr->llist;
+                User * curUser = NULL,
+                    * next = clsUsers::mPtr->llist;
+
                 while(next != NULL) {
-                    User *curUser = next;
+                    curUser = next;
                     next = curUser->next;
                     if(curUser->ui8State == User::STATE_ADDED && clsProfileManager::mPtr->IsAllowed(curUser, clsProfileManager::ALLOWEDOPCHAT) == false) {
                         curUser->SendCharDelayed(sMsg, iMsgLen);
@@ -2555,9 +2560,11 @@ void clsSettingManager::UpdateOpChat(const bool &bNickChanged/* = true*/) {
             exit(EXIT_FAILURE);
         }
 
-        User *next = clsUsers::mPtr->llist;
+        User * curUser = NULL,
+            * next = clsUsers::mPtr->llist;
+
         while(next != NULL) {
-            User *curUser = next;
+            curUser = next;
             next = curUser->next;
             if(curUser->ui8State == User::STATE_ADDED && clsProfileManager::mPtr->IsAllowed(curUser, clsProfileManager::ALLOWEDOPCHAT) == true) {
                 if(bNickChanged == true && (((curUser->ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO) == false)) {
@@ -2584,9 +2591,11 @@ void clsSettingManager::DisableOpChat(const bool &bNickChanged/* = true*/) {
         char msg[128];
         int iMsgLen = sprintf(msg, "$Quit %s|", sTexts[SETTXT_OP_CHAT_NICK]);
         if(CheckSprintf(iMsgLen, 128, "clsSettingManager::DisableOpChat") == true) {
-            User *next = clsUsers::mPtr->llist;
+            User * curUser = NULL,
+                * next = clsUsers::mPtr->llist;
+
             while(next != NULL) {
-                User *curUser = next;
+                curUser = next;
                 next = curUser->next;
                 if(curUser->ui8State == User::STATE_ADDED && clsProfileManager::mPtr->IsAllowed(curUser, clsProfileManager::ALLOWEDOPCHAT) == true) {
                     curUser->SendCharDelayed(msg, iMsgLen);

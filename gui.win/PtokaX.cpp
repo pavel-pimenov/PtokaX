@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2012  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -38,9 +38,6 @@
 	#undef TIXML_USE_STL
 #endif
 //---------------------------------------------------------------------------
-HINSTANCE g_hInstance = NULL;
-HWND g_hWndActiveDialog = NULL;
-//---------------------------------------------------------------------------
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nCmdShow) {
     ::SetDllDirectory("");
@@ -58,11 +55,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
     ::FreeLibrary(hKernel32);
 #endif
 
-    g_hInstance = hInstance;
+    clsServerManager::hInstance = hInstance;
 
-	sTitle = "PtokaX DC Hub " + string(PtokaXVersionString);
+	clsServerManager::sTitle = "PtokaX DC Hub " + string(PtokaXVersionString);
 #ifdef _DEBUG
-	sTitle += " [debug]";
+	clsServerManager::sTitle += " [debug]";
 #endif
 
 #ifdef _DEBUG
@@ -75,14 +72,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
 	::GetModuleFileName(NULL, sBuf, MAX_PATH);
 	char * sPath = strrchr(sBuf, '\\');
 	if(sPath != NULL) {
-		PATH = string(sBuf, sPath-sBuf);
+		clsServerManager::sPath = string(sBuf, sPath-sBuf);
 	} else {
-		PATH = sBuf;
+		clsServerManager::sPath = sBuf;
 	}
 
 	size_t szCmdLen = strlen(lpCmdLine);
 	if(szCmdLen != 0) {
 	    char *sParam = lpCmdLine;
+	    size_t szParamLen = 0, szLen = 0;
 
 	    for(size_t szi = 0; szi < szCmdLen; szi++) {
 	        if(szi == szCmdLen-1) {
@@ -93,33 +91,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
 	            continue;
 	        }
 
-			size_t szParamLen = (lpCmdLine+szi)-sParam;
+			szParamLen = (lpCmdLine+szi)-sParam;
 
 	        switch(szParamLen) {
 	            case 7:
 	                if(strnicmp(sParam, "/notray", 7) == NULL) {
-	                    bCmdNoTray = true;
+	                    clsServerManager::bCmdNoTray = true;
 	                }
 	                break;
 	            case 10:
 	                if(strnicmp(sParam, "/autostart", 10) == NULL) {
-	                    bCmdAutoStart = true;
+	                    clsServerManager::bCmdAutoStart = true;
 	                }
 	                break;
 	            case 12:
 	                if(strnicmp(sParam, "/noautostart", 12) == NULL) {
-	                    bCmdNoAutoStart = true;
+	                    clsServerManager::bCmdNoAutoStart = true;
 	                }
 	                break;
                 case 20:
 	                if(strnicmp(sParam, "/generatexmllanguage", 20) == NULL) {
-	                    LangMan::GenerateXmlExample();
+	                    clsLanguageManager::GenerateXmlExample();
 	                    return 0;
 	                }
 	                break;
 	            default:
                     if(strnicmp(sParam, "-c ", 3) == NULL) {
-                        size_t szLen = strlen(sParam+3);
+                        szLen = strlen(sParam+3);
                         if(szLen == 0) {
                             ::MessageBox(NULL, "Missing config directory!", "Error!", MB_OK);
                             return 0;
@@ -133,13 +131,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
                         }
 
                         if(sParam[szLen - 1] == '/' || sParam[szLen - 1] == '\\') {
-                            PATH = string(sParam, szLen - 1);
+                            clsServerManager::sPath = string(sParam, szLen - 1);
                         } else {
-                            PATH = string(sParam, szLen);
+                            clsServerManager::sPath = string(sParam, szLen);
                         }
 
-                        if(DirExist(PATH.c_str()) == false) {
-                            if(CreateDirectory(PATH.c_str(), NULL) == 0) {
+                        if(DirExist(clsServerManager::sPath.c_str()) == false) {
+                            if(CreateDirectory(clsServerManager::sPath.c_str(), NULL) == 0) {
                                 ::MessageBox(NULL, "Config directory not exist and can't be created!", "Error!", MB_OK);
                                 return 0;
                             }
@@ -154,30 +152,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
 
     HINSTANCE hRichEdit = ::LoadLibrary(/*"msftedit.dll"*/"riched20.dll");
 
-    ExceptionHandlingInitialize(PATH, sBuf);
+    ExceptionHandlingInitialize(clsServerManager::sPath, sBuf);
 
-	ServerInitialize();
+	clsServerManager::Initialize();
 
 	// systray icon on/off? added by Ptaczek 16.5.2003
-	if(SettingManager->bBools[SETBOOL_ENABLE_TRAY_ICON] == true) {
-		pMainWindow->UpdateSysTray();
+	if(clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_TRAY_ICON] == true) {
+		clsMainWindow::mPtr->UpdateSysTray();
 	}
 
 	// If autostart is checked (or commandline /autostart given), then start the server
-	if((SettingManager->bBools[SETBOOL_AUTO_START] == true || bCmdAutoStart == true) && bCmdNoAutoStart == false) {
-	    if(ServerStart() == false) {
-            pMainWindow->SetStatusValue((string(LanguageManager->sTexts[LAN_READY], (size_t)LanguageManager->ui16TextsLens[LAN_READY])+".").c_str());
+	if((clsSettingManager::mPtr->bBools[SETBOOL_AUTO_START] == true || clsServerManager::bCmdAutoStart == true) && clsServerManager::bCmdNoAutoStart == false) {
+	    if(clsServerManager::Start() == false) {
+            clsMainWindow::mPtr->SetStatusValue((string(clsLanguageManager::mPtr->sTexts[LAN_READY], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_READY])+".").c_str());
 		}
 	}
 
-    if(SettingManager->bBools[SETBOOL_START_MINIMIZED] == true && SettingManager->bBools[SETBOOL_ENABLE_TRAY_ICON] == true) {
-        ::ShowWindow(pMainWindow->m_hWnd, SW_SHOWMINIMIZED);
+    if(clsSettingManager::mPtr->bBools[SETBOOL_START_MINIMIZED] == true && clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_TRAY_ICON] == true) {
+        ::ShowWindow(clsMainWindow::mPtr->m_hWnd, SW_SHOWMINIMIZED);
     } else {
-        ::ShowWindow(pMainWindow->m_hWnd, nCmdShow);
+        ::ShowWindow(clsMainWindow::mPtr->m_hWnd, nCmdShow);
     }
 
-	MSG msg;
-	BOOL bRet;
+	MSG msg = { 0 };
+	BOOL bRet = -1;
 
 	while((bRet = ::GetMessage(&msg, NULL, 0, 0)) != 0) {
 	    if(bRet == -1) {
@@ -186,23 +184,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
             if(msg.message == WM_USER+1) {
 	            break;
 	        } else if(msg.message == WM_TIMER) {
-                if(msg.wParam == sectimer) {
-                    ServerOnSecTimer();
-                } else if(msg.wParam == srvLoopTimer) {
-                    srvLoop->Looper();
-                } else if(msg.wParam == regtimer) {
-                    ServerOnRegTimer();
+                if(msg.wParam == clsServerManager::sectimer) {
+                    clsServerManager::OnSecTimer();
+                } else if(msg.wParam == clsServiceLoop::srvLoopTimer) {
+					clsServiceLoop::mPtr->Looper();
+                } else if(msg.wParam == clsServerManager::regtimer) {
+                    clsServerManager::OnRegTimer();
                 } else {
                     //Must be script timer
                     ScriptOnTimer(msg.wParam);
                 }
             }
 
-	        if(g_hWndActiveDialog == NULL) {
-                if(::IsDialogMessage(pMainWindow->m_hWnd, &msg) != 0) {
+	        if(clsServerManager::hWndActiveDialog == NULL) {
+                if(::IsDialogMessage(clsMainWindow::mPtr->m_hWnd, &msg) != 0) {
                     continue;
                 }
-            } else if(::IsDialogMessage(g_hWndActiveDialog, &msg) != 0) {
+            } else if(::IsDialogMessage(clsServerManager::hWndActiveDialog, &msg) != 0) {
                 continue;
             }
 
@@ -211,7 +209,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
 	    }
 	}
 
-    delete pMainWindow;
+    delete clsMainWindow::mPtr;
 
     ExceptionHandlingUnitialize();
 
