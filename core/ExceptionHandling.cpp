@@ -85,7 +85,7 @@ void GetSourceFileInfo(DWORD64 dw64Address, FILE * fw) {
 
 	if(SymGetLineFromAddr64(GetCurrentProcess(), dw64Address, &dwDisplacement, &il64LineInfo) != FALSE) { // V676 It is incorrect to compare the variable of BOOL type with TRUE. http://www.viva64.com/en/d/0310/print/		
         // We have sourcefile and linenumber info, write it.
-        fprintf(fw, "%s(%d): ", il64LineInfo.FileName, il64LineInfo.LineNumber);
+        fprintf(fw, "%s(%lu): ", il64LineInfo.FileName, il64LineInfo.LineNumber);
 	} else {
         // We don't have sourcefile and linenumber info, let's try module name
 
@@ -215,7 +215,7 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
         ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
         if(GetVersionEx((OSVERSIONINFO*)&ver) != 0) {
-			fprintf(fw, "Windows version: %d.%d SP: %d\n", ver.dwMajorVersion, ver.dwMinorVersion, ver.wServicePackMajor);
+			fprintf(fw, "Windows version: %lu.%lu SP: %u\n", ver.dwMajorVersion, ver.dwMinorVersion, unsigned(ver.wServicePackMajor));
         }
     }
 
