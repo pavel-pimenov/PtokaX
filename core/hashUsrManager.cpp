@@ -57,8 +57,7 @@ clsHashManager::~clsHashManager() {
 //---------------------------------------------------------------------------
 
 bool clsHashManager::Add(User * u) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
+	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
 
     if(nicktable[ui16dx] != NULL) {
         nicktable[ui16dx]->hashtableprev = u;
@@ -129,8 +128,7 @@ bool clsHashManager::Add(User * u) {
 
 void clsHashManager::Remove(User * u) {
     if(u->hashtableprev == NULL) {
-        uint16_t ui16dx = 0;
-        memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
+		const uint16_t ui16dx = CalcHash(u->ui32NickHash);
 
         if(u->hashtablenext == NULL) {
             nicktable[ui16dx] = NULL;
@@ -213,10 +211,9 @@ void clsHashManager::Remove(User * u) {
 //---------------------------------------------------------------------------
 
 User * clsHashManager::FindUser(char * sNick, const size_t &szNickLen) {
-    uint32_t ui32Hash = HashNick(sNick, szNickLen);
+    const uint32_t ui32Hash = HashNick(sNick, szNickLen);
 
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
+    const uint16_t ui16dx = CalcHash(ui32Hash);
 
     User * next = nicktable[ui16dx];
 
@@ -241,8 +238,8 @@ User * clsHashManager::FindUser(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 User * clsHashManager::FindUser(User * u) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
+
+	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
 
     User * next = nicktable[ui16dx];
 

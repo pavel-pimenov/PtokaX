@@ -246,8 +246,7 @@ bool clsBanManager::Add2Table(BanItem *Ban) {
 //---------------------------------------------------------------------------
 
 void clsBanManager::Add2NickTable(BanItem *Ban) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &Ban->ui32NickHash, sizeof(uint16_t));
+    const uint16_t ui16dx = CalcHash(Ban->ui32NickHash);
 
     if(nicktable[ui16dx] != NULL) {
         nicktable[ui16dx]->hashnicktableprev = Ban;
@@ -380,8 +379,7 @@ void clsBanManager::RemFromTable(BanItem *Ban) {
 
 void clsBanManager::RemFromNickTable(BanItem *Ban) {
     if(Ban->hashnicktableprev == NULL) {
-        uint16_t ui16dx = 0;
-        memcpy(&ui16dx, &Ban->ui32NickHash, sizeof(uint16_t));
+	    const uint16_t ui16dx = CalcHash(Ban->ui32NickHash);
 
         if(Ban->hashnicktablenext == NULL) {
             nicktable[ui16dx] = NULL;
@@ -652,8 +650,7 @@ void clsBanManager::RemoveRange(RangeBanItem *RangeBan) {
 //---------------------------------------------------------------------------
 
 BanItem* clsBanManager::FindNick(User* u) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
+    const uint16_t ui16dx = CalcHash(u->ui32NickHash);
 
     time_t acc_time;
     time(&acc_time);
@@ -849,8 +846,7 @@ BanItem* clsBanManager::FindNick(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 BanItem* clsBanManager::FindNick(const uint32_t &ui32Hash, const time_t &acc_time, char * sNick) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
+    const uint16_t ui16dx = CalcHash(ui32Hash);
 
 	BanItem * cur = NULL,
         * next = nicktable[ui16dx];
@@ -986,8 +982,7 @@ BanItem* clsBanManager::FindTempNick(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 BanItem* clsBanManager::FindTempNick(const uint32_t &ui32Hash,  const time_t &acc_time, char * sNick) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
+    const uint16_t ui16dx = CalcHash(ui32Hash);
 
 	BanItem * cur = NULL,
         * next = nicktable[ui16dx];
@@ -1066,8 +1061,7 @@ BanItem* clsBanManager::FindPermNick(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 BanItem* clsBanManager::FindPermNick(const uint32_t &ui32Hash, char * sNick) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
+    const uint16_t ui16dx = CalcHash(ui32Hash);
 
     BanItem * cur = NULL,
         * next = nicktable[ui16dx];

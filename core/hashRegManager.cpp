@@ -347,8 +347,7 @@ void clsRegManager::Add(RegUser * Reg) {
 //---------------------------------------------------------------------------
 
 void clsRegManager::Add2Table(RegUser * Reg) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &Reg->ui32Hash, sizeof(uint16_t));
+    const uint16_t ui16dx = CalcHash(Reg->ui32Hash);
 
     if(table[ui16dx] != NULL) {
         table[ui16dx]->hashtableprev = Reg;
@@ -508,8 +507,7 @@ void clsRegManager::Rem(RegUser * Reg) {
 
 void clsRegManager::RemFromTable(RegUser * Reg) {
     if(Reg->hashtableprev == NULL) {
-        uint16_t ui16dx = 0;
-        memcpy(&ui16dx, &Reg->ui32Hash, sizeof(uint16_t));
+	    const uint16_t ui16dx = CalcHash(Reg->ui32Hash);
 
         if(Reg->hashtablenext == NULL) {
             table[ui16dx] = NULL;
@@ -532,8 +530,7 @@ void clsRegManager::RemFromTable(RegUser * Reg) {
 RegUser* clsRegManager::Find(char * sNick, const size_t &szNickLen) {
     uint32_t ui32Hash = HashNick(sNick, szNickLen);
 
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
+    const uint16_t ui16dx = CalcHash(ui32Hash);
 
     RegUser * cur = NULL,
         * next = table[ui16dx];
@@ -552,8 +549,7 @@ RegUser* clsRegManager::Find(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 RegUser* clsRegManager::Find(User * u) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
+	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
 
 	RegUser * cur = NULL,
         * next = table[ui16dx];
@@ -572,8 +568,7 @@ RegUser* clsRegManager::Find(User * u) {
 //---------------------------------------------------------------------------
 
 RegUser* clsRegManager::Find(uint32_t ui32Hash, char * sNick) {
-    uint16_t ui16dx = 0;
-    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
+    const uint16_t ui16dx = CalcHash(ui32Hash);
 
 	RegUser * cur = NULL,
         * next = table[ui16dx];

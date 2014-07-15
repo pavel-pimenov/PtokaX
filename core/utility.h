@@ -114,6 +114,13 @@ bool CheckAndResizeGlobalBuffer(const size_t &szWantedSize);
 void ReduceGlobalBuffer();
 
 bool HashPassword(char * sPassword, const size_t &szPassLen, uint8_t * ui8PassHash);
+inline uint16_t CalcHash(const uint32_t& ui32Hash)
+{
+    uint16_t ui16dx;
+    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
+    return ui16dx;
+}
+
 //---------------------------------------------------------------------------
 
 #endif
