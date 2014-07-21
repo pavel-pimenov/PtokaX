@@ -41,11 +41,7 @@ private:
 
     uint64_t iLstUptmTck;
 
-#ifdef _WIN32
     CriticalSection csAcceptQueue;
-#else
-	pthread_mutex_t mtxAcceptQueue;
-#endif
 
 	AcceptedSocket *AcceptedSocketsS, *AcceptedSocketsE;
 

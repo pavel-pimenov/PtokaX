@@ -1,7 +1,6 @@
 #ifndef CRITICAL_SECTION_H
 #define CRITICAL_SECTION_H
 
-#ifdef _WIN32
 // typedef boost::recursive_mutex  CriticalSection;
 // typedef boost::lock_guard<boost::recursive_mutex> Lock;
 class CriticalSection
@@ -13,7 +12,7 @@ class CriticalSection
 			assert(cs.RecursionCount == 0 || (cs.RecursionCount > 0 && tryLock() == true));
 			EnterCriticalSection(&cs);
 #else
-			pthread_mutex_lock (&mutex)
+			pthread_mutex_lock (&mutex);
 #endif
 		}
 		void unlock()
@@ -62,6 +61,7 @@ class CriticalSection
 		pthread_mutex_t mutex;
 #endif
 };
+#if 0
 class FastCriticalSection
 {
 		static void yield()
@@ -103,6 +103,7 @@ class FastCriticalSection
 	private:
 		volatile long state;
 };
+#endif
 
 template<class T>
 class LockBase
@@ -121,9 +122,7 @@ class LockBase
 		LockBase& operator = (const LockBase& copy);
 };
 typedef LockBase<CriticalSection> Lock;
-typedef LockBase<FastCriticalSection> FastLock;
-
-#endif
+// typedef LockBase<FastCriticalSection> FastLock;
 
 #endif // !defined(CRITICAL_SECTION_H)
 
