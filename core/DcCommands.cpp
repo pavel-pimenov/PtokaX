@@ -4088,7 +4088,7 @@ PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, ch
             clsUsers::mPtr->ui16PasSearchs++;
         }
     } else {
-        cmdSearch = new (std::nothrow) PrcsdUsrCmd();
+        cmdSearch = new (std::nothrow) PrcsdUsrCmd;
         if(cmdSearch == NULL) {
             pUser->ui32BoolBits |= User::BIT_ERROR;
             pUser->Close();
