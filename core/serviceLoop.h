@@ -20,6 +20,7 @@
 //---------------------------------------------------------------------------
 #ifndef serviceLoopH
 #define serviceLoopH
+#include "CriticalSection.h"
 //---------------------------------------------------------------------------
 struct User;
 //---------------------------------------------------------------------------
@@ -41,7 +42,7 @@ private:
     uint64_t iLstUptmTck;
 
 #ifdef _WIN32
-    CRITICAL_SECTION csAcceptQueue;
+    CriticalSection csAcceptQueue;
 #else
 	pthread_mutex_t mtxAcceptQueue;
 #endif

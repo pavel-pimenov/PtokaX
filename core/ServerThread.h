@@ -34,6 +34,7 @@ private:
         int16_t hits;
     };
 
+    CriticalSection csServerThread;
 #ifdef _WIN32
     SOCKET server;
 
@@ -42,7 +43,6 @@ private:
 
     HANDLE threadHandle;
 
-    CRITICAL_SECTION csServerThread;
 #else
     int server;
 
@@ -50,7 +50,6 @@ private:
 
     pthread_t threadId;
 
-    pthread_mutex_t mtxServerThread;
 #endif
 
 	AntiConFlood *AntiFloodList;

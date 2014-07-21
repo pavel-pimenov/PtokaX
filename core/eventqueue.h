@@ -21,6 +21,7 @@
 #ifndef eventqueueH
 #define eventqueueH
 //---------------------------------------------------------------------------
+#include "CriticalSection.h"
 
 class clsEventQueue {
 private:
@@ -35,11 +36,8 @@ private:
 
     event *NormalE, *ThreadE;
 
-#ifdef _WIN32
-	CRITICAL_SECTION csEventQueue;
-#else
-	pthread_mutex_t mtxEventQueue;
-#endif
+	CriticalSection csEventQueue;
+
 public:
     static clsEventQueue * mPtr;
 

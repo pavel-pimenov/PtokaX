@@ -126,12 +126,8 @@ void clsServiceLoop::Looper() {
 clsServiceLoop::clsServiceLoop() {
     msg[0] = '\0';
 
-#ifdef _WIN32
-    InitializeCriticalSection(&csAcceptQueue);
-#else
+#ifndef _WIN32
 	iSIG = 0;
-
-	pthread_mutex_init(&mtxAcceptQueue, NULL);
 #endif
 
     AcceptedSocketsS = NULL;
@@ -182,12 +178,6 @@ clsServiceLoop::~clsServiceLoop() {
    
     AcceptedSocketsS = NULL;
     AcceptedSocketsE = NULL;
-
-#ifdef _WIN32
-	DeleteCriticalSection(&csAcceptQueue);
-#else
-	pthread_mutex_destroy(&mtxAcceptQueue);
-#endif
 
 	Cout("MainLoop terminated.");
 }
@@ -566,12 +556,8 @@ void clsServiceLoop::ReceiveLoop() {
 
     AcceptedSocket * CurSck = NULL,
         * NextSck = NULL;
-
-#ifdef _WIN32
-    EnterCriticalSection(&csAcceptQueue);
-#else
-	pthread_mutex_lock(&mtxAcceptQueue);
-#endif
+	{
+    Lock l(csAcceptQueue);
 
     if(AcceptedSocketsS != NULL) {
         NextSck = AcceptedSocketsS;
@@ -579,12 +565,7 @@ void clsServiceLoop::ReceiveLoop() {
         AcceptedSocketsE = NULL;
     }
 
-#ifdef _WIN32
-    LeaveCriticalSection(&csAcceptQueue);
-#else
-	pthread_mutex_unlock(&mtxAcceptQueue);
-#endif
-
+	}
     while(NextSck != NULL) {
         CurSck = NextSck;
         NextSck = CurSck->next;
@@ -1139,7 +1120,7 @@ void clsServiceLoop::AcceptSocket(const SOCKET &s, const sockaddr_storage &addr)
 #else
 void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr) {
 #endif
-    AcceptedSocket * pNewSocket = new (std::nothrow) AcceptedSocket();
+    AcceptedSocket * pNewSocket = new (std::nothrow) AcceptedSocket;
     if(pNewSocket == NULL) {
 #ifdef _WIN32
 		shutdown(s, SD_SEND);
@@ -1159,11 +1140,7 @@ void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr) {
 
     pNewSocket->next = NULL;
 
-#ifdef _WIN32
-    EnterCriticalSection(&csAcceptQueue);
-#else
-    pthread_mutex_lock(&mtxAcceptQueue);
-#endif
+    Lock l(csAcceptQueue);
 
     if(AcceptedSocketsS == NULL) {
         AcceptedSocketsS = pNewSocket;
@@ -1172,11 +1149,5 @@ void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr) {
         AcceptedSocketsE->next = pNewSocket;
         AcceptedSocketsE = pNewSocket;
     }
-
-#ifdef _WIN32
-    LeaveCriticalSection(&csAcceptQueue);
-#else
-	pthread_mutex_unlock(&mtxAcceptQueue);
-#endif
 }
 //---------------------------------------------------------------------------

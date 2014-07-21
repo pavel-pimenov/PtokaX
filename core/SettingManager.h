@@ -22,15 +22,12 @@
 #define SetManH
 //---------------------------------------------------------------------------
 #include "SettingIds.h"
+#include "CriticalSection.h"
 //---------------------------------------------------------------------------
 
 class clsSettingManager {
 private:
-#ifdef _WIN32
-	CRITICAL_SECTION csSetting;
-#else
-	pthread_mutex_t mtxSetting;
-#endif
+	CriticalSection csSetting;
 
     void CreateDefaultMOTD();
     void LoadMOTD();

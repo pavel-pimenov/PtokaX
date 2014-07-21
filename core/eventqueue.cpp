@@ -47,11 +47,6 @@ clsEventQueue * clsEventQueue::mPtr = NULL;
 //---------------------------------------------------------------------------
 
 clsEventQueue::clsEventQueue() {
-#ifdef _WIN32
-    InitializeCriticalSection(&csEventQueue);
-#else
-	pthread_mutex_init(&mtxEventQueue, NULL);
-#endif
 
     NormalS = NULL;
     NormalE = NULL;
@@ -93,11 +88,6 @@ clsEventQueue::~clsEventQueue() {
         delete cur;
     }
 
-#ifdef _WIN32
-	DeleteCriticalSection(&csEventQueue);
-#else
-	pthread_mutex_destroy(&mtxEventQueue);
-#endif
 }
 //---------------------------------------------------------------------------
 
@@ -116,7 +106,7 @@ void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg) {
 		}
 	}
 
-    event * pNewEvent = new (std::nothrow) event();
+    event * pNewEvent = new (std::nothrow) event;
 
 	if(pNewEvent == NULL) {
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewEvent in clsEventQueue::AddNormal\n", 0);
@@ -160,7 +150,7 @@ void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg) {
 //---------------------------------------------------------------------------
 
 void clsEventQueue::AddThread(uint8_t ui8Id, char * sMsg, const sockaddr_storage * sas/* = NULL*/) {
-	event * pNewEvent = new (std::nothrow) event();
+	event * pNewEvent = new (std::nothrow) event;
 
 	if(pNewEvent == NULL) {
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewEvent in clsEventQueue::AddThread\n", 0);
@@ -199,11 +189,7 @@ void clsEventQueue::AddThread(uint8_t ui8Id, char * sMsg, const sockaddr_storage
         memset(pNewEvent->ui128IpHash, 0, 16);
     }
 
-#ifdef _WIN32
-    EnterCriticalSection(&csEventQueue);
-#else
-	pthread_mutex_lock(&mtxEventQueue);
-#endif
+	Lock l(csEventQueue);
 
     if(ThreadS == NULL) {
         ThreadS = pNewEvent;
@@ -216,11 +202,6 @@ void clsEventQueue::AddThread(uint8_t ui8Id, char * sMsg, const sockaddr_storage
     ThreadE = pNewEvent;
     pNewEvent->next = NULL;
 
-#ifdef _WIN32
-    LeaveCriticalSection(&csEventQueue);
-#else
-	pthread_mutex_unlock(&mtxEventQueue);
-#endif
 }
 //---------------------------------------------------------------------------
 
@@ -298,24 +279,12 @@ void clsEventQueue::ProcessEvents() {
 
         delete cur;
     }
-
-#ifdef _WIN32
-    EnterCriticalSection(&csEventQueue);
-#else
-	pthread_mutex_lock(&mtxEventQueue);
-#endif
-
+	{
+    Lock l(csEventQueue);
     next = ThreadS;
-
     ThreadS = NULL;
     ThreadE = NULL;
-
-#ifdef _WIN32
-    LeaveCriticalSection(&csEventQueue);
-#else
-	pthread_mutex_unlock(&mtxEventQueue);
-#endif
-
+	}
     while(next != NULL) {
         cur = next;
         next = cur->next;

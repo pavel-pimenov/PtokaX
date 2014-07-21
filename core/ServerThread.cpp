@@ -54,10 +54,6 @@ ServerThread::ServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumbe
 
 #ifdef _WIN32
     threadHandle = INVALID_HANDLE_VALUE;
-
-	InitializeCriticalSection(&csServerThread);
-#else
-	pthread_mutex_init(&mtxServerThread, NULL);
 #endif
 
     AntiFloodList = NULL;
@@ -68,15 +64,11 @@ ServerThread::ServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumbe
 //---------------------------------------------------------------------------
 
 ServerThread::~ServerThread() {
-#ifdef _WIN32
-    DeleteCriticalSection(&csServerThread);
-#else
+#ifndef _WIN32
     if(threadId != 0) {
         Close();
         WaitFor();
     }
-
-    pthread_mutex_destroy(&mtxServerThread);
 #endif
         
     AntiConFlood * acfcur = NULL,
@@ -202,18 +194,10 @@ void ServerThread::Run() {
 					continue;
 				}
 
-#ifdef _WIN32
-				EnterCriticalSection(&csServerThread);
-#else
-				pthread_mutex_lock(&mtxServerThread);
-#endif
-				iSuspendTime = 0;
-#ifdef _WIN32
-				LeaveCriticalSection(&csServerThread);
-#else
-				pthread_mutex_unlock(&mtxServerThread);
-#endif
-
+				{
+					Lock l(csServerThread);
+					iSuspendTime = 0;
+				}
 				if(Listen(true) == true) {
 					clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG, 
 						("[SYS] Server socket for port "+string(ui16Port)+" sucessfully recovered from suspend state.").c_str());
@@ -452,7 +436,7 @@ bool ServerThread::isFlooder(const int &s, const sockaddr_storage &addr) {
         }
     }
 
-    AntiConFlood * pNewItem = new (std::nothrow) AntiConFlood();
+    AntiConFlood * pNewItem = new (std::nothrow) AntiConFlood;
     if(pNewItem == NULL) {
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem  in theLoop::isFlooder\n", 0);
     	return true;
@@ -497,40 +481,27 @@ void ServerThread::RemoveConFlood(AntiConFlood *cur) {
 
 void ServerThread::ResumeSck() {
     if(bActive == true) {
-#ifdef _WIN32
-        EnterCriticalSection(&csServerThread);
-#else
-		pthread_mutex_lock(&mtxServerThread);
-#endif
+		Lock l(csServerThread);
         bSuspended = false;
         iSuspendTime = 0;
-#ifdef _WIN32
-        LeaveCriticalSection(&csServerThread);
-#else
-		pthread_mutex_unlock(&mtxServerThread);
-#endif
     }
 }
 //---------------------------------------------------------------------------
 
 void ServerThread::SuspendSck(const uint32_t &iTime) {
     if(bActive == true) {
-#ifdef _WIN32
-        EnterCriticalSection(&csServerThread);
-#else
-		pthread_mutex_lock(&mtxServerThread);
-#endif
+		{
+        Lock l(csServerThread);
         if(iTime != 0) {
             iSuspendTime = iTime;
         } else {
             bSuspended = true;
             iSuspendTime = 1;            
         }
-#ifdef _WIN32
-        LeaveCriticalSection(&csServerThread);
+		}
+#ifdef _WIN32        
     	closesocket(server);
 #else
-        pthread_mutex_unlock(&mtxServerThread);
     	close(server);
 #endif
     }
