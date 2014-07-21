@@ -338,10 +338,10 @@ void ScriptEditorDialog::OnUpdate() {
 //------------------------------------------------------------------------------
 string ScriptEditorDialog::prepareLoadSaveScript(OPENFILENAME& OpenFileName, bool isSave)
 {
-    char buf[MAX_PATH];
+    char buf[MAX_PATH+1];
     if(sScriptPath.size() != 0) {
         strncpy(buf, sScriptPath.c_str(), MAX_PATH);
-        buf[MAX_PATH-1] = '\0';
+        buf[MAX_PATH] = '\0';
     } else {
         buf[0] = '\0';
     }

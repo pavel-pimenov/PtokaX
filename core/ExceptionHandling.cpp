@@ -215,13 +215,15 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
         ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
         if(GetVersionEx((OSVERSIONINFO*)&ver) != 0) {
-			fprintf(fw, "Windows version: %lu.%lu SP: %u\n", ver.dwMajorVersion, ver.dwMinorVersion, unsigned(ver.wServicePackMajor));
+			fprintf(fw, "Windows version: %lu.%lu SP: %hu\n", ver.dwMajorVersion, ver.dwMinorVersion, ver.wServicePackMajor);
         }
     }
 
     // Write date and time when crash happen
-    strftime(sDebugBuf, szDebugBufLen, "Date and time: %d.%m.%Y %H:%M:%S\n\n", tm);
-    fprintf(fw, "%s", sDebugBuf);
+    size_t szLen = strftime(sDebugBuf, szDebugBufLen, "Date and time: %d.%m.%Y %H:%M:%S\n\n", tm);
+    if(szLen > 0) {
+        fwrite(sDebugBuf, 1, szLen, fw);
+    }
 
     STACKFRAME64 sf64CallStack;
     memset(&sf64CallStack, 0, sizeof(STACKFRAME64));

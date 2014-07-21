@@ -54,3 +54,7 @@ valgrind*.log
 /PtokaX-gui.vcxproj.user
 /*.sdf
 /ipch/ptokax-gui-ae5b162f/*.ipch
+
+/compiled/*.ilk
+
+/compiled/PtokaX-gui.exe

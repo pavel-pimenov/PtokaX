@@ -61,8 +61,8 @@ clsSettingManager::clsSettingManager(void) {
 #else
 	pthread_mutex_init(&mtxSetting, NULL);
 #endif
-    
-	sMOTD = NULL;
+
+    sMOTD = NULL;
     ui16MOTDLen = 0;
 
     ui8FullMyINFOOption = 0;
