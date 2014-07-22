@@ -58,3 +58,9 @@ valgrind*.log
 /compiled/*.ilk
 
 /compiled/PtokaX-gui.exe
+
+/*.psess
+
+/*.vsp
+
+/obj/PtokaX.Build.CppClean.log
