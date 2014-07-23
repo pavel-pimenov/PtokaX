@@ -569,7 +569,7 @@ uint32_t HashNick(const char * sNick, const size_t &szNickLen) {
     uint32_t h = 5381;
 
 	for(size_t szi = 0; szi < szNickLen; szi++) {
-        const unsigned char c = (unsigned char)sNick[szi]; //[-] Pavel Pimenov tolower(sNick[szi]);
+        const unsigned char c = (unsigned char)tolower(sNick[szi]);
         h += (h << 5);
         h ^= c;
     }
