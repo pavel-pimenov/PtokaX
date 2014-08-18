@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="core\colUsers.cpp">
@@ -219,9 +219,6 @@
     </ClCompile>
     <ClCompile Include="core\PXBReader.cpp">
       <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="tinyxml\tinystr.cpp">
-      <Filter>tinyxml</Filter>
     </ClCompile>
     <ClCompile Include="tinyxml\tinyxml.cpp">
       <Filter>tinyxml</Filter>
@@ -632,9 +629,6 @@
     </ClInclude>
     <ClInclude Include="core\PXBReader.h">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="tinyxml\tinystr.h">
-      <Filter>tinyxml</Filter>
     </ClInclude>
     <ClInclude Include="tinyxml\tinyxml.h">
       <Filter>tinyxml</Filter>
