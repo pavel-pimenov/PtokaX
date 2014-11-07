@@ -63,7 +63,7 @@ static LRESULT CALLBACK MultiRichEditProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 clsMainWindowPageUsersChat::clsMainWindowPageUsersChat() {
     clsMainWindowPageUsersChat::mPtr = this;
 
-    memset(&hWndPageItems, 0, (sizeof(hWndPageItems) / sizeof(hWndPageItems[0])) * sizeof(HWND));
+    memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 
     iPercentagePos = clsGuiSettingManager::mPtr->iIntegers[GUISETINT_USERS_CHAT_SPLITTER];
 }

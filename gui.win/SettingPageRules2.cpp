@@ -35,7 +35,7 @@
 SettingPageRules2::SettingPageRules2() {
     bUpdateSlotsLimitMessage = bUpdateHubSlotRatioMessage = bUpdateMaxHubsLimitMessage = false;
 
-    memset(&hWndPageItems, 0, (sizeof(hWndPageItems) / sizeof(hWndPageItems[0])) * sizeof(HWND));
+    memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 }
 //---------------------------------------------------------------------------
 

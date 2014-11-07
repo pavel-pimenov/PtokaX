@@ -51,7 +51,7 @@ clsMainWindowPageScripts * clsMainWindowPageScripts::mPtr = NULL;
 clsMainWindowPageScripts::clsMainWindowPageScripts() {
     clsMainWindowPageScripts::mPtr = this;
 
-    memset(&hWndPageItems, 0, (sizeof(hWndPageItems) / sizeof(hWndPageItems[0])) * sizeof(HWND));
+    memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 
     bIgnoreItemChanged = false;
 

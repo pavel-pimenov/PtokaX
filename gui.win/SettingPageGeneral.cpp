@@ -36,7 +36,7 @@
 SettingPageGeneral::SettingPageGeneral() {
     bUpdateHubNameWelcome = bUpdateHubName = bUpdateTCPPorts = bUpdateUDPPort = bUpdateAutoReg = bUpdateLanguage = false;
 
-    memset(&hWndPageItems, 0, (sizeof(hWndPageItems) / sizeof(hWndPageItems[0])) * sizeof(HWND));
+    memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 }
 //---------------------------------------------------------------------------
 

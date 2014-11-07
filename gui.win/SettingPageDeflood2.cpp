@@ -33,7 +33,7 @@
 //---------------------------------------------------------------------------
 
 SettingPageDeflood2::SettingPageDeflood2() {
-    memset(&hWndPageItems, 0, (sizeof(hWndPageItems) / sizeof(hWndPageItems[0])) * sizeof(HWND));
+    memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 }
 //---------------------------------------------------------------------------
 

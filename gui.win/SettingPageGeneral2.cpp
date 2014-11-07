@@ -38,7 +38,7 @@ SettingPageGeneral2::SettingPageGeneral2() {
     bUpdateHubSlotRatioMessage = bUpdateMaxHubsLimitMessage = bUpdateNoTagMessage = bUpdateTempBanRedirAddress = bUpdatePermBanRedirAddress = false;
     bUpdateNickLimitMessage = false;
 
-    memset(&hWndPageItems, 0, (sizeof(hWndPageItems) / sizeof(hWndPageItems[0])) * sizeof(HWND));
+    memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 }
 //---------------------------------------------------------------------------
 

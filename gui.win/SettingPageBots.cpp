@@ -37,7 +37,7 @@ SettingPageBots::SettingPageBots() {
 	bUpdateHubSlotRatioMessage = bUpdateMaxHubsLimitMessage = bUpdateNoTagMessage = bUpdateNickLimitMessage = bUpdateBotsSameNick = false;
 	bBotNickChanged = bUpdateBot = bOpChatNickChanged = bUpdateOpChat = false;
 
-    memset(&hWndPageItems, 0, (sizeof(hWndPageItems) / sizeof(hWndPageItems[0])) * sizeof(HWND));
+    memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 }
 //---------------------------------------------------------------------------
 
