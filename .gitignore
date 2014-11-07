@@ -64,3 +64,4 @@ valgrind*.log
 /*.vsp
 
 /obj/PtokaX.Build.CppClean.log
+*.ipch
