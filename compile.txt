@@ -1,9 +1,14 @@
+
+sudo apt-get install -y liblua5.1-dev zlib1g-dev libtinyxml-dev lua-filesystem-dev
+
 PtokaX need for compiling packages (and url where to find sources when package is not available in your OS):
     g++				(name in Debian)    |   http://gcc.gnu.org/
     make			(name in Debian)    |   http://www.gnu.org/software/make/
     liblua5.2 + liblua5.2-dev   (names in Debian)   |   http://www.lua.org
     zlib1g + zlib1g-dev         (names in Debian)   |   http://zlib.net
     libtinyxml2.6.2 + libtinyxml-dev	(names in Debian)	|   http://sourceforge.net/projects/tinyxml
+
+
 
 PtokaX was tested on debian where g++, make, lua (it can be any 5.2.x version, but in debian they always use only 5.2 in name), zlib and tinyxml is available as packages.
 
