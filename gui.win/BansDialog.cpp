@@ -43,7 +43,7 @@ static ATOM atomBansDialog = 0;
 //---------------------------------------------------------------------------
 
 clsBansDialog::clsBansDialog() {
-    memset(&hWndWindowItems, 0, (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])) * sizeof(HWND));
+    memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
 
     iFilterColumn = iSortColumn = 0;
 
@@ -490,11 +490,10 @@ void clsBansDialog::RemoveBans() {
 
     ::SendMessage(hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 
-    BanItem * pBan = NULL;
     int iSel = -1;
 
     while((iSel = (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETNEXTITEM, (WPARAM)-1, LVNI_SELECTED)) != -1) {
-        pBan = (BanItem *)ListViewGetItem(hWndWindowItems[LV_BANS], iSel);
+        BanItem * pBan = (BanItem *)ListViewGetItem(hWndWindowItems[LV_BANS], iSel);
 
         clsBanManager::mPtr->Rem(pBan, true);
 

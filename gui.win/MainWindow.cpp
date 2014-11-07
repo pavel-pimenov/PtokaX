@@ -74,8 +74,8 @@ uint64_t PXGetTickCount64() {
 clsMainWindow::clsMainWindow() {
     m_hWnd = NULL;
 
-    memset(&hWndWindowItems, 0, (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])) * sizeof(HWND));
-    memset(&MainWindowPages, 0, (sizeof(MainWindowPages) / sizeof(MainWindowPages[0])) * sizeof(MainWindowPage *));
+    memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
+    memset(&MainWindowPages, 0, sizeof(MainWindowPages));
 
     uiTaskBarCreated = 0;
 

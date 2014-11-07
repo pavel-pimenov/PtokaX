@@ -39,7 +39,7 @@ static ATOM atomRegisteredUserDialog = 0;
 //---------------------------------------------------------------------------
 
 clsRegisteredUserDialog::clsRegisteredUserDialog() {
-    memset(&hWndWindowItems, 0, (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])) * sizeof(HWND));
+    memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
 
     pRegToChange = NULL;
 }

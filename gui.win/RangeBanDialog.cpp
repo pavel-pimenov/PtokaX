@@ -38,7 +38,7 @@ static ATOM atomRangeBanDialog = 0;
 //---------------------------------------------------------------------------
 
 clsRangeBanDialog::clsRangeBanDialog() {
-    memset(&hWndWindowItems, 0, (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])) * sizeof(HWND));
+    memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
 
     pRangeBanToChange = NULL;
 }

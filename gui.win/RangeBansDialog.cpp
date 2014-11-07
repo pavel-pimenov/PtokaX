@@ -43,7 +43,7 @@ static ATOM atomRangeBansDialog = 0;
 //---------------------------------------------------------------------------
 
 clsRangeBansDialog::clsRangeBansDialog() {
-    memset(&hWndWindowItems, 0, (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])) * sizeof(HWND));
+    memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
 
     iFilterColumn = iSortColumn = 0;
 
@@ -466,11 +466,10 @@ void clsRangeBansDialog::RemoveRangeBans() {
 
     ::SendMessage(hWndWindowItems[LV_RANGE_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 
-    RangeBanItem * pRangeBan = NULL;
     int iSel = -1;
 
     while((iSel = (int)::SendMessage(hWndWindowItems[LV_RANGE_BANS], LVM_GETNEXTITEM, (WPARAM)-1, LVNI_SELECTED)) != -1) {
-        pRangeBan = (RangeBanItem *)ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], iSel);
+        RangeBanItem * pRangeBan = (RangeBanItem *)ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], iSel);
 
         clsBanManager::mPtr->RemRange(pRangeBan, true);
 

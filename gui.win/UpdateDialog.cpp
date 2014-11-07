@@ -38,7 +38,7 @@ static ATOM atomUpdateDialog = 0;
 //---------------------------------------------------------------------------
 
 clsUpdateDialog::clsUpdateDialog() {
-    memset(&hWndWindowItems, 0, (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])) * sizeof(HWND));
+    memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
 }
 //---------------------------------------------------------------------------
 
@@ -150,11 +150,9 @@ bool clsUpdateDialog::ParseData(char * sData, HWND hWndParent) {
     char * sBegin = sData;
     char * sTemp = strchr(sBegin, '=');
 
-    size_t szLen = 0;
-
     while(sTemp != NULL) {
         sTemp[0] = '\0';
-        szLen = sTemp - sBegin;
+        size_t szLen = sTemp - sBegin;
 
         if(szLen == 7) {
             if(strcmp(sBegin, "Version") == 0) {

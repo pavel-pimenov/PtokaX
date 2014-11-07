@@ -43,7 +43,7 @@ static ATOM atomProfilesDialog = 0;
 //---------------------------------------------------------------------------
 
 clsProfilesDialog::clsProfilesDialog() {
-    memset(&hWndWindowItems, 0, (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])) * sizeof(HWND));
+    memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
 
     bIgnoreItemChanged = false;
 }

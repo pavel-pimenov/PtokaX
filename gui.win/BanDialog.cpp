@@ -38,7 +38,7 @@ static ATOM atomBanDialog = 0;
 //---------------------------------------------------------------------------
 
 clsBanDialog::clsBanDialog() {
-    memset(&hWndWindowItems, 0, (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])) * sizeof(HWND));
+    memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
 
     pBanToChange = NULL;
 }
