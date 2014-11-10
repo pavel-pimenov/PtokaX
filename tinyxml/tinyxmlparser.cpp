@@ -403,7 +403,7 @@ const char* TiXmlBase::ReadName( const char* p, TIXML_STRING * name, TiXmlEncodi
 	// Oddly, not supported on some comilers,
 	//name->clear();
 	// So use this:
-	*name = "";
+	name->clear();
 	assert( p );
 
 	// Names start with letters or underscores.
@@ -438,7 +438,6 @@ const char* TiXmlBase::ReadName( const char* p, TIXML_STRING * name, TiXmlEncodi
 const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXmlEncoding encoding )
 {
 	// Presume an entity, and pull it out.
-    TIXML_STRING ent;
 	int i;
 	*length = 0;
 
@@ -578,7 +577,7 @@ const char* TiXmlBase::ReadText(	const char* p,
 									bool caseInsensitive,
 									TiXmlEncoding encoding )
 {
-    *text = "";
+    text->clear();
 	if (    !trimWhiteSpace			// certain tags always keep whitespace
 		 || !condenseWhiteSpace )	// if true, whitespace is always kept
 	{
@@ -1288,7 +1287,7 @@ const char* TiXmlUnknown::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 		return 0;
 	}
 	++p;
-    value = "";
+    value.clear();
 
 	while ( p && *p && *p != '>' )
 	{
@@ -1337,7 +1336,7 @@ void TiXmlComment::StreamIn( std::istream * in, TIXML_STRING * tag )
 const char* TiXmlComment::Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding )
 {
 	TiXmlDocument* document = GetDocument();
-	value = "";
+	value.clear();
 
 	p = SkipWhiteSpace( p, encoding );
 
@@ -1375,7 +1374,7 @@ const char* TiXmlComment::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 				  <!-- declarations for <head> & <body> -->
 	*/
 
-    value = "";
+    value.clear();
 	// Keep all the white space.
 	while (	p && *p && !StringEqual( p, endTag, false, encoding ) )
 	{
@@ -1443,7 +1442,7 @@ const char* TiXmlAttribute::Parse( const char* p, TiXmlParsingData* data, TiXmlE
 		// All attribute values should be in single or double quotes.
 		// But this is such a common error that the parser will try
 		// its best, even without them.
-		value = "";
+		value.clear();
 		while (    p && *p											// existence
 				&& !IsWhiteSpace( *p )								// whitespace
 				&& *p != '/' && *p != '>' )							// tag end
@@ -1496,7 +1495,7 @@ void TiXmlText::StreamIn( std::istream * in, TIXML_STRING * tag )
 
 const char* TiXmlText::Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding )
 {
-	value = "";
+	value.clear();
 	TiXmlDocument* document = GetDocument();
 
 	if ( data )
@@ -1587,9 +1586,9 @@ const char* TiXmlDeclaration::Parse( const char* p, TiXmlParsingData* data, TiXm
 	}
 	p += 5;
 
-	version = "";
-	encoding = "";
-	standalone = "";
+	version.clear();
+	encoding.clear();
+	standalone.clear();
 
 	while ( p && *p )
 	{

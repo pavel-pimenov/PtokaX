@@ -267,10 +267,10 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
                         }
 					}
 
-					size_t szSize = sizeof(nid.szTip);
+					const size_t szSize = sizeof(nid.szTip);
 
 					if(szSize < (size_t)(clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME]+iret+10)) {
-						nid.szTip[szSize] = '\0';
+						nid.szTip[szSize-1] = '\0';
 						memcpy(nid.szTip+(szSize-(iret+1)), msg, iret);
 						nid.szTip[szSize-(iret+2)] = '.';
 						nid.szTip[szSize-(iret+3)] = '.';
