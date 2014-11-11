@@ -28,23 +28,20 @@ private:
     struct event {
         event();
 
-        event(const event&);
-        const event& operator=(const event&);
-
         char * sMsg;
 
         event * pPrev, * pNext;
 
         uint8_t ui128IpHash[16];
         uint8_t ui8Id;
+        DISALLOW_COPY_AND_ASSIGN(event);
     };
 
     event * pNormalE, * pThreadE;
 
 	CriticalSection csEventQueue;
 
-	clsEventQueue(const clsEventQueue&);
-	const clsEventQueue& operator=(const clsEventQueue&);
+  DISALLOW_COPY_AND_ASSIGN(clsEventQueue);
 public:
     static clsEventQueue * mPtr;
 

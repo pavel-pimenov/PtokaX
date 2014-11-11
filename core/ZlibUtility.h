@@ -27,8 +27,7 @@ private:
     size_t szZbufferSize;
     char * pZbuffer;
 
-    clsZlibUtility(const clsZlibUtility&);
-    const clsZlibUtility& operator=(const clsZlibUtility&);
+    DISALLOW_COPY_AND_ASSIGN(clsZlibUtility);
 public:
     static clsZlibUtility * mPtr;
 

@@ -30,17 +30,14 @@ private:
         TextFile();
         ~TextFile();
 
-        TextFile(const TextFile&);
-        const TextFile& operator=(const TextFile&);
-
         char * sCommand, * sText;
         TextFile * pPrev, * pNext;
+        DISALLOW_COPY_AND_ASSIGN(TextFile);
     };
 
     TextFile * pTextFiles;
 
-    clsTextFilesManager(const clsTextFilesManager&);
-    const clsTextFilesManager& operator=(const clsTextFilesManager&);
+    DISALLOW_COPY_AND_ASSIGN(clsTextFilesManager);
 public:
     static clsTextFilesManager * mPtr;
 

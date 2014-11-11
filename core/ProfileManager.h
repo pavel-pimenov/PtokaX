@@ -28,18 +28,15 @@ struct ProfileItem {
     ProfileItem();
     ~ProfileItem();
 
-    ProfileItem(const ProfileItem&);
-    const ProfileItem& operator=(const ProfileItem&);
-
     char *sName;
     bool bPermissions[256];
+    DISALLOW_COPY_AND_ASSIGN(ProfileItem);
 };
 //---------------------------------------------------------------------------
 
 class clsProfileManager {
 private:
-    clsProfileManager(const clsProfileManager&);
-    const clsProfileManager& operator=(const clsProfileManager&);
+    DISALLOW_COPY_AND_ASSIGN(clsProfileManager);
 
     static void CreateDefaultProfiles();
     ProfileItem * CreateProfile(const char * name);

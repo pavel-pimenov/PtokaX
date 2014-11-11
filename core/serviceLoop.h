@@ -30,8 +30,6 @@ private:
     struct AcceptedSocket {
         AcceptedSocket();
 
-        AcceptedSocket(const AcceptedSocket&);
-        const AcceptedSocket& operator=(const AcceptedSocket&);
 
 #ifdef _WIN32
         SOCKET s;
@@ -42,6 +40,7 @@ private:
         sockaddr_storage addr;
 
         AcceptedSocket * pNext;
+        DISALLOW_COPY_AND_ASSIGN(AcceptedSocket);
     };
 
     uint64_t ui64LstUptmTck;
@@ -62,8 +61,7 @@ private:
 
 	char msg[1024];
 
-	clsServiceLoop(const clsServiceLoop&);
-	const clsServiceLoop& operator=(const clsServiceLoop&);
+    DISALLOW_COPY_AND_ASSIGN(clsServiceLoop);
 
     void AcceptUser(AcceptedSocket * AccptSocket);
 protected:

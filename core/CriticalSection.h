@@ -119,7 +119,7 @@ class LockBase
 		}
 	private:
 		T& cs;
-		LockBase& operator = (const LockBase& copy);
+    DISALLOW_COPY_AND_ASSIGN(LockBase);
 };
 typedef LockBase<CriticalSection> Lock;
 // typedef LockBase<FastCriticalSection> FastLock;

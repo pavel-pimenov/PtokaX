@@ -29,8 +29,7 @@ class clsSettingManager {
 private:
 	CriticalSection csSetting;
 
-    clsSettingManager(const clsSettingManager&);
-    const clsSettingManager& operator=(const clsSettingManager&);
+    DISALLOW_COPY_AND_ASSIGN(clsSettingManager);
 
     void CreateDefaultMOTD();
     void LoadMOTD();

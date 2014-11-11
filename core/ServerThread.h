@@ -27,9 +27,6 @@ private:
     struct AntiConFlood {
         AntiConFlood(const uint8_t * pIpHash);
 
-        AntiConFlood(const AntiConFlood&);
-        const AntiConFlood& operator=(const AntiConFlood&);
-
         uint8_t ui128IpHash[16];
 
         uint64_t ui64Time;
@@ -37,6 +34,7 @@ private:
         AntiConFlood * pPrev, * pNext;
 
         int16_t ui16Hits;
+        DISALLOW_COPY_AND_ASSIGN(AntiConFlood);
     };
 
     CriticalSection csServerThread;
@@ -64,8 +62,7 @@ private:
 
 	bool bTerminated;
 
-	ServerThread(const ServerThread&);
-	const ServerThread& operator=(const ServerThread&);
+    DISALLOW_COPY_AND_ASSIGN(ServerThread);
 public:
     ServerThread * pPrev, * pNext;
 

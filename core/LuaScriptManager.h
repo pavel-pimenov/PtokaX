@@ -31,8 +31,7 @@ class clsScriptManager {
 private:
 	Script * pRunningScriptE;
 
-    clsScriptManager(const clsScriptManager&);
-    const clsScriptManager& operator=(const clsScriptManager&);
+    DISALLOW_COPY_AND_ASSIGN(clsScriptManager);
 
 	void AddRunningScript(Script * curScript);
 	void RemoveRunningScript(Script * curScript);

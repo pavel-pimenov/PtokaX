@@ -30,9 +30,6 @@ private:
         UdpDbgItem();
         ~UdpDbgItem();
 
-        UdpDbgItem(const UdpDbgItem&);
-        const UdpDbgItem& operator=(const UdpDbgItem&);
-
 #ifdef _WIN32
         SOCKET s;
 #else
@@ -46,10 +43,11 @@ private:
 
         UdpDbgItem * pPrev, * pNext;
         bool bIsScript;
+        DISALLOW_COPY_AND_ASSIGN(UdpDbgItem);
     };
 
-    clsUdpDebug(const clsUdpDebug&);
-    const clsUdpDebug& operator=(const clsUdpDebug&);
+    DISALLOW_COPY_AND_ASSIGN(clsUdpDebug);
+
 public:
     static clsUdpDebug * mPtr;
 

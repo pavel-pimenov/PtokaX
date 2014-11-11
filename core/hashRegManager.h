@@ -48,11 +48,9 @@ struct RegUser {
     RegUser();
     ~RegUser();
 
-    RegUser(const RegUser&);
-    const RegUser& operator=(const RegUser&);
-
     static RegUser * CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPassword, size_t szRegPassLen, uint8_t * ui8RegPassHash, const uint16_t &ui16RegProfile);
     bool UpdatePassword(char * sNewPass, size_t &szNewLen);
+    DISALLOW_COPY_AND_ASSIGN(RegUser);
 }; 
 //---------------------------------------------------------------------------
 
@@ -62,8 +60,7 @@ private:
 
     uint8_t ui8SaveCalls;
 
-    clsRegManager(const clsRegManager&);
-    const clsRegManager& operator=(const clsRegManager&);
+    DISALLOW_COPY_AND_ASSIGN(clsRegManager);
 
     void LoadXML();
 public:

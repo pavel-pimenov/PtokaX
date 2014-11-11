@@ -43,8 +43,7 @@ struct BanItem {
     BanItem();
     ~BanItem();
 
-    BanItem(const BanItem&);
-    const BanItem& operator=(const BanItem&);
+    DISALLOW_COPY_AND_ASSIGN(BanItem);
 }; 
 //---------------------------------------------------------------------------
 
@@ -64,8 +63,7 @@ struct RangeBanItem {
     RangeBanItem();
     ~RangeBanItem();
 
-    RangeBanItem(const RangeBanItem&);
-    const RangeBanItem& operator=(const RangeBanItem&);
+    DISALLOW_COPY_AND_ASSIGN(RangeBanItem);
 };
 //---------------------------------------------------------------------------
 
@@ -74,11 +72,9 @@ private:
     struct IpTableItem {
         IpTableItem() : pPrev(NULL), pNext(NULL), pFirstBan(NULL) { };
 
-        IpTableItem(const IpTableItem&);
-        const IpTableItem& operator=(const IpTableItem&);
-
         IpTableItem * pPrev, * pNext;
         BanItem * pFirstBan;
+        DISALLOW_COPY_AND_ASSIGN(IpTableItem);
     };
 
     uint32_t ui32SaveCalled;
@@ -86,8 +82,7 @@ private:
     BanItem * pNickTable[65536];
     IpTableItem * pIpTable[65536];
 
-    clsBanManager(const clsBanManager&);
-    const clsBanManager& operator=(const clsBanManager&);
+    DISALLOW_COPY_AND_ASSIGN(clsBanManager);
 public:
     static clsBanManager * mPtr;
 
