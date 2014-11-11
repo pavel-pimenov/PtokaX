@@ -33,11 +33,9 @@
 #pragma hdrstop
 //---------------------------------------------------------------------------
 
-SettingPageGeneral2::SettingPageGeneral2() {
-    bUpdateTextFiles = bUpdateRedirectAddress = bUpdateRegOnlyMessage = bUpdateShareLimitMessage = bUpdateSlotsLimitMessage = false;
-    bUpdateHubSlotRatioMessage = bUpdateMaxHubsLimitMessage = bUpdateNoTagMessage = bUpdateTempBanRedirAddress = bUpdatePermBanRedirAddress = false;
-    bUpdateNickLimitMessage = false;
-
+SettingPageGeneral2::SettingPageGeneral2() : bUpdateTextFiles(false), bUpdateRedirectAddress(false), bUpdateRegOnlyMessage(false), bUpdateShareLimitMessage(false), bUpdateSlotsLimitMessage(false),
+    bUpdateHubSlotRatioMessage(false), bUpdateMaxHubsLimitMessage(false), bUpdateNoTagMessage(false), bUpdateTempBanRedirAddress(false), bUpdatePermBanRedirAddress(false),
+    bUpdateNickLimitMessage(false) {
     memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 }
 //---------------------------------------------------------------------------

@@ -46,23 +46,22 @@
 clsEventQueue * clsEventQueue::mPtr = NULL;
 //---------------------------------------------------------------------------
 
-clsEventQueue::clsEventQueue() {
+clsEventQueue::event::event() : sMsg(NULL), pPrev(NULL), pNext(NULL), ui8Id(0) {
+    memset(&ui128IpHash, 0, 16);
+};
+//---------------------------------------------------------------------------
 
-    NormalS = NULL;
-    NormalE = NULL;
-
-    ThreadS = NULL;
-    ThreadE = NULL;
+clsEventQueue::clsEventQueue() : pNormalE(NULL), pThreadE(NULL), pNormalS(NULL), pThreadS(NULL) {
 }
 //---------------------------------------------------------------------------
 
 clsEventQueue::~clsEventQueue() {
     event * cur = NULL,
-        * next = NormalS;
+        * next = pNormalS;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
 #ifdef _WIN32
         if(cur->sMsg != NULL) {
@@ -77,11 +76,11 @@ clsEventQueue::~clsEventQueue() {
         delete cur;
     }
 
-    next = ThreadS;
+    next = pThreadS;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
         free(cur->sMsg);
 
@@ -94,11 +93,11 @@ clsEventQueue::~clsEventQueue() {
 void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg) {
 	if(ui8Id != EVENT_RSTSCRIPT && ui8Id != EVENT_STOPSCRIPT) {
 		event * cur = NULL,
-            * next = NormalS;
+            * next = pNormalS;
 
 		while(next != NULL) {
 			cur = next;
-			next = cur->next;
+			next = cur->pNext;
 
 			if(cur->ui8Id == ui8Id) {
                 return;
@@ -136,16 +135,16 @@ void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg) {
 
     pNewEvent->ui8Id = ui8Id;
 
-    if(NormalS == NULL) {
-        NormalS = pNewEvent;
-        pNewEvent->prev = NULL;
+    if(pNormalS == NULL) {
+        pNormalS = pNewEvent;
+        pNewEvent->pPrev = NULL;
     } else {
-        pNewEvent->prev = NormalE;
-        NormalE->next = pNewEvent;
+        pNewEvent->pPrev = pNormalE;
+        pNormalE->pNext = pNewEvent;
     }
 
-    NormalE = pNewEvent;
-    pNewEvent->next = NULL;
+    pNormalE = pNewEvent;
+    pNewEvent->pNext = NULL;
 }
 //---------------------------------------------------------------------------
 
@@ -191,30 +190,30 @@ void clsEventQueue::AddThread(uint8_t ui8Id, char * sMsg, const sockaddr_storage
 
 	Lock l(csEventQueue);
 
-    if(ThreadS == NULL) {
-        ThreadS = pNewEvent;
-        pNewEvent->prev = NULL;
+    if(pThreadS == NULL) {
+        pThreadS = pNewEvent;
+        pNewEvent->pPrev = NULL;
     } else {
-        pNewEvent->prev = ThreadE;
-        ThreadE->next = pNewEvent;
+        pNewEvent->pPrev = pThreadE;
+        pThreadE->pNext = pNewEvent;
     }
 
-    ThreadE = pNewEvent;
-    pNewEvent->next = NULL;
+    pThreadE = pNewEvent;
+    pNewEvent->pNext = NULL;
 
 }
 //---------------------------------------------------------------------------
 
 void clsEventQueue::ProcessEvents() {
 	event * cur = NULL,
-        * next = NormalS;
+        * next = pNormalS;
 
-	NormalS = NULL;
-	NormalE = NULL;
+	pNormalS = NULL;
+	pNormalE = NULL;
 
 	while(next != NULL) {
 		cur = next;
-		next = cur->next;
+		next = cur->pNext;
 
         switch(cur->ui8Id) {
 			case EVENT_RESTART:
@@ -226,7 +225,7 @@ void clsEventQueue::ProcessEvents() {
                 break;
             case EVENT_RSTSCRIPT: {
             	Script * curScript = clsScriptManager::mPtr->FindScript(cur->sMsg);
-                if(curScript == NULL || curScript->bEnabled == false || curScript->LUA == NULL) {
+                if(curScript == NULL || curScript->bEnabled == false || curScript->pLUA == NULL) {
                     return;
                 }
 
@@ -238,7 +237,7 @@ void clsEventQueue::ProcessEvents() {
             }
 			case EVENT_STOPSCRIPT: {
 				Script * curScript = clsScriptManager::mPtr->FindScript(cur->sMsg);
-            	if(curScript == NULL || curScript->bEnabled == false || curScript->LUA == NULL) {
+            	if(curScript == NULL || curScript->bEnabled == false || curScript->pLUA == NULL) {
                     return;
                 }
 
@@ -281,13 +280,13 @@ void clsEventQueue::ProcessEvents() {
     }
 	{
     Lock l(csEventQueue);
-    next = ThreadS;
-    ThreadS = NULL;
-    ThreadE = NULL;
+    next = pThreadS;
+    pThreadS = NULL;
+    pThreadE = NULL;
 	}
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
         switch(cur->ui8Id) {
             case EVENT_REGSOCK_MSG:

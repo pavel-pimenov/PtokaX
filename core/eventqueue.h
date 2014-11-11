@@ -26,18 +26,25 @@
 class clsEventQueue {
 private:
     struct event {
+        event();
+
+        event(const event&);
+        const event& operator=(const event&);
+
         char * sMsg;
 
-        event *prev, *next;
+        event * pPrev, * pNext;
 
         uint8_t ui128IpHash[16];
         uint8_t ui8Id;
     };
 
-    event *NormalE, *ThreadE;
+    event * pNormalE, * pThreadE;
 
 	CriticalSection csEventQueue;
 
+	clsEventQueue(const clsEventQueue&);
+	const clsEventQueue& operator=(const clsEventQueue&);
 public:
     static clsEventQueue * mPtr;
 
@@ -53,7 +60,7 @@ public:
         EVENT_UDP_SR
 	};
 
-    event *NormalS, *ThreadS;
+    event * pNormalS, * pThreadS;
 
     clsEventQueue();
     ~clsEventQueue();

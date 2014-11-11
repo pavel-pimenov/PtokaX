@@ -40,26 +40,11 @@
 clsBanManager * clsBanManager::mPtr = NULL;
 //---------------------------------------------------------------------------
 
-BanItem::BanItem(void) {
-    sNick = NULL;
+BanItem::BanItem(void) : tTempBanExpire(0), ui32NickHash(0), sNick(NULL), sReason(NULL), sBy(NULL), pPrev(NULL), pNext(NULL), pHashNickTablePrev(NULL), pHashNickTableNext(NULL),
+	pHashIpTablePrev(NULL), pHashIpTableNext(NULL), ui8Bits(0) {
     sIp[0] = '\0';
-    sReason = NULL;
-    sBy = NULL;
-
-    ui8Bits = 0;
-    
-    ui32NickHash = 0;
 
     memset(ui128IpHash, 0, 16);
-
-    tempbanexpire = 0;
-
-    prev = NULL;
-    next = NULL;
-    hashnicktableprev = NULL;
-    hashnicktablenext = NULL;
-    hashiptableprev = NULL;
-    hashiptablenext = NULL;
 }
 //---------------------------------------------------------------------------
 
@@ -96,22 +81,12 @@ BanItem::~BanItem(void) {
 }
 //---------------------------------------------------------------------------
 
-RangeBanItem::RangeBanItem(void) {
+RangeBanItem::RangeBanItem(void) : tTempBanExpire(0), sReason(NULL), sBy(NULL), pPrev(NULL), pNext(NULL), ui8Bits(0) {
     sIpFrom[0] = '\0';
     sIpTo[0] = '\0';
-    sReason = NULL;
-    sBy = NULL;
-
-    ui8Bits = 0;
 
     memset(ui128FromIpHash, 0, 16);
     memset(ui128ToIpHash, 0, 16);
-
-    tempbanexpire = 0;
-
-    prev = NULL;
-    next = NULL;
-
 }
 //---------------------------------------------------------------------------
 
@@ -138,44 +113,39 @@ RangeBanItem::~RangeBanItem(void) {
 }
 //---------------------------------------------------------------------------
 
-clsBanManager::clsBanManager(void) {
-    PermBanListS = PermBanListE = NULL;
-    TempBanListS = TempBanListE = NULL;
-    RangeBanListS = RangeBanListE = NULL;
-    
-    iSaveCalled = 0;
-
-    memset(nicktable, 0, sizeof(nicktable));
-    memset(iptable, 0, sizeof(iptable));
+clsBanManager::clsBanManager(void) : ui32SaveCalled(0), pTempBanListS(NULL), pTempBanListE(NULL), pPermBanListS(NULL), pPermBanListE(NULL),
+	pRangeBanListS(NULL), pRangeBanListE(NULL) {
+    memset(pNickTable, 0, sizeof(pNickTable));
+    memset(pIpTable, 0, sizeof(pIpTable));
 }
 //---------------------------------------------------------------------------
 
 clsBanManager::~clsBanManager(void) {
     BanItem * curBan = NULL,
-        * nextBan = PermBanListS;
+        * nextBan = pPermBanListS;
 
     while(nextBan != NULL) {
         curBan = nextBan;
-		nextBan = curBan->next;
+		nextBan = curBan->pNext;
 
 		delete curBan;
 	}
 
-    nextBan = TempBanListS;
+    nextBan = pTempBanListS;
 
     while(nextBan != NULL) {
         curBan = nextBan;
-		nextBan = curBan->next;
+		nextBan = curBan->pNext;
 
 		delete curBan;
 	}
     
     RangeBanItem * curRangeBan = NULL,
-        * nextRangeBan = RangeBanListS;
+        * nextRangeBan = pRangeBanListS;
 
     while(nextRangeBan != NULL) {
         curRangeBan = nextRangeBan;
-		nextRangeBan = curRangeBan->next;
+		nextRangeBan = curRangeBan->pNext;
 
 		delete curRangeBan;
 	}
@@ -183,11 +153,11 @@ clsBanManager::~clsBanManager(void) {
     IpTableItem * cur = NULL, * next = NULL;
 
     for(uint32_t ui32i = 0; ui32i < 65536; ui32i++) {
-        next = iptable[ui32i];
+        next = pIpTable[ui32i];
         
         while(next != NULL) {
             cur = next;
-            next = cur->next;
+            next = cur->pNext;
         
             delete cur;
 		}
@@ -201,22 +171,22 @@ bool clsBanManager::Add(BanItem * Ban) {
     }
 
     if(((Ban->ui8Bits & PERM) == PERM) == true) {
-		if(PermBanListE == NULL) {
-			PermBanListS = Ban;
-			PermBanListE = Ban;
+		if(pPermBanListE == NULL) {
+			pPermBanListS = Ban;
+			pPermBanListE = Ban;
 		} else {
-			PermBanListE->next = Ban;
-			Ban->prev = PermBanListE;
-			PermBanListE = Ban;
+			pPermBanListE->pNext = Ban;
+			Ban->pPrev = pPermBanListE;
+			pPermBanListE = Ban;
 		}
     } else {
-		if(TempBanListE == NULL) {
-			TempBanListS = Ban;
-			TempBanListE = Ban;
+		if(pTempBanListE == NULL) {
+			pTempBanListS = Ban;
+			pTempBanListE = Ban;
 		} else {
-			TempBanListE->next = Ban;
-			Ban->prev = TempBanListE;
-			TempBanListE = Ban;
+			pTempBanListE->pNext = Ban;
+			Ban->pPrev = pTempBanListE;
+			pTempBanListE = Ban;
 		}
     }
 
@@ -248,12 +218,12 @@ bool clsBanManager::Add2Table(BanItem *Ban) {
 void clsBanManager::Add2NickTable(BanItem *Ban) {
     const uint16_t ui16dx = CalcHash(Ban->ui32NickHash);
 
-    if(nicktable[ui16dx] != NULL) {
-        nicktable[ui16dx]->hashnicktableprev = Ban;
-        Ban->hashnicktablenext = nicktable[ui16dx];
+    if(pNickTable[ui16dx] != NULL) {
+        pNickTable[ui16dx]->pHashNickTablePrev = Ban;
+        Ban->pHashNickTableNext = pNickTable[ui16dx];
     }
 
-    nicktable[ui16dx] = Ban;
+    pNickTable[ui16dx] = Ban;
 }
 //---------------------------------------------------------------------------
 
@@ -266,33 +236,33 @@ bool clsBanManager::Add2IpTable(BanItem *Ban) {
         ui16IpTableIdx = GetIpTableIdx(Ban->ui128IpHash);
     }
     
-    if(iptable[ui16IpTableIdx] == NULL) {
-		iptable[ui16IpTableIdx] = new (std::nothrow) IpTableItem;
+    if(pIpTable[ui16IpTableIdx] == NULL) {
+		pIpTable[ui16IpTableIdx] = new (std::nothrow) IpTableItem();
 
-        if(iptable[ui16IpTableIdx] == NULL) {
+        if(pIpTable[ui16IpTableIdx] == NULL) {
 			AppendDebugLog("%s - [MEM] Cannot allocate IpTableItem in clsBanManager::Add2IpTable\n", 0);
             return false;
         }
 
-        iptable[ui16IpTableIdx]->next = NULL;
-        iptable[ui16IpTableIdx]->prev = NULL;
+        pIpTable[ui16IpTableIdx]->pNext = NULL;
+        pIpTable[ui16IpTableIdx]->pPrev = NULL;
 
-        iptable[ui16IpTableIdx]->FirstBan = Ban;
+        pIpTable[ui16IpTableIdx]->pFirstBan = Ban;
 
         return true;
     }
 
     IpTableItem * cur = NULL,
-        * next = iptable[ui16IpTableIdx];
+        * next = pIpTable[ui16IpTableIdx];
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-		if(memcmp(cur->FirstBan->ui128IpHash, Ban->ui128IpHash, 16) == 0) {
-			cur->FirstBan->hashiptableprev = Ban;
-			Ban->hashiptablenext = cur->FirstBan;
-            cur->FirstBan = Ban;
+		if(memcmp(cur->pFirstBan->ui128IpHash, Ban->ui128IpHash, 16) == 0) {
+			cur->pFirstBan->pHashIpTablePrev = Ban;
+			Ban->pHashIpTableNext = cur->pFirstBan;
+            cur->pFirstBan = Ban;
 
             return true;
         }
@@ -305,13 +275,13 @@ bool clsBanManager::Add2IpTable(BanItem *Ban) {
         return false;
     }
 
-    cur->FirstBan = Ban;
+    cur->pFirstBan = Ban;
 
-    cur->next = iptable[ui16IpTableIdx];
-    cur->prev = NULL;
+    cur->pNext = pIpTable[ui16IpTableIdx];
+    cur->pPrev = NULL;
 
-    iptable[ui16IpTableIdx]->prev = cur;
-    iptable[ui16IpTableIdx] = cur;
+    pIpTable[ui16IpTableIdx]->pPrev = cur;
+    pIpTable[ui16IpTableIdx] = cur;
 
     return true;
 }
@@ -325,36 +295,36 @@ void clsBanManager::Rem(BanItem * Ban, const bool &/*bFromGui = false*/) {
 	RemFromTable(Ban);
 
     if(((Ban->ui8Bits & PERM) == PERM) == true) {
-		if(Ban->prev == NULL) {
-			if(Ban->next == NULL) {
-				PermBanListS = NULL;
-				PermBanListE = NULL;
+		if(Ban->pPrev == NULL) {
+			if(Ban->pNext == NULL) {
+				pPermBanListS = NULL;
+				pPermBanListE = NULL;
 			} else {
-				Ban->next->prev = NULL;
-				PermBanListS = Ban->next;
+				Ban->pNext->pPrev = NULL;
+				pPermBanListS = Ban->pNext;
 			}
-		} else if(Ban->next == NULL) {
-			Ban->prev->next = NULL;
-			PermBanListE = Ban->prev;
+		} else if(Ban->pNext == NULL) {
+			Ban->pPrev->pNext = NULL;
+			pPermBanListE = Ban->pPrev;
 		} else {
-			Ban->prev->next = Ban->next;
-			Ban->next->prev = Ban->prev;
+			Ban->pPrev->pNext = Ban->pNext;
+			Ban->pNext->pPrev = Ban->pPrev;
 		}
     } else {
-        if(Ban->prev == NULL) {
-			if(Ban->next == NULL) {
-				TempBanListS = NULL;
-				TempBanListE = NULL;
+        if(Ban->pPrev == NULL) {
+			if(Ban->pNext == NULL) {
+				pTempBanListS = NULL;
+				pTempBanListE = NULL;
 			} else {
-				Ban->next->prev = NULL;
-				TempBanListS = Ban->next;
+				Ban->pNext->pPrev = NULL;
+				pTempBanListS = Ban->pNext;
 			   }
-		} else if(Ban->next == NULL) {
-			Ban->prev->next = NULL;
-			TempBanListE = Ban->prev;
+		} else if(Ban->pNext == NULL) {
+			Ban->pPrev->pNext = NULL;
+			pTempBanListE = Ban->pPrev;
 		} else {
-			Ban->prev->next = Ban->next;
-			Ban->next->prev = Ban->prev;
+			Ban->pPrev->pNext = Ban->pNext;
+			Ban->pNext->pPrev = Ban->pPrev;
 		}
     }
 
@@ -378,24 +348,24 @@ void clsBanManager::RemFromTable(BanItem *Ban) {
 //---------------------------------------------------------------------------
 
 void clsBanManager::RemFromNickTable(BanItem *Ban) {
-    if(Ban->hashnicktableprev == NULL) {
+    if(Ban->pHashNickTablePrev == NULL) {
 	    const uint16_t ui16dx = CalcHash(Ban->ui32NickHash);
 
-        if(Ban->hashnicktablenext == NULL) {
-            nicktable[ui16dx] = NULL;
+        if(Ban->pHashNickTableNext == NULL) {
+            pNickTable[ui16dx] = NULL;
         } else {
-            Ban->hashnicktablenext->hashnicktableprev = NULL;
-            nicktable[ui16dx] = Ban->hashnicktablenext;
+            Ban->pHashNickTableNext->pHashNickTablePrev = NULL;
+            pNickTable[ui16dx] = Ban->pHashNickTableNext;
         }
-    } else if(Ban->hashnicktablenext == NULL) {
-        Ban->hashnicktableprev->hashnicktablenext = NULL;
+    } else if(Ban->pHashNickTableNext == NULL) {
+        Ban->pHashNickTablePrev->pHashNickTableNext = NULL;
     } else {
-        Ban->hashnicktableprev->hashnicktablenext = Ban->hashnicktablenext;
-        Ban->hashnicktablenext->hashnicktableprev = Ban->hashnicktableprev;
+        Ban->pHashNickTablePrev->pHashNickTableNext = Ban->pHashNickTableNext;
+        Ban->pHashNickTableNext->pHashNickTablePrev = Ban->pHashNickTablePrev;
     }
 
-    Ban->hashnicktableprev = NULL;
-    Ban->hashnicktablenext = NULL;
+    Ban->pHashNickTablePrev = NULL;
+    Ban->pHashNickTableNext = NULL;
 }
 //---------------------------------------------------------------------------
 
@@ -408,64 +378,64 @@ void clsBanManager::RemFromIpTable(BanItem *Ban) {
         ui16IpTableIdx = GetIpTableIdx(Ban->ui128IpHash);
     }
 
-	if(Ban->hashiptableprev == NULL) {
+	if(Ban->pHashIpTablePrev == NULL) {
         IpTableItem * cur = NULL,
-            * next = iptable[ui16IpTableIdx];
+            * next = pIpTable[ui16IpTableIdx];
 
         while(next != NULL) {
             cur = next;
-            next = cur->next;
+            next = cur->pNext;
 
-			if(memcmp(cur->FirstBan->ui128IpHash, Ban->ui128IpHash, 16) == 0) {
-				if(Ban->hashiptablenext == NULL) {
-					if(cur->prev == NULL) {
-						if(cur->next == NULL) {
-                            iptable[ui16IpTableIdx] = NULL;
+			if(memcmp(cur->pFirstBan->ui128IpHash, Ban->ui128IpHash, 16) == 0) {
+				if(Ban->pHashIpTableNext == NULL) {
+					if(cur->pPrev == NULL) {
+						if(cur->pNext == NULL) {
+                            pIpTable[ui16IpTableIdx] = NULL;
 						} else {
-							cur->next->prev = NULL;
-                            iptable[ui16IpTableIdx] = cur->next;
+							cur->pNext->pPrev = NULL;
+                            pIpTable[ui16IpTableIdx] = cur->pNext;
                         }
-					} else if(cur->next == NULL) {
-						cur->prev->next = NULL;
+					} else if(cur->pNext == NULL) {
+						cur->pPrev->pNext = NULL;
 					} else {
-						cur->prev->next = cur->next;
-                        cur->next->prev = cur->prev;
+						cur->pPrev->pNext = cur->pNext;
+                        cur->pNext->pPrev = cur->pPrev;
                     }
 
                     delete cur;
 				} else {
-					Ban->hashiptablenext->hashiptableprev = NULL;
-                    cur->FirstBan = Ban->hashiptablenext;
+					Ban->pHashIpTableNext->pHashIpTablePrev = NULL;
+                    cur->pFirstBan = Ban->pHashIpTableNext;
                 }
 
                 break;
             }
         }
-	} else if(Ban->hashiptablenext == NULL) {
-		Ban->hashiptableprev->hashiptablenext = NULL;
+	} else if(Ban->pHashIpTableNext == NULL) {
+		Ban->pHashIpTablePrev->pHashIpTableNext = NULL;
 	} else {
-        Ban->hashiptableprev->hashiptablenext = Ban->hashiptablenext;
-        Ban->hashiptablenext->hashiptableprev = Ban->hashiptableprev;
+        Ban->pHashIpTablePrev->pHashIpTableNext = Ban->pHashIpTableNext;
+        Ban->pHashIpTableNext->pHashIpTablePrev = Ban->pHashIpTablePrev;
     }
 
-    Ban->hashiptableprev = NULL;
-    Ban->hashiptablenext = NULL;
+    Ban->pHashIpTablePrev = NULL;
+    Ban->pHashIpTableNext = NULL;
 }
 //---------------------------------------------------------------------------
 
 BanItem* clsBanManager::Find(BanItem *Ban) {
-	if(TempBanListS != NULL) {
+	if(pTempBanListS != NULL) {
         time_t acc_time;
         time(&acc_time);
 
 		BanItem * curBan = NULL,
-            * nextBan = TempBanListS;
+            * nextBan = pTempBanListS;
 
         while(nextBan != NULL) {
             curBan = nextBan;
-    		nextBan = curBan->next;
+    		nextBan = curBan->pNext;
 
-            if(acc_time > curBan->tempbanexpire) {
+            if(acc_time > curBan->tTempBanExpire) {
 				Rem(curBan);
 				delete curBan;
 
@@ -478,13 +448,13 @@ BanItem* clsBanManager::Find(BanItem *Ban) {
 		}
     }
     
-	if(PermBanListS != NULL) {
+	if(pPermBanListS != NULL) {
 		BanItem * curBan = NULL,
-            * nextBan = PermBanListS;
+            * nextBan = pPermBanListS;
 
         while(nextBan != NULL) {
             curBan = nextBan;
-    		nextBan = curBan->next;
+    		nextBan = curBan->pNext;
 
 			if(curBan == Ban) {
 				return curBan;
@@ -497,18 +467,18 @@ BanItem* clsBanManager::Find(BanItem *Ban) {
 //---------------------------------------------------------------------------
 
 void clsBanManager::Remove(BanItem *Ban) {
-	if(TempBanListS != NULL) {
+	if(pTempBanListS != NULL) {
         time_t acc_time;
         time(&acc_time);
 
 		BanItem * curBan = NULL,
-            * nextBan = TempBanListS;
+            * nextBan = pTempBanListS;
 
         while(nextBan != NULL) {
             curBan = nextBan;
-    		nextBan = curBan->next;
+    		nextBan = curBan->pNext;
 
-            if(acc_time > curBan->tempbanexpire) {
+            if(acc_time > curBan->tTempBanExpire) {
 				Rem(curBan);
 				delete curBan;
 
@@ -524,13 +494,13 @@ void clsBanManager::Remove(BanItem *Ban) {
 		}
     }
     
-	if(PermBanListS != NULL) {
+	if(pPermBanListS != NULL) {
 		BanItem * curBan = NULL,
-            * nextBan = PermBanListS;
+            * nextBan = pPermBanListS;
 
         while(nextBan != NULL) {
             curBan = nextBan;
-    		nextBan = curBan->next;
+    		nextBan = curBan->pNext;
 
 			if(curBan == Ban) {
 				Rem(Ban);
@@ -544,13 +514,13 @@ void clsBanManager::Remove(BanItem *Ban) {
 //---------------------------------------------------------------------------
 
 void clsBanManager::AddRange(RangeBanItem *RangeBan) {
-    if(RangeBanListE == NULL) {
-    	RangeBanListS = RangeBan;
-    	RangeBanListE = RangeBan;
+    if(pRangeBanListE == NULL) {
+    	pRangeBanListS = RangeBan;
+    	pRangeBanListE = RangeBan;
     } else {
-    	RangeBanListE->next = RangeBan;
-        RangeBan->prev = RangeBanListE;
-        RangeBanListE = RangeBan;
+    	pRangeBanListE->pNext = RangeBan;
+        RangeBan->pPrev = pRangeBanListE;
+        pRangeBanListE = RangeBan;
     }
 
 #ifdef _BUILD_GUI
@@ -566,20 +536,20 @@ void clsBanManager::RemRange(RangeBanItem *RangeBan, const bool &bFromGui/* = fa
 #else
 void clsBanManager::RemRange(RangeBanItem *RangeBan, const bool &/*bFromGui = false*/) {
 #endif
-    if(RangeBan->prev == NULL) {
-        if(RangeBan->next == NULL) {
-            RangeBanListS = NULL;
-            RangeBanListE = NULL;
+    if(RangeBan->pPrev == NULL) {
+        if(RangeBan->pNext == NULL) {
+            pRangeBanListS = NULL;
+            pRangeBanListE = NULL;
         } else {
-            RangeBan->next->prev = NULL;
-            RangeBanListS = RangeBan->next;
+            RangeBan->pNext->pPrev = NULL;
+            pRangeBanListS = RangeBan->pNext;
         }
-    } else if(RangeBan->next == NULL) {
-        RangeBan->prev->next = NULL;
-        RangeBanListE = RangeBan->prev;
+    } else if(RangeBan->pNext == NULL) {
+        RangeBan->pPrev->pNext = NULL;
+        pRangeBanListE = RangeBan->pPrev;
     } else {
-        RangeBan->prev->next = RangeBan->next;
-        RangeBan->next->prev = RangeBan->prev;
+        RangeBan->pPrev->pNext = RangeBan->pNext;
+        RangeBan->pNext->pPrev = RangeBan->pPrev;
     }
 
 #ifdef _BUILD_GUI
@@ -591,18 +561,18 @@ void clsBanManager::RemRange(RangeBanItem *RangeBan, const bool &/*bFromGui = fa
 //---------------------------------------------------------------------------
 
 RangeBanItem* clsBanManager::FindRange(RangeBanItem *RangeBan) {
-	if(RangeBanListS != NULL) {
+	if(pRangeBanListS != NULL) {
         time_t acc_time;
         time(&acc_time);
 
 		RangeBanItem * curBan = NULL,
-            * nextBan = RangeBanListS;
+            * nextBan = pRangeBanListS;
 
 		while(nextBan != NULL) {
             curBan = nextBan;
-			nextBan = curBan->next;
+			nextBan = curBan->pNext;
 
-			if(((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true && acc_time > curBan->tempbanexpire) {
+			if(((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true && acc_time > curBan->tTempBanExpire) {
 				RemRange(curBan);
 				delete curBan;
 
@@ -620,18 +590,18 @@ RangeBanItem* clsBanManager::FindRange(RangeBanItem *RangeBan) {
 //---------------------------------------------------------------------------
 
 void clsBanManager::RemoveRange(RangeBanItem *RangeBan) {
-	if(RangeBanListS != NULL) {
+	if(pRangeBanListS != NULL) {
         time_t acc_time;
         time(&acc_time);
 
 		RangeBanItem * curBan = NULL,
-            * nextBan = RangeBanListS;
+            * nextBan = pRangeBanListS;
 
 		while(nextBan != NULL) {
             curBan = nextBan;
-    		nextBan = curBan->next;
+    		nextBan = curBan->pNext;
 
-			if(((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true && acc_time > curBan->tempbanexpire) {
+			if(((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true && acc_time > curBan->tTempBanExpire) {
 				RemRange(curBan);
                 delete curBan;
 
@@ -656,16 +626,16 @@ BanItem* clsBanManager::FindNick(User* u) {
     time(&acc_time);
 
     BanItem * cur = NULL,
-        * next = nicktable[ui16dx];
+        * next = pNickTable[ui16dx];
 
     while(next != NULL) {
         cur = next;
-        next = cur->hashnicktablenext;
+        next = cur->pHashNickTableNext;
 
 		if(cur->ui32NickHash == u->ui32NickHash && strcasecmp(cur->sNick, u->sNick) == 0) {
             // PPK ... check if temban expired
 			if(((cur->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true) {
-                if(acc_time >= cur->tempbanexpire) {
+                if(acc_time >= cur->tTempBanExpire) {
 					Rem(cur);
                     delete cur;
 
@@ -685,24 +655,24 @@ BanItem* clsBanManager::FindIP(User* u) {
     time(&acc_time);
 
     IpTableItem * cur = NULL,
-        * next = iptable[u->ui16IpTableIdx];
+        * next = pIpTable[u->ui16IpTableIdx];
 
 	BanItem * curBan = NULL, * nextBan = NULL;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-		if(memcmp(cur->FirstBan->ui128IpHash, u->ui128IpHash, 16) == 0) {
-			nextBan = cur->FirstBan;
+		if(memcmp(cur->pFirstBan->ui128IpHash, u->ui128IpHash, 16) == 0) {
+			nextBan = cur->pFirstBan;
 
 			while(nextBan != NULL) {
                 curBan = nextBan;
-                nextBan = curBan->hashiptablenext;
+                nextBan = curBan->pHashIpTableNext;
                 
                 // PPK ... check if temban expired
 				if(((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true) {
-                    if(acc_time >= curBan->tempbanexpire) {
+                    if(acc_time >= curBan->tTempBanExpire) {
 						Rem(curBan);
                         delete curBan;
     
@@ -724,16 +694,16 @@ RangeBanItem* clsBanManager::FindRange(User* u) {
     time(&acc_time);
 
     RangeBanItem * cur = NULL,
-        * next = RangeBanListS;
+        * next = pRangeBanListS;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
         if(memcmp(cur->ui128FromIpHash, u->ui128IpHash, 16) <= 0 && memcmp(cur->ui128ToIpHash, u->ui128IpHash, 16) >= 0) {
             // PPK ... check if temban expired
             if(((cur->ui8Bits & TEMP) == TEMP) == true) {
-                if(acc_time >= cur->tempbanexpire) {
+                if(acc_time >= cur->tTempBanExpire) {
                     RemRange(cur);
                     delete cur;
 
@@ -766,24 +736,24 @@ BanItem* clsBanManager::FindFull(const uint8_t * ui128IpHash, const time_t &acc_
     }
 
 	IpTableItem * cur = NULL,
-        * next = iptable[ui16IpTableIdx];
+        * next = pIpTable[ui16IpTableIdx];
 
 	BanItem * curBan = NULL, * nextBan = NULL, * fnd = NULL;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
-			nextBan = cur->FirstBan;
+        if(memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
+			nextBan = cur->pFirstBan;
 
             while(nextBan != NULL) {
                 curBan = nextBan;
-                nextBan = curBan->hashiptablenext;
+                nextBan = curBan->pHashIpTableNext;
         
                 // PPK ... check if temban expired
 				if(((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true) {
-                    if(acc_time >= curBan->tempbanexpire) {
+                    if(acc_time >= curBan->tTempBanExpire) {
 						Rem(curBan);
                         delete curBan;
     
@@ -806,16 +776,16 @@ BanItem* clsBanManager::FindFull(const uint8_t * ui128IpHash, const time_t &acc_
 
 RangeBanItem* clsBanManager::FindFullRange(const uint8_t * ui128IpHash, const time_t &acc_time) {
     RangeBanItem * cur = NULL, * fnd = NULL,
-        * next = RangeBanListS;
+        * next = pRangeBanListS;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
         if(memcmp(cur->ui128FromIpHash, ui128IpHash, 16) <= 0 && memcmp(cur->ui128ToIpHash, ui128IpHash, 16) >= 0) {
             // PPK ... check if temban expired
             if(((cur->ui8Bits & TEMP) == TEMP) == true) {
-                if(acc_time >= cur->tempbanexpire) {
+                if(acc_time >= cur->tTempBanExpire) {
                     RemRange(cur);
                     delete cur;
 
@@ -849,16 +819,16 @@ BanItem* clsBanManager::FindNick(const uint32_t &ui32Hash, const time_t &acc_tim
     const uint16_t ui16dx = CalcHash(ui32Hash);
 
 	BanItem * cur = NULL,
-        * next = nicktable[ui16dx];
+        * next = pNickTable[ui16dx];
 
     while(next != NULL) {
         cur = next;
-        next = cur->hashnicktablenext;
+        next = cur->pHashNickTableNext;
 
 		if(cur->ui32NickHash == ui32Hash && strcasecmp(cur->sNick, sNick) == 0) {
             // PPK ... check if temban expired
 			if(((cur->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true) {
-                if(acc_time >= cur->tempbanexpire) {
+                if(acc_time >= cur->tTempBanExpire) {
 					Rem(cur);
                     delete cur;
 
@@ -883,24 +853,24 @@ BanItem* clsBanManager::FindIP(const uint8_t * ui128IpHash, const time_t &acc_ti
     }
 
     IpTableItem * cur = NULL,
-        * next = iptable[ui16IpTableIdx];
+        * next = pIpTable[ui16IpTableIdx];
 
 	BanItem * curBan = NULL, * nextBan = NULL;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
-			nextBan = cur->FirstBan;
+        if(memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
+			nextBan = cur->pFirstBan;
 
             while(nextBan != NULL) {
                 curBan = nextBan;
-                nextBan = curBan->hashiptablenext;
+                nextBan = curBan->pHashIpTableNext;
 
                 // PPK ... check if temban expired
 				if(((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true) {
-                    if(acc_time >= curBan->tempbanexpire) {
+                    if(acc_time >= curBan->tTempBanExpire) {
 						Rem(curBan);
                         delete curBan;
     
@@ -919,15 +889,15 @@ BanItem* clsBanManager::FindIP(const uint8_t * ui128IpHash, const time_t &acc_ti
 
 RangeBanItem* clsBanManager::FindRange(const uint8_t * ui128IpHash, const time_t &acc_time) {
     RangeBanItem * cur = NULL,
-        * next = RangeBanListS;
+        * next = pRangeBanListS;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
         // PPK ... check if temban expired
         if(((cur->ui8Bits & TEMP) == TEMP) == true) {
-            if(acc_time >= cur->tempbanexpire) {
+            if(acc_time >= cur->tTempBanExpire) {
                 RemRange(cur);
                 delete cur;
 
@@ -946,16 +916,16 @@ RangeBanItem* clsBanManager::FindRange(const uint8_t * ui128IpHash, const time_t
 
 RangeBanItem* clsBanManager::FindRange(const uint8_t * ui128FromHash, const uint8_t * ui128ToHash, const time_t &acc_time) {
     RangeBanItem * cur = NULL,
-        * next = RangeBanListS;
+        * next = pRangeBanListS;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
         if(memcmp(cur->ui128FromIpHash, ui128FromHash, 16) == 0 && memcmp(cur->ui128ToIpHash, ui128ToHash, 16) == 0) {
             // PPK ... check if temban expired
             if(((cur->ui8Bits & TEMP) == TEMP) == true) {
-                if(acc_time >= cur->tempbanexpire) {
+                if(acc_time >= cur->tTempBanExpire) {
                     RemRange(cur);
                     delete cur;
 
@@ -985,16 +955,16 @@ BanItem* clsBanManager::FindTempNick(const uint32_t &ui32Hash,  const time_t &ac
     const uint16_t ui16dx = CalcHash(ui32Hash);
 
 	BanItem * cur = NULL,
-        * next = nicktable[ui16dx];
+        * next = pNickTable[ui16dx];
 
     while(next != NULL) {
         cur = next;
-        next = cur->hashnicktablenext;
+        next = cur->pHashNickTableNext;
 
 		if(cur->ui32NickHash == ui32Hash && strcasecmp(cur->sNick, sNick) == 0) {
             // PPK ... check if temban expired
 			if(((cur->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true) {
-                if(acc_time >= cur->tempbanexpire) {
+                if(acc_time >= cur->tTempBanExpire) {
                     Rem(cur);
                     delete cur;
 
@@ -1019,24 +989,24 @@ BanItem* clsBanManager::FindTempIP(const uint8_t * ui128IpHash, const time_t &ac
     }
 
     IpTableItem * cur = NULL,
-        * next = iptable[ui16IpTableIdx];
+        * next = pIpTable[ui16IpTableIdx];
 
     BanItem * curBan = NULL, * nextBan = NULL;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
-			nextBan = cur->FirstBan;
+        if(memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
+			nextBan = cur->pFirstBan;
 
             while(nextBan != NULL) {
                 curBan = nextBan;
-                nextBan = curBan->hashiptablenext;
+                nextBan = curBan->pHashIpTableNext;
                 
                 // PPK ... check if temban expired
 				if(((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true) {
-                    if(acc_time >= curBan->tempbanexpire) {
+                    if(acc_time >= curBan->tTempBanExpire) {
 						Rem(curBan);
                         delete curBan;
     
@@ -1064,11 +1034,11 @@ BanItem* clsBanManager::FindPermNick(const uint32_t &ui32Hash, char * sNick) {
     const uint16_t ui16dx = CalcHash(ui32Hash);
 
     BanItem * cur = NULL,
-        * next = nicktable[ui16dx];
+        * next = pNickTable[ui16dx];
 
     while(next != NULL) {
         cur = next;
-        next = cur->hashnicktablenext;
+        next = cur->pHashNickTableNext;
 
 		if(cur->ui32NickHash == ui32Hash && strcasecmp(cur->sNick, sNick) == 0) {
             if(((cur->ui8Bits & clsBanManager::PERM) == clsBanManager::PERM) == true) {
@@ -1091,20 +1061,20 @@ BanItem* clsBanManager::FindPermIP(const uint8_t * ui128IpHash) {
     }
 
 	IpTableItem * cur = NULL,
-        * next = iptable[ui16IpTableIdx];
+        * next = pIpTable[ui16IpTableIdx];
 
     BanItem * curBan = NULL, * nextBan = NULL;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
-            nextBan = cur->FirstBan;
+        if(memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
+            nextBan = cur->pFirstBan;
 
             while(nextBan != NULL) {
                 curBan = nextBan;
-                nextBan = curBan->hashiptablenext;
+                nextBan = curBan->pHashIpTableNext;
                 
                 if(((curBan->ui8Bits & clsBanManager::PERM) == clsBanManager::PERM) == true) {
                     return curBan;
@@ -1313,7 +1283,7 @@ void clsBanManager::Load(void) {
                         }
 
                         // PPK ... temp ban expiration
-                        Ban->tempbanexpire = expire;
+                        Ban->tTempBanExpire = expire;
                     }
                     
                     if(fullipban == true) {
@@ -1455,7 +1425,7 @@ void clsBanManager::Load(void) {
                         }
 
                         // PPK ... temp ban expiration
-                        RangeBan->tempbanexpire = expire;
+                        RangeBan->tTempBanExpire = expire;
                     }
 
                     if(fullipban == true) {
@@ -1473,13 +1443,13 @@ void clsBanManager::Load(void) {
 void clsBanManager::Save(bool bForce/* = false*/) {
     if(bForce == false) {
         // PPK ... we don't want to kill HDD with save after any change in banlist
-        if(iSaveCalled < 100) {
-            iSaveCalled++;
+        if(ui32SaveCalled < 100) {
+            ui32SaveCalled++;
             return;
         }
     }
     
-    iSaveCalled = 0;
+    ui32SaveCalled = 0;
 
 #ifdef _WIN32
     TiXmlDocument doc((clsServerManager::sPath+"\\cfg\\BanList.xml").c_str());
@@ -1493,13 +1463,13 @@ void clsBanManager::Save(bool bForce/* = false*/) {
 
     TiXmlElement bans("Bans");
 
-    if(TempBanListS != NULL) {
+    if(pTempBanListS != NULL) {
         BanItem * cur = NULL,
-            * next = TempBanListS;
+            * next = pTempBanListS;
 
         while(next != NULL) {
             cur = next;
-            next = cur->next;
+            next = cur->pNext;
            
             TiXmlElement type("Type");
             if(((cur->ui8Bits & PERM) == PERM) == true) {
@@ -1542,7 +1512,7 @@ void clsBanManager::Save(bool bForce/* = false*/) {
             }
             
 			TiXmlElement expire("Expire");
-			expire.InsertEndChild(TiXmlText(string((uint32_t)cur->tempbanexpire).c_str()));
+			expire.InsertEndChild(TiXmlText(string((uint32_t)cur->tTempBanExpire).c_str()));
             
             TiXmlElement ban("Ban");
 			ban.InsertEndChild(type);
@@ -1559,13 +1529,13 @@ void clsBanManager::Save(bool bForce/* = false*/) {
         }
     }
 
-    if(PermBanListS != NULL) {
+    if(pPermBanListS != NULL) {
         BanItem * cur = NULL,
-            * next = PermBanListS;
+            * next = pPermBanListS;
 
         while(next != NULL) {
             cur = next;
-            next = cur->next;
+            next = cur->pNext;
            
             TiXmlElement type("Type");
             if(((cur->ui8Bits & PERM) == PERM) == true) {
@@ -1608,7 +1578,7 @@ void clsBanManager::Save(bool bForce/* = false*/) {
             }
             
             TiXmlElement expire("Expire");
-			expire.InsertEndChild(TiXmlText(string((uint32_t)cur->tempbanexpire).c_str()));
+			expire.InsertEndChild(TiXmlText(string((uint32_t)cur->tTempBanExpire).c_str()));
             
             TiXmlElement ban("Ban");
             ban.InsertEndChild(type);
@@ -1629,13 +1599,13 @@ void clsBanManager::Save(bool bForce/* = false*/) {
 
     TiXmlElement rangebans("RangeBans");
 
-    if(RangeBanListS != NULL) {
+    if(pRangeBanListS != NULL) {
         RangeBanItem * cur = NULL,
-            * next = RangeBanListS;
+            * next = pRangeBanListS;
 
         while(next != NULL) {
             cur = next;
-            next = cur->next;
+            next = cur->pNext;
             
             TiXmlElement type("Type");
             if(((cur->ui8Bits & PERM) == PERM) == true) {
@@ -1664,7 +1634,7 @@ void clsBanManager::Save(bool bForce/* = false*/) {
             }
             
             TiXmlElement expire("Expire");
-			expire.InsertEndChild(TiXmlText(string((uint32_t)cur->tempbanexpire).c_str()));
+			expire.InsertEndChild(TiXmlText(string((uint32_t)cur->tTempBanExpire).c_str()));
             
             TiXmlElement ban("RangeBan");
             ban.InsertEndChild(type);
@@ -1688,11 +1658,11 @@ void clsBanManager::Save(bool bForce/* = false*/) {
 
 void clsBanManager::ClearTemp(void) {
     BanItem * curBan = NULL,
-        * nextBan = TempBanListS;
+        * nextBan = pTempBanListS;
 
     while(nextBan != NULL) {
         curBan = nextBan;
-        nextBan = curBan->next;
+        nextBan = curBan->pNext;
 
         Rem(curBan);
         delete curBan;
@@ -1704,11 +1674,11 @@ void clsBanManager::ClearTemp(void) {
 
 void clsBanManager::ClearPerm(void) {
     BanItem * curBan = NULL,
-        * nextBan = PermBanListS;
+        * nextBan = pPermBanListS;
 
     while(nextBan != NULL) {
         curBan = nextBan;
-        nextBan = curBan->next;
+        nextBan = curBan->pNext;
 
         Rem(curBan);
         delete curBan;
@@ -1720,11 +1690,11 @@ void clsBanManager::ClearPerm(void) {
 
 void clsBanManager::ClearRange(void) {
     RangeBanItem * curBan = NULL,
-        * nextBan = RangeBanListS;
+        * nextBan = pRangeBanListS;
 
     while(nextBan != NULL) {
         curBan = nextBan;
-        nextBan = curBan->next;
+        nextBan = curBan->pNext;
 
         RemRange(curBan);
         delete curBan;
@@ -1736,11 +1706,11 @@ void clsBanManager::ClearRange(void) {
 
 void clsBanManager::ClearTempRange(void) {
     RangeBanItem * curBan = NULL,
-        * nextBan = RangeBanListS;
+        * nextBan = pRangeBanListS;
 
     while(nextBan != NULL) {
         curBan = nextBan;
-        nextBan = curBan->next;
+        nextBan = curBan->pNext;
 
         if(((curBan->ui8Bits & TEMP) == TEMP) == true) {
             RemRange(curBan);
@@ -1754,11 +1724,11 @@ void clsBanManager::ClearTempRange(void) {
 
 void clsBanManager::ClearPermRange(void) {
     RangeBanItem * curBan = NULL,
-        * nextBan = RangeBanListS;
+        * nextBan = pRangeBanListS;
 
     while(nextBan != NULL) {
         curBan = nextBan;
-        nextBan = curBan->next;
+        nextBan = curBan->pNext;
 
         if(((curBan->ui8Bits & PERM) == PERM) == true) {
             RemRange(curBan);
@@ -1880,7 +1850,7 @@ void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool &
 
     while(nxtBan != NULL) {
         curBan = nxtBan;
-        nxtBan = curBan->hashiptablenext;
+        nxtBan = curBan->pHashIpTableNext;
 
         if(((curBan->ui8Bits & NICK) == NICK) == true) {
             continue;
@@ -1988,7 +1958,7 @@ char clsBanManager::BanIp(User * u, char * sIp, char * sReason, char * sBy, cons
     // PPK ... don't add ban if is already here perm (full) ban for same ip
     while(nxtBan != NULL) {
         curBan = nxtBan;
-        nxtBan = curBan->hashiptablenext;
+        nxtBan = curBan->pHashIpTableNext;
         
         if(((curBan->ui8Bits & TEMP) == TEMP) == true) {
             if(((curBan->ui8Bits & FULL) == FULL) == false || ((pBan->ui8Bits & FULL) == FULL) == true) {
@@ -2251,12 +2221,12 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
     time(&acc_time);
 
     if(expiretime > 0) {
-        pBan->tempbanexpire = expiretime;
+        pBan->tTempBanExpire = expiretime;
     } else {
         if(minutes > 0) {
-            pBan->tempbanexpire = acc_time+(minutes*60);
+            pBan->tTempBanExpire = acc_time+(minutes*60);
         } else {
-    	    pBan->tempbanexpire = acc_time+(clsSettingManager::mPtr->iShorts[SETSHORT_DEFAULT_TEMP_BAN_TIME]*60);
+    	    pBan->tTempBanExpire = acc_time+(clsSettingManager::mPtr->i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME]*60);
         }
     }
 
@@ -2310,7 +2280,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
                     pBan->ui8Bits &= ~NICK;
                 }
             } else {
-                if(nxtBan->tempbanexpire < pBan->tempbanexpire) {
+                if(nxtBan->tTempBanExpire < pBan->tTempBanExpire) {
                     if(((nxtBan->ui8Bits & IP) == IP) == true) {
                         if(memcmp(pBan->ui128IpHash, nxtBan->ui128IpHash, 16) == 0) {
                             if(((nxtBan->ui8Bits & FULL) == FULL) == false) {
@@ -2376,7 +2346,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
 
     while(nxtBan != NULL) {
         curBan = nxtBan;
-        nxtBan = curBan->hashiptablenext;
+        nxtBan = curBan->pHashIpTableNext;
 
         if(((curBan->ui8Bits & PERM) == PERM) == true) {
             continue;
@@ -2390,7 +2360,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
             continue;
         }
 
-        if(curBan->tempbanexpire > pBan->tempbanexpire) {
+        if(curBan->tTempBanExpire > pBan->tTempBanExpire) {
             continue;
         }
         
@@ -2487,12 +2457,12 @@ char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, 
     time(&acc_time);
 
     if(expiretime > 0) {
-        pBan->tempbanexpire = expiretime;
+        pBan->tTempBanExpire = expiretime;
     } else {
         if(minutes == 0) {
-    	    pBan->tempbanexpire = acc_time+(clsSettingManager::mPtr->iShorts[SETSHORT_DEFAULT_TEMP_BAN_TIME]*60);
+    	    pBan->tTempBanExpire = acc_time+(clsSettingManager::mPtr->i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME]*60);
         } else {
-            pBan->tempbanexpire = acc_time+(minutes*60);
+            pBan->tTempBanExpire = acc_time+(minutes*60);
         }
     }
     
@@ -2502,9 +2472,9 @@ char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, 
     // PPK ... don't add ban if is already here perm (full) ban or longer temp ban for same ip
     while(nxtBan != NULL) {
         curBan = nxtBan;
-        nxtBan = curBan->hashiptablenext;
+        nxtBan = curBan->pHashIpTableNext;
 
-        if(((curBan->ui8Bits & TEMP) == TEMP) == true && curBan->tempbanexpire < pBan->tempbanexpire) {
+        if(((curBan->ui8Bits & TEMP) == TEMP) == true && curBan->tTempBanExpire < pBan->tTempBanExpire) {
             if(((curBan->ui8Bits & FULL) == FULL) == false || ((pBan->ui8Bits & FULL) == FULL) == true) {
                 if(((curBan->ui8Bits & NICK) == NICK) == false) {
                     Rem(curBan);
@@ -2657,12 +2627,12 @@ bool clsBanManager::NickTempBan(User * u, char * sNick, char * sReason, char * s
     time(&acc_time);
 
     if(expiretime > 0) {
-        pBan->tempbanexpire = expiretime;
+        pBan->tTempBanExpire = expiretime;
     } else {
         if(minutes > 0) {
-            pBan->tempbanexpire = acc_time+(minutes*60);
+            pBan->tTempBanExpire = acc_time+(minutes*60);
         } else {
-    	    pBan->tempbanexpire = acc_time+(clsSettingManager::mPtr->iShorts[SETSHORT_DEFAULT_TEMP_BAN_TIME]*60);
+    	    pBan->tTempBanExpire = acc_time+(clsSettingManager::mPtr->i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME]*60);
         }
     }
     
@@ -2675,7 +2645,7 @@ bool clsBanManager::NickTempBan(User * u, char * sNick, char * sReason, char * s
 
             return false;
         } else {
-            if(nxtBan->tempbanexpire < pBan->tempbanexpire) {
+            if(nxtBan->tTempBanExpire < pBan->tTempBanExpire) {
                 if(((nxtBan->ui8Bits & IP) == IP) == true) {
                     // PPK ... set old ban to ip ban only
                     RemFromNickTable(nxtBan);
@@ -2843,20 +2813,20 @@ void clsBanManager::RemoveAllIP(const uint8_t * ui128IpHash) {
     }
 
     IpTableItem * cur = NULL,
-        * next = iptable[ui16IpTableIdx];
+        * next = pIpTable[ui16IpTableIdx];
 
     BanItem * curBan = NULL, * nextBan = NULL;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
-			nextBan = cur->FirstBan;
+        if(memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
+			nextBan = cur->pFirstBan;
 
             while(nextBan != NULL) {
                 curBan = nextBan;
-                nextBan = curBan->hashiptablenext;
+                nextBan = curBan->pHashIpTableNext;
                 
 				Rem(curBan);
                 delete curBan;
@@ -2878,20 +2848,20 @@ void clsBanManager::RemovePermAllIP(const uint8_t * ui128IpHash) {
     }
 
     IpTableItem * cur = NULL,
-        * next = iptable[ui16IpTableIdx];
+        * next = pIpTable[ui16IpTableIdx];
 
     BanItem * curBan = NULL, * nextBan = NULL;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
-			nextBan = cur->FirstBan;
+        if(memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
+			nextBan = cur->pFirstBan;
 
             while(nextBan != NULL) {
                 curBan = nextBan;
-                nextBan = curBan->hashiptablenext;
+                nextBan = curBan->pHashIpTableNext;
 
                 if(((curBan->ui8Bits & clsBanManager::PERM) == clsBanManager::PERM) == true) {
 					Rem(curBan);
@@ -2915,20 +2885,20 @@ void clsBanManager::RemoveTempAllIP(const uint8_t * ui128IpHash) {
     }
 
     IpTableItem * cur = NULL,
-        * next = iptable[ui16IpTableIdx];
+        * next = pIpTable[ui16IpTableIdx];
 
     BanItem * curBan = NULL, * nextBan = NULL;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
-			nextBan = cur->FirstBan;
+        if(memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0) {
+			nextBan = cur->pFirstBan;
 
             while(nextBan != NULL) {
                 curBan = nextBan;
-                nextBan = curBan->hashiptablenext;
+                nextBan = curBan->pHashIpTableNext;
 
                 if(((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true) {
 					Rem(curBan);
@@ -2962,12 +2932,12 @@ bool clsBanManager::RangeBan(char * sIpFrom, const uint8_t * ui128FromIpHash, ch
     }
 
     RangeBanItem * curBan = NULL,
-        * nxtBan = RangeBanListS;
+        * nxtBan = pRangeBanListS;
 
     // PPK ... don't add range ban if is already here same perm (full) range ban
     while(nxtBan != NULL) {
         curBan = nxtBan;
-        nxtBan = curBan->next;
+        nxtBan = curBan->pNext;
 
         if(memcmp(curBan->ui128FromIpHash, pRangeBan->ui128FromIpHash, 16) != 0 || memcmp(curBan->ui128ToIpHash, pRangeBan->ui128ToIpHash, 16) != 0) {
             continue;
@@ -3068,28 +3038,28 @@ bool clsBanManager::RangeTempBan(char * sIpFrom, const uint8_t * ui128FromIpHash
     time(&acc_time);
 
     if(expiretime > 0) {
-        pRangeBan->tempbanexpire = expiretime;
+        pRangeBan->tTempBanExpire = expiretime;
     } else {
         if(minutes > 0) {
-            pRangeBan->tempbanexpire = acc_time+(minutes*60);
+            pRangeBan->tTempBanExpire = acc_time+(minutes*60);
         } else {
-    	    pRangeBan->tempbanexpire = acc_time+(clsSettingManager::mPtr->iShorts[SETSHORT_DEFAULT_TEMP_BAN_TIME]*60);
+    	    pRangeBan->tTempBanExpire = acc_time+(clsSettingManager::mPtr->i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME]*60);
         }
     }
     
     RangeBanItem * curBan = NULL,
-        * nxtBan = RangeBanListS;
+        * nxtBan = pRangeBanListS;
 
     // PPK ... don't add range ban if is already here same perm (full) range ban or longer temp ban for same range
     while(nxtBan != NULL) {
         curBan = nxtBan;
-        nxtBan = curBan->next;
+        nxtBan = curBan->pNext;
 
         if(memcmp(curBan->ui128FromIpHash, pRangeBan->ui128FromIpHash, 16) != 0 || memcmp(curBan->ui128ToIpHash, pRangeBan->ui128ToIpHash, 16) != 0) {
             continue;
         }
 
-        if(((curBan->ui8Bits & TEMP) == TEMP) == true && curBan->tempbanexpire < pRangeBan->tempbanexpire) {
+        if(((curBan->ui8Bits & TEMP) == TEMP) == true && curBan->tTempBanExpire < pRangeBan->tTempBanExpire) {
             if(((curBan->ui8Bits & FULL) == FULL) == false || ((pRangeBan->ui8Bits & FULL) == FULL) == true) {
                 RemRange(curBan);
                 delete curBan;
@@ -3166,11 +3136,11 @@ bool clsBanManager::RangeTempBan(char * sIpFrom, const uint8_t * ui128FromIpHash
 
 bool clsBanManager::RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * ui128ToIpHash) {
     RangeBanItem * cur = NULL,
-        * next = RangeBanListS;
+        * next = pRangeBanListS;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
         if(memcmp(cur->ui128FromIpHash, ui128FromIpHash, 16) == 0 && memcmp(cur->ui128ToIpHash, ui128ToIpHash, 16) == 0) {
             RemRange(cur);
@@ -3187,11 +3157,11 @@ bool clsBanManager::RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * 
 
 bool clsBanManager::RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * ui128ToIpHash, unsigned char cType) {
     RangeBanItem * cur = NULL,
-        * next = RangeBanListS;
+        * next = pRangeBanListS;
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
         if((cur->ui8Bits & cType) == cType && memcmp(cur->ui128FromIpHash, ui128FromIpHash, 16) == 0 && memcmp(cur->ui128ToIpHash, ui128ToIpHash, 16) == 0) {
             RemRange(cur);

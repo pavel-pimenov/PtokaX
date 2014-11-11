@@ -28,6 +28,11 @@ struct User;
 class clsServiceLoop {
 private:
     struct AcceptedSocket {
+        AcceptedSocket();
+
+        AcceptedSocket(const AcceptedSocket&);
+        const AcceptedSocket& operator=(const AcceptedSocket&);
+
 #ifdef _WIN32
         SOCKET s;
 #else
@@ -36,14 +41,14 @@ private:
 
         sockaddr_storage addr;
 
-        AcceptedSocket *next;
+        AcceptedSocket * pNext;
     };
 
-    uint64_t iLstUptmTck;
+    uint64_t ui64LstUptmTck;
 
     CriticalSection csAcceptQueue;
 
-	AcceptedSocket *AcceptedSocketsS, *AcceptedSocketsE;
+	AcceptedSocket * pAcceptedSocketsS, * pAcceptedSocketsE;
 
 #ifndef _WIN32
     int iSIG;
@@ -56,6 +61,9 @@ private:
 #endif
 
 	char msg[1024];
+
+	clsServiceLoop(const clsServiceLoop&);
+	const clsServiceLoop& operator=(const clsServiceLoop&);
 
     void AcceptUser(AcceptedSocket * AccptSocket);
 protected:
@@ -71,7 +79,7 @@ public:
 
     double dLoggedUsers, dActualSrvLoopLogins;
 
-    uint32_t iLastSendRest, iSendRestsPeak, iLastRecvRest, iRecvRestsPeak, iLoopsForLogins;
+    uint32_t ui32LastSendRest,  ui32SendRestsPeak,  ui32LastRecvRest,  ui32RecvRestsPeak,  ui32LoopsForLogins;
     bool bRecv;
 
 #ifdef _WIN32

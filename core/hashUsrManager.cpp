@@ -33,8 +33,8 @@ clsHashManager * clsHashManager::mPtr = NULL;
 //---------------------------------------------------------------------------
 
 clsHashManager::clsHashManager() {
-    memset(nicktable, 0, sizeof(nicktable));
-    memset(iptable, 0, sizeof(iptable));
+    memset(pNickTable, 0, sizeof(pNickTable));
+    memset(pIpTable, 0, sizeof(pIpTable));
 
     //Memo("clsHashManager created");
 }
@@ -44,11 +44,11 @@ clsHashManager::~clsHashManager() {
     //Memo("clsHashManager destroyed");
     for(uint32_t ui32i = 0; ui32i < 65536; ui32i++) {
 		IpTableItem * cur = NULL,
-            * next = iptable[ui32i];
+            * next = pIpTable[ui32i];
         
         while(next != NULL) {
             cur = next;
-            next = cur->next;
+            next = cur->pNext;
         
             delete cur;
 		}
@@ -59,17 +59,17 @@ clsHashManager::~clsHashManager() {
 bool clsHashManager::Add(User * u) {
 	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
 
-    if(nicktable[ui16dx] != NULL) {
-        nicktable[ui16dx]->hashtableprev = u;
-        u->hashtablenext = nicktable[ui16dx];
+    if(pNickTable[ui16dx] != NULL) {
+        pNickTable[ui16dx]->pHashTablePrev = u;
+        u->pHashTableNext = pNickTable[ui16dx];
     }
 
-    nicktable[ui16dx] = u;
+    pNickTable[ui16dx] = u;
 
-    if(iptable[u->ui16IpTableIdx] == NULL) {
-        iptable[u->ui16IpTableIdx] = new (std::nothrow) IpTableItem;
+    if(pIpTable[u->ui16IpTableIdx] == NULL) {
+        pIpTable[u->ui16IpTableIdx] = new (std::nothrow) IpTableItem;
 
-        if(iptable[u->ui16IpTableIdx] == NULL) {
+        if(pIpTable[u->ui16IpTableIdx] == NULL) {
             u->ui32BoolBits |= User::BIT_ERROR;
             u->Close();
 
@@ -77,26 +77,26 @@ bool clsHashManager::Add(User * u) {
             return false;
         }
 
-        iptable[u->ui16IpTableIdx]->next = NULL;
-        iptable[u->ui16IpTableIdx]->prev = NULL;
+        pIpTable[u->ui16IpTableIdx]->pNext = NULL;
+        pIpTable[u->ui16IpTableIdx]->pPrev = NULL;
 
-        iptable[u->ui16IpTableIdx]->FirstUser = u;
-		iptable[u->ui16IpTableIdx]->ui16Count = 1;
+        pIpTable[u->ui16IpTableIdx]->pFirstUser = u;
+		pIpTable[u->ui16IpTableIdx]->ui16Count = 1;
 
         return true;
     }
 
     IpTableItem * cur = NULL,
-        * next = iptable[u->ui16IpTableIdx];
+        * next = pIpTable[u->ui16IpTableIdx];
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstUser->ui128IpHash, u->ui128IpHash, 16) == 0) {
-            cur->FirstUser->hashiptableprev = u;
-            u->hashiptablenext = cur->FirstUser;
-            cur->FirstUser = u;
+        if(memcmp(cur->pFirstUser->ui128IpHash, u->ui128IpHash, 16) == 0) {
+            cur->pFirstUser->pHashIpTablePrev = u;
+            u->pHashIpTableNext = cur->pFirstUser;
+            cur->pFirstUser = u;
 			cur->ui16Count++;
 
             return true;
@@ -113,95 +113,95 @@ bool clsHashManager::Add(User * u) {
 		return false;
     }
 
-    cur->FirstUser = u;
+    cur->pFirstUser = u;
 	cur->ui16Count = 1;
 
-    cur->next = iptable[u->ui16IpTableIdx];
-    cur->prev = NULL;
+    cur->pNext = pIpTable[u->ui16IpTableIdx];
+    cur->pPrev = NULL;
 
-    iptable[u->ui16IpTableIdx]->prev = cur;
-    iptable[u->ui16IpTableIdx] = cur;
+    pIpTable[u->ui16IpTableIdx]->pPrev = cur;
+    pIpTable[u->ui16IpTableIdx] = cur;
 
     return true;
 }
 //---------------------------------------------------------------------------
 
 void clsHashManager::Remove(User * u) {
-    if(u->hashtableprev == NULL) {
+    if(u->pHashTablePrev == NULL) {
 		const uint16_t ui16dx = CalcHash(u->ui32NickHash);
 
-        if(u->hashtablenext == NULL) {
-            nicktable[ui16dx] = NULL;
+        if(u->pHashTableNext == NULL) {
+            pNickTable[ui16dx] = NULL;
         } else {
-            u->hashtablenext->hashtableprev = NULL;
-            nicktable[ui16dx] = u->hashtablenext;
+            u->pHashTableNext->pHashTablePrev = NULL;
+            pNickTable[ui16dx] = u->pHashTableNext;
         }
-    } else if(u->hashtablenext == NULL) {
-        u->hashtableprev->hashtablenext = NULL;
+    } else if(u->pHashTableNext == NULL) {
+        u->pHashTablePrev->pHashTableNext = NULL;
     } else {
-        u->hashtableprev->hashtablenext = u->hashtablenext;
-        u->hashtablenext->hashtableprev = u->hashtableprev;
+        u->pHashTablePrev->pHashTableNext = u->pHashTableNext;
+        u->pHashTableNext->pHashTablePrev = u->pHashTablePrev;
     }
 
-    u->hashtableprev = NULL;
-    u->hashtablenext = NULL;
+    u->pHashTablePrev = NULL;
+    u->pHashTableNext = NULL;
 
-	if(u->hashiptableprev == NULL) {
+	if(u->pHashIpTablePrev == NULL) {
         IpTableItem * cur = NULL,
-            * next = iptable[u->ui16IpTableIdx];
+            * next = pIpTable[u->ui16IpTableIdx];
     
         while(next != NULL) {
             cur = next;
-            next = cur->next;
+            next = cur->pNext;
 
-            if(memcmp(cur->FirstUser->ui128IpHash, u->ui128IpHash, 16) == 0) {
+            if(memcmp(cur->pFirstUser->ui128IpHash, u->ui128IpHash, 16) == 0) {
 				cur->ui16Count--;
 
-                if(u->hashiptablenext == NULL) {
-                    if(cur->prev == NULL) {
-                        if(cur->next == NULL) {
-                            iptable[u->ui16IpTableIdx] = NULL;
+                if(u->pHashIpTableNext == NULL) {
+                    if(cur->pPrev == NULL) {
+                        if(cur->pNext == NULL) {
+                            pIpTable[u->ui16IpTableIdx] = NULL;
                         } else {
-                            cur->next->prev = NULL;
-                            iptable[u->ui16IpTableIdx] = cur->next;
+                            cur->pNext->pPrev = NULL;
+                            pIpTable[u->ui16IpTableIdx] = cur->pNext;
                         }
-                    } else if(cur->next == NULL) {
-                        cur->prev->next = NULL;
+                    } else if(cur->pNext == NULL) {
+                        cur->pPrev->pNext = NULL;
                     } else {
-                        cur->prev->next = cur->next;
-                        cur->next->prev = cur->prev;
+                        cur->pPrev->pNext = cur->pNext;
+                        cur->pNext->pPrev = cur->pPrev;
                     }
 
                     delete cur;
                 } else {
-                    u->hashiptablenext->hashiptableprev = NULL;
-                    cur->FirstUser = u->hashiptablenext;
+                    u->pHashIpTableNext->pHashIpTablePrev = NULL;
+                    cur->pFirstUser = u->pHashIpTableNext;
                 }
 
-                u->hashiptableprev = NULL;
-                u->hashiptablenext = NULL;
+                u->pHashIpTablePrev = NULL;
+                u->pHashIpTableNext = NULL;
 
                 return;
             }
         }
-    } else if(u->hashiptablenext == NULL) {
-        u->hashiptableprev->hashiptablenext = NULL;
+    } else if(u->pHashIpTableNext == NULL) {
+        u->pHashIpTablePrev->pHashIpTableNext = NULL;
     } else {
-        u->hashiptableprev->hashiptablenext = u->hashiptablenext;
-        u->hashiptablenext->hashiptableprev = u->hashiptableprev;
+        u->pHashIpTablePrev->pHashIpTableNext = u->pHashIpTableNext;
+        u->pHashIpTableNext->pHashIpTablePrev = u->pHashIpTablePrev;
     }
 
-    u->hashiptableprev = NULL;
-    u->hashiptablenext = NULL;
+    u->pHashIpTablePrev = NULL;
+    u->pHashIpTableNext = NULL;
 
     IpTableItem * cur = NULL,
-        * next = iptable[u->ui16IpTableIdx];
+        * next = pIpTable[u->ui16IpTableIdx];
 
     while(next != NULL) {
         cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstUser->ui128IpHash, u->ui128IpHash, 16) == 0) {
+        if(memcmp(cur->pFirstUser->ui128IpHash, u->ui128IpHash, 16) == 0) {
 			cur->ui16Count--;
 
             return;
@@ -215,7 +215,7 @@ User * clsHashManager::FindUser(char * sNick, const size_t &szNickLen) {
 
     const uint16_t ui16dx = CalcHash(ui32Hash);
 
-    User * next = nicktable[ui16dx];
+    User * next = pNickTable[ui16dx];
 
     // pointer exists ? Then we need look for nick 
     if(next != NULL) {
@@ -223,7 +223,7 @@ User * clsHashManager::FindUser(char * sNick, const size_t &szNickLen) {
 
         while(next != NULL) {
             cur = next;
-            next = cur->hashtablenext;
+            next = cur->pHashTableNext;
 
             // we are looking for duplicate string
 			if(cur->ui32NickHash == ui32Hash && cur->ui8NickLen == szNickLen && strcasecmp(cur->sNick, sNick) == 0) {
@@ -241,7 +241,7 @@ User * clsHashManager::FindUser(User * u) {
 
 	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
 
-    User * next = nicktable[ui16dx];
+    User * next = pNickTable[ui16dx];
 
     // pointer exists ? Then we need look for nick
     if(next != NULL) { 
@@ -249,7 +249,7 @@ User * clsHashManager::FindUser(User * u) {
 
         while(next != NULL) {
             cur = next;
-            next = cur->hashtablenext;
+            next = cur->pHashTableNext;
 
             // we are looking for duplicate string
 			if(cur->ui32NickHash == u->ui32NickHash && cur->ui8NickLen == u->ui8NickLen && strcasecmp(cur->sNick, u->sNick) == 0) {
@@ -273,14 +273,14 @@ User * clsHashManager::FindUser(const uint8_t * ui128IpHash) {
     }
 
 	IpTableItem * cur = NULL,
-        * next = iptable[ui16IpTableIdx];
+        * next = pIpTable[ui16IpTableIdx];
 
     while(next != NULL) {
 		cur = next;
-        next = cur->next;
+        next = cur->pNext;
 
-        if(memcmp(cur->FirstUser->ui128IpHash, ui128IpHash, 16) == 0) {
-            return cur->FirstUser;
+        if(memcmp(cur->pFirstUser->ui128IpHash, ui128IpHash, 16) == 0) {
+            return cur->pFirstUser;
         }
     }
 
@@ -290,13 +290,13 @@ User * clsHashManager::FindUser(const uint8_t * ui128IpHash) {
 
 uint32_t clsHashManager::GetUserIpCount(User * u) const {
 	IpTableItem * cur = NULL,
-        * next = iptable[u->ui16IpTableIdx];
+        * next = pIpTable[u->ui16IpTableIdx];
 
 	while(next != NULL) {
 		cur = next;
-		next = cur->next;
+		next = cur->pNext;
 
-        if(memcmp(cur->FirstUser->ui128IpHash, u->ui128IpHash, 16) == 0) {
+        if(memcmp(cur->pFirstUser->ui128IpHash, u->ui128IpHash, 16) == 0) {
             return cur->ui16Count;
         }
 	}

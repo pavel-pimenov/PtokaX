@@ -32,9 +32,7 @@
 #pragma hdrstop
 //---------------------------------------------------------------------------
 
-SettingPageAdvanced::SettingPageAdvanced() {
-    bUpdateSysTray = bUpdateScripting = false;
-
+SettingPageAdvanced::SettingPageAdvanced() : bUpdateSysTray(false), bUpdateScripting(false) {
     memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 }
 //---------------------------------------------------------------------------

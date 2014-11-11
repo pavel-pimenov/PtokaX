@@ -29,11 +29,13 @@ void Cout(const string & msg);
 //---------------------------------------------------------------------------
 
 #ifdef _WIN32
+#if 0 // FlylinkDC++
 	static void preD(char *pat, int M, int D[]);
 	static void suffixes(char *pat, int M, int *suff);
 	static void preDD(char *pat, int M, int DD[]);
 		
 	int BMFind(char *text, int N, char *pat, int M);
+#endif
 #endif
 
 char * Lock2Key(char * cLock);

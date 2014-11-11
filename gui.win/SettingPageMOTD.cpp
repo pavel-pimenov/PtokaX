@@ -47,9 +47,7 @@ LRESULT CALLBACK MultiEditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 }
 //---------------------------------------------------------------------------
 
-SettingPageMOTD::SettingPageMOTD() {
-    bUpdateMOTD = false;
-
+SettingPageMOTD::SettingPageMOTD() : bUpdateMOTD(false) {
     memset(&hWndPageItems, 0, sizeof(hWndPageItems));
 }
 //---------------------------------------------------------------------------
