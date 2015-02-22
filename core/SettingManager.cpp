@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -55,6 +54,11 @@ clsSettingManager * clsSettingManager::mPtr = NULL;
 
 clsSettingManager::clsSettingManager(void) : ui64MinShare(0), ui64MaxShare(0), sMOTD(NULL), ui16MOTDLen(0), bBotsSameNick(false), bUpdateLocked(true), bFirstRun(false),
 	ui8FullMyINFOOption(0) {
+#ifdef _WIN32
+    InitializeCriticalSection(&csSetting);
+#else
+	pthread_mutex_init(&mtxSetting, NULL);
+#endif
 
     memset(sPreTexts, 0 , sizeof(sPreTexts));
     memset(ui16PreTextsLens, 0 , sizeof(ui16PreTextsLens));
@@ -134,6 +138,11 @@ clsSettingManager::~clsSettingManager(void) {
 #endif
     }
 
+#ifdef _WIN32
+    DeleteCriticalSection(&csSetting);
+#else
+	pthread_mutex_destroy(&mtxSetting);
+#endif
 }
 //---------------------------------------------------------------------------
 
@@ -425,30 +434,77 @@ void clsSettingManager::Save() {
 //---------------------------------------------------------------------------
 
 bool clsSettingManager::GetBool(const size_t &szBoolId) {
-    Lock l(csSetting);
+#ifdef _WIN32
+    EnterCriticalSection(&csSetting);
+#else
+	pthread_mutex_lock(&mtxSetting);
+#endif
+
     bool bValue = bBools[szBoolId];
+
+#ifdef _WIN32
+    LeaveCriticalSection(&csSetting);
+#else
+	pthread_mutex_unlock(&mtxSetting);
+#endif
+    
     return bValue;
 }
 //---------------------------------------------------------------------------
 uint16_t clsSettingManager::GetFirstPort() {
-    Lock l(csSetting);
+#ifdef _WIN32
+    EnterCriticalSection(&csSetting);
+#else
+	pthread_mutex_lock(&mtxSetting);
+#endif
+
     uint16_t iValue = ui16PortNumbers[0];
+
+#ifdef _WIN32
+    LeaveCriticalSection(&csSetting);
+#else
+	pthread_mutex_unlock(&mtxSetting);
+#endif
+    
     return iValue;
 }
 //---------------------------------------------------------------------------
 
 int16_t clsSettingManager::GetShort(const size_t &szShortId) {
-    Lock l(csSetting);
+#ifdef _WIN32
+    EnterCriticalSection(&csSetting);
+#else
+	pthread_mutex_lock(&mtxSetting);
+#endif
+
     int16_t iValue = i16Shorts[szShortId];
+
+#ifdef _WIN32
+    LeaveCriticalSection(&csSetting);
+#else
+	pthread_mutex_unlock(&mtxSetting);
+#endif
+    
     return iValue;
 }
 //---------------------------------------------------------------------------
 
 void clsSettingManager::GetText(const size_t &szTxtId, char * sMsg) {
-    Lock l(csSetting);
+#ifdef _WIN32
+    EnterCriticalSection(&csSetting);
+#else
+	pthread_mutex_lock(&mtxSetting);
+#endif
+
     if(sTexts[szTxtId] != NULL) {
         strcat(sMsg, sTexts[szTxtId]);
     }
+
+#ifdef _WIN32
+    LeaveCriticalSection(&csSetting);
+#else
+	pthread_mutex_unlock(&mtxSetting);
+#endif
 }
 //---------------------------------------------------------------------------
 
@@ -458,8 +514,20 @@ void clsSettingManager::SetBool(const size_t &szBoolId, const bool &bValue) {
     }
     
     if(szBoolId == SETBOOL_ANTI_MOGLO) {
-        Lock l(csSetting);
+#ifdef _WIN32
+        EnterCriticalSection(&csSetting);
+#else
+		pthread_mutex_lock(&mtxSetting);
+#endif
+
         bBools[szBoolId] = bValue;
+
+#ifdef _WIN32
+        LeaveCriticalSection(&csSetting);
+#else
+		pthread_mutex_unlock(&mtxSetting);
+#endif
+
         return;
     }
 
@@ -704,11 +772,21 @@ void clsSettingManager::SetShort(const size_t &szShortId, const int16_t &iValue)
             if(iValue == 0 || iValue > 999) {
                 return;
             }
-			{
-            Lock l(csSetting);
+
+#ifdef _WIN32
+            EnterCriticalSection(&csSetting);
+#else
+			pthread_mutex_lock(&mtxSetting);
+#endif
+
             i16Shorts[szShortId] = iValue;
+
+#ifdef _WIN32
+            LeaveCriticalSection(&csSetting);
+#else
+			pthread_mutex_unlock(&mtxSetting);
+#endif
             return;
-			}
         case SETSHORT_SAME_MULTI_MAIN_CHAT_MESSAGES:
         case SETSHORT_SAME_MULTI_MAIN_CHAT_LINES:
         case SETSHORT_SAME_MULTI_PM_MESSAGES:
@@ -955,10 +1033,14 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             }
             break;
     }
-	
-//	const bool isLock = szTxtId == SETTXT_HUB_NAME || szTxtId == SETTXT_HUB_ADDRESS || szTxtId == SETTXT_HUB_DESCRIPTION;
-    {
-    Lock l(csSetting);
+
+    if(szTxtId == SETTXT_HUB_NAME || szTxtId == SETTXT_HUB_ADDRESS || szTxtId == SETTXT_HUB_DESCRIPTION) {
+#ifdef _WIN32
+        EnterCriticalSection(&csSetting);
+#else
+		pthread_mutex_lock(&mtxSetting);
+#endif
+    }
 
     if(szLen == 0) {
         if(sTexts[szTxtId] != NULL) {
@@ -987,6 +1069,15 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             sTexts[szTxtId] = sOldText;
 
 			AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::SetText\n", (uint64_t)(szLen+1));
+
+            if(szTxtId == SETTXT_HUB_NAME || szTxtId == SETTXT_HUB_ADDRESS || szTxtId == SETTXT_HUB_DESCRIPTION) {
+#ifdef _WIN32
+                LeaveCriticalSection(&csSetting);
+#else
+                pthread_mutex_unlock(&mtxSetting);
+#endif
+            }
+
             return;
         }
     
@@ -994,7 +1085,15 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
         sTexts[szTxtId][szLen] = '\0';
         ui16TextsLens[szTxtId] = (uint16_t)szLen;
     }
-	}
+
+    if(szTxtId == SETTXT_HUB_NAME || szTxtId == SETTXT_HUB_ADDRESS || szTxtId == SETTXT_HUB_DESCRIPTION) {
+#ifdef _WIN32
+        LeaveCriticalSection(&csSetting);
+#else
+		pthread_mutex_unlock(&mtxSetting);
+#endif
+    }
+
     switch(szTxtId) {
         case SETTXT_BOT_NICK:
             UpdateHubSec();
@@ -2150,8 +2249,19 @@ void clsSettingManager::UpdateTCPPorts() {
             if(ui8ActualPort != 0) {
                 ui16PortNumbers[ui8ActualPort] = (uint16_t)atoi(sPort);
             } else {
-                Lock l(csSetting);
+#ifdef _WIN32
+                EnterCriticalSection(&csSetting);
+#else
+				pthread_mutex_lock(&mtxSetting);
+#endif
+
                 ui16PortNumbers[ui8ActualPort] = (uint16_t)atoi(sPort);
+
+#ifdef _WIN32
+                LeaveCriticalSection(&csSetting);
+#else
+				pthread_mutex_unlock(&mtxSetting);
+#endif
             }
 
             sTexts[SETTXT_TCP_PORTS][ui16i] = ';';

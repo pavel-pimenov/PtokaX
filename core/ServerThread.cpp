@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -51,16 +51,24 @@ ServerThread::ServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumbe
 
 #ifdef _WIN32
     threadHandle = INVALID_HANDLE_VALUE;
+
+	InitializeCriticalSection(&csServerThread);
+#else
+	pthread_mutex_init(&mtxServerThread, NULL);
 #endif
 }
 //---------------------------------------------------------------------------
 
 ServerThread::~ServerThread() {
-#ifndef _WIN32
+#ifdef _WIN32
+    DeleteCriticalSection(&csServerThread);
+#else
     if(threadId != 0) {
         Close();
         WaitFor();
     }
+
+    pthread_mutex_destroy(&mtxServerThread);
 #endif
         
     AntiConFlood * acfcur = NULL,
@@ -186,10 +194,18 @@ void ServerThread::Run() {
 					continue;
 				}
 
-				{
-					Lock l(csServerThread);
-					iSuspendTime = 0;
-				}
+#ifdef _WIN32
+				EnterCriticalSection(&csServerThread);
+#else
+				pthread_mutex_lock(&mtxServerThread);
+#endif
+				iSuspendTime = 0;
+#ifdef _WIN32
+				LeaveCriticalSection(&csServerThread);
+#else
+				pthread_mutex_unlock(&mtxServerThread);
+#endif
+
 				if(Listen(true) == true) {
 					clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG, 
 						("[SYS] Server socket for port "+string(ui16Port)+" sucessfully recovered from suspend state.").c_str());
@@ -467,27 +483,40 @@ void ServerThread::RemoveConFlood(AntiConFlood *cur) {
 
 void ServerThread::ResumeSck() {
     if(bActive == true) {
-		Lock l(csServerThread);
+#ifdef _WIN32
+        EnterCriticalSection(&csServerThread);
+#else
+		pthread_mutex_lock(&mtxServerThread);
+#endif
         bSuspended = false;
         iSuspendTime = 0;
+#ifdef _WIN32
+        LeaveCriticalSection(&csServerThread);
+#else
+		pthread_mutex_unlock(&mtxServerThread);
+#endif
     }
 }
 //---------------------------------------------------------------------------
 
 void ServerThread::SuspendSck(const uint32_t &iTime) {
     if(bActive == true) {
-		{
-        Lock l(csServerThread);
+#ifdef _WIN32
+        EnterCriticalSection(&csServerThread);
+#else
+		pthread_mutex_lock(&mtxServerThread);
+#endif
         if(iTime != 0) {
             iSuspendTime = iTime;
         } else {
             bSuspended = true;
             iSuspendTime = 1;            
         }
-		}
-#ifdef _WIN32        
+#ifdef _WIN32
+        LeaveCriticalSection(&csServerThread);
     	closesocket(server);
 #else
+        pthread_mutex_unlock(&mtxServerThread);
     	close(server);
 #endif
     }

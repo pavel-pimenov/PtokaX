@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -402,10 +401,11 @@ void clsRegisteredUsersDialog::RemoveRegs() {
 
     ::SendMessage(hWndWindowItems[LV_REGS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 
+    RegUser * pReg = NULL;
     int iSel = -1;
 
     while((iSel = (int)::SendMessage(hWndWindowItems[LV_REGS], LVM_GETNEXTITEM, (WPARAM)-1, LVNI_SELECTED)) != -1) {
-        RegUser * pReg = (RegUser *)ListViewGetItem(hWndWindowItems[LV_REGS], iSel);
+        pReg = (RegUser *)ListViewGetItem(hWndWindowItems[LV_REGS], iSel);
 
         clsRegManager::mPtr->Delete(pReg, true);
 
@@ -493,12 +493,14 @@ void clsRegisteredUsersDialog::UpdateProfiles() {
 
     ::SendMessage(hWndWindowItems[LV_REGS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 
+    RegUser * pReg = NULL;
+
     LVITEM lvItem = { 0 };
     lvItem.mask = LVIF_TEXT;
     lvItem.iSubItem = 2;
 
     for(int i = 0; i < iItemCount; i++) {
-        RegUser * pReg = (RegUser *)ListViewGetItem(hWndWindowItems[LV_REGS], i);
+        pReg = (RegUser *)ListViewGetItem(hWndWindowItems[LV_REGS], i);
 
         lvItem.iItem = i;
         lvItem.pszText = clsProfileManager::mPtr->ppProfilesTable[pReg->ui16Profile]->sName;

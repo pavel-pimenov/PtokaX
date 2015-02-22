@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -20,7 +20,6 @@
 //---------------------------------------------------------------------------
 #ifndef serviceLoopH
 #define serviceLoopH
-#include "CriticalSection.h"
 //---------------------------------------------------------------------------
 struct User;
 //---------------------------------------------------------------------------
@@ -30,6 +29,8 @@ private:
     struct AcceptedSocket {
         AcceptedSocket();
 
+        AcceptedSocket(const AcceptedSocket&);
+        const AcceptedSocket& operator=(const AcceptedSocket&);
 
 #ifdef _WIN32
         SOCKET s;
@@ -40,12 +41,15 @@ private:
         sockaddr_storage addr;
 
         AcceptedSocket * pNext;
-        DISALLOW_COPY_AND_ASSIGN(AcceptedSocket);
     };
 
     uint64_t ui64LstUptmTck;
 
-    CriticalSection csAcceptQueue;
+#ifdef _WIN32
+    CRITICAL_SECTION csAcceptQueue;
+#else
+	pthread_mutex_t mtxAcceptQueue;
+#endif
 
 	AcceptedSocket * pAcceptedSocketsS, * pAcceptedSocketsE;
 
@@ -61,7 +65,8 @@ private:
 
 	char msg[1024];
 
-    DISALLOW_COPY_AND_ASSIGN(clsServiceLoop);
+	clsServiceLoop(const clsServiceLoop&);
+	const clsServiceLoop& operator=(const clsServiceLoop&);
 
     void AcceptUser(AcceptedSocket * AccptSocket);
 protected:

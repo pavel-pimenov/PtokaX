@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -462,10 +461,11 @@ void clsRangeBansDialog::RemoveRangeBans() {
 
     ::SendMessage(hWndWindowItems[LV_RANGE_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 
+    RangeBanItem * pRangeBan = NULL;
     int iSel = -1;
 
     while((iSel = (int)::SendMessage(hWndWindowItems[LV_RANGE_BANS], LVM_GETNEXTITEM, (WPARAM)-1, LVNI_SELECTED)) != -1) {
-        RangeBanItem * pRangeBan = (RangeBanItem *)ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], iSel);
+        pRangeBan = (RangeBanItem *)ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], iSel);
 
         clsBanManager::mPtr->RemRange(pRangeBan, true);
 

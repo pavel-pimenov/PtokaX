@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -28,6 +27,9 @@ private:
         ReservedNick();
         ~ReservedNick();
 
+        ReservedNick(const ReservedNick&);
+        const ReservedNick& operator=(const ReservedNick&);
+
         char * sNick;
 
         ReservedNick * pPrev, * pNext;
@@ -37,14 +39,12 @@ private:
         bool bFromScript;
 
         static ReservedNick * CreateReservedNick(const char * sNewNick, uint32_t ui32NickHash);
-
-        DISALLOW_COPY_AND_ASSIGN(ReservedNick);
     };
 
     ReservedNick * pReservedNicks;
 
-    DISALLOW_COPY_AND_ASSIGN(clsReservedNicksManager);
-
+    clsReservedNicksManager(const clsReservedNicksManager&);
+    const clsReservedNicksManager& operator=(const clsReservedNicksManager&);
 public:
     static clsReservedNicksManager * mPtr;
 

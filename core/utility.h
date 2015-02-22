@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -29,13 +29,11 @@ void Cout(const string & msg);
 //---------------------------------------------------------------------------
 
 #ifdef _WIN32
-#if 0 // FlylinkDC++
 	static void preD(char *pat, int M, int D[]);
 	static void suffixes(char *pat, int M, int *suff);
 	static void preDD(char *pat, int M, int DD[]);
 		
 	int BMFind(char *text, int N, char *pat, int M);
-#endif
 #endif
 
 char * Lock2Key(char * cLock);
@@ -115,14 +113,7 @@ void DeleteGlobalBuffer();
 bool CheckAndResizeGlobalBuffer(const size_t &szWantedSize);
 void ReduceGlobalBuffer();
 
-bool HashPassword(char * sPassword, const size_t &szPassLen, uint8_t * ui8PassHash);
-inline uint16_t CalcHash(const uint32_t& ui32Hash)
-{
-    uint16_t ui16dx;
-    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
-    return ui16dx;
-}
-
+bool HashPassword(char * sPassword, size_t &szPassLen, uint8_t * ui8PassHash);
 //---------------------------------------------------------------------------
 
 #endif

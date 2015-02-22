@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -486,10 +485,11 @@ void clsBansDialog::RemoveBans() {
 
     ::SendMessage(hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 
+    BanItem * pBan = NULL;
     int iSel = -1;
 
     while((iSel = (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETNEXTITEM, (WPARAM)-1, LVNI_SELECTED)) != -1) {
-        BanItem * pBan = (BanItem *)ListViewGetItem(hWndWindowItems[LV_BANS], iSel);
+        pBan = (BanItem *)ListViewGetItem(hWndWindowItems[LV_BANS], iSel);
 
         clsBanManager::mPtr->Rem(pBan, true);
 

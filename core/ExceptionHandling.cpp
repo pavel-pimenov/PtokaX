@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -29,10 +28,6 @@
 //---------------------------------------------------------------------------
 #include <Dbghelp.h>
 #include <delayimp.h>
-
-#pragma comment(lib, "Dbghelp.lib")
-#pragma comment(lib, "DelayImp.lib")
-
 //---------------------------------------------------------------------------
 LPTOP_LEVEL_EXCEPTION_FILTER pOldTLEF = NULL;
 string sLogPath = "", sDebugSymbolsFile = "";
@@ -83,7 +78,7 @@ void GetSourceFileInfo(DWORD64 dw64Address, FILE * fw) {
 
     DWORD dwDisplacement = 0;
 
-	if(SymGetLineFromAddr64(GetCurrentProcess(), dw64Address, &dwDisplacement, &il64LineInfo) != FALSE) { // V676 It is incorrect to compare the variable of BOOL type with TRUE. http://www.viva64.com/en/d/0310/print/		
+	if(SymGetLineFromAddr64(GetCurrentProcess(), dw64Address, &dwDisplacement, &il64LineInfo) == TRUE) {
         // We have sourcefile and linenumber info, write it.
         fprintf(fw, "%s(%lu): ", il64LineInfo.FileName, il64LineInfo.LineNumber);
 	} else {
@@ -113,7 +108,7 @@ void GetFunctionInfo(DWORD64 dw64Address, FILE * fw) {
     pSym->SizeOfStruct = sizeof(SYMBOL_INFO);
     pSym->MaxNameLen = MAX_SYM_NAME;
 
-	if(SymFromAddr(GetCurrentProcess(), dw64Address, &dw64Displacement, pSym) != FALSE) { // V676 It is incorrect to compare the variable of BOOL type with TRUE. http://www.viva64.com/en/d/0310/print/
+	if(SymFromAddr(GetCurrentProcess(), dw64Address, &dw64Displacement, pSym) == TRUE) {
         // We have decorated name, try to make it readable
         if(UnDecorateSymbolName(pSym->Name, sDebugBuf, szDebugBufLen, UNDNAME_COMPLETE | UNDNAME_NO_THISTYPE | UNDNAME_NO_SPECIAL_SYMS | UNDNAME_NO_MEMBER_TYPE |
             UNDNAME_NO_MS_KEYWORDS | UNDNAME_NO_ACCESS_SPECIFIERS) > 0) {
@@ -215,18 +210,6 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
         ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
         if(GetVersionEx((OSVERSIONINFO*)&ver) != 0) {
-            if(ver.dwMajorVersion == 6) { // temporary (maybe) hack to detect win 10
-                OSVERSIONINFOEX ver2;
-                memset(&ver2, 0, sizeof(OSVERSIONINFOEX));
-                ver2.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-                ver2.dwMinorVersion = 4;
-                ULONGLONG mask = ::VerSetConditionMask(0, VER_MINORVERSION, VER_EQUAL);
-
-                if(::VerifyVersionInfo(&ver2, VER_MINORVERSION, mask)) {
-                    ver.dwMinorVersion = 4;
-                }
-            }
-
 			fprintf(fw, "Windows version: %lu.%lu SP: %hu\n", ver.dwMajorVersion, ver.dwMinorVersion, ver.wServicePackMajor);
         }
     }

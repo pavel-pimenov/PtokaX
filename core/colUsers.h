@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -34,12 +34,14 @@ private:
     struct RecTime {
         RecTime(const uint8_t * pIpHash);
 
+        RecTime(const RecTime&);
+        const RecTime& operator=(const RecTime&);
+
         uint64_t ui64DisConnTick;
         uint32_t ui32NickHash;
         RecTime * pPrev, * pNext;
         char * sNick;
         uint8_t ui128IpHash[16];
-        DISALLOW_COPY_AND_ASSIGN(RecTime);
     };
 
     uint64_t ui64ChatMsgsTick, ui64ChatLockFromTick;
@@ -48,14 +50,14 @@ private:
 
     RecTime * pRecTimeList;
 
-	  User * pListE;
+	User * pListE;
 
     bool bChatLocked;
 
-	  char msg[1024];
+	char msg[1024];
 
-    DISALLOW_COPY_AND_ASSIGN(clsUsers);
-
+    clsUsers(const clsUsers&);
+    const clsUsers& operator=(const clsUsers&);
 public:
     static clsUsers * mPtr;
 

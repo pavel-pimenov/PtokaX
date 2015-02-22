@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -29,7 +28,9 @@ private:
     uint8_t * ui8RangeCI, * ui8IPv6RangeCI;
     uint8_t * ui128IPv6RangeFrom, * ui128IPv6RangeTo;
 
-    DISALLOW_COPY_AND_ASSIGN(clsIpP2Country);
+    clsIpP2Country(const clsIpP2Country&);
+    const clsIpP2Country& operator=(const clsIpP2Country&);
+
     void LoadIPv4();
     void LoadIPv6();
 public:

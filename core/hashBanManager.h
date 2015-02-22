@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -43,7 +42,8 @@ struct BanItem {
     BanItem();
     ~BanItem();
 
-    DISALLOW_COPY_AND_ASSIGN(BanItem);
+    BanItem(const BanItem&);
+    const BanItem& operator=(const BanItem&);
 }; 
 //---------------------------------------------------------------------------
 
@@ -63,7 +63,8 @@ struct RangeBanItem {
     RangeBanItem();
     ~RangeBanItem();
 
-    DISALLOW_COPY_AND_ASSIGN(RangeBanItem);
+    RangeBanItem(const RangeBanItem&);
+    const RangeBanItem& operator=(const RangeBanItem&);
 };
 //---------------------------------------------------------------------------
 
@@ -72,9 +73,11 @@ private:
     struct IpTableItem {
         IpTableItem() : pPrev(NULL), pNext(NULL), pFirstBan(NULL) { };
 
+        IpTableItem(const IpTableItem&);
+        const IpTableItem& operator=(const IpTableItem&);
+
         IpTableItem * pPrev, * pNext;
         BanItem * pFirstBan;
-        DISALLOW_COPY_AND_ASSIGN(IpTableItem);
     };
 
     uint32_t ui32SaveCalled;
@@ -82,7 +85,8 @@ private:
     BanItem * pNickTable[65536];
     IpTableItem * pIpTable[65536];
 
-    DISALLOW_COPY_AND_ASSIGN(clsBanManager);
+    clsBanManager(const clsBanManager&);
+    const clsBanManager& operator=(const clsBanManager&);
 public:
     static clsBanManager * mPtr;
 

@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -57,7 +57,8 @@ clsHashManager::~clsHashManager() {
 //---------------------------------------------------------------------------
 
 bool clsHashManager::Add(User * u) {
-	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
 
     if(pNickTable[ui16dx] != NULL) {
         pNickTable[ui16dx]->pHashTablePrev = u;
@@ -67,7 +68,7 @@ bool clsHashManager::Add(User * u) {
     pNickTable[ui16dx] = u;
 
     if(pIpTable[u->ui16IpTableIdx] == NULL) {
-        pIpTable[u->ui16IpTableIdx] = new (std::nothrow) IpTableItem;
+        pIpTable[u->ui16IpTableIdx] = new (std::nothrow) IpTableItem();
 
         if(pIpTable[u->ui16IpTableIdx] == NULL) {
             u->ui32BoolBits |= User::BIT_ERROR;
@@ -103,7 +104,7 @@ bool clsHashManager::Add(User * u) {
         }
     }
 
-    cur = new (std::nothrow) IpTableItem;
+    cur = new (std::nothrow) IpTableItem();
 
     if(cur == NULL) {
         u->ui32BoolBits |= User::BIT_ERROR;
@@ -128,7 +129,8 @@ bool clsHashManager::Add(User * u) {
 
 void clsHashManager::Remove(User * u) {
     if(u->pHashTablePrev == NULL) {
-		const uint16_t ui16dx = CalcHash(u->ui32NickHash);
+        uint16_t ui16dx = 0;
+        memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
 
         if(u->pHashTableNext == NULL) {
             pNickTable[ui16dx] = NULL;
@@ -211,9 +213,10 @@ void clsHashManager::Remove(User * u) {
 //---------------------------------------------------------------------------
 
 User * clsHashManager::FindUser(char * sNick, const size_t &szNickLen) {
-    const uint32_t ui32Hash = HashNick(sNick, szNickLen);
+    uint32_t ui32Hash = HashNick(sNick, szNickLen);
 
-    const uint16_t ui16dx = CalcHash(ui32Hash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
 
     User * next = pNickTable[ui16dx];
 
@@ -238,8 +241,8 @@ User * clsHashManager::FindUser(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 User * clsHashManager::FindUser(User * u) {
-
-	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
 
     User * next = pNickTable[ui16dx];
 

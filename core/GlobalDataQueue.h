@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -29,42 +29,53 @@ private:
     struct QueueItem {
         QueueItem() : szLen1(0), szLen2(0), pCommand1(NULL), pCommand2(NULL), pNext(NULL), ui8CommandType(0) { };
 
+        QueueItem(const QueueItem&);
+        const QueueItem& operator=(const QueueItem&);
+
         size_t szLen1, szLen2;
         char * pCommand1, * pCommand2;
         QueueItem * pNext;
         uint8_t ui8CommandType;
-        DISALLOW_COPY_AND_ASSIGN(QueueItem);
     };
 
     struct GlobalQueue {
         GlobalQueue() : szLen(0), szSize(0), szZlen(0), szZsize(0), pBuffer(NULL), pZbuffer(NULL), pNext(NULL), bCreated(false), bZlined(false) { };
 
+        GlobalQueue(const GlobalQueue&);
+        const GlobalQueue& operator=(const GlobalQueue&);
+
         size_t szLen, szSize, szZlen, szZsize;
         char * pBuffer, * pZbuffer;
         GlobalQueue * pNext;
         bool bCreated, bZlined;
-        DISALLOW_COPY_AND_ASSIGN(GlobalQueue);
     };
 
     struct OpsQueue {
         OpsQueue() : szLen(0), szSize(0), pBuffer(NULL) { };
 
+        OpsQueue(const OpsQueue&);
+        const OpsQueue& operator=(const OpsQueue&);
+
     	size_t szLen, szSize;
     	char * pBuffer;
-      DISALLOW_COPY_AND_ASSIGN(OpsQueue);
     };
     
     struct IPsQueue {
         IPsQueue() : szLen(0), szSize(0), pBuffer(NULL), bHaveDollars(false) { };
 
+        IPsQueue(const IPsQueue&);
+        const IPsQueue& operator=(const IPsQueue&);
+
     	size_t szLen, szSize;
     	char * pBuffer;
     	bool bHaveDollars;
-      DISALLOW_COPY_AND_ASSIGN(IPsQueue);
     };
 
     struct SingleDataItem {
         SingleDataItem() : szDataLen(0), ui8Type(0), i32Profile(0),  pData(NULL), pPrev(NULL), pNext(NULL), pFromUser(NULL) { };
+
+        SingleDataItem(const SingleDataItem&);
+        const SingleDataItem& operator=(const SingleDataItem&);
 
         size_t szDataLen;
         uint8_t ui8Type;
@@ -72,7 +83,6 @@ private:
         char * pData;
         SingleDataItem * pPrev, * pNext;
         User * pFromUser;
-        DISALLOW_COPY_AND_ASSIGN(SingleDataItem);
     };
 
     GlobalQueue * pCreatedGlobalQueues;
@@ -87,7 +97,9 @@ private:
 
     char msg[128];
 
-    DISALLOW_COPY_AND_ASSIGN(clsGlobalDataQueue);
+    clsGlobalDataQueue(const clsGlobalDataQueue&);
+    const clsGlobalDataQueue& operator=(const clsGlobalDataQueue&);
+
     static void AddDataToQueue(GlobalQueue &pQueue, char * sData, const size_t &szLen);
 public:
     static clsGlobalDataQueue * mPtr;

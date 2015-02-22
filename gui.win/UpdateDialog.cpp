@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -150,9 +149,11 @@ bool clsUpdateDialog::ParseData(char * sData, HWND hWndParent) {
     char * sBegin = sData;
     char * sTemp = strchr(sBegin, '=');
 
+    size_t szLen = 0;
+
     while(sTemp != NULL) {
         sTemp[0] = '\0';
-        size_t szLen = sTemp - sBegin;
+        szLen = sTemp - sBegin;
 
         if(szLen == 7) {
             if(strcmp(sBegin, "Version") == 0) {

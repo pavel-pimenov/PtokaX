@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -208,12 +207,8 @@ bool RegUser::UpdatePassword(char * sNewPass, size_t &szNewLen) {
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-clsRegManager::clsRegManager(void) {
-    pRegListS = pRegListE = NULL;
-
+clsRegManager::clsRegManager(void) : ui8SaveCalls(0), pRegListS(NULL), pRegListE(NULL) {
     memset(pTable, 0, sizeof(pTable));
-
-    ui8SaveCalls = 0;
 }
 //---------------------------------------------------------------------------
 
@@ -331,7 +326,8 @@ void clsRegManager::Add(RegUser * Reg) {
 //---------------------------------------------------------------------------
 
 void clsRegManager::Add2Table(RegUser * Reg) {
-    const uint16_t ui16dx = CalcHash(Reg->ui32Hash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &Reg->ui32Hash, sizeof(uint16_t));
 
     if(pTable[ui16dx] != NULL) {
         pTable[ui16dx]->pHashTablePrev = Reg;
@@ -491,7 +487,8 @@ void clsRegManager::Rem(RegUser * Reg) {
 
 void clsRegManager::RemFromTable(RegUser * Reg) {
     if(Reg->pHashTablePrev == NULL) {
-	    const uint16_t ui16dx = CalcHash(Reg->ui32Hash);
+        uint16_t ui16dx = 0;
+        memcpy(&ui16dx, &Reg->ui32Hash, sizeof(uint16_t));
 
         if(Reg->pHashTableNext == NULL) {
             pTable[ui16dx] = NULL;
@@ -514,7 +511,8 @@ void clsRegManager::RemFromTable(RegUser * Reg) {
 RegUser* clsRegManager::Find(char * sNick, const size_t &szNickLen) {
     uint32_t ui32Hash = HashNick(sNick, szNickLen);
 
-    const uint16_t ui16dx = CalcHash(ui32Hash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
 
     RegUser * cur = NULL,
         * next = pTable[ui16dx];
@@ -533,7 +531,8 @@ RegUser* clsRegManager::Find(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 RegUser* clsRegManager::Find(User * u) {
-	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
 
 	RegUser * cur = NULL,
         * next = pTable[ui16dx];
@@ -552,7 +551,8 @@ RegUser* clsRegManager::Find(User * u) {
 //---------------------------------------------------------------------------
 
 RegUser* clsRegManager::Find(uint32_t ui32Hash, char * sNick) {
-    const uint16_t ui16dx = CalcHash(ui32Hash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
 
 	RegUser * cur = NULL,
         * next = pTable[ui16dx];

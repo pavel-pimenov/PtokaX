@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -26,7 +25,8 @@
 
 class clsLanguageManager {
 private:
-    DISALLOW_COPY_AND_ASSIGN(clsLanguageManager);
+    clsLanguageManager(const clsLanguageManager&);
+    const clsLanguageManager& operator=(const clsLanguageManager&);
 public:
     static clsLanguageManager * mPtr;
 

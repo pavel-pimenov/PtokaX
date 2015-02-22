@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -237,7 +237,7 @@ clsGlobalDataQueue::~clsGlobalDataQueue() {
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void clsGlobalDataQueue::AddQueueItem(char * sCommand1, const size_t &szLen1, char * sCommand2, const size_t &szLen2, const uint8_t &ui8CmdType) {
-    QueueItem * pNewItem = new (std::nothrow) QueueItem;
+    QueueItem * pNewItem = new (std::nothrow) QueueItem();
     if(pNewItem == NULL) {
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in clsGlobalDataQueue::AddQueueItem\n", 0);
     	return;
@@ -857,7 +857,7 @@ void clsGlobalDataQueue::ProcessSingleItems(User * u) const {
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void clsGlobalDataQueue::SingleItemStore(char * sData, const size_t &szDataLen, User * pFromUser, const int32_t &i32Profile, const uint8_t &ui8Type) {
-    SingleDataItem * pNewItem = new (std::nothrow) SingleDataItem;
+    SingleDataItem * pNewItem = new (std::nothrow) SingleDataItem();
     if(pNewItem == NULL) {
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in clsGlobalDataQueue::SingleItemStore\n", 0);
     	return;
@@ -1006,7 +1006,7 @@ void * clsGlobalDataQueue::GetFirstQueueItem() {
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void * clsGlobalDataQueue::InsertBlankQueueItem(void * pAfterItem, const uint8_t &ui8CmdType) {
-    QueueItem * pNewItem = new (std::nothrow) QueueItem;
+    QueueItem * pNewItem = new (std::nothrow) QueueItem();
     if(pNewItem == NULL) {
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in clsGlobalDataQueue::InsertBlankQueueItem\n", 0);
     	return NULL;

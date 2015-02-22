@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -21,12 +20,14 @@
 #ifndef eventqueueH
 #define eventqueueH
 //---------------------------------------------------------------------------
-#include "CriticalSection.h"
 
 class clsEventQueue {
 private:
     struct event {
         event();
+
+        event(const event&);
+        const event& operator=(const event&);
 
         char * sMsg;
 
@@ -34,14 +35,18 @@ private:
 
         uint8_t ui128IpHash[16];
         uint8_t ui8Id;
-        DISALLOW_COPY_AND_ASSIGN(event);
     };
 
     event * pNormalE, * pThreadE;
 
-	CriticalSection csEventQueue;
+#ifdef _WIN32
+	CRITICAL_SECTION csEventQueue;
+#else
+	pthread_mutex_t mtxEventQueue;
+#endif
 
-  DISALLOW_COPY_AND_ASSIGN(clsEventQueue);
+	clsEventQueue(const clsEventQueue&);
+	const clsEventQueue& operator=(const clsEventQueue&);
 public:
     static clsEventQueue * mPtr;
 

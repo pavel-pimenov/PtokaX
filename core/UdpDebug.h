@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -30,6 +30,9 @@ private:
         UdpDbgItem();
         ~UdpDbgItem();
 
+        UdpDbgItem(const UdpDbgItem&);
+        const UdpDbgItem& operator=(const UdpDbgItem&);
+
 #ifdef _WIN32
         SOCKET s;
 #else
@@ -43,11 +46,10 @@ private:
 
         UdpDbgItem * pPrev, * pNext;
         bool bIsScript;
-        DISALLOW_COPY_AND_ASSIGN(UdpDbgItem);
     };
 
-    DISALLOW_COPY_AND_ASSIGN(clsUdpDebug);
-
+    clsUdpDebug(const clsUdpDebug&);
+    const clsUdpDebug& operator=(const clsUdpDebug&);
 public:
     static clsUdpDebug * mPtr;
 
@@ -64,7 +66,7 @@ public:
 	bool Remove(User * u);
 	void Remove(char * sScriptName);
 	bool CheckUdpSub(User * u, bool bSndMess = false) const;
-	void Send(const char * sScriptName, char * sMsg, const size_t &szLen) const;
+	void Send(char * sScriptName, char * sMsg, const size_t &szLen) const;
 	void Cleanup();
 };
 //---------------------------------------------------------------------------

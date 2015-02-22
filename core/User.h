@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -26,20 +26,23 @@ struct UserBan {
     UserBan();
     ~UserBan();
 
+    UserBan(const UserBan&);
+    const UserBan& operator=(const UserBan&);
 
     char * sMessage;
 
     uint32_t ui32Len, ui32NickHash;
 
     static UserBan * CreateUserBan(char * sMess, const uint32_t &ui32MessLen, const uint32_t &ui32Hash);
-
-    DISALLOW_COPY_AND_ASSIGN(UserBan);
 };
 //---------------------------------------------------------------------------
 
 struct LoginLogout {
     LoginLogout();
     ~LoginLogout();
+
+    LoginLogout(const LoginLogout&);
+    const LoginLogout& operator=(const LoginLogout&);
 
     uint64_t ui64LogonTick, ui64IPv4CheckTick;
 
@@ -48,12 +51,14 @@ struct LoginLogout {
     char * pBuffer;
 
     UserBan * pBan;
-    DISALLOW_COPY_AND_ASSIGN(LoginLogout);
 };
 //---------------------------------------------------------------------------
 
 struct PrcsdUsrCmd {
     PrcsdUsrCmd() : ui32Len(0), sCommand(NULL), pNext(NULL), pPtr(NULL), ui8Type(0) { };
+
+    PrcsdUsrCmd(const PrcsdUsrCmd&);
+    const PrcsdUsrCmd& operator=(const PrcsdUsrCmd&);
 
     enum PrcsdCmdsIds {
         CTM_MCTM_RCTM_SR_TO,
@@ -73,8 +78,6 @@ struct PrcsdUsrCmd {
     void * pPtr;
 
     uint8_t ui8Type;
-
-    DISALLOW_COPY_AND_ASSIGN(PrcsdUsrCmd);
 };
 //---------------------------------------------------------------------------
 
@@ -85,6 +88,9 @@ struct User; // needed for next struct, and next struct must be defined before u
 struct PrcsdToUsrCmd {
     PrcsdToUsrCmd() : ui32Len(0), ui32PmCount(0), ui32Loops(0), ui32ToNickLen(0), sCommand(NULL), sToNick(NULL), pNext(NULL), pTo(NULL) { };
 
+    PrcsdToUsrCmd(const PrcsdToUsrCmd&);
+    const PrcsdToUsrCmd& operator=(const PrcsdToUsrCmd&);
+
     uint32_t ui32Len, ui32PmCount, ui32Loops, ui32ToNickLen;
 
     char * sCommand, * sToNick;
@@ -92,7 +98,6 @@ struct PrcsdToUsrCmd {
     PrcsdToUsrCmd * pNext;
 
     User * pTo;
-    DISALLOW_COPY_AND_ASSIGN(PrcsdToUsrCmd);
 };
 //---------------------------------------------------------------------------
 struct QzBuf; // for send queue
@@ -101,6 +106,9 @@ struct QzBuf; // for send queue
 struct User {
 	User();
 	~User();
+
+    User(const User&);
+    const User& operator=(const User&);
 
 	bool MakeLock();
 	bool DoRecv();
@@ -291,8 +299,6 @@ struct User {
     char sIP[46], sIPv4[16];
 
     char sModes[3];
-
-    DISALLOW_COPY_AND_ASSIGN(User);
 };
 //---------------------------------------------------------------------------
 

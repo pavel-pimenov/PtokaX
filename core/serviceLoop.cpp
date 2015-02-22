@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -42,6 +42,9 @@
 	#pragma hdrstop
 #endif
 //---------------------------------------------------------------------------
+#ifdef _WITH_POSTGRES
+	#include "DB-PostgreSQL.h"
+#endif
 #include "LuaScript.h"
 #include "RegThread.h"
 //---------------------------------------------------------------------------
@@ -138,8 +141,12 @@ clsServiceLoop::clsServiceLoop() : ui64LstUptmTck(clsServerManager::ui64ActualTi
 	ui32LastSendRest(0), ui32SendRestsPeak(0), ui32LastRecvRest(0), ui32RecvRestsPeak(0), ui32LoopsForLogins(0), bRecv(true) {
     msg[0] = '\0';
 
-#ifndef _WIN32
+#ifdef _WIN32
+    InitializeCriticalSection(&csAcceptQueue);
+#else
 	iSIG = 0;
+
+	pthread_mutex_init(&mtxAcceptQueue, NULL);
 #endif
 
 	clsServerManager::bServerTerminated = false;
@@ -181,6 +188,12 @@ clsServiceLoop::~clsServiceLoop() {
    
     pAcceptedSocketsS = NULL;
     pAcceptedSocketsE = NULL;
+
+#ifdef _WIN32
+	DeleteCriticalSection(&csAcceptQueue);
+#else
+	pthread_mutex_destroy(&mtxAcceptQueue);
+#endif
 
 	Cout("MainLoop terminated.");
 }
@@ -559,8 +572,12 @@ void clsServiceLoop::ReceiveLoop() {
 
     AcceptedSocket * CurSck = NULL,
         * NextSck = NULL;
-	{
-    Lock l(csAcceptQueue);
+
+#ifdef _WIN32
+    EnterCriticalSection(&csAcceptQueue);
+#else
+	pthread_mutex_lock(&mtxAcceptQueue);
+#endif
 
     if(pAcceptedSocketsS != NULL) {
         NextSck = pAcceptedSocketsS;
@@ -568,7 +585,12 @@ void clsServiceLoop::ReceiveLoop() {
         pAcceptedSocketsE = NULL;
     }
 
-	}
+#ifdef _WIN32
+    LeaveCriticalSection(&csAcceptQueue);
+#else
+	pthread_mutex_unlock(&mtxAcceptQueue);
+#endif
+
     while(NextSck != NULL) {
         CurSck = NextSck;
         NextSck = CurSck->pNext;
@@ -723,6 +745,9 @@ void clsServiceLoop::ReceiveLoop() {
                 }
 #endif
 //                if(sqldb) sqldb->AddVisit(curUser);
+#ifdef _WITH_POSTGRES
+				DBPostgreSQL::mPtr->UpdateRecord(curUser);
+#endif
 
                 // PPK ... change to NoHello supports
             	int imsgLen = sprintf(msg, "$Hello %s|", curUser->sNick);
@@ -1123,7 +1148,7 @@ void clsServiceLoop::AcceptSocket(const SOCKET &s, const sockaddr_storage &addr)
 #else
 void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr) {
 #endif
-    AcceptedSocket * pNewSocket = new (std::nothrow) AcceptedSocket;
+    AcceptedSocket * pNewSocket = new (std::nothrow) AcceptedSocket();
     if(pNewSocket == NULL) {
 #ifdef _WIN32
 		shutdown(s, SD_SEND);
@@ -1143,7 +1168,11 @@ void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr) {
 
     pNewSocket->pNext = NULL;
 
-    Lock l(csAcceptQueue);
+#ifdef _WIN32
+    EnterCriticalSection(&csAcceptQueue);
+#else
+    pthread_mutex_lock(&mtxAcceptQueue);
+#endif
 
     if(pAcceptedSocketsS == NULL) {
         pAcceptedSocketsS = pNewSocket;
@@ -1152,5 +1181,11 @@ void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr) {
         pAcceptedSocketsE->pNext = pNewSocket;
         pAcceptedSocketsE = pNewSocket;
     }
+
+#ifdef _WIN32
+    LeaveCriticalSection(&csAcceptQueue);
+#else
+	pthread_mutex_unlock(&mtxAcceptQueue);
+#endif
 }
 //---------------------------------------------------------------------------

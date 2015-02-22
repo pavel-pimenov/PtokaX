@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -48,9 +47,11 @@ struct RegUser {
     RegUser();
     ~RegUser();
 
+    RegUser(const RegUser&);
+    const RegUser& operator=(const RegUser&);
+
     static RegUser * CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPassword, size_t szRegPassLen, uint8_t * ui8RegPassHash, const uint16_t &ui16RegProfile);
     bool UpdatePassword(char * sNewPass, size_t &szNewLen);
-    DISALLOW_COPY_AND_ASSIGN(RegUser);
 }; 
 //---------------------------------------------------------------------------
 
@@ -60,7 +61,8 @@ private:
 
     uint8_t ui8SaveCalls;
 
-    DISALLOW_COPY_AND_ASSIGN(clsRegManager);
+    clsRegManager(const clsRegManager&);
+    const clsRegManager& operator=(const clsRegManager&);
 
     void LoadXML();
 public:

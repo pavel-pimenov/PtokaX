@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -216,7 +215,8 @@ bool clsBanManager::Add2Table(BanItem *Ban) {
 //---------------------------------------------------------------------------
 
 void clsBanManager::Add2NickTable(BanItem *Ban) {
-    const uint16_t ui16dx = CalcHash(Ban->ui32NickHash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &Ban->ui32NickHash, sizeof(uint16_t));
 
     if(pNickTable[ui16dx] != NULL) {
         pNickTable[ui16dx]->pHashNickTablePrev = Ban;
@@ -268,7 +268,7 @@ bool clsBanManager::Add2IpTable(BanItem *Ban) {
         }
     }
 
-    cur = new (std::nothrow) IpTableItem;
+    cur = new (std::nothrow) IpTableItem();
 
     if(cur == NULL) {
 		AppendDebugLog("%s - [MEM] Cannot allocate IpTableBans2 in clsBanManager::Add2IpTable\n", 0);
@@ -349,7 +349,8 @@ void clsBanManager::RemFromTable(BanItem *Ban) {
 
 void clsBanManager::RemFromNickTable(BanItem *Ban) {
     if(Ban->pHashNickTablePrev == NULL) {
-	    const uint16_t ui16dx = CalcHash(Ban->ui32NickHash);
+        uint16_t ui16dx = 0;
+        memcpy(&ui16dx, &Ban->ui32NickHash, sizeof(uint16_t));
 
         if(Ban->pHashNickTableNext == NULL) {
             pNickTable[ui16dx] = NULL;
@@ -620,7 +621,8 @@ void clsBanManager::RemoveRange(RangeBanItem *RangeBan) {
 //---------------------------------------------------------------------------
 
 BanItem* clsBanManager::FindNick(User* u) {
-    const uint16_t ui16dx = CalcHash(u->ui32NickHash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &u->ui32NickHash, sizeof(uint16_t));
 
     time_t acc_time;
     time(&acc_time);
@@ -816,7 +818,8 @@ BanItem* clsBanManager::FindNick(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 BanItem* clsBanManager::FindNick(const uint32_t &ui32Hash, const time_t &acc_time, char * sNick) {
-    const uint16_t ui16dx = CalcHash(ui32Hash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
 
 	BanItem * cur = NULL,
         * next = pNickTable[ui16dx];
@@ -952,7 +955,8 @@ BanItem* clsBanManager::FindTempNick(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 BanItem* clsBanManager::FindTempNick(const uint32_t &ui32Hash,  const time_t &acc_time, char * sNick) {
-    const uint16_t ui16dx = CalcHash(ui32Hash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
 
 	BanItem * cur = NULL,
         * next = pNickTable[ui16dx];
@@ -1031,7 +1035,8 @@ BanItem* clsBanManager::FindPermNick(char * sNick, const size_t &szNickLen) {
 //---------------------------------------------------------------------------
 
 BanItem* clsBanManager::FindPermNick(const uint32_t &ui32Hash, char * sNick) {
-    const uint16_t ui16dx = CalcHash(ui32Hash);
+    uint16_t ui16dx = 0;
+    memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
 
     BanItem * cur = NULL,
         * next = pNickTable[ui16dx];

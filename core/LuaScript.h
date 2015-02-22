@@ -1,8 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -36,8 +35,10 @@ struct ScriptBot {
     ScriptBot();
     ~ScriptBot();
 
+    ScriptBot(const ScriptBot&);
+    const ScriptBot& operator=(const ScriptBot&);
+
     static ScriptBot * CreateScriptBot(char * sNick, const size_t &szNickLen, char * sDescription, const size_t &szDscrLen, char * sEmail, const size_t &szEmailLen, const bool &bOP);
-    DISALLOW_COPY_AND_ASSIGN(ScriptBot);
 };
 //------------------------------------------------------------------------------
 
@@ -59,13 +60,14 @@ struct ScriptTimer {
     ScriptTimer();
     ~ScriptTimer();
 
+    ScriptTimer(const ScriptTimer&);
+    const ScriptTimer& operator=(const ScriptTimer&);
+
 #ifdef _WIN32
     static ScriptTimer * CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t &szLen, const int &iRef);
 #else
 	static ScriptTimer * CreateScriptTimer(char * sFunctName, const size_t &szLen, const int &iRef);
 #endif
-      DISALLOW_COPY_AND_ASSIGN(ScriptTimer);
-
 };
 //------------------------------------------------------------------------------
 
@@ -101,8 +103,10 @@ struct Script {
     Script();
     ~Script();
 
+    Script(const Script&);
+    const Script& operator=(const Script&);
+
     static Script * CreateScript(char *Name, const bool &enabled);
-    DISALLOW_COPY_AND_ASSIGN(Script);
 };
 //------------------------------------------------------------------------------
 

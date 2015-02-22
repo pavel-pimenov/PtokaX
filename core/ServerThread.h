@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -27,6 +27,9 @@ private:
     struct AntiConFlood {
         AntiConFlood(const uint8_t * pIpHash);
 
+        AntiConFlood(const AntiConFlood&);
+        const AntiConFlood& operator=(const AntiConFlood&);
+
         uint8_t ui128IpHash[16];
 
         uint64_t ui64Time;
@@ -34,10 +37,8 @@ private:
         AntiConFlood * pPrev, * pNext;
 
         int16_t ui16Hits;
-        DISALLOW_COPY_AND_ASSIGN(AntiConFlood);
     };
 
-    CriticalSection csServerThread;
 #ifdef _WIN32
     SOCKET server;
 
@@ -46,6 +47,7 @@ private:
 
     HANDLE threadHandle;
 
+    CRITICAL_SECTION csServerThread;
 #else
     int server;
 
@@ -62,7 +64,8 @@ private:
 
 	bool bTerminated;
 
-    DISALLOW_COPY_AND_ASSIGN(ServerThread);
+	ServerThread(const ServerThread&);
+	const ServerThread& operator=(const ServerThread&);
 public:
     ServerThread * pPrev, * pNext;
 

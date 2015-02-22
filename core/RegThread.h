@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -28,6 +28,9 @@ private:
         RegSocket();
         ~RegSocket();
 
+        RegSocket(const RegSocket&);
+        const RegSocket& operator=(const RegSocket&);
+
         uint64_t ui64TotalShare;
 
 #ifdef _WIN32
@@ -43,8 +46,6 @@ private:
 		char * sAddress, * pRecvBuf, * pSendBuf, * pSendBufHead;
 
         RegSocket * pPrev, * pNext;
-
-        DISALLOW_COPY_AND_ASSIGN(RegSocket);
     };
 
 #ifdef _WIN32
@@ -61,7 +62,8 @@ private:
 
     char sMsg[2048];
 
-    DISALLOW_COPY_AND_ASSIGN(clsRegisterThread);
+	clsRegisterThread(const clsRegisterThread&);
+	const clsRegisterThread& operator=(const clsRegisterThread&);
 
 	void AddSock(char * sAddress, const size_t &ui32Len);
 	bool Receive(RegSocket * pSock);

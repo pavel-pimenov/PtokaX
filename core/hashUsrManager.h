@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2014  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -29,18 +29,21 @@ private:
     struct IpTableItem {
         IpTableItem() : pPrev(NULL), pNext(NULL), pFirstUser(NULL), ui16Count(0) { };
 
+        IpTableItem(const IpTableItem&);
+        const IpTableItem& operator=(const IpTableItem&);
+
         IpTableItem * pPrev, * pNext;
 
         User * pFirstUser;
 
         uint16_t ui16Count;
-        DISALLOW_COPY_AND_ASSIGN(IpTableItem);
     };
 
     User * pNickTable[65536];
     IpTableItem * pIpTable[65536];
 
-    DISALLOW_COPY_AND_ASSIGN(clsHashManager);
+    clsHashManager(const clsHashManager&);
+    const clsHashManager& operator=(const clsHashManager&);
 public:
     static clsHashManager * mPtr;
 
