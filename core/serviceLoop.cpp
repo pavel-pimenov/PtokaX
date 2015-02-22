@@ -141,12 +141,8 @@ clsServiceLoop::clsServiceLoop() : ui64LstUptmTck(clsServerManager::ui64ActualTi
 	ui32LastSendRest(0), ui32SendRestsPeak(0), ui32LastRecvRest(0), ui32RecvRestsPeak(0), ui32LoopsForLogins(0), bRecv(true) {
     msg[0] = '\0';
 
-#ifdef _WIN32
-    InitializeCriticalSection(&csAcceptQueue);
-#else
+#ifndef _WIN32
 	iSIG = 0;
-
-	pthread_mutex_init(&mtxAcceptQueue, NULL);
 #endif
 
 	clsServerManager::bServerTerminated = false;
@@ -188,12 +184,6 @@ clsServiceLoop::~clsServiceLoop() {
    
     pAcceptedSocketsS = NULL;
     pAcceptedSocketsE = NULL;
-
-#ifdef _WIN32
-	DeleteCriticalSection(&csAcceptQueue);
-#else
-	pthread_mutex_destroy(&mtxAcceptQueue);
-#endif
 
 	Cout("MainLoop terminated.");
 }
@@ -572,12 +562,8 @@ void clsServiceLoop::ReceiveLoop() {
 
     AcceptedSocket * CurSck = NULL,
         * NextSck = NULL;
-
-#ifdef _WIN32
-    EnterCriticalSection(&csAcceptQueue);
-#else
-	pthread_mutex_lock(&mtxAcceptQueue);
-#endif
+	{
+    Lock l(csAcceptQueue);
 
     if(pAcceptedSocketsS != NULL) {
         NextSck = pAcceptedSocketsS;
@@ -585,12 +571,7 @@ void clsServiceLoop::ReceiveLoop() {
         pAcceptedSocketsE = NULL;
     }
 
-#ifdef _WIN32
-    LeaveCriticalSection(&csAcceptQueue);
-#else
-	pthread_mutex_unlock(&mtxAcceptQueue);
-#endif
-
+	}
     while(NextSck != NULL) {
         CurSck = NextSck;
         NextSck = CurSck->pNext;
@@ -1148,7 +1129,7 @@ void clsServiceLoop::AcceptSocket(const SOCKET &s, const sockaddr_storage &addr)
 #else
 void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr) {
 #endif
-    AcceptedSocket * pNewSocket = new (std::nothrow) AcceptedSocket();
+    AcceptedSocket * pNewSocket = new (std::nothrow) AcceptedSocket;
     if(pNewSocket == NULL) {
 #ifdef _WIN32
 		shutdown(s, SD_SEND);
@@ -1168,11 +1149,7 @@ void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr) {
 
     pNewSocket->pNext = NULL;
 
-#ifdef _WIN32
-    EnterCriticalSection(&csAcceptQueue);
-#else
-    pthread_mutex_lock(&mtxAcceptQueue);
-#endif
+    Lock l(csAcceptQueue);
 
     if(pAcceptedSocketsS == NULL) {
         pAcceptedSocketsS = pNewSocket;
@@ -1181,11 +1158,5 @@ void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr) {
         pAcceptedSocketsE->pNext = pNewSocket;
         pAcceptedSocketsE = pNewSocket;
     }
-
-#ifdef _WIN32
-    LeaveCriticalSection(&csAcceptQueue);
-#else
-	pthread_mutex_unlock(&mtxAcceptQueue);
-#endif
 }
 //---------------------------------------------------------------------------

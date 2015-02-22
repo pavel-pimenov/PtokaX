@@ -34,14 +34,12 @@ private:
     struct RecTime {
         RecTime(const uint8_t * pIpHash);
 
-        RecTime(const RecTime&);
-        const RecTime& operator=(const RecTime&);
-
         uint64_t ui64DisConnTick;
         uint32_t ui32NickHash;
         RecTime * pPrev, * pNext;
         char * sNick;
         uint8_t ui128IpHash[16];
+        DISALLOW_COPY_AND_ASSIGN(RecTime);
     };
 
     uint64_t ui64ChatMsgsTick, ui64ChatLockFromTick;
@@ -50,14 +48,14 @@ private:
 
     RecTime * pRecTimeList;
 
-	User * pListE;
+	  User * pListE;
 
     bool bChatLocked;
 
-	char msg[1024];
+	  char msg[1024];
 
-    clsUsers(const clsUsers&);
-    const clsUsers& operator=(const clsUsers&);
+    DISALLOW_COPY_AND_ASSIGN(clsUsers);
+
 public:
     static clsUsers * mPtr;
 

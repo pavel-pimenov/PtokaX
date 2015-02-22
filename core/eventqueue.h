@@ -20,14 +20,12 @@
 #ifndef eventqueueH
 #define eventqueueH
 //---------------------------------------------------------------------------
+#include "CriticalSection.h"
 
 class clsEventQueue {
 private:
     struct event {
         event();
-
-        event(const event&);
-        const event& operator=(const event&);
 
         char * sMsg;
 
@@ -35,18 +33,14 @@ private:
 
         uint8_t ui128IpHash[16];
         uint8_t ui8Id;
+        DISALLOW_COPY_AND_ASSIGN(event);
     };
 
     event * pNormalE, * pThreadE;
 
-#ifdef _WIN32
-	CRITICAL_SECTION csEventQueue;
-#else
-	pthread_mutex_t mtxEventQueue;
-#endif
+	CriticalSection csEventQueue;
 
-	clsEventQueue(const clsEventQueue&);
-	const clsEventQueue& operator=(const clsEventQueue&);
+  DISALLOW_COPY_AND_ASSIGN(clsEventQueue);
 public:
     static clsEventQueue * mPtr;
 

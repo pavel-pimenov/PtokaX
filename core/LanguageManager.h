@@ -25,8 +25,7 @@
 
 class clsLanguageManager {
 private:
-    clsLanguageManager(const clsLanguageManager&);
-    const clsLanguageManager& operator=(const clsLanguageManager&);
+    DISALLOW_COPY_AND_ASSIGN(clsLanguageManager);
 public:
     static clsLanguageManager * mPtr;
 

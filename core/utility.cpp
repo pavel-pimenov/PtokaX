@@ -125,7 +125,7 @@ void Cout(const string &/*msg*/) {
 	      DD[i] = M;
 	   j = 0;
 	   for(i = M - 1; i >= -1; --i)
-	      if (suff[i] == i+1  ||  i == -1)
+	      if (suff[i] == i+1  ||  i == -1) // TODO FlylinkDC++ cppcheck! suff[-1] ??
 	         for( ; j < M-1-i; ++j)
 	            if (DD[j] == M)
 	               DD[j] = M-1-i;
@@ -504,13 +504,12 @@ char * formatSecTime(uint64_t rest) {
 //---------------------------------------------------------------------------
 
 char* stristr(const char *str1, const char *str2) {
-	char *s1, *s2;
 	char *cp = (char *)str1;
 	if(*str2 == 0)
 		return (char *)str1;
 	while(*cp != 0) {
-		s1 = cp;
-		s2 = (char *) str2;
+		char *s1 = cp;
+		char *s2 = (char *) str2;
 		while(*s1 != 0 && *s2 != 0 && ((*s1-*s2) == 0 ||
 			(*s1-tolower(*s2)) == 0 || (*s1-toupper(*s2)) == 0))
 				s1++, s2++;
@@ -524,13 +523,12 @@ char* stristr(const char *str1, const char *str2) {
 //---------------------------------------------------------------------------
 
 char* stristr2(const char *str1, const char *str2) {
-	char *s1, *s2;
 	char *cp = (char *)str1;
 	if(*str2 == 0)
 		return (char *)str1;
 	while(*cp != 0) {
-		s1 = cp;
-		s2 = (char *) str2;
+		char *s1 = cp;
+		char *s2 = (char *) str2;
 		while(*s1 != 0 && *s2 != 0 && ((*s1-*s2) == 0 ||
 			(tolower(*s1)-*s2) == 0))
 				s1++, s2++;
@@ -569,11 +567,10 @@ bool isIP(char * sIP) {
 //---------------------------------------------------------------------------
 
 uint32_t HashNick(const char * sNick, const size_t &szNickLen) {
-	unsigned char c = 0;
     uint32_t h = 5381;
 
 	for(size_t szi = 0; szi < szNickLen; szi++) {
-        c = (unsigned char)tolower(sNick[szi]);
+        const unsigned char c = (unsigned char)tolower(sNick[szi]);
         h += (h << 5);
         h ^= c;
     }
@@ -1452,7 +1449,7 @@ void ReduceGlobalBuffer() {
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool HashPassword(char * sPassword, size_t &szPassLen, uint8_t * ui8PassHash) {
+bool HashPassword(char * sPassword, const size_t &szPassLen, uint8_t * ui8PassHash) {
     Skein1024_Ctxt_t ctx1024;
 
     if(Skein1024_Init(&ctx1024, 512) == SKEIN_SUCCESS) {

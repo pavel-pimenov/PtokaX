@@ -39,8 +39,7 @@ private:
 
 	char rcvbuf[4096];
 
-    UDPThread(const UDPThread&);
-    const UDPThread& operator=(const UDPThread&);
+    DISALLOW_COPY_AND_ASSIGN(UDPThread);
 public:
     static UDPThread * mPtrIPv4;
     static UDPThread * mPtrIPv6;

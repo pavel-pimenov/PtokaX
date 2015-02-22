@@ -53,6 +53,7 @@ private:
     void OnLoadScript();
     void OnCheckSyntax();
     void OnSaveScript();
+    string prepareLoadSaveScript(OPENFILENAME& OpenFileName, bool isSave);
 };
 //------------------------------------------------------------------------------
 

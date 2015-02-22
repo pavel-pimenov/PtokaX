@@ -30,9 +30,6 @@ private:
         UdpDbgItem();
         ~UdpDbgItem();
 
-        UdpDbgItem(const UdpDbgItem&);
-        const UdpDbgItem& operator=(const UdpDbgItem&);
-
 #ifdef _WIN32
         SOCKET s;
 #else
@@ -46,10 +43,11 @@ private:
 
         UdpDbgItem * pPrev, * pNext;
         bool bIsScript;
+        DISALLOW_COPY_AND_ASSIGN(UdpDbgItem);
     };
 
-    clsUdpDebug(const clsUdpDebug&);
-    const clsUdpDebug& operator=(const clsUdpDebug&);
+    DISALLOW_COPY_AND_ASSIGN(clsUdpDebug);
+
 public:
     static clsUdpDebug * mPtr;
 
@@ -66,7 +64,7 @@ public:
 	bool Remove(User * u);
 	void Remove(char * sScriptName);
 	bool CheckUdpSub(User * u, bool bSndMess = false) const;
-	void Send(char * sScriptName, char * sMsg, const size_t &szLen) const;
+	void Send(const char * sScriptName, char * sMsg, const size_t &szLen) const;
 	void Cleanup();
 };
 //---------------------------------------------------------------------------

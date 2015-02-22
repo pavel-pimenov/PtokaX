@@ -401,11 +401,10 @@ void clsRegisteredUsersDialog::RemoveRegs() {
 
     ::SendMessage(hWndWindowItems[LV_REGS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 
-    RegUser * pReg = NULL;
     int iSel = -1;
 
     while((iSel = (int)::SendMessage(hWndWindowItems[LV_REGS], LVM_GETNEXTITEM, (WPARAM)-1, LVNI_SELECTED)) != -1) {
-        pReg = (RegUser *)ListViewGetItem(hWndWindowItems[LV_REGS], iSel);
+        RegUser * pReg = (RegUser *)ListViewGetItem(hWndWindowItems[LV_REGS], iSel);
 
         clsRegManager::mPtr->Delete(pReg, true);
 
@@ -493,14 +492,12 @@ void clsRegisteredUsersDialog::UpdateProfiles() {
 
     ::SendMessage(hWndWindowItems[LV_REGS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 
-    RegUser * pReg = NULL;
-
     LVITEM lvItem = { 0 };
     lvItem.mask = LVIF_TEXT;
     lvItem.iSubItem = 2;
 
     for(int i = 0; i < iItemCount; i++) {
-        pReg = (RegUser *)ListViewGetItem(hWndWindowItems[LV_REGS], i);
+        RegUser * pReg = (RegUser *)ListViewGetItem(hWndWindowItems[LV_REGS], i);
 
         lvItem.iItem = i;
         lvItem.pszText = clsProfileManager::mPtr->ppProfilesTable[pReg->ui16Profile]->sName;

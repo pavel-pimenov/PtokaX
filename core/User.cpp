@@ -2678,7 +2678,7 @@ void User::AddPrcsdCmd(const uint8_t &ui8Type, char * sCommand, const size_t &sz
             }
         }
 
-        PrcsdToUsrCmd * pNewToCmd = new (std::nothrow) PrcsdToUsrCmd();
+        PrcsdToUsrCmd * pNewToCmd = new (std::nothrow) PrcsdToUsrCmd;
         if(pNewToCmd == NULL) {
             ui32BoolBits |= BIT_ERROR;
             Close();
@@ -2753,7 +2753,7 @@ void User::AddPrcsdCmd(const uint8_t &ui8Type, char * sCommand, const size_t &sz
         return;
     }
     
-    PrcsdUsrCmd * pNewcmd = new (std::nothrow) PrcsdUsrCmd();
+    PrcsdUsrCmd * pNewcmd = new (std::nothrow) PrcsdUsrCmd;
     if(pNewcmd == NULL) {
         ui32BoolBits |= BIT_ERROR;
         Close();

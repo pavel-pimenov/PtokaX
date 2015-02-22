@@ -28,9 +28,6 @@ private:
         RegSocket();
         ~RegSocket();
 
-        RegSocket(const RegSocket&);
-        const RegSocket& operator=(const RegSocket&);
-
         uint64_t ui64TotalShare;
 
 #ifdef _WIN32
@@ -46,6 +43,8 @@ private:
 		char * sAddress, * pRecvBuf, * pSendBuf, * pSendBufHead;
 
         RegSocket * pPrev, * pNext;
+
+        DISALLOW_COPY_AND_ASSIGN(RegSocket);
     };
 
 #ifdef _WIN32
@@ -62,8 +61,7 @@ private:
 
     char sMsg[2048];
 
-	clsRegisterThread(const clsRegisterThread&);
-	const clsRegisterThread& operator=(const clsRegisterThread&);
+    DISALLOW_COPY_AND_ASSIGN(clsRegisterThread);
 
 	void AddSock(char * sAddress, const size_t &ui32Len);
 	bool Receive(RegSocket * pSock);

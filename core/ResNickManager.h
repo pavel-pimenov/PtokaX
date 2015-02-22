@@ -27,9 +27,6 @@ private:
         ReservedNick();
         ~ReservedNick();
 
-        ReservedNick(const ReservedNick&);
-        const ReservedNick& operator=(const ReservedNick&);
-
         char * sNick;
 
         ReservedNick * pPrev, * pNext;
@@ -39,12 +36,14 @@ private:
         bool bFromScript;
 
         static ReservedNick * CreateReservedNick(const char * sNewNick, uint32_t ui32NickHash);
+
+        DISALLOW_COPY_AND_ASSIGN(ReservedNick);
     };
 
     ReservedNick * pReservedNicks;
 
-    clsReservedNicksManager(const clsReservedNicksManager&);
-    const clsReservedNicksManager& operator=(const clsReservedNicksManager&);
+    DISALLOW_COPY_AND_ASSIGN(clsReservedNicksManager);
+
 public:
     static clsReservedNicksManager * mPtr;
 

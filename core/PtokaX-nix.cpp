@@ -51,7 +51,7 @@ static void SigHandler(int sig) {
 //---------------------------------------------------------------------------
 
 int main(int argc, char* argv[]) {
-	clsServerManager::sTitle = "PtokaX DC Hub " + string(PtokaXVersionString);
+	clsServerManager::sTitle = "PtokaX " PtokaXVersionString " build " BUILD_NUMBER " for dchub://dc.fly-server.ru";
 	
 #ifdef _DEBUG
 	clsServerManager::sTitle += " [debug]";

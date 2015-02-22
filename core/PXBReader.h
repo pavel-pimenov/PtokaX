@@ -31,8 +31,7 @@ private:
 
     size_t szRemainingSize;
 
-	PXBReader(const PXBReader&);
-	const PXBReader& operator=(const PXBReader&);
+    DISALLOW_COPY_AND_ASSIGN(PXBReader);
 
     void ReadNextFilePart();
 public:

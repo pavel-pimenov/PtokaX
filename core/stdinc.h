@@ -94,5 +94,12 @@
     #define strncasecmp strnicmp
 #endif
 //---------------------------------------------------------------------------
+// http://stackoverflow.com/questions/20026445/editing-googles-c-disallow-copy-and-assign-preprocessor-macro-for-c11-move
+//
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+private:				   \
+ TypeName(const TypeName&);                 \
+ void operator=(const TypeName&)
+//---------------------------------------------------------------------------
 
 #endif

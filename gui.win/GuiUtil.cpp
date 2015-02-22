@@ -170,11 +170,9 @@ int ListViewGetInsertPosition(const HWND &hListView, const void * pItem, const b
 
     int iCmpRes = 0, iLowLim = 0, iInsertPos = 0;
 
-    void * pOtherItem = NULL;
-
     while(iLowLim <= iHighLim) {
         iInsertPos = (iLowLim + iHighLim) / 2;
-        pOtherItem = ListViewGetItem(hListView, iInsertPos);
+        void * pOtherItem = ListViewGetItem(hListView, iInsertPos);
 
         iCmpRes = (*pCompareFunc)(pItem, pOtherItem);
 

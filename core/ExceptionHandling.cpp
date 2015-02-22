@@ -28,6 +28,10 @@
 //---------------------------------------------------------------------------
 #include <Dbghelp.h>
 #include <delayimp.h>
+
+#pragma comment(lib, "Dbghelp.lib")
+#pragma comment(lib, "DelayImp.lib")
+
 //---------------------------------------------------------------------------
 LPTOP_LEVEL_EXCEPTION_FILTER pOldTLEF = NULL;
 string sLogPath = "", sDebugSymbolsFile = "";
@@ -78,7 +82,7 @@ void GetSourceFileInfo(DWORD64 dw64Address, FILE * fw) {
 
     DWORD dwDisplacement = 0;
 
-	if(SymGetLineFromAddr64(GetCurrentProcess(), dw64Address, &dwDisplacement, &il64LineInfo) == TRUE) {
+	if(SymGetLineFromAddr64(GetCurrentProcess(), dw64Address, &dwDisplacement, &il64LineInfo) != FALSE) { // V676 It is incorrect to compare the variable of BOOL type with TRUE. http://www.viva64.com/en/d/0310/print/		
         // We have sourcefile and linenumber info, write it.
         fprintf(fw, "%s(%lu): ", il64LineInfo.FileName, il64LineInfo.LineNumber);
 	} else {
@@ -108,7 +112,7 @@ void GetFunctionInfo(DWORD64 dw64Address, FILE * fw) {
     pSym->SizeOfStruct = sizeof(SYMBOL_INFO);
     pSym->MaxNameLen = MAX_SYM_NAME;
 
-	if(SymFromAddr(GetCurrentProcess(), dw64Address, &dw64Displacement, pSym) == TRUE) {
+	if(SymFromAddr(GetCurrentProcess(), dw64Address, &dw64Displacement, pSym) != FALSE) { // V676 It is incorrect to compare the variable of BOOL type with TRUE. http://www.viva64.com/en/d/0310/print/
         // We have decorated name, try to make it readable
         if(UnDecorateSymbolName(pSym->Name, sDebugBuf, szDebugBufLen, UNDNAME_COMPLETE | UNDNAME_NO_THISTYPE | UNDNAME_NO_SPECIAL_SYMS | UNDNAME_NO_MEMBER_TYPE |
             UNDNAME_NO_MS_KEYWORDS | UNDNAME_NO_ACCESS_SPECIFIERS) > 0) {
