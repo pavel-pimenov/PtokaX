@@ -3886,11 +3886,14 @@ void clsDcCommands::ProcessCmds(User * curUser) {
 }
 //---------------------------------------------------------------------------
 
-bool CheckPort(char * sData, char cPortEnd) {
+static bool CheckPort(char * sData, char cPortEnd) {
 	for(uint8_t ui8i = 0; ui8i < 6; ui8i++) {
 		if(isdigit(sData[ui8i]) != 0) {
 			continue;
-		} else if(sData[ui8i] == cPortEnd || (cPortEnd == '|' && sData[ui8i] == 'S' && sData[ui8i+1] == cPortEnd)) {
+		} else if(sData[ui8i] == cPortEnd || 
+                         (cPortEnd == '|' && sData[ui8i] == 'S' && sData[ui8i+1] == cPortEnd) ||
+                         (sData[ui8i] == 'N' && (sData[ui8i+1] == 'S' || sData[ui8i+1] == ' ')) || 
+                         (sData[ui8i] == 'R' && (sData[ui8i+1] == 'S' || sData[ui8i+1] == '|'))) {
 			char cEnd = sData[ui8i];
 			sData[ui8i] = '\0';
 
