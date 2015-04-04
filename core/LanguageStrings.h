@@ -796,7 +796,6 @@ const char* LangStr[] = {
     "Your client sent incorrect port in search request", 
     "not found", 
 	"Offline from", 
-	"displays basic info on given ip",
 };
 //---------------------------------------------------------------------------
 

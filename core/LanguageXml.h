@@ -796,7 +796,6 @@ const char* LangXmlStr[] = {
     "YourClientSentIncorrectPortInSearch", 
     "NotFound", 
 	"OfflineFrom", 
-	"DisplaysInfoOnGivenIP",
 };
 //---------------------------------------------------------------------------
 

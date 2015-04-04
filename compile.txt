@@ -4,10 +4,10 @@
 #
 
 PtokaX need for compiling packages (and url where to find sources when package is not available in your OS):
-    g++				(name in Debian)    |   http://gcc.gnu.org/
-    make			(name in Debian)    |   http://www.gnu.org/software/make/
-    liblua5.2 + liblua5.2-dev   (names in Debian)   |   http://www.lua.org
-    zlib1g + zlib1g-dev         (names in Debian)   |   http://zlib.net
+    g++									(name in Debian)    |   http://gcc.gnu.org/
+    make								(name in Debian)    |   http://www.gnu.org/software/make/
+    liblua5.2 + liblua5.2-dev			(names in Debian)   |   http://www.lua.org
+    zlib1g + zlib1g-dev					(names in Debian)   |   http://zlib.net
     libtinyxml2.6.2 + libtinyxml-dev	(names in Debian)	|   http://sourceforge.net/projects/tinyxml
     The Skein Hash Function Family                     		|   http://www.skein-hash.info/
 

@@ -2734,14 +2734,6 @@ void clsDcCommands::Supports(User * curUser, char * sData, const uint32_t &iLen)
                 }
                 break;
             }
-            case 'T': {
-            	if(szDataLen == 4) {
-                    if(((curUser->ui32SupportBits & User::SUPPORTBIT_TLS2) == User::SUPPORTBIT_TLS2) == false && *((uint32_t *)sSupport) == *((uint32_t *)"TLS2")) {
-                        curUser->ui32SupportBits |= User::SUPPORTBIT_TLS2;
-                    }
-            	}
-				break;
-			}
             case '\0': {
                 // PPK ... corrupted $Supports ???
                 int imsgLen = sprintf(msg, "[SYS] Bad $Supports from %s (%s) - user closed.", curUser->sNick, curUser->sIP);
@@ -3336,7 +3328,7 @@ void clsDcCommands::Close(User * curUser, char * sData, const uint32_t &iLen) {
 }
 //---------------------------------------------------------------------------
 
-void clsDcCommands::Unknown(User * curUser, char * sData, const uint32_t &iLen, const bool &/*bMyNick = false*/) {
+void clsDcCommands::Unknown(User * curUser, char * sData, const uint32_t &iLen) {
     iStatCmdUnknown++;
 
     #ifdef _DBG
@@ -3356,11 +3348,7 @@ void clsDcCommands::Unknown(User * curUser, char * sData, const uint32_t &iLen, 
         if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::Unknown1") == true) {
             clsUdpDebug::mPtr->Broadcast(clsServerManager::pGlobalBuffer, imsgLen);
         }
-/*
-		if(bMyNick == true) {
-			curUser->SendCharDelayed("$Error CTM2HUB|", 15);
-		}
-*/
+
         curUser->Close();
     }
 }
@@ -4052,7 +4040,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t &ui32Len) 
             clsUdpDebug::mPtr->Broadcast(msg, imsgLen);
         }
 
-        Unknown(pUser, sData, ui32Len, true);
+        Unknown(pUser, sData, ui32Len);
         return;
     }
 
@@ -4062,7 +4050,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t &ui32Len) 
             clsUdpDebug::mPtr->Broadcast(msg, imsgLen);
         }
 
-        Unknown(pUser, sData, ui32Len, true);
+        Unknown(pUser, sData, ui32Len);
         return;
     }
 
@@ -4076,7 +4064,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t &ui32Len) 
             clsUdpDebug::mPtr->Broadcast(msg, imsgLen);
         }
 
-        Unknown(pUser, sData, ui32Len, true);
+        Unknown(pUser, sData, ui32Len);
         return;
     }
 
