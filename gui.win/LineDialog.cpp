@@ -39,7 +39,7 @@ void (*pOnOk)(char * Line, const int &iLen) = NULL;
 LineDialog::LineDialog(void (*pOnOkFunction)(char * Line, const int &iLen)) {
     memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
 
-	pOnOk = pOnOkFunction;
+    pOnOk = pOnOkFunction;
 }
 //---------------------------------------------------------------------------
 
