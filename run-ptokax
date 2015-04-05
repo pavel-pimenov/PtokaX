@@ -1,0 +1,6 @@
+#!/bin/sh
+#su dc --shell /bin/bash --command "ulimit -n 32768"
+LANG=ru_RU.CP1251
+export LUA_PATH='/home/dc/src/PtokaX/scripts/libs/?.lua;;'
+./PtokaX
+#sudo valgrind --leak-check=full --leak-resolution=med --log-file=valgrind-log-file.log --time-stamp=yes ./PtokaX

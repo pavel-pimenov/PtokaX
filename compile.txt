@@ -1,6 +1,5 @@
-
 #[+]FlylinkDC++
-# sudo apt-get install -y liblua5.1-dev zlib1g-dev libtinyxml-dev lua-filesystem-dev
+# sudo apt-get install -y liblua5.1-dev zlib1g-dev libtinyxml-dev lua-filesystem-dev lua-iconv
 #
 
 PtokaX need for compiling packages (and url where to find sources when package is not available in your OS):
