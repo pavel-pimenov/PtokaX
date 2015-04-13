@@ -289,7 +289,7 @@ struct User {
 
     uint8_t ui128IpHash[16];
 
-    char sIP[46], sIPv4[16];
+    char sIP[40], sIPv4[16];
 
     char sModes[3];
 
