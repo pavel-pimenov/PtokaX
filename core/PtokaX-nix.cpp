@@ -57,6 +57,8 @@ int main(int argc, char* argv[]) {
 	clsServerManager::sTitle += " [debug]";
 #endif
 	
+	char * sPidFile = NULL;
+
 	for(int i = 0; i < argc; i++) {
 	    if(strcasecmp(argv[i], "-d") == 0) {
 	    	clsServerManager::bDaemon = true;
@@ -91,8 +93,15 @@ int main(int argc, char* argv[]) {
 	        printf("%s built on %s %s\n", clsServerManager::sTitle.c_str(), __DATE__, __TIME__);
 	        return EXIT_SUCCESS;
 	    } else if(strcasecmp(argv[i], "-h") == 0) {
-	        printf("PtokaX [-d] [-c <configdir>] [-v]\n");
+	        printf("PtokaX [-d] [-c <configdir>] [-p <pidfile>] [-v]\n");
 	        return EXIT_SUCCESS;
+	    } else if(strcasecmp(argv[i], "-p") == 0) {
+	    	if(++i == argc) {
+	            printf("Missing pid file!\n");
+	            return EXIT_FAILURE;
+	    	}
+	
+			sPidFile = argv[i];
 	    } else if(strcasecmp(argv[i], "/generatexmllanguage") == 0) {
 	        clsLanguageManager::GenerateXmlExample();
 	        return EXIT_SUCCESS;
@@ -141,6 +150,14 @@ int main(int argc, char* argv[]) {
             return EXIT_SUCCESS;
 	    }
 	
+		if(sPidFile != NULL) {
+			FILE * fw = fopen(sPidFile, "w");
+			if(fw != NULL) {
+				fprintf(fw, "%ld\n", (long)getpid());
+				fclose(fw);
+			}
+		}
+
 	    if(chdir("/") == -1) {
 	        syslog(LOG_USER | LOG_ERR, "chdir failed!\n");
 	        return EXIT_FAILURE;
