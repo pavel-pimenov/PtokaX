@@ -28,6 +28,7 @@
 #include "hashRegManager.h"
 #include "hashUsrManager.h"
 #include "LanguageManager.h"
+#include "LuaInc.h"
 #include "LuaScriptManager.h"
 #include "ProfileManager.h"
 #include "ServerManager.h"
@@ -38,14 +39,17 @@
 #include "utility.h"
 //#include "ZlibUtility.h"
 //---------------------------------------------------------------------------
-#ifdef _WIN32
-	#pragma hdrstop
-#endif
-//---------------------------------------------------------------------------
 #include "HubCommands.h"
 //---------------------------------------------------------------------------
-#ifdef _WITH_POSTGRES
+#ifdef _WITH_SQLITE
+	#include "DB-SQLite.h"
+	#include <sqlite3.h>
+#elif _WITH_POSTGRES
 	#include "DB-PostgreSQL.h"
+	#include <libpq-fe.h>
+#elif _WITH_MYSQL
+	#include "DB-MySQL.h"
+	#include <mysql.h>
 #endif
 #include "IP2Country.h"
 #include "LuaScript.h"
@@ -392,8 +396,18 @@ bool clsHubCommands::DoCommand(User * curUser, char * sCommand, const size_t &sz
 
                 User *user = clsHashManager::mPtr->FindUser(sCommand, dlen-8);
                 if(user == NULL) {
-#ifdef _WITH_POSTGRES
+#ifdef _WITH_SQLITE
+					if(DBSQLite::mPtr->SearchNick(sCommand, uint8_t(dlen-8), curUser, fromPM) == true) {
+						UncountDeflood(curUser, fromPM);
+						return true;
+					}
+#elif _WITH_POSTGRES
 					if(DBPostgreSQL::mPtr->SearchNick(sCommand, dlen-8, curUser, fromPM) == true) {
+						UncountDeflood(curUser, fromPM);
+						return true;
+					}
+#elif _WITH_MYSQL
+					if(DBMySQL::mPtr->SearchNick(sCommand, dlen-8, curUser, fromPM) == true) {
 						UncountDeflood(curUser, fromPM);
 						return true;
 					}
@@ -512,9 +526,12 @@ bool clsHubCommands::DoCommand(User * curUser, char * sCommand, const size_t &sz
                 curUser->SendCharDelayed(msg, imsgLen+1);
                 return true;
             }
-#ifdef _WITH_POSTGRES
+
             // Hub commands: !getipinfo
 			if(strncasecmp(sCommand+1, "etipinfo ", 9) == 0) {
+#if !defined(_WITH_SQLITE) && !defined(_WITH_POSTGRES) && !defined(_WITH_MYSQL)
+				return false;
+#endif
                 if(clsProfileManager::mPtr->IsAllowed(curUser, clsProfileManager::GETINFO) == false) {
                     SendNoPermission(curUser, fromPM);
                     return true;
@@ -549,12 +566,22 @@ bool clsHubCommands::DoCommand(User * curUser, char * sCommand, const size_t &sz
                 }
 
                 sCommand += 10;
-
+#ifdef _WITH_SQLITE
+				if(DBSQLite::mPtr->SearchIP(sCommand, curUser, fromPM) == true) {
+					UncountDeflood(curUser, fromPM);
+					return true;
+				}
+#elif _WITH_POSTGRES
 				if(DBPostgreSQL::mPtr->SearchIP(sCommand, curUser, fromPM) == true) {
 					UncountDeflood(curUser, fromPM);
 					return true;
 				}
-
+#elif _WITH_MYSQL
+				if(DBMySQL::mPtr->SearchIP(sCommand, curUser, fromPM) == true) {
+					UncountDeflood(curUser, fromPM);
+					return true;
+				}
+#endif
                 int imsgLen = CheckFromPm(curUser, fromPM);
 
                 int iret = sprintf(msg+imsgLen, "<%s> *** %s: %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC],
@@ -566,7 +593,7 @@ bool clsHubCommands::DoCommand(User * curUser, char * sCommand, const size_t &sz
 
                 return true;
             }
-#endif
+
             // Hub commands: !gettempbans
 			if(dlen == 11 && strncasecmp(sCommand+1, "ettempbans", 10) == 0) {
                 if(clsProfileManager::mPtr->IsAllowed(curUser, clsProfileManager::GETBANLIST) == false) {
@@ -4502,7 +4529,7 @@ bool clsHubCommands::DoCommand(User * curUser, char * sCommand, const size_t &sz
                     }
 					help += msg;
 
-#ifdef _WITH_POSTGRES
+#if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
                     imsglen = sprintf(msg, "\t%cgetipinfo <%s> - %s.\n", clsSettingManager::mPtr->sTexts[SETTXT_CHAT_COMMANDS_PREFIXES][0], clsLanguageManager::mPtr->sTexts[LAN_IP],
                         clsLanguageManager::mPtr->sTexts[LAN_DISPLAY_INFO_GIVEN_IP]);
                     if(CheckSprintf(imsglen, 1024, "clsHubCommands::DoCommand368-1") == false) {
@@ -4725,7 +4752,20 @@ bool clsHubCommands::DoCommand(User * curUser, char * sCommand, const size_t &sz
 #ifdef _PtokaX_TESTING_
                 " [build " BUILD_NUMBER "]"
 #endif
-                " built on " __DATE__ " " __TIME__ "\n";
+                " built on " __DATE__ " " __TIME__ "\n"
+#if LUA_VERSION_NUM > 501
+				"Lua: " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR "." LUA_VERSION_RELEASE "\n";
+#else
+                LUA_RELEASE "\n";
+#endif
+                
+#ifdef _WITH_SQLITE
+				Statinfo+="SQLite: " SQLITE_VERSION "\n";
+#elif _WITH_POSTGRES
+				Statinfo+="PostgreSQL: "+string(PQlibVersion())+"\n";
+#elif _WITH_MYSQL
+				Statinfo+="MySQL: " MYSQL_SERVER_VERSION "\n";
+#endif
 #ifdef _WIN32
 				Statinfo+="OS: "+clsServerManager::sOS+"\r\n";
 #else

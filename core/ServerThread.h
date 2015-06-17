@@ -25,7 +25,7 @@
 class ServerThread {
 private:
     struct AntiConFlood {
-        AntiConFlood(const uint8_t * pIpHash);
+        explicit AntiConFlood(const uint8_t * pIpHash);
 
         uint8_t ui128IpHash[16];
 
@@ -90,3 +90,4 @@ public:
 //---------------------------------------------------------------------------
 
 #endif
+

@@ -33,7 +33,7 @@ private:
         PassBf * pPrev, * pNext;
         uint8_t ui128IpHash[16];
 
-        PassBf(const uint8_t * ui128Hash);
+        explicit PassBf(const uint8_t * ui128Hash);
         ~PassBf(void) { };
 
         DISALLOW_COPY_AND_ASSIGN(PassBf);

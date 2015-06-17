@@ -38,8 +38,8 @@ OBJS = $(CURDIR)/obj/colUsers.o $(CURDIR)/obj/DcCommands.o $(CURDIR)/obj/DeFlood
 		$(CURDIR)/obj/LuaCoreLib.o $(CURDIR)/obj/LuaIP2CountryLib.o $(CURDIR)/obj/LuaProfManLib.o $(CURDIR)/obj/LuaRegManLib.o $(CURDIR)/obj/LuaScript.o $(CURDIR)/obj/LuaScriptManager.o \
 		$(CURDIR)/obj/LuaScriptManLib.o $(CURDIR)/obj/LuaSetManLib.o $(CURDIR)/obj/LuaTmrManLib.o $(CURDIR)/obj/LuaUDPDbgLib.o $(CURDIR)/obj/ProfileManager.o $(CURDIR)/obj/PtokaX-nix.o \
 		$(CURDIR)/obj/PXBReader.o $(CURDIR)/obj/pxstring.o $(CURDIR)/obj/RegThread.o $(CURDIR)/obj/ResNickManager.o $(CURDIR)/obj/ServerManager.o $(CURDIR)/obj/ServerThread.o \
-		$(CURDIR)/obj/serviceLoop.o $(CURDIR)/obj/SettingManager.o $(CURDIR)/obj/TextFileManager.o $(CURDIR)/obj/UdpDebug.o $(CURDIR)/obj/UDPThread.o $(CURDIR)/obj/User.o $(CURDIR)/obj/utility.o \
-        $(CURDIR)/obj/ZlibUtility.o
+		$(CURDIR)/obj/serviceLoop.o $(CURDIR)/obj/SettingManager.o $(CURDIR)/obj/TextConverter.o $(CURDIR)/obj/TextFileManager.o $(CURDIR)/obj/UdpDebug.o $(CURDIR)/obj/UDPThread.o \
+		$(CURDIR)/obj/User.o $(CURDIR)/obj/utility.o $(CURDIR)/obj/ZlibUtility.o
 
 #*******************************************************************************
 # Binary to create
@@ -55,33 +55,33 @@ OBJS = $(CURDIR)/obj/colUsers.o $(CURDIR)/obj/DcCommands.o $(CURDIR)/obj/DeFlood
 PtokaX: INCLUDE = -Iskein/Optimized_32bit -I/usr/include -I/usr/include/lua5.1
 PtokaX: $(OBJS)
 	cd skein; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -llua5.1 -lrt -ltinyxml -lz
+	$(CXX) $(OBJS) $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz -llua5.1 -ltinyxml
 
 lua52: INCLUDE = -Iskein/Optimized_32bit -I/usr/include -I/usr/include/lua5.2
 lua52: $(OBJS)
 	cd skein; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -llua5.2 -lrt -ltinyxml -lz
+	$(CXX) $(OBJS) $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz -llua5.2 -ltinyxml
 
 centos5-32: $(OBJS)
 	cd skein; $(MAKE)
 	cd tinyxml; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a /usr/lib/liblua.a -o PtokaX -lstdc++ -lpthread -lrt -lz
+	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a /usr/lib/liblua.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz
 
 centos5-64: $(OBJS)
 	cd skein; $(MAKE)
 	cd tinyxml; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a /usr/lib64/liblua.a -o PtokaX -lstdc++ -lpthread -lrt -lz
+	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a /usr/lib64/liblua.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz
 
 centos6: $(OBJS)
 	cd skein; $(MAKE)
 	cd tinyxml; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -llua-5.1 -lrt -lz
+	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz -llua-5.1
 
 freebsd: INCLUDE = -Itinyxml -Iskein/Optimized_32bit -I/usr/include -I/usr/local/include/lua51
 freebsd: $(OBJS)
 	cd skein; $(MAKE)
 	cd tinyxml; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a /usr/local/lib/lua51/liblua.a -o PtokaX -lstdc++ -lpthread -lrt -lz
+	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a /usr/local/lib/lua51/liblua.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz
 
 haiku: CXXFLAGS = -O -g -Wall
 haiku: $(OBJS)
@@ -251,8 +251,8 @@ $(CURDIR)/obj/ServerManager.o: $(CURDIR)/core/ServerManager.cpp $(CURDIR)/core/s
   $(CURDIR)/core/hashUsrManager.h $(CURDIR)/core/hashRegManager.h $(CURDIR)/core/LanguageManager.h $(CURDIR)/core/LanguageIds.h \
   $(CURDIR)/core/LuaScriptManager.h $(CURDIR)/core/ProfileManager.h $(CURDIR)/core/serviceLoop.h $(CURDIR)/core/SettingManager.h \
   $(CURDIR)/core/SettingIds.h $(CURDIR)/core/UdpDebug.h $(CURDIR)/core/utility.h $(CURDIR)/core/ZlibUtility.h $(CURDIR)/core/HubCommands.h \
-  $(CURDIR)/core/IP2Country.h $(CURDIR)/core/LuaScript.h $(CURDIR)/core/RegThread.h $(CURDIR)/core/ResNickManager.h $(CURDIR)/core/ServerThread.h $(CURDIR)/core/TextFileManager.h \
-  $(CURDIR)/core/UDPThread.h $(CURDIR)/core/regtmrinc.h
+  $(CURDIR)/core/IP2Country.h $(CURDIR)/core/LuaScript.h $(CURDIR)/core/RegThread.h $(CURDIR)/core/ResNickManager.h $(CURDIR)/core/ServerThread.h \
+  $(CURDIR)/core/TextConverter.h $(CURDIR)/core/TextFileManager.h $(CURDIR)/core/UDPThread.h $(CURDIR)/core/regtmrinc.h
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $(CURDIR)/core/ServerManager.cpp -o $(CURDIR)/obj/ServerManager.o
 
 $(CURDIR)/obj/ServerThread.o: $(CURDIR)/core/ServerThread.cpp $(CURDIR)/core/stdinc.h $(CURDIR)/core/pxstring.h $(CURDIR)/core/eventqueue.h \
@@ -273,6 +273,10 @@ $(CURDIR)/obj/SettingManager.o: $(CURDIR)/core/SettingManager.cpp $(CURDIR)/core
   $(CURDIR)/core/ProfileManager.h $(CURDIR)/core/ServerManager.h $(CURDIR)/core/User.h $(CURDIR)/core/utility.h $(CURDIR)/core/ResNickManager.h \
   $(CURDIR)/core/ServerThread.h $(CURDIR)/core/TextFileManager.h $(CURDIR)/core/UDPThread.h
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $(CURDIR)/core/SettingManager.cpp -o $(CURDIR)/obj/SettingManager.o
+
+$(CURDIR)/obj/TextConverter.o: $(CURDIR)/core/TextConverter.cpp $(CURDIR)/core/stdinc.h $(CURDIR)/core/TextConverter.h \
+  $(CURDIR)/core/ServerManager.h $(CURDIR)/core/SettingManager.h $(CURDIR)/core/SettingIds.h $(CURDIR)/core/UdpDebug.h $(CURDIR)/core/utility.h
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $(CURDIR)/core/TextConverter.cpp -o $(CURDIR)/obj/TextConverter.o
 
 $(CURDIR)/obj/TextFileManager.o: $(CURDIR)/core/TextFileManager.cpp $(CURDIR)/core/stdinc.h $(CURDIR)/core/pxstring.h \
   $(CURDIR)/core/TextFileManager.h $(CURDIR)/core/ServerManager.h $(CURDIR)/core/SettingManager.h $(CURDIR)/core/SettingIds.h $(CURDIR)/core/User.h $(CURDIR)/core/utility.h

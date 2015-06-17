@@ -48,6 +48,7 @@
 #include "RegThread.h"
 #include "ResNickManager.h"
 #include "ServerThread.h"
+#include "TextConverter.h"
 #include "TextFileManager.h"
 //#include "TLSManager.h"
 #include "UDPThread.h"
@@ -61,8 +62,12 @@
     #include "regtmrinc.h"
 #endif
 //---------------------------------------------------------------------------
-#ifdef _WITH_POSTGRES
+#ifdef _WITH_SQLITE
+	#include "DB-SQLite.h"
+#elif _WITH_POSTGRES
 	#include "DB-PostgreSQL.h"
+#elif _WITH_MYSQL
+	#include "DB-MySQL.h"
 #endif
 //---------------------------------------------------------------------------
 static ServerThread * pServersE = NULL;
@@ -347,6 +352,12 @@ void clsServerManager::Initialize() {
     	exit(EXIT_FAILURE);
     }
 
+	TextConverter::mPtr = new (std::nothrow) TextConverter();
+    if(TextConverter::mPtr == NULL) {
+    	AppendDebugLog("%s - [MEM] Cannot allocate TextConverter::mPtr in ServerInitialize\n", 0);
+    	exit(EXIT_FAILURE);
+    }
+
     clsLanguageManager::mPtr = new (std::nothrow) clsLanguageManager();
     if(clsLanguageManager::mPtr == NULL) {
         AppendDebugLog("%s - [MEM] Cannot allocate clsLanguageManager::mPtr in ServerInitialize\n", 0);
@@ -626,10 +637,22 @@ bool clsServerManager::Start() {
         }*/
 //  }
 
-#ifdef _WITH_POSTGRES
+#ifdef _WITH_SQLITE
+    DBSQLite::mPtr = new (std::nothrow) DBSQLite();
+    if(DBSQLite::mPtr == NULL) {
+		AppendDebugLog("%s - [MEM] Cannot allocate DBSQLite::mPtr in ServerStart\n", 0);
+    	exit(EXIT_FAILURE);
+    }
+#elif _WITH_POSTGRES
     DBPostgreSQL::mPtr = new (std::nothrow) DBPostgreSQL();
     if(DBPostgreSQL::mPtr == NULL) {
 		AppendDebugLog("%s - [MEM] Cannot allocate DBPostgreSQL::mPtr in ServerStart\n", 0);
+    	exit(EXIT_FAILURE);
+    }
+#elif _WITH_MYSQL
+    DBMySQL::mPtr = new (std::nothrow) DBMySQL();
+    if(DBMySQL::mPtr == NULL) {
+		AppendDebugLog("%s - [MEM] Cannot allocate DBMySQL::mPtr in ServerStart\n", 0);
     	exit(EXIT_FAILURE);
     }
 #endif
@@ -865,9 +888,15 @@ void clsServerManager::FinalStop(const bool &bDeleteServiceLoop) {
 	delete clsIpP2Country::mPtr;
     clsIpP2Country::mPtr = NULL;
 
-#ifdef _WITH_POSTGRES
+#ifdef _WITH_SQLITE
+	delete DBSQLite::mPtr;
+    DBSQLite::mPtr = NULL;
+#elif _WITH_POSTGRES
 	delete DBPostgreSQL::mPtr;
     DBPostgreSQL::mPtr = NULL;
+#elif _WITH_MYSQL
+	delete DBMySQL::mPtr;
+    DBMySQL::mPtr = NULL;
 #endif
 
 /*	if(TLSManager != NULL) {
@@ -958,6 +987,9 @@ void clsServerManager::FinalClose() {
 
     delete clsLanguageManager::mPtr;
     clsLanguageManager::mPtr = NULL;
+
+    delete TextConverter::mPtr;
+    TextConverter::mPtr = NULL;
 
     delete clsSettingManager::mPtr;
     clsSettingManager::mPtr = NULL;

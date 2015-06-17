@@ -320,7 +320,10 @@ static void AddSettingIds(lua_State * L) {
 		SETBOOL_REPLY_TO_HUB_COMMANDS_AS_PM, SETBOOL_DISABLE_MOTD, SETBOOL_DONT_ALLOW_PINGERS, SETBOOL_REPORT_PINGERS, SETBOOL_REPORT_3X_BAD_PASS, 
 		SETBOOL_ADVANCED_PASS_PROTECTION, SETBOOL_BIND_ONLY_SINGLE_IP, SETBOOL_RESOLVE_TO_IP, SETBOOL_NICK_LIMIT_REDIR, SETBOOL_BAN_MSG_SHOW_IP, 
 		SETBOOL_BAN_MSG_SHOW_RANGE, SETBOOL_BAN_MSG_SHOW_NICK, SETBOOL_BAN_MSG_SHOW_REASON, SETBOOL_BAN_MSG_SHOW_BY, SETBOOL_REPORT_SUSPICIOUS_TAG, 
-		SETBOOL_CHECK_IP_IN_COMMANDS, SETBOOL_LOG_SCRIPT_ERRORS, SETBOOL_NO_QUACK_SUPPORTS, SETBOOL_HASH_PASSWORDS
+		SETBOOL_CHECK_IP_IN_COMMANDS, SETBOOL_LOG_SCRIPT_ERRORS, SETBOOL_NO_QUACK_SUPPORTS, SETBOOL_HASH_PASSWORDS,
+#if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
+		SETBOOL_ENABLE_DATABASE,
+#endif
 	};
 
 	const char * pBoolsNames[] = { "AntiMoGlo", "AutoStart", "RedirectAll", "RedirectWhenHubFull", "AutoReg", "RegOnly",
@@ -333,7 +336,10 @@ static void AddSettingIds(lua_State * L) {
 		"ReplyToHubCommandsAsPm", "DisableMotd", "DontAllowPingers", "ReportPingers", "Report3xBadPass",
 		"AdvancedPassProtection", "ListenOnlySingleIp", "ResolveToIp", "NickLimitRedir", "BanMsgShowIp",
 		"BanMsgShowRange", "BanMsgShowNick", "BanMsgShowReason", "BanMsgShowBy", "ReportSuspiciousTag",
-		"CheckIpInCommands", "LogScriptErrors", "DisallowBadSupports", "HashPasswords"
+		"CheckIpInCommands", "LogScriptErrors", "DisallowBadSupports", "HashPasswords", 
+#if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
+		"EnableDatabase",
+#endif
 	};
 
 	for(uint8_t ui8i = 0; ui8i < sizeof(ui8Bools); ui8i++) {
@@ -369,7 +375,7 @@ static void AddSettingIds(lua_State * L) {
 		SETSHORT_MAX_DOWN_ACTION, SETSHORT_MAX_DOWN_KB, SETSHORT_MAX_DOWN_TIME, SETSHORT_MAX_DOWN_ACTION2, SETSHORT_MAX_DOWN_KB2, 
 		SETSHORT_MAX_DOWN_TIME2, SETSHORT_CHAT_INTERVAL_MESSAGES, SETSHORT_CHAT_INTERVAL_TIME, SETSHORT_PM_INTERVAL_MESSAGES, SETSHORT_PM_INTERVAL_TIME, 
 		SETSHORT_SEARCH_INTERVAL_MESSAGES, SETSHORT_SEARCH_INTERVAL_TIME, SETSHORT_MAX_CONN_SAME_IP, SETSHORT_MIN_RECONN_TIME,
-#ifdef _WITH_POSTGRES
+#if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
 		SETSHORT_DB_REMOVE_OLD_RECORDS,
 #endif
 	};
@@ -397,7 +403,7 @@ static void AddSettingIds(lua_State * L) {
 		"MaxDownAction", "MaxDownKB", "MaxDownTime", "MaxDownAction2", "MaxDownKB2",
 		"MaxDownTime2", "ChatIntervalMessages", "ChatIntervalTime", "PmIntervalMessages", "PmIntervalTime",
 		"SearchIntervalMessages", "SearchIntervalTime", "MaxConnsSameIp", "MinReconnTime",
-#ifdef _WITH_POSTGRES
+#if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
 		"DbRemoveOldRecords",
 #endif
 	};
@@ -418,9 +424,11 @@ static void AddSettingIds(lua_State * L) {
 		SETTXT_MAX_HUBS_LIMIT_REDIR_ADDRESS, SETTXT_NO_TAG_MSG, SETTXT_NO_TAG_REDIR_ADDRESS, SETTXT_BOT_NICK, SETTXT_BOT_DESCRIPTION, SETTXT_BOT_EMAIL, 
 		SETTXT_OP_CHAT_NICK, SETTXT_OP_CHAT_DESCRIPTION, SETTXT_OP_CHAT_EMAIL, SETTXT_TEMP_BAN_REDIR_ADDRESS, SETTXT_PERM_BAN_REDIR_ADDRESS, 
 		SETTXT_CHAT_COMMANDS_PREFIXES, SETTXT_HUB_OWNER_EMAIL, SETTXT_NICK_LIMIT_MSG, SETTXT_NICK_LIMIT_REDIR_ADDRESS, SETTXT_MSG_TO_ADD_TO_BAN_MSG, 
-		SETTXT_LANGUAGE, SETTXT_IPV4_ADDRESS, SETTXT_IPV6_ADDRESS,
+		SETTXT_LANGUAGE, SETTXT_IPV4_ADDRESS, SETTXT_IPV6_ADDRESS, SETTXT_ENCODING, 
 #ifdef _WITH_POSTGRES
-		SETTXT_ENCODING, SETTXT_POSTGRES_HOST, SETTXT_POSTGRES_PORT, SETTXT_POSTGRES_DBNAME, SETTXT_POSTGRES_USER, SETTXT_POSTGRES_PASS,
+		SETTXT_POSTGRES_HOST, SETTXT_POSTGRES_PORT, SETTXT_POSTGRES_DBNAME, SETTXT_POSTGRES_USER, SETTXT_POSTGRES_PASS,
+#elif _WITH_MYSQL
+		SETTXT_MYSQL_HOST, SETTXT_MYSQL_PORT, SETTXT_MYSQL_DBNAME, SETTXT_MYSQL_USER, SETTXT_MYSQL_PASS,
 #endif
 	};
 
@@ -430,9 +438,11 @@ static void AddSettingIds(lua_State * L) {
 		"MaxHubsLimitRedirAddress", "NoTagMessage", "NoTagRedirAddress", "HubBotNick", "HubBotDescription", "HubBotEmail", 
 		"OpChatNick", "OpChatDescription", "OpChatEmail", "TempBanRedirAddress", "PermBanRedirAddress", 
 		"ChatCommandsPrefixes", "HubOwnerEmail", "NickLimitMessage", "NickLimitRedirAddress", "MessageToAddToBanMessage",
-		"Language", "IPv4Address", "IPv6Address",
+		"Language", "IPv4Address", "IPv6Address", "Encoding", 
 #ifdef _WITH_POSTGRES
-		"Encoding", "PostgresHost", "PostgresPort", "PostgresDBNane", "PostgresUser", "PostgresPass",
+		"PostgresHost", "PostgresPort", "PostgresDBName", "PostgresUser", "PostgresPass",
+#elif _WITH_MYSQL
+		"MySQLHost", "MySQLPort", "MySQLDBName", "MySQLUser", "MySQLPass",
 #endif
 	};
 

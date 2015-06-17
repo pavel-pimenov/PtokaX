@@ -17,34 +17,32 @@
  */
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#ifndef DBPostgreSQLH
-#define DBPostgreSQLH
+#ifndef TextConverterH
+#define TextConverterH
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-struct User;
-typedef struct pg_conn PGconn;
+#ifndef _WIN32
+	typedef void * iconv_t;
+#endif
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class DBPostgreSQL {
+class TextConverter {
 private:
-	PGconn * pDBConn;
+#ifndef _WIN32
+	iconv_t iconvUtfCheck;
+	iconv_t iconvAsciiToUtf;
+#endif
 
-	bool bConnected;
+	bool CheckUtf8Validity(char * sInput, const uint8_t &ui8InputLen, char * sOutput, const uint8_t &ui8OutputSize);
 
-    DBPostgreSQL(const DBPostgreSQL&);
-    const DBPostgreSQL& operator=(const DBPostgreSQL&);
-
+    TextConverter(const TextConverter&);
+    const TextConverter& operator=(const TextConverter&);
 public:
-    static DBPostgreSQL * mPtr;
+    static TextConverter * mPtr;
 
-	DBPostgreSQL();
-	~DBPostgreSQL();
+	TextConverter();
+	~TextConverter();
 
-	void UpdateRecord(User * pUser);
-
-	bool SearchNick(char * sNick, const uint8_t &ui8NickLen, User * pUser, const bool &bFromPM);
-	bool SearchIP(char * sIP, User * pUser, const bool &bFromPM);
-
-	void RemoveOldRecords(const uint16_t &ui16Days);
+	size_t CheckUtf8AndConvert(char * sInput, const uint8_t &ui8InputLen, char * sOutput, const uint8_t &ui8OutputSize);
 };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

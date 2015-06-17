@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 #ifdef _DEBUG
 	clsServerManager::sTitle += " [debug]";
 #endif
-	
+
 	char * sPidFile = NULL;
 
 	for(int i = 0; i < argc; i++) {
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
 	    } else if(pid1 > 0) {
 	        return EXIT_SUCCESS;
 	    }
-	
+
 	    if(setsid() == -1) {
 	        syslog(LOG_USER | LOG_ERR, "Setsid failed!\n");
 	        return EXIT_FAILURE;
@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
 	    } else if(pid2 > 0) {
             return EXIT_SUCCESS;
 	    }
-	
+
 		if(sPidFile != NULL) {
 			FILE * fw = fopen(sPidFile, "w");
 			if(fw != NULL) {
@@ -289,6 +289,8 @@ int main(int argc, char* argv[]) {
 
 	if(clsServerManager::bDaemon == false) {
 	    printf("%s ending...\n", clsServerManager::sTitle.c_str());
+	} else if(sPidFile != NULL) {
+		unlink(sPidFile);
 	}
 
     return EXIT_SUCCESS;

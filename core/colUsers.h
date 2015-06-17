@@ -32,7 +32,7 @@ static const uint32_t ZMYINFOLISTSIZE = 1024*128;
 class clsUsers {
 private:
     struct RecTime {
-        RecTime(const uint8_t * pIpHash);
+        explicit RecTime(const uint8_t * pIpHash);
 
         uint64_t ui64DisConnTick;
         uint32_t ui32NickHash;

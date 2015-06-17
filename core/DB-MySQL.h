@@ -17,27 +17,29 @@
  */
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#ifndef DBPostgreSQLH
-#define DBPostgreSQLH
+#ifndef DBMySQLH
+#define DBMySQLH
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 struct User;
-typedef struct pg_conn PGconn;
+typedef struct st_mysql MYSQL;
+typedef struct st_mysql_res MYSQL_RES;
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class DBPostgreSQL {
+class DBMySQL {
 private:
-	PGconn * pDBConn;
+	MYSQL * pDBHandle;
 
 	bool bConnected;
 
-    DBPostgreSQL(const DBPostgreSQL&);
-    const DBPostgreSQL& operator=(const DBPostgreSQL&);
+    DBMySQL(const DBMySQL&);
+    const DBMySQL& operator=(const DBMySQL&);
 
+	bool SendQueryResults(User * pUser, const bool &bFromPM, MYSQL_RES * pResult, uint64_t &ui64Rows);
 public:
-    static DBPostgreSQL * mPtr;
+    static DBMySQL * mPtr;
 
-	DBPostgreSQL();
-	~DBPostgreSQL();
+	DBMySQL();
+	~DBMySQL();
 
 	void UpdateRecord(User * pUser);
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -33,30 +33,30 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Testing|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Testing|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -128,13 +128,12 @@
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Testing|x64'">false</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Testing|x64'">false</PostBuildEventUseInBuild>
     <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</PreBuildEventUseInBuild>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\tinyxml;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TIXML_USE_STL;_DEBUG;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -156,15 +155,15 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.3,processorArchitecture=x86,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.1.0,processorArchitecture=x86,type=win32</AssemblyIdentity>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TIXML_USE_STL;NDEBUG;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;sqlite\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -195,12 +194,12 @@
     </ProjectReference>
     <Link>
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml.lib;zlib.lib;PXLua.lib;skein.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml.lib;zlib.lib;PXLua.lib;skein.lib;sqlite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)PtokaX.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
-      <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;sqlite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>kernel32.lib advapi32.lib user32.lib gdi32.lib shell32.lib comdlg32.lib version.lib mpr.lib rasapi32.lib winmm.lib winspool.lib vfw32.lib secur32.lib oleacc.lib oledlg.lib sensapi.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>dbghelp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -220,15 +219,15 @@
       <TerminalServerAware>false</TerminalServerAware>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.3,processorArchitecture=x86,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.1.0,processorArchitecture=x86,type=win32</AssemblyIdentity>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Testing|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TIXML_USE_STL;_PtokaX_TESTING_;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;sqlite\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_PtokaX_TESTING_;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -259,12 +258,12 @@
     </ProjectReference>
     <Link>
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml.lib;zlib.lib;PXLua.lib;skein.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml.lib;zlib.lib;PXLua.lib;skein.lib;sqlite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)PtokaX.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
-      <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;sqlite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>kernel32.lib advapi32.lib user32.lib gdi32.lib shell32.lib comdlg32.lib version.lib mpr.lib rasapi32.lib winmm.lib winspool.lib vfw32.lib secur32.lib oleacc.lib oledlg.lib sensapi.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>dbghelp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -284,14 +283,14 @@
       <TerminalServerAware>false</TerminalServerAware>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.3,processorArchitecture=x86,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.1.0,processorArchitecture=x86,type=win32</AssemblyIdentity>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TIXML_USE_STL;_DEBUG;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -313,15 +312,15 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.3,processorArchitecture=amd64,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.1.0,processorArchitecture=amd64,type=win32</AssemblyIdentity>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TIXML_USE_STL;NDEBUG;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;sqlite\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -350,11 +349,11 @@
     <Link>
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <ShowProgress>NotSet</ShowProgress>
-      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml-x64.lib;zlib-x64.lib;PXLua-x64.lib;skein-x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml-x64.lib;zlib-x64.lib;PXLua-x64.lib;skein-x64.lib;sqlite-x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)PtokaX-x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
-      <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;sqlite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>kernel32.lib advapi32.lib user32.lib gdi32.lib shell32.lib comdlg32.lib version.lib mpr.lib rasapi32.lib winmm.lib winspool.lib vfw32.lib secur32.lib oleacc.lib oledlg.lib sensapi.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>dbghelp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -374,7 +373,7 @@
       <TerminalServerAware>false</TerminalServerAware>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.3,processorArchitecture=amd64,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.1.0,processorArchitecture=amd64,type=win32</AssemblyIdentity>
     </Manifest>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -384,8 +383,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TIXML_USE_STL;_PtokaX_TESTING_;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>lua\src;tinyxml\src;zlib\src;skein\Optimized_32bit;sqlite\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_PtokaX_TESTING_;_BUILD_GUI;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -414,11 +413,11 @@
     <Link>
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <ShowProgress>NotSet</ShowProgress>
-      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml-x64.lib;zlib-x64.lib;PXLua-x64.lib;skein-x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml-x64.lib;zlib-x64.lib;PXLua-x64.lib;skein-x64.lib;sqlite-x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)PtokaX-x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
-      <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;sqlite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>kernel32.lib advapi32.lib user32.lib gdi32.lib shell32.lib comdlg32.lib version.lib mpr.lib rasapi32.lib winmm.lib winspool.lib vfw32.lib secur32.lib oleacc.lib oledlg.lib sensapi.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>dbghelp.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -438,7 +437,7 @@
       <TerminalServerAware>false</TerminalServerAware>
     </Link>
     <Manifest>
-      <AssemblyIdentity>PtokaX,version=0.5.0.3,processorArchitecture=amd64,type=win32</AssemblyIdentity>
+      <AssemblyIdentity>PtokaX,version=0.5.1.0,processorArchitecture=amd64,type=win32</AssemblyIdentity>
     </Manifest>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -446,6 +445,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="core\colUsers.h" />
+    <ClInclude Include="core\DB-SQLite.h" />
     <ClInclude Include="core\DcCommands.h" />
     <ClInclude Include="core\DeFlood.h" />
     <ClInclude Include="core\eventqueue.h" />
@@ -485,6 +485,7 @@
     <ClInclude Include="core\SettingManager.h" />
     <ClInclude Include="core\SettingXml.h" />
     <ClInclude Include="core\stdinc.h" />
+    <ClInclude Include="core\TextConverter.h" />
     <ClInclude Include="core\TextFileManager.h" />
     <ClInclude Include="core\UdpDebug.h" />
     <ClInclude Include="core\UDPThread.h" />
@@ -529,48 +530,6 @@
     <ClInclude Include="gui.win\SettingPageRules.h" />
     <ClInclude Include="gui.win\SettingPageRules2.h" />
     <ClInclude Include="gui.win\UpdateDialog.h" />
-    <ClInclude Include="lua\src\lapi.h" />
-    <ClInclude Include="lua\src\lauxlib.h" />
-    <ClInclude Include="lua\src\lcode.h" />
-    <ClInclude Include="lua\src\ldebug.h" />
-    <ClInclude Include="lua\src\ldo.h" />
-    <ClInclude Include="lua\src\lfunc.h" />
-    <ClInclude Include="lua\src\lgc.h" />
-    <ClInclude Include="lua\src\llex.h" />
-    <ClInclude Include="lua\src\llimits.h" />
-    <ClInclude Include="lua\src\lmem.h" />
-    <ClInclude Include="lua\src\lobject.h" />
-    <ClInclude Include="lua\src\lopcodes.h" />
-    <ClInclude Include="lua\src\lparser.h" />
-    <ClInclude Include="lua\src\lstate.h" />
-    <ClInclude Include="lua\src\lstring.h" />
-    <ClInclude Include="lua\src\ltable.h" />
-    <ClInclude Include="lua\src\ltm.h" />
-    <ClInclude Include="lua\src\lua.h" />
-    <ClInclude Include="lua\src\luaconf.h" />
-    <ClInclude Include="lua\src\lualib.h" />
-    <ClInclude Include="lua\src\lundump.h" />
-    <ClInclude Include="lua\src\lvm.h" />
-    <ClInclude Include="lua\src\lzio.h" />
-    <ClInclude Include="skein\Optimized_32bit\brg_endian.h" />
-    <ClInclude Include="skein\Optimized_32bit\brg_types.h" />
-    <ClInclude Include="skein\Optimized_32bit\SHA3api_ref.h" />
-    <ClInclude Include="skein\Optimized_32bit\skein.h" />
-    <ClInclude Include="skein\Optimized_32bit\skein_debug.h" />
-    <ClInclude Include="skein\Optimized_32bit\skein_iv.h" />
-    <ClInclude Include="skein\Optimized_32bit\skein_port.h" />
-    <ClInclude Include="tinyxml\tinyxml.h" />
-    <ClInclude Include="zlib\src\crc32.h" />
-    <ClInclude Include="zlib\src\deflate.h" />
-    <ClInclude Include="zlib\src\gzguts.h" />
-    <ClInclude Include="zlib\src\inffast.h" />
-    <ClInclude Include="zlib\src\inffixed.h" />
-    <ClInclude Include="zlib\src\inflate.h" />
-    <ClInclude Include="zlib\src\inftrees.h" />
-    <ClInclude Include="zlib\src\trees.h" />
-    <ClInclude Include="zlib\src\zconf.h" />
-    <ClInclude Include="zlib\src\zlib.h" />
-    <ClInclude Include="zlib\src\zutil.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gui.win\PtokaX.rc" />
@@ -583,6 +542,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\colUsers.cpp" />
+    <ClCompile Include="core\DB-SQLite.cpp" />
     <ClCompile Include="core\DcCommands.cpp" />
     <ClCompile Include="core\DeFlood.cpp" />
     <ClCompile Include="core\eventqueue.cpp" />
@@ -614,6 +574,7 @@
     <ClCompile Include="core\ServerThread.cpp" />
     <ClCompile Include="core\serviceLoop.cpp" />
     <ClCompile Include="core\SettingManager.cpp" />
+    <ClCompile Include="core\TextConverter.cpp" />
     <ClCompile Include="core\TextFileManager.cpp" />
     <ClCompile Include="core\UdpDebug.cpp" />
     <ClCompile Include="core\UDPThread.cpp" />
@@ -655,58 +616,6 @@
     <ClCompile Include="gui.win\SettingPageRules.cpp" />
     <ClCompile Include="gui.win\SettingPageRules2.cpp" />
     <ClCompile Include="gui.win\UpdateDialog.cpp" />
-    <ClCompile Include="lua\src\lapi.c" />
-    <ClCompile Include="lua\src\lauxlib.c" />
-    <ClCompile Include="lua\src\lbaselib.c" />
-    <ClCompile Include="lua\src\lcode.c" />
-    <ClCompile Include="lua\src\ldblib.c" />
-    <ClCompile Include="lua\src\ldebug.c" />
-    <ClCompile Include="lua\src\ldo.c" />
-    <ClCompile Include="lua\src\ldump.c" />
-    <ClCompile Include="lua\src\lfunc.c" />
-    <ClCompile Include="lua\src\lgc.c" />
-    <ClCompile Include="lua\src\linit.c" />
-    <ClCompile Include="lua\src\liolib.c" />
-    <ClCompile Include="lua\src\llex.c" />
-    <ClCompile Include="lua\src\lmathlib.c" />
-    <ClCompile Include="lua\src\lmem.c" />
-    <ClCompile Include="lua\src\loadlib.c" />
-    <ClCompile Include="lua\src\lobject.c" />
-    <ClCompile Include="lua\src\lopcodes.c" />
-    <ClCompile Include="lua\src\loslib.c" />
-    <ClCompile Include="lua\src\lparser.c" />
-    <ClCompile Include="lua\src\lstate.c" />
-    <ClCompile Include="lua\src\lstring.c" />
-    <ClCompile Include="lua\src\lstrlib.c" />
-    <ClCompile Include="lua\src\ltable.c" />
-    <ClCompile Include="lua\src\ltablib.c" />
-    <ClCompile Include="lua\src\ltm.c" />
-    <ClCompile Include="lua\src\lundump.c" />
-    <ClCompile Include="lua\src\lvm.c" />
-    <ClCompile Include="lua\src\lzio.c" />
-    <ClCompile Include="lua\src\print.c" />
-    <ClCompile Include="skein\Optimized_32bit\SHA3api_ref.c" />
-    <ClCompile Include="skein\Optimized_32bit\skein.c" />
-    <ClCompile Include="skein\Optimized_32bit\skein_block.c" />
-    <ClCompile Include="skein\Optimized_32bit\skein_debug.c" />
-    <ClCompile Include="tinyxml\tinyxml.cpp" />
-    <ClCompile Include="tinyxml\tinyxmlerror.cpp" />
-    <ClCompile Include="tinyxml\tinyxmlparser.cpp" />
-    <ClCompile Include="zlib\src\adler32.c" />
-    <ClCompile Include="zlib\src\compress.c" />
-    <ClCompile Include="zlib\src\crc32.c" />
-    <ClCompile Include="zlib\src\deflate.c" />
-    <ClCompile Include="zlib\src\gzclose.c" />
-    <ClCompile Include="zlib\src\gzlib.c" />
-    <ClCompile Include="zlib\src\gzread.c" />
-    <ClCompile Include="zlib\src\gzwrite.c" />
-    <ClCompile Include="zlib\src\infback.c" />
-    <ClCompile Include="zlib\src\inffast.c" />
-    <ClCompile Include="zlib\src\inflate.c" />
-    <ClCompile Include="zlib\src\inftrees.c" />
-    <ClCompile Include="zlib\src\trees.c" />
-    <ClCompile Include="zlib\src\uncompr.c" />
-    <ClCompile Include="zlib\src\zutil.c" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="core\PtokaX.Manifest" />

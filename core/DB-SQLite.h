@@ -17,27 +17,26 @@
  */
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#ifndef DBPostgreSQLH
-#define DBPostgreSQLH
+#ifndef DBSQLiteH
+#define DBSQLiteH
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 struct User;
-typedef struct pg_conn PGconn;
+typedef struct sqlite3 sqlite3;
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class DBPostgreSQL {
+class DBSQLite {
 private:
-	PGconn * pDBConn;
+	sqlite3 * pDB;
 
 	bool bConnected;
 
-    DBPostgreSQL(const DBPostgreSQL&);
-    const DBPostgreSQL& operator=(const DBPostgreSQL&);
-
+    DBSQLite(const DBSQLite&);
+    const DBSQLite& operator=(const DBSQLite&);
 public:
-    static DBPostgreSQL * mPtr;
+    static DBSQLite * mPtr;
 
-	DBPostgreSQL();
-	~DBPostgreSQL();
+	DBSQLite();
+	~DBSQLite();
 
 	void UpdateRecord(User * pUser);
 
