@@ -654,11 +654,14 @@ void clsRegManager::Load(void) {
 
             if(pNewUser == NULL) {
 				AppendDebugLog("%s - [MEM] Cannot allocate pNewUser in clsRegManager::Load\n", 0);
-
-                exit(EXIT_FAILURE);
+		printf ("[MEM] Cannot allocate pNewUser in clsRegManager::Load user = %s\n",(char *)pxbRegs.pItemDatas[0]);
+                // [-] PPA 09.07.2015 exit(EXIT_FAILURE);
             }
-
+            else
+		{
 			Add(pNewUser);
+		}
+
 		}
 
         bSuccess = pxbRegs.ReadNextItem(ui16Identificators, 3, 1);
