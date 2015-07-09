@@ -74,9 +74,12 @@
 	#include <sys/stat.h>
 	#include <sys/utsname.h>
 	#include <syslog.h>
+	#include <iconv.h>
 #endif
 #include <fcntl.h>
-#define TIXML_USE_STL 1
+#ifdef _WIN32
+	#define TIXML_USE_STL
+#endif
 #include <tinyxml.h>
 #ifdef _WIN32
 	#include <psapi.h>
@@ -86,7 +89,7 @@
 #include "pxstring.h"
 //---------------------------------------------------------------------------
 #define PtokaXVersionString "0.5.1.0"
-#define BUILD_NUMBER "498"
+#define BUILD_NUMBER "501"
 
 #ifdef _WIN32
     #define PRIu64 "I64u"

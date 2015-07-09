@@ -7,7 +7,7 @@
 #*******************************************************************************
 # Compiler
 #*******************************************************************************
-CXX = g++
+CXX = c++
 
 #*******************************************************************************
 # Path where install
@@ -62,32 +62,35 @@ lua52: $(OBJS)
 	cd skein; $(MAKE)
 	$(CXX) $(OBJS) $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz -llua5.2 -ltinyxml
 
-centos5-32: $(OBJS)
-	cd skein; $(MAKE)
-	cd tinyxml; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a /usr/lib/liblua.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz
-
-centos5-64: $(OBJS)
-	cd skein; $(MAKE)
-	cd tinyxml; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a /usr/lib64/liblua.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz
-
-centos6: $(OBJS)
+centos: $(OBJS)
 	cd skein; $(MAKE)
 	cd tinyxml; $(MAKE)
 	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz -llua-5.1
 
-freebsd: INCLUDE = -Itinyxml -Iskein/Optimized_32bit -I/usr/include -I/usr/local/include/lua51
+freebsd: INCLUDE = -Iskein/Optimized_32bit -I/usr/include -I/usr/local/include -I/usr/local/include/lua53
 freebsd: $(OBJS)
 	cd skein; $(MAKE)
-	cd tinyxml; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a /usr/local/lib/lua51/liblua.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz
+	$(CXX) $(OBJS) -L/usr/local/lib $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz -llua-5.3 -ltinyxml -liconv
 
-haiku: CXXFLAGS = -O -g -Wall
-haiku: $(OBJS)
+freebsd51: INCLUDE = -Iskein/Optimized_32bit -I/usr/include -I/usr/local/include -I/usr/local/include/lua51
+freebsd51: $(OBJS)
 	cd skein; $(MAKE)
-	cd tinyxml; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a $(CURDIR)/skein/skein.a -o PtokaX -lnetwork -llua -lz
+	$(CXX) $(OBJS) -L/usr/local/lib $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz -llua-5.1 -ltinyxml -liconv
+
+freebsd52: INCLUDE = -Iskein/Optimized_32bit -I/usr/include -I/usr/local/include -I/usr/local/include/lua52
+freebsd52: $(OBJS)
+	cd skein; $(MAKE)
+	$(CXX) $(OBJS) -L/usr/local/lib $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz -llua-5.2 -ltinyxml -liconv
+
+haiku: CXXFLAGS = -O -g -Wall -Wextra -D_WITHOUT_SKEIN
+haiku: $(OBJS)
+	cd tinyxml; $(MAKE) nostl
+	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a -o PtokaX -lnetwork -llua -lz -liconv
+
+solaris: CXXFLAGS = -O -g -Wall -Wextra -D_WITHOUT_SKEIN
+solaris: $(OBJS)
+	cd tinyxml; $(MAKE) nostl
+	$(CXX) $(OBJS) $(CURDIR)/tinyxml/tinyxml.a -o PtokaX -lstdc++ -lpthread -lm -lrt -lz -llua -lsocket -lnsl
 
 install:
 	@if test -d $(INSTDIR); then \

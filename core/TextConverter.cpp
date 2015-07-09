@@ -26,13 +26,15 @@
 #include "UdpDebug.h"
 #include "utility.h"
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#ifndef _WIN32
-	#include <iconv.h>
-#endif
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 TextConverter * TextConverter::mPtr = NULL;
 #ifdef _WIN32
 	static wchar_t wcTempBuf[2048];
+#endif
+#if defined(__sun) && defined(__SVR4)
+	#define ICONV_CONST const
+#endif
+#ifndef ICONV_CONST
+	#define ICONV_CONST
 #endif
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -43,13 +45,13 @@ TextConverter::TextConverter() {
 		exit(EXIT_FAILURE);
 	}
 
-	iconvUtfCheck = iconv_open("utf8", "utf8");
+	iconvUtfCheck = iconv_open("utf-8", "utf-8");
 	if(iconvUtfCheck == (iconv_t)-1) {
 		AppendLog("TextConverter iconv_open for iconvUtfCheck failed!");
 		exit(EXIT_FAILURE);
 	}
 
-	iconvAsciiToUtf = iconv_open("utf8//TRANSLIT//IGNORE", clsSettingManager::mPtr->sTexts[SETTXT_ENCODING]);
+	iconvAsciiToUtf = iconv_open("utf-8//TRANSLIT//IGNORE", clsSettingManager::mPtr->sTexts[SETTXT_ENCODING]);
 	if(iconvAsciiToUtf == (iconv_t)-1) {
 		AppendLog("TextConverter iconv_open for iconvAsciiToUtf failed!");
 		exit(EXIT_FAILURE);
@@ -78,7 +80,7 @@ bool TextConverter::CheckUtf8Validity(char * sInput, const uint8_t &ui8InputLen,
 	char * sOutBuf = sOutput;
 	size_t szOutbufLeft = ui8OutputSize-1;
 
-	size_t szRet = iconv(iconvUtfCheck, &sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
+	size_t szRet = iconv(iconvUtfCheck, (ICONV_CONST char**)&sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
 	if(szRet == (size_t)-1) {
 		return false;
 #endif
@@ -174,7 +176,7 @@ size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t &ui8Input
 	char * sOutBuf = sOutput;
 	size_t szOutbufLeft = ui8OutputSize-1;
 
-	size_t szRet = iconv(iconvAsciiToUtf, &sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
+	size_t szRet = iconv(iconvAsciiToUtf, (ICONV_CONST char**)&sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
 	if(szRet == (size_t)-1) {
 		if(errno == E2BIG) {
 			clsUdpDebug::mPtr->Broadcast("[LOG] TextConverter::DoIconv iconv E2BIG for param: "+string(sInput, ui8InputLen));
@@ -183,7 +185,7 @@ size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t &ui8Input
 			szInbufLeft--;
 
 			while(szInbufLeft != 0) {
-				szRet = iconv(iconvAsciiToUtf, &sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
+				szRet = iconv(iconvAsciiToUtf, (ICONV_CONST char**)&sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
 				if(szRet == (size_t)-1) {
 					if(errno == E2BIG) {
 						clsUdpDebug::mPtr->Broadcast("[LOG] TextConverter::DoIconv iconv E2BIG in EILSEQ for param: "+string(sInput, ui8InputLen));
