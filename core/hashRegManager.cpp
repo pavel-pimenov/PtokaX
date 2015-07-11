@@ -797,7 +797,7 @@ void clsRegManager::Save(const bool &bSaveOnChange/* = false*/, const bool &bSav
     pxbRegs.sItemIdentifiers[0][0] = 'F';
     pxbRegs.sItemIdentifiers[0][1] = 'I';
     pxbRegs.pItemDatas[0] = (void *)g_unreg_user_key;
-    pxbRegs.ui16ItemLengths[0] = strlen(g_unreg_user_key);
+    pxbRegs.ui16ItemLengths[0] = uint16_t(strlen(g_unreg_user_key));
     pxbRegs.ui8ItemValues[0] = PXBReader::PXB_STRING;
 
     pxbRegs.sItemIdentifiers[1][0] = 'F';
