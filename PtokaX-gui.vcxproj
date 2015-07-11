@@ -194,7 +194,7 @@
     </ProjectReference>
     <Link>
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml.lib;zlib.lib;PXLua.lib;skein.lib;sqlite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;zlib.lib;PXLua.lib;skein.lib;sqlite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)PtokaX.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -258,7 +258,7 @@
     </ProjectReference>
     <Link>
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml.lib;zlib.lib;PXLua.lib;skein.lib;sqlite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;zlib.lib;PXLua.lib;skein.lib;sqlite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)PtokaX.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
