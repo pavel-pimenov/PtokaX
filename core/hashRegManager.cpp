@@ -654,7 +654,8 @@ void clsRegManager::Load(void) {
 
             if(pNewUser == NULL) {
 				AppendDebugLog("%s - [MEM] Cannot allocate pNewUser in clsRegManager::Load\n", 0);
-		printf ("[MEM] Cannot allocate pNewUser in clsRegManager::Load user = %s\n",(char *)pxbRegs.pItemDatas[0]);
+				const string l_nick((const char *)pxbRegs.pItemDatas[0],pxbRegs.ui16ItemLengths[0]);
+				printf ("[MEM] Cannot allocate pNewUser in clsRegManager::Load user = %s\n",l_nick.c_str());
                 // [-] PPA 09.07.2015 exit(EXIT_FAILURE);
             }
             else
@@ -793,8 +794,8 @@ void clsRegManager::Save(const bool &bSaveOnChange/* = false*/, const bool &bSav
     // Write file header
     pxbRegs.sItemIdentifiers[0][0] = 'F';
     pxbRegs.sItemIdentifiers[0][1] = 'I';
-    pxbRegs.ui16ItemLengths[0] = 23;
     pxbRegs.pItemDatas[0] = (void *)"PtokaX Registered Users";
+    pxbRegs.ui16ItemLengths[0] = strlen(pxbRegs.pItemDatas[0]);
     pxbRegs.ui8ItemValues[0] = PXBReader::PXB_STRING;
 
     pxbRegs.sItemIdentifiers[1][0] = 'F';
