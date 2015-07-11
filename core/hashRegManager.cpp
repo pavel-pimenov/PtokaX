@@ -43,6 +43,8 @@
 #endif
 //---------------------------------------------------------------------------
 clsRegManager * clsRegManager::mPtr = NULL;
+static const char* g_unreg_user_key = "PtokaX Registered Users";
+
 //---------------------------------------------------------------------------
 
 RegUser::RegUser() : sNick(NULL), pPrev(NULL), pNext(NULL), pHashTablePrev(NULL), pHashTableNext(NULL), tLastBadPass(0), ui32Hash(0), ui16Profile(0),
@@ -596,7 +598,7 @@ void clsRegManager::Load(void) {
     }
 
     // Check header if we have correct file
-    if(pxbRegs.ui16ItemLengths[0] != 23 || strncmp((char *)pxbRegs.pItemDatas[0], "PtokaX Registered Users", 23) != 0) {
+    if(pxbRegs.ui16ItemLengths[0] != 23 || strncmp((char *)pxbRegs.pItemDatas[0], g_unreg_user_key, 23) != 0) {
         return;
     }
 
@@ -794,8 +796,8 @@ void clsRegManager::Save(const bool &bSaveOnChange/* = false*/, const bool &bSav
     // Write file header
     pxbRegs.sItemIdentifiers[0][0] = 'F';
     pxbRegs.sItemIdentifiers[0][1] = 'I';
-    pxbRegs.pItemDatas[0] = (void *)"PtokaX Registered Users";
-    pxbRegs.ui16ItemLengths[0] = strlen(pxbRegs.pItemDatas[0]);
+    pxbRegs.pItemDatas[0] = (void *)g_unreg_user_key;
+    pxbRegs.ui16ItemLengths[0] = strlen(g_unreg_user_key);
     pxbRegs.ui8ItemValues[0] = PXBReader::PXB_STRING;
 
     pxbRegs.sItemIdentifiers[1][0] = 'F';
