@@ -226,6 +226,9 @@
     <ClCompile Include="core\TextConverter.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="sqlite\sqlite3.c">
+      <Filter>sqlite</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\eventqueue.h">
@@ -486,6 +489,9 @@
     <ClInclude Include="core\TextConverter.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="sqlite\sqlite3.h">
+      <Filter>sqlite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ico\Spider16M-32x32.ico">
@@ -510,6 +516,9 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{7f6e8427-46f5-4dd5-9fa0-6caa1032d0b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sqlite">
+      <UniqueIdentifier>{5778d704-b6bd-4724-955d-3f9be2ffa108}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
