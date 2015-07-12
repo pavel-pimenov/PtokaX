@@ -77,9 +77,6 @@
 	#include <iconv.h>
 #endif
 #include <fcntl.h>
-#ifdef _WIN32
-	#define TIXML_USE_STL
-#endif
 #include <tinyxml.h>
 #ifdef _WIN32
 	#include <psapi.h>
