@@ -607,7 +607,6 @@
     <ClCompile Include="core\LuaTmrManLib.cpp" />
     <ClCompile Include="core\LuaUDPDbgLib.cpp" />
     <ClCompile Include="core\ProfileManager.cpp" />
-    <ClCompile Include="core\PtokaX-win.cpp" />
     <ClCompile Include="core\PXBReader.cpp" />
     <ClCompile Include="core\pxstring.cpp" />
     <ClCompile Include="core\RegThread.cpp" />
@@ -637,6 +636,7 @@
     <ClCompile Include="gui.win\MainWindowPageStats.cpp" />
     <ClCompile Include="gui.win\MainWindowPageUsersChat.cpp" />
     <ClCompile Include="gui.win\ProfilesDialog.cpp" />
+    <ClCompile Include="gui.win\PtokaX.cpp" />
     <ClCompile Include="gui.win\RangeBanDialog.cpp" />
     <ClCompile Include="gui.win\RangeBansDialog.cpp" />
     <ClCompile Include="gui.win\RegisteredUserDialog.cpp" />

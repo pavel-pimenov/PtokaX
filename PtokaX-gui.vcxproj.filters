@@ -382,7 +382,7 @@
     <ClCompile Include="core\DB-SQLite.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="core\PtokaX-win.cpp">
+    <ClCompile Include="gui.win\PtokaX.cpp">
       <Filter>Gui</Filter>
     </ClCompile>
   </ItemGroup>

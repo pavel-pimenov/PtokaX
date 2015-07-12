@@ -243,7 +243,7 @@ int __cdecl main(int argc, char* argv[]) {
 	bool bInstallService = false;
 	
 	for(int i = 0; i < argc; i++) {
-	    if(stricmp(argv[i], "-s") == NULL || stricmp(argv[i], "/service") == NULL) {
+		if(stricmp(argv[i], "-s") == NULL || stricmp(argv[i], "/service") == NULL) {
 	    	if(++i == argc) {
 	            AppendLog("Missing service name!");
 	            return EXIT_FAILURE;
@@ -351,7 +351,10 @@ int __cdecl main(int argc, char* argv[]) {
 	    }
 
         ExceptionHandlingUnitialize();
-	} else {
+	} 
+	else
+#endif // _BUILD_GUI 
+	{
 	    SERVICE_TABLE_ENTRY DispatchTable[] = {
 	        { sServiceName, StartService },
 	        { NULL, NULL }
