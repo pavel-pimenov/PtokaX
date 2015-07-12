@@ -81,7 +81,7 @@ LRESULT SettingPageGeneral2::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lP
                     ::EnableWindow(hWndPageItems[EDT_MSG_TO_NON_REGS], bEnable);
                     ::EnableWindow(hWndPageItems[BTN_NON_REG_REDIR_ENABLE], bEnable);
                     ::EnableWindow(hWndPageItems[EDT_NON_REG_REDIR_ADDR],
-                        (bEnable == TRUE && ::SendMessage(hWndPageItems[BTN_NON_REG_REDIR_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED) ? TRUE : FALSE);
+                        (bEnable != FALSE && ::SendMessage(hWndPageItems[BTN_NON_REG_REDIR_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED) ? TRUE : FALSE);
                 }
 
                 break;
