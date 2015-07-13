@@ -121,8 +121,8 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Testing|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Testing|x64'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PtokaX</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Testing|Win32'">PtokaX</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Testing|Win32'">$(ProjectName)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PtokaX-x64</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Testing|x64'">PtokaX-x64</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PtokaX-x64</TargetName>
@@ -150,11 +150,12 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)PtokaX.exe</OutputFile>
+      <OutputFile>$(OutDir)PtokaX-gui.exe</OutputFile>
       <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'</AdditionalManifestDependencies>
     </Link>
     <Manifest>
       <AssemblyIdentity>PtokaX,version=0.5.1.0,processorArchitecture=x86,type=win32</AssemblyIdentity>
@@ -164,7 +165,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>sqlite;lua\src;tinyxml;zlib\src;skein\Optimized_32bit;sqlite\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>sqlite;lua\src;tinyxml;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;_BUILD_GUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
@@ -197,7 +198,7 @@
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(OutDir)PtokaX.exe</OutputFile>
+      <OutputFile>$(OutDir)PtokaX-gui.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -227,7 +228,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>sqlite;lua\src;tinyxml;zlib\src;skein\Optimized_32bit;sqlite\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>sqlite;lua\src;tinyxml;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_PtokaX_TESTING_;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;_BUILD_GUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
@@ -260,7 +261,7 @@
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(OutDir)PtokaX.exe</OutputFile>
+      <OutputFile>$(OutDir)PtokaX-gui.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;sqlite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -307,7 +308,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)PtokaX-x64.exe</OutputFile>
+      <OutputFile>$(OutDir)PtokaX-gui-x64.exe</OutputFile>
       <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -321,7 +322,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>sqlite;lua\src;tinyxml;zlib\src;skein\Optimized_32bit;sqlite\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>sqlite;lua\src;tinyxml;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;_BUILD_GUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
@@ -350,7 +351,7 @@
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <ShowProgress>NotSet</ShowProgress>
       <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml-x64.lib;zlib-x64.lib;PXLua-x64.lib;skein-x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)PtokaX-x64.exe</OutputFile>
+      <OutputFile>$(OutDir)PtokaX-gui-x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -383,7 +384,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>sqlite;lua\src;tinyxml;zlib\src;skein\Optimized_32bit;sqlite\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>sqlite;lua\src;tinyxml;zlib\src;skein\Optimized_32bit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_PtokaX_TESTING_;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;_BUILD_GUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
@@ -412,7 +413,7 @@
       <AdditionalOptions>/FIXED:NO /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <ShowProgress>NotSet</ShowProgress>
       <AdditionalDependencies>ws2_32.lib;comctl32.lib;Iphlpapi.lib;Dbghelp.lib;tinyxml-x64.lib;zlib-x64.lib;PXLua-x64.lib;skein-x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)PtokaX-x64.exe</OutputFile>
+      <OutputFile>$(OutDir)PtokaX-gui-x64.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <AdditionalLibraryDirectories>lua;tinyxml;zlib;skein;sqlite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
