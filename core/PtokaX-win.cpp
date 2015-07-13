@@ -353,7 +353,6 @@ int __cdecl main(int argc, char* argv[]) {
         ExceptionHandlingUnitialize();
 	} 
 	else
-#endif // _BUILD_GUI 
 	{
 	    SERVICE_TABLE_ENTRY DispatchTable[] = {
 	        { sServiceName, StartService },
