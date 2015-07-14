@@ -55,12 +55,12 @@ OBJS = $(CURDIR)/obj/colUsers.o $(CURDIR)/obj/DcCommands.o $(CURDIR)/obj/DeFlood
 PtokaX: INCLUDE = -Iskein/Optimized_32bit -I/usr/include -I/usr/include/lua5.1
 PtokaX: $(OBJS)
 	cd skein; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lz -llua5.1 -ltinyxml
+	$(CXX) $(OBJS) $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lz -llua5.1 -ltinyxml -lrt
 
 lua52: INCLUDE = -Iskein/Optimized_32bit -I/usr/include -I/usr/include/lua5.2
 lua52: $(OBJS)
 	cd skein; $(MAKE)
-	$(CXX) $(OBJS) $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lz -llua5.2 -ltinyxml
+	$(CXX) $(OBJS) $(CURDIR)/skein/skein.a -o PtokaX -lstdc++ -lpthread -lm -lz -llua5.2 -ltinyxml -lrt
 
 centos: CXXFLAGS = -O -g -Wall -Wextra -DTIXML_USE_STL
 centos: $(OBJS)
