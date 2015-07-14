@@ -613,11 +613,10 @@ bool HashIP(const char * sIP, uint8_t * ui128IpHash) {
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 uint16_t GetIpTableIdx(const uint8_t * ui128IpHash) {
-	unsigned char c = 0;
     uint32_t h = 5381;
 
 	for(uint8_t ui8i = 0; ui8i < 16; ui8i++) {
-        c = (unsigned char)ui128IpHash[ui8i];
+        unsigned char c = (unsigned char)ui128IpHash[ui8i];
         h += (h << 5);
         h ^= c;
     }
@@ -872,7 +871,7 @@ int GetWlcmMsg(char * sWlcmMsg) {
 
 #ifdef _WIN32
 	string GetMemStat() {
-		string sStat = "";
+		string sStat;
 
 	    PROCESS_MEMORY_COUNTERS pmc;
 	    pmc.cb = sizeof(pmc);

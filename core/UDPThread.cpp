@@ -164,10 +164,9 @@ void UDPThread::Resume() {
 void UDPThread::Run() {
     sockaddr_storage sas;
 	socklen_t sas_len = sizeof(sockaddr_storage);
-	int len = 0;
 
 	while(bTerminated == false) {
-		len = recvfrom(sock, rcvbuf, 4095, 0, (struct sockaddr *)&sas, &sas_len);
+		int len = recvfrom(sock, rcvbuf, 4095, 0, (struct sockaddr *)&sas, &sas_len);
 
 		if(len < 5 || strncmp(rcvbuf, "$SR ", 4) != 0) {
 			continue;

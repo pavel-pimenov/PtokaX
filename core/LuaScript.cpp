@@ -252,7 +252,7 @@ Script * Script::CreateScript(char * Name, const bool &enabled) {
     }
 
 #ifdef _WIN32
-	string ExtractedFilename = ExtractFileName(Name);
+	string ExtractedFilename(ExtractFileName(Name));
 	size_t szNameLen = ExtractedFilename.size();
 
     pScript->sName = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNameLen+1);

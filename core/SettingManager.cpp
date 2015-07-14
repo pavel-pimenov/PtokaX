@@ -261,6 +261,7 @@ void clsSettingManager::Load() {
     if(doc.LoadFile() == false) {
         if(doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY) {
             char msg[2048];
+			msg[0] = 0;
             int imsgLen = sprintf(msg, "Error loading file Settings.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
 			CheckSprintf(imsgLen, 2048, "clsSettingManager::Load");
 #ifdef _BUILD_GUI

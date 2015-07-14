@@ -41,7 +41,7 @@
 #endif
 //---------------------------------------------------------------------------
 LPTOP_LEVEL_EXCEPTION_FILTER pOldTLEF = NULL;
-string sLogPath = "", sDebugSymbolsFile = "";
+string sLogPath, sDebugSymbolsFile;
 static const size_t szDebugBufLen = 512;
 static char sDebugBuf[szDebugBufLen];
 //---------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void GetSourceFileInfo(DWORD64 dw64Address, FILE * fw) {
 void GetFunctionInfo(DWORD64 dw64Address, FILE * fw) {
 	DWORD64 dw64Displacement = 0;
 
-    char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+    char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)] = {0};
     PSYMBOL_INFO pSym = (PSYMBOL_INFO)buffer;
 
     pSym->SizeOfStruct = sizeof(SYMBOL_INFO);
@@ -203,7 +203,7 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
 		exit(EXIT_FAILURE);
     }
 
-    string sCrashMsg = "Something bad happen and PtokaX crashed. PtokaX collected information why this crash happen to file ";
+    string sCrashMsg("Something bad happen and PtokaX crashed. PtokaX collected information why this crash happen to file ");
     sCrashMsg += string(sDebugBuf);
     sCrashMsg += ", please send that file to PPK@PtokaX.org!";
 

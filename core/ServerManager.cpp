@@ -74,14 +74,14 @@ static ServerThread * pServersE = NULL;
     UINT_PTR clsServerManager::regtimer = 0;
 
 	HANDLE clsServerManager::hConsole = NULL, clsServerManager::hLuaHeap = NULL, clsServerManager::hPtokaXHeap = NULL, clsServerManager::hRecvHeap = NULL, clsServerManager::hSendHeap = NULL;
-	string clsServerManager::sLuaPath = "", clsServerManager::sOS = "";
+	string clsServerManager::sLuaPath, clsServerManager::sOS;
 #endif
 
 #ifdef __MACH__
 	clock_serv_t clsServerManager::csMachClock;
 #endif
 
-string clsServerManager::sPath = "", clsServerManager::sScriptPath = "", clsServerManager::sTitle = "";
+string clsServerManager::sPath, clsServerManager::sScriptPath, clsServerManager::sTitle;
 size_t clsServerManager::szGlobalBufferSize = 0;
 char * clsServerManager::pGlobalBuffer = NULL;
 bool clsServerManager::bCmdAutoStart = false, clsServerManager::bCmdNoAutoStart = false, clsServerManager::bCmdNoTray = false, clsServerManager::bUseIPv4 = true,
