@@ -65,3 +65,4 @@ valgrind*.log
 
 /obj/PtokaX.Build.CppClean.log
 *.ipch
+/obj/PtokaX.exe.intermediate.manifest

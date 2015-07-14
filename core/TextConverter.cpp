@@ -31,12 +31,12 @@ TextConverter * TextConverter::mPtr = NULL;
 	static wchar_t wcTempBuf[2048];
 #else
 	#ifndef ICONV_CONST
-#if defined(__sun) && defined(__SVR4)
-	#define ICONV_CONST const
+		#if defined(__NetBSD__) || (defined(__sun) && defined(__SVR4))
+			#define ICONV_CONST const
 		#else
 			#define ICONV_CONST
 		#endif
-#endif
+	#endif
 #endif
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

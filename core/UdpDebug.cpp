@@ -554,12 +554,12 @@ void clsUdpDebug::Send(const char * sScriptName, char * sMessage, const size_t &
     UdpDbgItem * cur = NULL,
         * next = pScriptList;
 
-    const size_t szNameLen = strlen(sScriptName);
 	while(next != NULL) {
         cur = next;
         next = cur->pNext;
 
 		if(strcasecmp(cur->sNick, sScriptName) == 0) {
+            size_t szNameLen = strlen(sScriptName);
             size_t szLen = 4+clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME]+szNameLen+2+szMsgLen;
 
 #ifdef _WIN32

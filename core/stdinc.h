@@ -77,16 +77,23 @@
 	#include <iconv.h>
 #endif
 #include <fcntl.h>
+#ifdef _WIN32
+	#define TIXML_USE_STL
+#endif
 #include <tinyxml.h>
 #ifdef _WIN32
 	#include <psapi.h>
 	#include <io.h>
 	#include <Iphlpapi.h>
 #endif
+#ifdef __MACH__
+	#include <mach/clock.h>
+	#include <mach/mach.h>
+#endif 
 #include "pxstring.h"
 //---------------------------------------------------------------------------
 #define PtokaXVersionString "0.5.1.0"
-#define BUILD_NUMBER "502"
+#define BUILD_NUMBER "507"
 
 #ifdef _WIN32
     #define PRIu64 "I64u"

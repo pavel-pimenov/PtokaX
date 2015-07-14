@@ -6,9 +6,10 @@ PtokaX DC hub software - PPK (c) 2006/2015
 
 ----------------------------------------Next Release...---------------------------------------
 Added: Support to compile PtokaX on FreeBSD with Lua 5.2 and 5.3.
-Added: Support to compile PtokaX on Solaris and Fedora.
+Added: Support to compile PtokaX on Solaris, Fedora, OpenBSD, NetBSD and Mac OS X.
 Fixed: Few minor issues in Lua api.
 Fixed: Compile on FreeBSD 10.1, Haiku, Solaris and illumos.
+Changed: Timer handling on Unixes.
 
 
 -------------------------------------0.5.1.0 30 June 2015-------------------------------------
