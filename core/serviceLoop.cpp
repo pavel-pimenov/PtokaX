@@ -113,10 +113,6 @@ clsServiceLoop::clsServiceLoop() : ui64LstUptmTck(clsServerManager::ui64ActualTi
 	ui32LastSendRest(0), ui32SendRestsPeak(0), ui32LastRecvRest(0), ui32RecvRestsPeak(0), ui32LoopsForLogins(0), bRecv(true) {
     msg[0] = '\0';
 
-#ifndef _WIN32
-	pthread_mutex_init(&mtxAcceptQueue, NULL);
-#endif
-
 	clsServerManager::bServerTerminated = false;
 	
 #ifdef _WIN32
