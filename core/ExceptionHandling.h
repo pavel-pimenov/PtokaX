@@ -21,8 +21,18 @@
 #define ExceptionHandlingH
 //---------------------------------------------------------------------------
 
+#ifdef PTOKAX_DEAD_CODE
 void ExceptionHandlingInitialize(const string &sPath, char * sAppPath);
 void ExceptionHandlingUnitialize();
+#else
+static inline void ExceptionHandlingInitialize(const string &, char *)
+{
+}
+static inline void ExceptionHandlingUnitialize()
+{
+}
+#endif
+
 //---------------------------------------------------------------------------
 
 #endif

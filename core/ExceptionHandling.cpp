@@ -20,6 +20,8 @@
 #include "stdinc.h"
 //---------------------------------------------------------------------------
 #include "ExceptionHandling.h"
+
+#ifdef PTOKAX_DEAD_CODE
 //---------------------------------------------------------------------------
 #include "LuaInc.h"
 #include "ServerManager.h"
@@ -327,3 +329,4 @@ void ExceptionHandlingUnitialize() {
     SetUnhandledExceptionFilter(pOldTLEF);
 }
 //---------------------------------------------------------------------------
+#endif //  PTOKAX_DEAD_CODE
