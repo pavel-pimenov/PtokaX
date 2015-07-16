@@ -47,9 +47,7 @@ private:
         UdpDbgItem * pPrev, * pNext;
         bool bIsScript;
     };
-
-    clsUdpDebug(const clsUdpDebug&);
-    const clsUdpDebug& operator=(const clsUdpDebug&);
+    DISALLOW_COPY_AND_ASSIGN(clsUdpDebug);
 public:
     static clsUdpDebug * mPtr;
 

@@ -52,9 +52,6 @@ public:
 private:
     bool bIgnoreItemChanged;
 
-    clsProfilesDialog(const clsProfilesDialog&);
-    const clsProfilesDialog& operator=(const clsProfilesDialog&);
-
     LRESULT ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     void AddAllProfiles();
@@ -64,6 +61,8 @@ private:
     void RenameProfile(const int &iProfile);
     void UpdateUpDown();
     void OnPermissionChanged(const LPNMLISTVIEW &pListView);
+
+    DISALLOW_COPY_AND_ASSIGN(clsProfilesDialog);
 };
 //------------------------------------------------------------------------------
 

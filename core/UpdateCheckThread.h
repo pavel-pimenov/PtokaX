@@ -42,8 +42,7 @@ private:
     bool Receive();
     bool SendHeader();
 
-    clsUpdateCheckThread(const clsUpdateCheckThread&);
-    const clsUpdateCheckThread& operator=(const clsUpdateCheckThread&);
+    DISALLOW_COPY_AND_ASSIGN(clsUpdateCheckThread);
 public:
     static clsUpdateCheckThread * mPtr;
 

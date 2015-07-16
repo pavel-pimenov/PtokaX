@@ -57,8 +57,6 @@ private:
 
     bool bSortAscending;
 
-    clsRegisteredUsersDialog(const clsRegisteredUsersDialog&);
-    const clsRegisteredUsersDialog& operator=(const clsRegisteredUsersDialog&);
 
     LRESULT RegisteredUsersDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -67,6 +65,7 @@ private:
     void RemoveRegs();
     void OnContextMenu(HWND hWindow, LPARAM lParam);
     void ChangeReg();
+    DISALLOW_COPY_AND_ASSIGN(clsRegisteredUsersDialog);
 };
 //------------------------------------------------------------------------------
 

@@ -59,13 +59,12 @@ public:
 	void BanDeleted(BanItem * pBan);
 private:
     BanItem * pBanToChange;
-
-    clsBanDialog(const clsBanDialog&);
-    const clsBanDialog& operator=(const clsBanDialog&);
-
+    
     LRESULT BanDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     bool OnAccept();
+
+    DISALLOW_COPY_AND_ASSIGN(clsBanDialog);
 };
 //------------------------------------------------------------------------------
 

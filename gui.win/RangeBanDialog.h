@@ -57,12 +57,10 @@ public:
 private:
     RangeBanItem * pRangeBanToChange;
 
-    clsRangeBanDialog(const clsRangeBanDialog&);
-    const clsRangeBanDialog& operator=(const clsRangeBanDialog&);
-
     LRESULT RangeBanDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     bool OnAccept();
+    DISALLOW_COPY_AND_ASSIGN(clsRangeBanDialog);
 };
 //------------------------------------------------------------------------------
 

@@ -56,8 +56,6 @@ public:
     void RemoveUser(const User * curUser);
     User * GetUser();
 private:
-    clsMainWindowPageUsersChat(const clsMainWindowPageUsersChat&);
-    const clsMainWindowPageUsersChat& operator=(const clsMainWindowPageUsersChat&);
 
     LRESULT MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -70,6 +68,7 @@ private:
 
     HWND GetWindowHandle();
     void UpdateSplitterParts();
+    DISALLOW_COPY_AND_ASSIGN(clsMainWindowPageUsersChat);
 };
 //------------------------------------------------------------------------------
 

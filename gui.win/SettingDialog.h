@@ -44,13 +44,11 @@ public:
 	void DoModal(HWND hWndParent);
 private:
     SettingPage * SettingPages[12];
-
-    clsSettingDialog(const clsSettingDialog&);
-    const clsSettingDialog& operator=(const clsSettingDialog&);
-
+ 
     LRESULT SettingDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     void OnSelChanged();
+    DISALLOW_COPY_AND_ASSIGN(clsSettingDialog);
 };
 //------------------------------------------------------------------------------
 
