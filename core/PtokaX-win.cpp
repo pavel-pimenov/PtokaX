@@ -36,8 +36,7 @@
 #include "DbgHelp.h"
 #include "../doctor-dump/CrashRpt.h"
 
-template<typename T>
-static T getFilePath(const T& path)
+template<typename T> static T getFilePath(const T& path)
 {
 	const auto i = path.rfind('\\');
 	return (i != string_t::npos) ? path.substr(0, i + 1) : path;
@@ -67,7 +66,7 @@ crash_rpt::ApplicationInfo* GetApplicationInfo()
 	appInfo.V[0] = 0;
 	appInfo.V[1] = 5;
 	appInfo.V[2] = 1;
-	appInfo.V[3] = 0;
+	appInfo.V[3] = atoi(BUILD_NUMBER);
 	return &appInfo;
 }
 
@@ -382,10 +381,11 @@ int __cdecl main(int argc, char* argv[]) {
 	    } else if(stricmp(argv[i], "/generatexmllanguage") == NULL) {
 	        clsLanguageManager::GenerateXmlExample();
 	        return EXIT_SUCCESS;
-	    } else if(strcmp(argv[i], "/crash-test-doctor-dump") != NULL)
-		{
-			crash_test_doctor_dump();
-		}
+	    } 
+		// else if(strcmp(argv[i], "/crash-test-doctor-dump") == NULL)
+		// {
+		//	crash_test_doctor_dump();
+		// }
 	}
 
 	if(bInstallService == true) {

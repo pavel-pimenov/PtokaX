@@ -67,3 +67,4 @@ valgrind*.log
 *.ipch
 /obj/PtokaX.exe.intermediate.manifest
 /*.7z
+/compiled/*.dmp
