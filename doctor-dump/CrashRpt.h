@@ -560,16 +560,16 @@ private:
 	bool m_bWorking;
 	bool m_bSkipAssertsAdded;
 
-	typedef BOOL (*pfnInitCrashRpt)(ApplicationInfo* applicationInfo, HandlerSettings* handlerSettings, BOOL ownProcess);
-	typedef LONG (*pfnSendReport)(EXCEPTION_POINTERS* exceptionPointers);
-	typedef BOOL (*pfnIsReadyToExit)();
-	typedef void (*pfnSetCustomInfo)(LPCWSTR text);
-	typedef void (*pfnAddUserInfoToReport)(LPCWSTR key, LPCWSTR value);
-	typedef void (*pfnRemoveUserInfoFromReport)(LPCWSTR key);
-	typedef void (*pfnAddFileToReport)(LPCWSTR path, LPCWSTR reportFileName /* = NULL */);
-	typedef void (*pfnRemoveFileFromReport)(LPCWSTR path);
-	typedef BOOL (*pfnGetVersionFromApp)(ApplicationInfo* appInfo);
-	typedef BOOL (*pfnGetVersionFromFile)(LPCWSTR path, ApplicationInfo* appInfo);
+	typedef BOOL (__cdecl * pfnInitCrashRpt)(ApplicationInfo* applicationInfo, HandlerSettings* handlerSettings, BOOL ownProcess);
+	typedef LONG (__cdecl * pfnSendReport)(EXCEPTION_POINTERS* exceptionPointers);
+	typedef BOOL (__cdecl * pfnIsReadyToExit)();
+	typedef void (__cdecl * pfnSetCustomInfo)(LPCWSTR text);
+	typedef void (__cdecl * pfnAddUserInfoToReport)(LPCWSTR key, LPCWSTR value);
+	typedef void (__cdecl * pfnRemoveUserInfoFromReport)(LPCWSTR key);
+	typedef void (__cdecl * pfnAddFileToReport)(LPCWSTR path, LPCWSTR reportFileName /* = NULL */);
+	typedef void (__cdecl * pfnRemoveFileFromReport)(LPCWSTR path);
+	typedef BOOL (__cdecl * pfnGetVersionFromApp)(ApplicationInfo* appInfo);
+	typedef BOOL (__cdecl * pfnGetVersionFromFile)(LPCWSTR path, ApplicationInfo* appInfo);
 
 	pfnInitCrashRpt m_InitCrashRpt;
 	pfnSendReport m_SendReport;

@@ -32,6 +32,88 @@
 //---------------------------------------------------------------------------
 #include "ExceptionHandling.h"
 #include "LuaScript.h"
+#ifndef _DEBUG
+#include "DbgHelp.h"
+#include "../doctor-dump/CrashRpt.h"
+
+template<typename T>
+static T getFilePath(const T& path)
+{
+	const auto i = path.rfind('\\');
+	return (i != string_t::npos) ? path.substr(0, i + 1) : path;
+}
+static void crash_test_doctor_dump()
+{
+#ifndef _DEBUG
+	*((int*)0) = 0;
+#endif
+}
+
+crash_rpt::ApplicationInfo* GetApplicationInfo()
+{
+	static crash_rpt::ApplicationInfo appInfo;
+	appInfo.ApplicationInfoSize = sizeof(appInfo);
+	appInfo.ApplicationGUID = "11B2CC9B-B1E9-4894-9AE6-6C4CB3DFDECA";
+
+	    
+#ifdef _WIN64
+	appInfo.Prefix = "ptokax-console-x64";             // Prefix that will be used with the dump name: YourPrefix_v1.v2.v3.v4_YYYYMMDD_HHMMSS.mini.dmp.
+	appInfo.AppName = L"PtokaX++ console x64";         // Application name that will be used in message box.
+#else
+	appInfo.Prefix = "ptokax-console-x86";             // Prefix that will be used with the dump name: YourPrefix_v1.v2.v3.v4_YYYYMMDD_HHMMSS.mini.dmp.
+	appInfo.AppName = L"PtokaX++ console x86";             // Application name that will be used in message box.
+#endif
+	appInfo.Company = L"PtokaX++ developers";  // Company name that will be used in message box.
+	appInfo.V[0] = 0;
+	appInfo.V[1] = 5;
+	appInfo.V[2] = 1;
+	appInfo.V[3] = 0;
+	return &appInfo;
+}
+
+crash_rpt::HandlerSettings* GetHandlerSettings()
+{
+	static wchar_t g_path_sender[MAX_PATH] = {0};
+	static wchar_t g_path_dbhelp[MAX_PATH] = {0};
+	::GetModuleFileNameW(NULL, g_path_sender, MAX_PATH);
+	wcscpy(g_path_dbhelp, g_path_sender);
+	auto l_tslash = wcsrchr(g_path_sender, '\\');
+	if (l_tslash)
+	{
+		l_tslash++;
+#ifdef _WIN64
+		wcscpy(l_tslash, L"sendrpt-x64.exe");
+#else
+		wcscpy(l_tslash, L"sendrpt-x86.exe");
+#endif
+		l_tslash = wcsrchr(g_path_dbhelp, '\\');
+		l_tslash++;
+#ifdef _WIN64
+		wcscpy(l_tslash, L"dbghelp-x64.dll");
+#else
+		wcscpy(l_tslash, L"dbghelp-x86.dll");
+#endif
+	}
+	static crash_rpt::HandlerSettings g_handlerSettings;
+	g_handlerSettings.HandlerSettingsSize = sizeof(g_handlerSettings);
+	g_handlerSettings.OpenProblemInBrowser = TRUE;
+	g_handlerSettings.SendRptPath = g_path_sender;
+	g_handlerSettings.DbgHelpPath = g_path_dbhelp;
+	return &g_handlerSettings;
+}
+
+crash_rpt::CrashRpt g_crashRpt(
+#ifdef _WIN64
+    L"crashrpt-x64.dll",
+#else
+    L"crashrpt-x86.dll",
+#endif
+    GetApplicationInfo(),
+    GetHandlerSettings());
+
+#endif
+
+
 //---------------------------------------------------------------------------
 
 static int InstallService(const char * sServiceName, const char * sPath) {
@@ -203,81 +285,6 @@ static void WINAPI StartService(DWORD /*argc*/, char* argv[]) {
 //---------------------------------------------------------------------------
 
 
-#ifndef _DEBUG
-#include "DbgHelp.h"
-#include "../doctor-dump/CrashRpt.h"
-template<typename T>
-static T getFilePath(const T& path)
-{
-	const auto i = path.rfind('\\');
-	return (i != string_t::npos) ? path.substr(0, i + 1) : path;
-}
-
-crash_rpt::ApplicationInfo* GetApplicationInfo()
-{
-	static crash_rpt::ApplicationInfo appInfo;
-	appInfo.ApplicationInfoSize = sizeof(appInfo);
-	appInfo.ApplicationGUID = "11B2CC9B-B1E9-4894-9AE6-6C4CB3DFDECA";
-
-	    
-#ifdef _WIN64
-	appInfo.Prefix = "ptokax-console-x64";             // Prefix that will be used with the dump name: YourPrefix_v1.v2.v3.v4_YYYYMMDD_HHMMSS.mini.dmp.
-	appInfo.AppName = L"PtokaX++ console x64";         // Application name that will be used in message box.
-#else
-	appInfo.Prefix = "ptokax-console-x86";             // Prefix that will be used with the dump name: YourPrefix_v1.v2.v3.v4_YYYYMMDD_HHMMSS.mini.dmp.
-	appInfo.AppName = L"PtokaX++ console x86";             // Application name that will be used in message box.
-#endif
-	appInfo.Company = L"PtokaX++ developers";  // Company name that will be used in message box.
-	appInfo.V[0] = 0;
-	appInfo.V[1] = 5;
-	appInfo.V[2] = 1;
-	appInfo.V[3] = 0;
-	return &appInfo;
-}
-
-crash_rpt::HandlerSettings* GetHandlerSettings()
-{
-	static wchar_t g_path_sender[MAX_PATH] = {0};
-	static wchar_t g_path_dbhelp[MAX_PATH] = {0};
-	::GetModuleFileNameW(NULL, g_path_sender, MAX_PATH);
-	wcscpy(g_path_dbhelp, g_path_sender);
-	auto l_tslash = wcsrchr(g_path_sender, '\\');
-	if (l_tslash)
-	{
-		l_tslash++;
-#ifdef _WIN64
-		wcscpy(l_tslash, L"sendrpt-x64.exe");
-#else
-		wcscpy(l_tslash, L"sendrpt-x86.exe");
-#endif
-		l_tslash = wcsrchr(g_path_dbhelp, '\\');
-		l_tslash++;
-#ifdef _WIN64
-		wcscpy(l_tslash, L"dbghelp-x64.dll");
-#else
-		wcscpy(l_tslash, L"dbghelp-x86.dll");
-#endif
-	}
-	static crash_rpt::HandlerSettings g_handlerSettings;
-	g_handlerSettings.HandlerSettingsSize = sizeof(g_handlerSettings);
-	g_handlerSettings.OpenProblemInBrowser = TRUE;
-	g_handlerSettings.SendRptPath = g_path_sender;
-	g_handlerSettings.DbgHelpPath = g_path_dbhelp;
-	return &g_handlerSettings;
-}
-
-crash_rpt::CrashRpt g_crashRpt(
-#ifdef _WIN64
-    L"crashrpt-x64.dll",
-#else
-    L"crashrpt-x86.dll",
-#endif
-    GetApplicationInfo(),
-    GetHandlerSettings());
-
-#endif
-
-
 int __cdecl main(int argc, char* argv[]) {
     ::SetDllDirectory("");
 
@@ -375,7 +382,10 @@ int __cdecl main(int argc, char* argv[]) {
 	    } else if(stricmp(argv[i], "/generatexmllanguage") == NULL) {
 	        clsLanguageManager::GenerateXmlExample();
 	        return EXIT_SUCCESS;
-	    }
+	    } else if(strcmp(argv[i], "/crash-test-doctor-dump") != NULL)
+		{
+			crash_test_doctor_dump();
+		}
 	}
 
 	if(bInstallService == true) {
