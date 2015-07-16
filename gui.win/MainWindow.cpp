@@ -80,9 +80,7 @@ clsMainWindow::~clsMainWindow() {
     delete clsGuiSettingManager::mPtr;
 
     for(uint8_t ui8i = 0; ui8i < (sizeof(MainWindowPages) / sizeof(MainWindowPages[0])); ui8i++) {
-        if(MainWindowPages[ui8i] != NULL) {
             delete MainWindowPages[ui8i];
-        }
     }
 
     NOTIFYICONDATA nid;
