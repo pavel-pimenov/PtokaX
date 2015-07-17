@@ -170,7 +170,7 @@ void AboutDialog::DoModal(HWND hWndParent) {
 
     ::GetClientRect(hWndWindowItems[WINDOW_HANDLE], &rcParent);
 
-    hWndWindowItems[LBL_PTOKAX_VERSION] = ::CreateWindowEx(0, WC_STATIC, "PtokaX " PtokaXVersionString " [build " BUILD_NUMBER "]", WS_CHILD | WS_VISIBLE | SS_CENTER,
+    hWndWindowItems[LBL_PTOKAX_VERSION] = ::CreateWindowEx(0, WC_STATIC, "PtokaX++ " PtokaXVersionString " [build " BUILD_NUMBER "]", WS_CHILD | WS_VISIBLE | SS_CENTER,
         73, 10, ScaleGui(290), ScaleGui(25), hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
     ::SendMessage(hWndWindowItems[LBL_PTOKAX_VERSION], WM_SETFONT, (WPARAM)hBigFont, MAKELPARAM(TRUE, 0));
 
@@ -197,7 +197,10 @@ void AboutDialog::DoModal(HWND hWndParent) {
     "PtokaX is a server-software for the Direct Connect P2P Network.\\par\n"
     "It's currently in developing by PPK and Ptaczek since May 2002.\\par\n"
     "\\par\n"
-    "\\b Homepage:\\par\n"
+    "\\b Fork homepage:\\par\n"
+    "https://github.com/pavel-pimenov/PtokaX\\par\n"
+    "\\par\n"
+    "\\b Base homepage:\\par\n"
     "http://www.PtokaX.org\\par\n"
     "\\par\n"
     "LUA Scripts forum:\\par\n"

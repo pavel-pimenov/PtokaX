@@ -300,7 +300,7 @@ int __cdecl main(int argc, char* argv[]) {
     ::FreeLibrary(hKernel32);
 #endif
 
-	clsServerManager::sTitle = "PtokaX DC Hub " PtokaXVersionString " [build " BUILD_NUMBER "]";
+	clsServerManager::sTitle = "PtokaX++ DC Hub " PtokaXVersionString " [build " BUILD_NUMBER "]";
 #ifdef _DEBUG
 	clsServerManager::sTitle += " [debug]";
 #endif

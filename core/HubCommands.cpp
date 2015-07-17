@@ -4743,7 +4743,7 @@ bool clsHubCommands::DoCommand(User * curUser, char * sCommand, const size_t &sz
 				Statinfo+="------------------------------------------------------------\n";
 				Statinfo+="Uptime: "+string(clsServerManager::ui64Days)+" days, "+string(clsServerManager::ui64Hours) + " hours, " + string(clsServerManager::ui64Mins) + " minutes\n";
 
-                Statinfo+="Version: PtokaX DC Hub " PtokaXVersionString
+                Statinfo+="Version: PtokaX++ DC Hub " PtokaXVersionString
 #ifdef _WIN32
     #ifdef _M_X64
                 " x64"
