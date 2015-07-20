@@ -289,11 +289,17 @@ void clsEventQueue::ProcessEvents() {
 
         switch(cur->ui8Id) {
             case EVENT_REGSOCK_MSG:
-                clsUdpDebug::mPtr->Broadcast(cur->sMsg);
+                     {
+                size_t szLen = strlen(cur->sMsg);
+                clsUdpDebug::mPtr->Broadcast(cur->sMsg,szLen);
                 break;
+                }
             case EVENT_SRVTHREAD_MSG:
+                {
+                 size_t szLen = strlen(cur->sMsg);
                 clsUdpDebug::mPtr->Broadcast(cur->sMsg);
                 break;
+                 }
             case EVENT_UDP_SR: {
                 size_t szMsgLen = strlen(cur->sMsg);
                 clsServerManager::ui64BytesRead += (uint64_t)szMsgLen;
@@ -346,3 +352,4 @@ void clsEventQueue::ProcessEvents() {
     }
 }
 //---------------------------------------------------------------------------
+

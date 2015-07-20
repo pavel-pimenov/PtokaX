@@ -53,8 +53,7 @@ private:
     void OnLoadScript();
     void OnCheckSyntax();
     void OnSaveScript();
-    string prepareLoadSaveScript(OPENFILENAME& OpenFileName, bool isSave);
-};
+    string prepareLoadSaveScript(OPENFILENAME& OpenFileName, bool isSave); //[+]FlylinkDC++
 //------------------------------------------------------------------------------
 
 #endif
