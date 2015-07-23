@@ -585,7 +585,7 @@ bool clsServerManager::Start() {
 //  if(tlsenabled == true) {
 /*        TLSManager = new (std::nothrow) TLSMan();
         if(TLSManager == NULL) {
-    		AppendDebugLog("%s - [MEM] Cannot allocate TLSManager in ServerStart\n", 0);
+    		AppendDebugLog("%s - [MEM] Cannot allocate TLSManager in ServerStart\n");
         	exit(EXIT_FAILURE);
         }*/
 //  }
