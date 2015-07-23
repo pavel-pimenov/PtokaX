@@ -269,7 +269,8 @@ void OnRedirectAllOk(char * sLine, const int &iLen) {
 //---------------------------------------------------------------------------
 
 void MainWindowPageStats::OnRedirectAll() {
-    clsUdpDebug::mPtr->Broadcast("[SYS] Redirect All.");
+	const char sRedirectAll[] = "[SYS] Redirect All.";
+    clsUdpDebug::mPtr->Broadcast(sRedirectAll, sizeof(sRedirectAll)-1);
 
 	LineDialog * pRedirectAllDlg = new (std::nothrow) LineDialog(&OnRedirectAllOk);
 
@@ -287,10 +288,8 @@ void OnMassMessageOk(char * sLine, const int &iLen) {
         return;
     }
 
-    int imsgLen = sprintf(sMSG, "%s $<%s> %s|",
-        clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false ? clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK] : clsSettingManager::mPtr->sTexts[SETTXT_BOT_NICK],
-        clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false ? clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK] : clsSettingManager::mPtr->sTexts[SETTXT_BOT_NICK],
-        sLine);
+    int imsgLen = sprintf(sMSG, "%s $<%s> %s|", clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false ? clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK] : clsSettingManager::mPtr->sTexts[SETTXT_BOT_NICK], 
+		clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false ? clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK] : clsSettingManager::mPtr->sTexts[SETTXT_BOT_NICK], sLine);
     if(CheckSprintf(imsgLen, iLen+256, "OnMassMessageOk") == false) {
         return;
     }

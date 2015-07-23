@@ -623,31 +623,26 @@ void clsMainWindowPageUsersChat::DisconnectUser() {
     char msg[1024];
 
     // disconnect the user
-    int imsgLen = sprintf(msg, "[SYS] User %s (%s) closed by %s", curUser->sNick, curUser->sIP, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
-    if(CheckSprintf(imsgLen, 1024, "clsMainWindowPageUsersChat::DisconnectUser1") == true) {
-        clsUdpDebug::mPtr->Broadcast(msg, imsgLen);
-    }
+	clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) closed by %s", curUser->sNick, curUser->sIP, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
 
     curUser->Close();
 
     if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true) {
         if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true) {
-            imsgLen = sprintf(msg, "%s $<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC],
-                curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], curUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_WAS_CLOSED_BY], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
+            int imsgLen = sprintf(msg, "%s $<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], curUser->sIP, 
+				clsLanguageManager::mPtr->sTexts[LAN_WAS_CLOSED_BY], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
             if(CheckSprintf(imsgLen, 1024, "clsMainWindowPageUsersChat::DisconnectUser2") == true) {
 				clsGlobalDataQueue::mPtr->SingleItemStore(msg, imsgLen, NULL, 0, clsGlobalDataQueue::SI_PM2OPS);
             }
         } else {
-            imsgLen = sprintf(msg, "<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], curUser->sIP,
-                clsLanguageManager::mPtr->sTexts[LAN_WAS_CLOSED_BY], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
+            int imsgLen = sprintf(msg, "<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], curUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_WAS_CLOSED_BY], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
             if(CheckSprintf(imsgLen, 1024, "clsMainWindowPageUsersChat::DisconnectUser3") == true) {
                 clsGlobalDataQueue::mPtr->AddQueueItem(msg, imsgLen, NULL, 0, clsGlobalDataQueue::CMD_OPS);
             }
         }
     }
 
-    imsgLen = sprintf(msg, "<%s> *** %s %s %s %s.", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], curUser->sIP,
-        clsLanguageManager::mPtr->sTexts[LAN_WAS_CLOSED]);
+    int imsgLen = sprintf(msg, "<%s> *** %s %s %s %s.", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], curUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_WAS_CLOSED]);
     if(CheckSprintf(imsgLen, 1024, "clsMainWindowPageUsersChat::DisconnectUser4") == true) {
         RichEditAppendText(hWndPageItems[REDT_CHAT], msg);
     }
@@ -655,32 +650,27 @@ void clsMainWindowPageUsersChat::DisconnectUser() {
 //------------------------------------------------------------------------------
 
 void OnKickOk(char * sLine, const int &iLen) {
-    User * curUser = clsMainWindowPageUsersChat::mPtr->GetUser();
+    User * pUser = clsMainWindowPageUsersChat::mPtr->GetUser();
 
-    if(curUser == NULL) {
+    if(pUser == NULL) {
         return;
     }
 
-    clsBanManager::mPtr->TempBan(curUser, iLen == 0 ? NULL : sLine, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK], 0, 0, false);
+    clsBanManager::mPtr->TempBan(pUser, iLen == 0 ? NULL : sLine, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK], 0, 0, false);
 
     char msg[1024];
 
     if(iLen == 0) {
-        int imsgLen = sprintf(msg, "<%s> %s...|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_BEING_KICKED]);
-        if(CheckSprintf(imsgLen, 1024, "OnKickOk") == true) {
-            curUser->SendChar(msg, imsgLen);
-        }
+        pUser->SendFormat("OnKickOk1", false, "<%s> %s...|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_BEING_KICKED]);
     } else {
-        if(iLen > 256) {
-            sLine[255] = '\0';
-            sLine[254] = '.';
-            sLine[253] = '.';
-            sLine[252] = '.';
+        if(iLen > 512) {
+            sLine[513] = '\0';
+            sLine[512] = '.';
+            sLine[511] = '.';
+            sLine[510] = '.';
         }
-        int imsgLen = sprintf(msg, "<%s> %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_BEING_KICKED_BCS], sLine);
-        if(CheckSprintf(imsgLen, 1024, "OnKickOk1") == true) {
-            curUser->SendChar(msg, imsgLen);
-        }
+
+        pUser->SendFormat("OnKickOk2", false, "<%s> %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_BEING_KICKED_BCS], sLine);
     }
 
     if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true) {
@@ -690,8 +680,7 @@ void OnKickOk(char * sLine, const int &iLen) {
             CheckSprintf(imsgLen, 1024, "OnKickOk2");
         }
 
-        int iret = sprintf(msg+imsgLen, "<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], curUser->sIP,
-            clsLanguageManager::mPtr->sTexts[LAN_WAS_KICKED_BY], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
+        int iret = sprintf(msg+imsgLen, "<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], pUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_WAS_KICKED_BY], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
         imsgLen += iret;
         if(CheckSprintf1(iret, imsgLen, 1024, "OnKickOk3") == true) {
             if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true) {
@@ -702,19 +691,15 @@ void OnKickOk(char * sLine, const int &iLen) {
         }
     }
 
-    int imsgLen = sprintf(msg, "<%s> *** %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], curUser->sIP,
-        clsLanguageManager::mPtr->sTexts[LAN_WAS_KICKED]);
+    int imsgLen = sprintf(msg, "<%s> *** %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], pUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_WAS_KICKED]);
     if(CheckSprintf(imsgLen, 1024, "OnKickOk4") == true) {
         RichEditAppendText(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::REDT_CHAT], msg);
     }
 
     // disconnect the user
-    imsgLen = sprintf(msg, "[SYS] User %s (%s) kicked by %s", curUser->sNick, curUser->sIP, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
-    if(CheckSprintf(imsgLen, 1024, "OnKickOk5") == true) {
-        clsUdpDebug::mPtr->Broadcast(msg, imsgLen);
-    }
+	clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) kicked by %s", pUser->sNick, pUser->sIP, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
 
-    curUser->Close();
+    pUser->Close();
 }
 //------------------------------------------------------------------------------
 
@@ -734,32 +719,27 @@ void clsMainWindowPageUsersChat::KickUser() {
 //------------------------------------------------------------------------------
 
 void OnBanOk(char * sLine, const int &iLen) {
-    User * curUser = clsMainWindowPageUsersChat::mPtr->GetUser();
+    User * pUser = clsMainWindowPageUsersChat::mPtr->GetUser();
 
-    if(curUser == NULL) {
+    if(pUser == NULL) {
         return;
     }
 
-    clsBanManager::mPtr->Ban(curUser, iLen == 0 ? NULL : sLine, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK], false);
+    clsBanManager::mPtr->Ban(pUser, iLen == 0 ? NULL : sLine, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK], false);
 
     char msg[1024];
 
     if(iLen == 0) {
-        int imsgLen = sprintf(msg, "<%s> %s...|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_BEING_KICKED]);
-        if(CheckSprintf(imsgLen, 1024, "OnBanOk") == true) {
-            curUser->SendChar(msg, imsgLen);
-        }
+        pUser->SendFormat("OnBanOk1", false, "<%s> %s...|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_BEING_KICKED]);
     } else {
-        if(iLen > 256) {
-            sLine[255] = '\0';
-            sLine[254] = '.';
-            sLine[253] = '.';
-            sLine[252] = '.';
+        if(iLen > 512) {
+            sLine[513] = '\0';
+            sLine[512] = '.';
+            sLine[511] = '.';
+            sLine[510] = '.';
         }
-        int imsgLen = sprintf(msg, "<%s> %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_BEING_BANNED_BECAUSE], sLine);
-        if(CheckSprintf(imsgLen, 1024, "OnBanOk1") == true) {
-            curUser->SendChar(msg, imsgLen);
-        }
+
+        pUser->SendFormat("OnBanOk2", false, "<%s> %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_BEING_BANNED_BECAUSE], sLine);
     }
 
     if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true) {
@@ -769,8 +749,8 @@ void OnBanOk(char * sLine, const int &iLen) {
             CheckSprintf(imsgLen, 1024, "OnBanOk2");
         }
 
-        int iret = sprintf(msg+imsgLen, "<%s> *** %s %s %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP],
-            curUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN], clsLanguageManager::mPtr->sTexts[LAN_BANNED_LWR], clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
+        int iret = sprintf(msg+imsgLen, "<%s> *** %s %s %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], pUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN], clsLanguageManager::mPtr->sTexts[LAN_BANNED_LWR], 
+			clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
         imsgLen += iret;
         if(CheckSprintf1(iret, imsgLen, 1024, "OnBanOk3") == true) {
             if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true) {
@@ -781,19 +761,15 @@ void OnBanOk(char * sLine, const int &iLen) {
         }
     }
 
-    int imsgLen = sprintf(msg, "<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], curUser->sIP,
-        clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN], clsLanguageManager::mPtr->sTexts[LAN_BANNED_LWR]);
+    int imsgLen = sprintf(msg, "<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], pUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN], clsLanguageManager::mPtr->sTexts[LAN_BANNED_LWR]);
     if(CheckSprintf(imsgLen, 1024, "OnBanOk4") == true) {
         RichEditAppendText(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::REDT_CHAT], msg);
     }
 
     // disconnect the user
-    imsgLen = sprintf(msg, "[SYS] User %s (%s) kicked by %s", curUser->sNick, curUser->sIP, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
-    if(CheckSprintf(imsgLen, 1024, "OnBanOk5") == true) {
-        clsUdpDebug::mPtr->Broadcast(msg, imsgLen);
-    }
+	clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) kicked by %s", pUser->sNick, pUser->sIP, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
 
-    curUser->Close();
+    pUser->Close();
 }
 //------------------------------------------------------------------------------
 
@@ -813,19 +789,15 @@ void clsMainWindowPageUsersChat::BanUser() {
 //------------------------------------------------------------------------------
 
 void OnRedirectOk(char * sLine, const int &iLen) {
-    User * curUser = clsMainWindowPageUsersChat::mPtr->GetUser();
+    User * pUser = clsMainWindowPageUsersChat::mPtr->GetUser();
 
-    if(curUser == NULL || iLen == 0 || iLen > 512) {
+    if(pUser == NULL || iLen == 0 || iLen > 512) {
         return;
     }
 
     char msg[2048];
 
-    int imsgLen = sprintf(msg, "<%s> %s %s %s %s.|$ForceMove %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_REDIRECTED_TO],
-        sLine, clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK], sLine);
-    if(CheckSprintf(imsgLen, 2048, "OnRedirectOk") == true) {
-        curUser->SendCharDelayed(msg, imsgLen);
-    }
+    pUser->SendFormat("OnRedirectOk", false, "<%s> %s %s %s %s.|$ForceMove %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_REDIRECTED_TO], sLine, clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK], sLine);
 
     if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true) {
         int imsgLen = 0;
@@ -834,8 +806,7 @@ void OnRedirectOk(char * sLine, const int &iLen) {
             CheckSprintf(imsgLen, 2048, "OnRedirectOk1");
         }
 
-        int iret = sprintf(msg+imsgLen, "<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick,
-            clsLanguageManager::mPtr->sTexts[LAN_WAS_REDIRECTED_TO], sLine, clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
+        int iret = sprintf(msg+imsgLen, "<%s> *** %s %s %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WAS_REDIRECTED_TO], sLine, clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
         imsgLen += iret;
         if(CheckSprintf1(iret, imsgLen, 2048, "OnRedirectOk2") == true) {
             if(clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true) {
@@ -846,18 +817,15 @@ void OnRedirectOk(char * sLine, const int &iLen) {
         }
     }
 
-    imsgLen = sprintf(msg, "<%s> *** %s %s %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], curUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WAS_REDIRECTED_TO], sLine);
+    int imsgLen = sprintf(msg, "<%s> *** %s %s %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WAS_REDIRECTED_TO], sLine);
     if(CheckSprintf(imsgLen, 2048, "OnRedirectOk3") == true) {
         RichEditAppendText(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::REDT_CHAT], msg);
     }
 
     // disconnect the user
-    imsgLen = sprintf(msg, "[SYS] User %s (%s) redirected by %s", curUser->sNick, curUser->sIP, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
-    if(CheckSprintf(imsgLen, 2048, "OnRedirectOk4") == true) {
-        clsUdpDebug::mPtr->Broadcast(msg, imsgLen);
-    }
+	clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) redirected by %s", pUser->sNick, pUser->sIP, clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK]);
 
-    curUser->Close();
+    pUser->Close();
 }
 //------------------------------------------------------------------------------
 

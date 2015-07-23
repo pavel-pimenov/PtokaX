@@ -65,7 +65,7 @@ clsEventQueue::~clsEventQueue() {
 #ifdef _WIN32
         if(cur->sMsg != NULL) {
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sMsg) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate cur->sMsg in clsEventQueue::~clsEventQueue\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate cur->sMsg in clsEventQueue::~clsEventQueue\n");
             }
         }
 #else
@@ -107,7 +107,7 @@ void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg) {
     event * pNewEvent = new (std::nothrow) event;
 
 	if(pNewEvent == NULL) {
-		AppendDebugLog("%s - [MEM] Cannot allocate pNewEvent in clsEventQueue::AddNormal\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot allocate pNewEvent in clsEventQueue::AddNormal\n");
         return;
     }
 
@@ -121,7 +121,7 @@ void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg) {
 		if(pNewEvent->sMsg == NULL) {
             delete pNewEvent;
 
-			AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for pNewEvent->sMsg in clsEventQueue::AddNormal\n", (uint64_t)(szLen+1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pNewEvent->sMsg in clsEventQueue::AddNormal\n", (uint64_t)(szLen+1));
 
             return;
         }
@@ -151,7 +151,7 @@ void clsEventQueue::AddThread(uint8_t ui8Id, char * sMsg, const sockaddr_storage
 	event * pNewEvent = new (std::nothrow) event;
 
 	if(pNewEvent == NULL) {
-		AppendDebugLog("%s - [MEM] Cannot allocate pNewEvent in clsEventQueue::AddThread\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot allocate pNewEvent in clsEventQueue::AddThread\n");
         return;
     }
 
@@ -161,7 +161,7 @@ void clsEventQueue::AddThread(uint8_t ui8Id, char * sMsg, const sockaddr_storage
 		if(pNewEvent->sMsg == NULL) {
             delete pNewEvent;
 
-			AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for pNewEvent->sMsg in clsEventQueue::AddThread\n", (uint64_t)(szLen+1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pNewEvent->sMsg in clsEventQueue::AddThread\n", (uint64_t)(szLen+1));
 
             return;
         }
@@ -187,7 +187,7 @@ void clsEventQueue::AddThread(uint8_t ui8Id, char * sMsg, const sockaddr_storage
         memset(pNewEvent->ui128IpHash, 0, 16);
     }
 
-	Lock l(csEventQueue);
+Lock l(csEventQueue);
 
     if(pThreadS == NULL) {
         pThreadS = pNewEvent;
@@ -268,7 +268,7 @@ void clsEventQueue::ProcessEvents() {
 #ifdef _WIN32
         if(cur->sMsg != NULL) {
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sMsg) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate cur->sMsg in clsEventQueue::ProcessEvents\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate cur->sMsg in clsEventQueue::ProcessEvents\n");
             }
         }
 #else
@@ -277,29 +277,31 @@ void clsEventQueue::ProcessEvents() {
 
         delete cur;
     }
+
 	{
     Lock l(csEventQueue);
+
     next = pThreadS;
+
     pThreadS = NULL;
     pThreadE = NULL;
-	}
+}
+
     while(next != NULL) {
         cur = next;
         next = cur->pNext;
 
         switch(cur->ui8Id) {
-            case EVENT_REGSOCK_MSG:
-                     {
-                size_t szLen = strlen(cur->sMsg);
-                clsUdpDebug::mPtr->Broadcast(cur->sMsg,szLen);
+            case EVENT_REGSOCK_MSG: {
+				size_t szLen = strlen(cur->sMsg);
+                clsUdpDebug::mPtr->Broadcast(cur->sMsg, szLen);
                 break;
-                }
-            case EVENT_SRVTHREAD_MSG:
-                {
-                 size_t szLen = strlen(cur->sMsg);
-                clsUdpDebug::mPtr->Broadcast(cur->sMsg);
+			}
+            case EVENT_SRVTHREAD_MSG: {
+				size_t szLen = strlen(cur->sMsg);
+                clsUdpDebug::mPtr->Broadcast(cur->sMsg, szLen);
                 break;
-                 }
+			}
             case EVENT_UDP_SR: {
                 size_t szMsgLen = strlen(cur->sMsg);
                 clsServerManager::ui64BytesRead += (uint64_t)szMsgLen;
@@ -352,4 +354,3 @@ void clsEventQueue::ProcessEvents() {
     }
 }
 //---------------------------------------------------------------------------
-

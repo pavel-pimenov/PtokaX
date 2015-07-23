@@ -42,7 +42,7 @@ clsTextFilesManager::TextFile::~TextFile() {
 #ifdef _WIN32
     if(sCommand != NULL) {
         if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sCommand) == 0) {
-			AppendDebugLog("%s - [MEM] Cannot deallocate sCommand in clsTextFilesManager::TextFile::~TextFile\n", 0);
+			AppendDebugLog("%s - [MEM] Cannot deallocate sCommand in clsTextFilesManager::TextFile::~TextFile\n");
         }
     }
 #else
@@ -52,7 +52,7 @@ clsTextFilesManager::TextFile::~TextFile() {
 #ifdef _WIN32
     if(sText != NULL) {
         if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sText) == 0) {
-			AppendDebugLog("%s - [MEM] Cannot deallocate sText in clsTextFilesManager::TextFile::~TextFile\n", 0);
+			AppendDebugLog("%s - [MEM] Cannot deallocate sText in clsTextFilesManager::TextFile::~TextFile\n");
         }
     }
 #else
@@ -105,14 +105,13 @@ bool clsTextFilesManager::ProcessTextFilesCmd(User * u, char * cmd, bool fromPM/
 			char * sMSG = (char *)malloc(szChatLen);
 #endif
             if(sMSG == NULL) {
-        		AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sMsg in clsTextFilesManager::ProcessTextFilesCmd\n", (uint64_t)szChatLen);
+        		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sMsg in clsTextFilesManager::ProcessTextFilesCmd\n", (uint64_t)szChatLen);
 
                 return true;
             }
 
             if(bInPM == true) {
-                int iret = sprintf(sMSG, "$To: %s From: %s $<%s> %s", u->sNick, clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC],
-                    cur->sText);
+                int iret = sprintf(sMSG, "$To: %s From: %s $<%s> %s", u->sNick, clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], cur->sText);
                 if(CheckSprintf(iret, szChatLen, "clsTextFilesManager::ProcessTextFilesCmd1") == false) {
                     free(sMSG);
                     return true;
@@ -129,7 +128,7 @@ bool clsTextFilesManager::ProcessTextFilesCmd(User * u, char * cmd, bool fromPM/
 
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMSG) == 0) {
-        		AppendDebugLog("%s - [MEM] Cannot deallocate sMSG in clsTextFilesManager::ProcessTextFilesCmd\n", 0);
+        		AppendDebugLog("%s - [MEM] Cannot deallocate sMSG in clsTextFilesManager::ProcessTextFilesCmd\n");
             }
 #else
 			free(sMSG);
@@ -175,7 +174,7 @@ void clsTextFilesManager::RefreshTextFiles() {
 				if(textfile.size != 0) {
 					TextFile * pNewTxtFile = new (std::nothrow) TextFile();
 					if(pNewTxtFile == NULL) {
-						AppendDebugLog("%s - [MEM] Cannot allocate pNewTxtFile in clsTextFilesManager::RefreshTextFiles\n", 0);
+						AppendDebugLog("%s - [MEM] Cannot allocate pNewTxtFile in clsTextFilesManager::RefreshTextFiles\n");
 
 						fclose(f);
 						_findclose(hFile);
@@ -186,7 +185,7 @@ void clsTextFilesManager::RefreshTextFiles() {
 					pNewTxtFile->sText = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, textfile.size+2);
 
 					if(pNewTxtFile->sText == NULL) {
-						AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sText in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(textfile.size+2));
+						AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sText in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(textfile.size+2));
 
 						fclose(f);
 						_findclose(hFile);
@@ -203,7 +202,7 @@ void clsTextFilesManager::RefreshTextFiles() {
 
 					pNewTxtFile->sCommand = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, strlen(textfile.name)-3);
 					if(pNewTxtFile->sCommand == NULL) {
-						AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sCommand in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(strlen(textfile.name)-3));
+						AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sCommand in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(strlen(textfile.name)-3));
 
 						fclose(f);
 						_findclose(hFile);
@@ -260,7 +259,7 @@ void clsTextFilesManager::RefreshTextFiles() {
 			if(s_buf.st_size != 0) {
                 TextFile * pNewTxtFile = new (std::nothrow) TextFile();
 				if(pNewTxtFile == NULL) {
-					AppendDebugLog("%s - [MEM] Cannot allocate pNewTxtFile in clsTextFilesManager::RefreshTextFiles1\n", 0);
+					AppendDebugLog("%s - [MEM] Cannot allocate pNewTxtFile in clsTextFilesManager::RefreshTextFiles1\n");
 
 					fclose(f);
 					closedir(p_txtdir);
@@ -270,7 +269,7 @@ void clsTextFilesManager::RefreshTextFiles() {
 
 				pNewTxtFile->sText = (char *)malloc(s_buf.st_size+2);
 				if(pNewTxtFile->sText == NULL) {
-					AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sText in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(s_buf.st_size+2));
+					AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sText in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(s_buf.st_size+2));
 
 					fclose(f);
 					closedir(p_txtdir);
@@ -285,7 +284,7 @@ void clsTextFilesManager::RefreshTextFiles() {
 
 				pNewTxtFile->sCommand = (char *)malloc(strlen(p_dirent->d_name)-3);
 				if(pNewTxtFile->sCommand == NULL) {
-					AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sCommand in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(strlen(p_dirent->d_name)-3));
+					AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sCommand in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(strlen(p_dirent->d_name)-3));
 
 					fclose(f);
 					closedir(p_txtdir);

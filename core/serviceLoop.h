@@ -53,8 +53,6 @@ private:
       uint64_t ui64LastSecond;
 #endif
 
-	char msg[1024];
-
     DISALLOW_COPY_AND_ASSIGN(clsServiceLoop);
 
     void AcceptUser(AcceptedSocket * AccptSocket);
@@ -88,4 +86,5 @@ public:
 //---------------------------------------------------------------------------
 
 #endif
+
 

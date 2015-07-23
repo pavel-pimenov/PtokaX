@@ -283,7 +283,6 @@ static void WINAPI StartService(DWORD /*argc*/, char* argv[]) {
 }
 //---------------------------------------------------------------------------
 
-
 int __cdecl main(int argc, char* argv[]) {
     ::SetDllDirectory("");
 

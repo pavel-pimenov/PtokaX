@@ -200,7 +200,7 @@ void SettingPageGeneral::Save() {
         char * buf = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui32Len+1);
 
         if(buf == NULL) {
-            AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for buf in SettingPageGeneral::Save\n", (uint64_t)(ui32Len+1));
+            AppendDebugLogFormat("%s - [MEM] Cannot allocate %" PRIu64 " bytes for buf in SettingPageGeneral::Save\n", (uint64_t)(ui32Len+1));
             return;
         }
 
