@@ -440,7 +440,7 @@ bool clsBanDialog::OnAccept() {
 		if(iNickLen != 0) {
 			pBan->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iNickLen+1);
 			if(pBan->sNick == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsBanDialog::OnAccept\n", (uint64_t)(iNickLen + 1));
+				AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sNick in clsBanDialog::OnAccept\n", iNickLen+1);
 				delete pBan;
 
 				return false;
@@ -482,7 +482,7 @@ bool clsBanDialog::OnAccept() {
 		if(iReasonLen != 0) {
             pBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iReasonLen+1);
             if(pBan->sReason == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanDialog::OnAccept\n", (uint64_t)(iReasonLen + 1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sReason in clsBanDialog::OnAccept\n", iReasonLen+1);
 
                 delete pBan;
 
@@ -497,7 +497,7 @@ bool clsBanDialog::OnAccept() {
         if(iByLen != 0) {
             pBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iByLen+1);
             if(pBan->sBy == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanDialog::OnAccept\n", (uint64_t)(iByLen + 1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sBy in clsBanDialog::OnAccept\n", iByLen+1);
 
                 delete pBan;
 
@@ -666,7 +666,7 @@ bool clsBanDialog::OnAccept() {
 		if(iNickLen != 0) {
             sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iNickLen+1);
             if(sNick == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsBanDialog::OnAccept\n", (uint64_t)(iNickLen + 1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sNick in clsBanDialog::OnAccept\n", iNickLen+1);
 
                 return false;
             }
@@ -742,7 +742,7 @@ bool clsBanDialog::OnAccept() {
 		if(iReasonLen != 0) {
             sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iReasonLen+1);
             if(sReason == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanDialog::OnAccept\n", (uint64_t)(iReasonLen + 1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sReason in clsBanDialog::OnAccept\n", iReasonLen+1);
 
                 return false;
             }
@@ -781,7 +781,7 @@ bool clsBanDialog::OnAccept() {
         if(iByLen != 0) {
             sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iByLen+1);
             if(sBy == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanDialog::OnAccept\n", (uint64_t)(iByLen + 1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sBy in clsBanDialog::OnAccept\n", iByLen+1);
 
     			return false;
             }

@@ -47,8 +47,7 @@ static const char* g_unreg_user_key = "PtokaX Registered Users";
 
 //---------------------------------------------------------------------------
 
-RegUser::RegUser() : sNick(NULL), pPrev(NULL), pNext(NULL), pHashTablePrev(NULL), pHashTableNext(NULL), tLastBadPass(0), ui32Hash(0), ui16Profile(0),
-	ui8BadPassCount(0), bPassHash(false){
+RegUser::RegUser() : sNick(NULL), pPrev(NULL), pNext(NULL), pHashTablePrev(NULL), pHashTableNext(NULL), tLastBadPass(0), ui32Hash(0), ui16Profile(0), ui8BadPassCount(0), bPassHash(false){
     sPass = NULL;
 }
 //---------------------------------------------------------------------------

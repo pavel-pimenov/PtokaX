@@ -405,7 +405,7 @@ bool clsRangeBanDialog::OnAccept() {
 		if(iReasonLen != 0) {
             pRangeBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iReasonLen+1);
             if(pRangeBan->sReason == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsRangeBanDialog::OnAccept\n", (uint64_t)(iReasonLen + 1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sReason in clsRangeBanDialog::OnAccept\n", iReasonLen+1);
 
                 delete pRangeBan;
 
@@ -420,7 +420,7 @@ bool clsRangeBanDialog::OnAccept() {
         if(iByLen != 0) {
             pRangeBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iByLen+1);
             if(pRangeBan->sBy == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsRangeBanDialog::OnAccept\n", (uint64_t)(iByLen + 1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sBy in clsRangeBanDialog::OnAccept\n", iByLen+1);
 
                 delete pRangeBan;
 
@@ -463,7 +463,7 @@ bool clsRangeBanDialog::OnAccept() {
 		if(iReasonLen != 0) {
             sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iReasonLen+1);
             if(sReason == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsRangeBanDialog::OnAccept\n", (uint64_t)(iReasonLen + 1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sReason in clsRangeBanDialog::OnAccept\n", iReasonLen+1);
 
                 return false;
             }
@@ -502,7 +502,7 @@ bool clsRangeBanDialog::OnAccept() {
         if(iByLen != 0) {
             sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iByLen+1);
             if(sBy == NULL) {
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsRangeBanDialog::OnAccept\n", (uint64_t)(iByLen + 1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sBy in clsRangeBanDialog::OnAccept\n", iByLen+1);
 
     			return false;
             }

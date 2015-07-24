@@ -552,7 +552,7 @@ char* stristr2(const char *str1, const char *str2) {
 bool isIP(char * sIP) {
     if(clsServerManager::bUseIPv6 == true && strchr(sIP, '.') == NULL) {
         uint8_t ui128IpHash[16];
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
         if(win_inet_pton(sIP, ui128IpHash) != 1) {
 #else
         if(inet_pton(AF_INET6, sIP, ui128IpHash) != 1) {
@@ -586,7 +586,7 @@ uint32_t HashNick(const char * sNick, const size_t &szNickLen) {
 
 bool HashIP(const char * sIP, uint8_t * ui128IpHash) {
     if(clsServerManager::bUseIPv6 == true && strchr(sIP, '.') == NULL) {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
         if(win_inet_pton(sIP, ui128IpHash) != 1) {
 #else
         if(inet_pton(AF_INET6, sIP, ui128IpHash) != 1) {
@@ -1059,10 +1059,7 @@ bool DirExist(char * sPath) {
 			return;
 		}
 
-		if(ver.dwPlatformId != VER_PLATFORM_WIN32_NT) {
-			clsServerManager::sOS = "Windows 9x/ME";
-			return;
-		} else if(ver.dwMajorVersion == 10) {
+		if(ver.dwMajorVersion == 10) {
 			if(ver.dwMinorVersion == 0) {
                 clsServerManager::sOS = "Windows 10";
                 return;
@@ -1100,13 +1097,7 @@ bool DirExist(char * sPath) {
                     SYSTEM_INFO si;
                     memset(&si, 0, sizeof(SYSTEM_INFO));
 
-                    typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
-                    PGNSI pGNSI = (PGNSI)::GetProcAddress(::GetModuleHandle("kernel32.dll"), "GetNativeSystemInfo");
-                    if(pGNSI != NULL) {
-                        pGNSI(&si);
-                    } else {
-                        GetSystemInfo(&si);
-                    }
+                    ::GetNativeSystemInfo(&si);
 
                     if(si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64) {
                         clsServerManager::sOS = "Windows XP x64";
@@ -1120,13 +1111,7 @@ bool DirExist(char * sPath) {
 			} else if(ver.dwMinorVersion == 1) {
 				clsServerManager::sOS = "Windows XP";
 				return;
-			} else if(ver.dwMinorVersion == 0) {
-				clsServerManager::sOS = "Windows 2000";
-				return;
 			}
-		} else if(ver.dwMajorVersion == 4) {
-			clsServerManager::sOS = "Windows NT4";
-			return;
 		}
 
 		clsServerManager::sOS = "Windows (unknown version)";
@@ -1151,11 +1136,11 @@ bool DirExist(char * sPath) {
 #endif
 //---------------------------------------------------------------------------
 
-#ifdef _WIN32
-typedef INT (WSAAPI * pInetPton)(INT, PCTSTR, PVOID);
-pInetPton MyInetPton = NULL;
-typedef PCTSTR (WSAAPI *pInetNtop)(INT, PVOID, PTSTR, size_t);
-pInetNtop MyInetNtop = NULL;
+#if defined(_WIN32) && !defined(_WIN64)
+	typedef INT (WSAAPI * pInetPton)(INT, PCTSTR, PVOID);
+	pInetPton MyInetPton = NULL;
+	typedef PCTSTR (WSAAPI *pInetNtop)(INT, PVOID, PTSTR, size_t);
+	pInetNtop MyInetNtop = NULL;
 #endif
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1217,7 +1202,7 @@ void CheckForIPv6() {
     close(sock);
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
     HINSTANCE hWs2_32 = ::LoadLibrary("Ws2_32.dll");
 
     MyInetPton = (pInetPton)::GetProcAddress(hWs2_32, "inet_pton");
@@ -1228,7 +1213,7 @@ void CheckForIPv6() {
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 INT win_inet_pton(PCTSTR pAddrString, PVOID pAddrBuf) {
     if(MyInetPton != NULL) {
         return MyInetPton(AF_INET6, pAddrString, pAddrBuf);

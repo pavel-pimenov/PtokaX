@@ -158,7 +158,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
             BOOL bHotTrackEnabled = FALSE;
             ::SystemParametersInfo(SPI_GETHOTTRACKING, 0, &bHotTrackEnabled, 0);
 
-            if(bHotTrackEnabled != FALSE) {
+            if(bHotTrackEnabled == TRUE) {
                 dwTabsStyle |= TCS_HOTTRACK;
             }
 
@@ -411,10 +411,6 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
                     return 0;
                 }
-
-                case IDC_HOMEPAGE_FORK:
-                    ::ShellExecute(NULL, NULL, "https://github.com/pavel-pimenov/PtokaX", NULL, NULL, SW_SHOWNORMAL);
-                    return 0;
                 case IDC_HOMEPAGE:
                     ::ShellExecute(NULL, NULL, "http://www.PtokaX.org", NULL, NULL, SW_SHOWNORMAL);
                     return 0;
@@ -551,7 +547,7 @@ HWND clsMainWindow::CreateEx() {
 
     for(uint8_t ui8i = 0; ui8i < 3; ui8i++) {
         if(MainWindowPages[ui8i] == NULL) {
-            AppendDebugLogFormat("[MEM] Cannot allocate MainWindowPage[%" PRIu64 "] in clsMainWindow::clsMainWindow\n", (uint64_t)ui8i);
+            AppendDebugLogFormat("[MEM] Cannot allocate MainWindowPage[%" PRIu8 "] in clsMainWindow::clsMainWindow\n", ui8i);
             exit(EXIT_FAILURE);
         }
     }
