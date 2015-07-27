@@ -59,6 +59,9 @@
     #include "../gui.win/RegisteredUsersDialog.h"
 #endif
 //---------------------------------------------------------------------------
+#ifdef _WIN32
+#pragma comment(lib, "psapi.lib")
+#endif
 
 bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t &szCmdLen, bool bFromPM/* = false*/) {
 	size_t dlen;

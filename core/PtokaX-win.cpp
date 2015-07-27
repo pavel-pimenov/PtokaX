@@ -66,7 +66,7 @@ crash_rpt::ApplicationInfo* GetApplicationInfo()
 	appInfo.V[0] = 0;
 	appInfo.V[1] = 5;
 	appInfo.V[2] = 1;
-	appInfo.V[3] = atoi(BUILD_NUMBER);
+	appInfo.V[3] = USHORT(atoi(BUILD_NUMBER));
 	return &appInfo;
 }
 
