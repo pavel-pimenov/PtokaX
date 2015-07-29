@@ -119,6 +119,11 @@ inline uint16_t CalcHash(const uint32_t& ui32Hash)
 	memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
 	return ui16dx;
 }
+
+#ifdef _WIN32
+	uint64_t htobe64(const uint64_t & ui64Value);
+	uint64_t be64toh(const uint64_t & ui64Value);
+#endif
 //---------------------------------------------------------------------------
 
 #endif

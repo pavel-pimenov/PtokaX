@@ -42,6 +42,7 @@ public:
         PXB_BYTE,
         PXB_TWO_BYTES,
         PXB_FOUR_BYTES,
+        PXB_EIGHT_BYTES,
         PXB_STRING
     };
 

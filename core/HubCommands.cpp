@@ -985,11 +985,11 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t &szCm
                     } else {
                         sReason++;
 
-	                    if(strlen(sReason) > 512) {
-	                    	sReason[510] = '.';
-	                    	sReason[511] = '.';
-	                        sReason[512] = '.';
-	                        sReason[513] = '\0';
+	                    if(strlen(sReason) > 511) {
+	                    	sReason[508] = '.';
+	                    	sReason[509] = '.';
+	                        sReason[510] = '.';
+	                        sReason[511] = '\0';
 	                    }
                     }
                 } else {
@@ -1099,11 +1099,11 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t &szCm
                     sCmdParts[2] = NULL;
                 }
 
-                if(iCmdPartsLen[2] > 512) {
-                	sCmdParts[2][510] = '.';
-                	sCmdParts[2][511] = '.';
-                    sCmdParts[2][512] = '.';
-                    sCmdParts[2][513] = '\0';
+                if(iCmdPartsLen[2] > 511) {
+                	sCmdParts[2][508] = '.';
+                	sCmdParts[2][509] = '.';
+                    sCmdParts[2][510] = '.';
+                    sCmdParts[2][511] = '\0';
                 }
 
                 if(iCmdPartsLen[0] == 0 || iCmdPartsLen[1] == 0) {
@@ -1908,11 +1908,11 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t &szCm
                     } else {
                         sReason++;
 
-	                    if(strlen(sReason) > 512) {
-	                    	sReason[510] = '.';
-	                    	sReason[511] = '.';
-	                        sReason[512] = '.';
-	                        sReason[513] = '\0';
+	                    if(strlen(sReason) > 511) {
+	                    	sReason[508] = '.';
+	                    	sReason[509] = '.';
+	                        sReason[510] = '.';
+	                        sReason[511] = '\0';
 	                    }
                     }
                 } else {
@@ -2082,8 +2082,10 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t &szCm
             return false;
 
         case 'c':
-/*            // !crash
+/*
+            // !crash
 			if(strncasecmp(sCommand+1, "rash", 4) == 0) {
+
                 char * sTmp = (char*)calloc(392*1024*1024, 1);
 
                 uint32_t iLen = 0;
@@ -3833,11 +3835,11 @@ bool clsHubCommands::Ban(User * pUser, char * sCommand, bool bFromPM, bool bFull
         } else {
             sReason++;
 
-			if(strlen(sReason) > 512) {
+			if(strlen(sReason) > 511) {
+				sReason[508] = '.';
+				sReason[509] = '.';
 				sReason[510] = '.';
-				sReason[511] = '.';
-				sReason[512] = '.';
-				sReason[513] = '\0';
+				sReason[511] = '\0';
 			}
         }
     }
@@ -3911,11 +3913,11 @@ bool clsHubCommands::BanIp(User * pUser, char * sCommand, bool bFromPM, bool bFu
         } else {
             sReason++;
 
-			if(strlen(sReason) > 512) {
+			if(strlen(sReason) > 511) {
+				sReason[508] = '.';
+				sReason[509] = '.';
 				sReason[510] = '.';
-				sReason[511] = '.';
-				sReason[512] = '.';
-				sReason[513] = '\0';
+				sReason[511] = '\0';
 			}
         }
     }
@@ -4053,11 +4055,11 @@ bool clsHubCommands::TempBan(User * pUser, char * sCommand, const size_t &dlen, 
         sCmdParts[2] = NULL;
     }
 
-	if(iCmdPartsLen[2] > 512) {
+	if(iCmdPartsLen[2] > 511) {
+		sCmdParts[2][508] = '.';
+		sCmdParts[2][509] = '.';
 		sCmdParts[2][510] = '.';
-		sCmdParts[2][511] = '.';
-		sCmdParts[2][512] = '.';
-		sCmdParts[2][513] = '\0';
+		sCmdParts[2][511] = '\0';
 	}
 
     if(iCmdPartsLen[0] == 0 || iCmdPartsLen[1] == 0) {
@@ -4166,11 +4168,11 @@ bool clsHubCommands::TempBanIp(User * pUser, char * sCommand, const size_t &dlen
         sCmdParts[2] = NULL;
     }
 
-	if(iCmdPartsLen[2] > 512) {
+	if(iCmdPartsLen[2] > 511) {
+		sCmdParts[2][508] = '.';
+		sCmdParts[2][509] = '.';
 		sCmdParts[2][510] = '.';
-		sCmdParts[2][511] = '.';
-		sCmdParts[2][512] = '.';
-		sCmdParts[2][513] = '\0';
+		sCmdParts[2][511] = '\0';
 	}
 
     if(iCmdPartsLen[0] == 0 || iCmdPartsLen[1] == 0) {
@@ -4336,11 +4338,11 @@ bool clsHubCommands::RangeBan(User * pUser, char * sCommand, const size_t &dlen,
         sCmdParts[2] = NULL;
     }
 
-	if(iCmdPartsLen[2] > 512) {
+	if(iCmdPartsLen[2] > 511) {
+		sCmdParts[2][508] = '.';
+		sCmdParts[2][509] = '.';
 		sCmdParts[2][510] = '.';
-		sCmdParts[2][511] = '.';
-		sCmdParts[2][512] = '.';
-		sCmdParts[2][513] = '\0';
+		sCmdParts[2][511] = '\0';
 	}
 
     if(iCmdPartsLen[0] > 39 || iCmdPartsLen[1] > 39) {
@@ -4420,11 +4422,11 @@ bool clsHubCommands::RangeTempBan(User * pUser, char * sCommand, const size_t &d
         sCmdParts[3] = NULL;
     }
 
-	if(iCmdPartsLen[3] > 512) {
+	if(iCmdPartsLen[3] > 511) {
+		sCmdParts[3][508] = '.';
+		sCmdParts[3][509] = '.';
 		sCmdParts[3][510] = '.';
-		sCmdParts[3][511] = '.';
-		sCmdParts[3][512] = '.';
-		sCmdParts[3][513] = '\0';
+		sCmdParts[3][511] = '\0';
 	}
 
     if(iCmdPartsLen[0] > 39 || iCmdPartsLen[1] > 39) {
