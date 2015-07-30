@@ -304,4 +304,3 @@ uint32_t clsHashManager::GetUserIpCount(User * u) const {
 	return 0;
 }
 //---------------------------------------------------------------------------
->>>>>>> .merge-right.r56
