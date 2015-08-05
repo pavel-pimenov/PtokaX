@@ -28,7 +28,7 @@ struct ProfileItem {
     ProfileItem();
     ~ProfileItem();
 
-    char *sName;
+    char * sName;
     bool bPermissions[256];
     DISALLOW_COPY_AND_ASSIGN(ProfileItem);
 

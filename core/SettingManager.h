@@ -135,6 +135,9 @@ public:
     void UpdateUDPPort();
     void UpdateScripting() const;
     void UpdateDatabase();
+
+	void CmdLineBasicSetup();
+	void CmdLineCompleteSetup();
 };
 //---------------------------------------------------------------------------
 
