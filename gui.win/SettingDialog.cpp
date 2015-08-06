@@ -71,7 +71,7 @@ clsSettingDialog::clsSettingDialog() {
 
     for(uint8_t ui8i = 0; ui8i < 12; ui8i++) {
         if(SettingPages[ui8i] == NULL) {
-            AppendDebugLog("%s - [MEM] Cannot allocate SettingPage[%" PRIu64 "] in clsSettingDialog::clsSettingDialog\n", (uint64_t)ui8i);
+            AppendDebugLogFormat("[MEM] Cannot allocate SettingPage[%" PRIu8 "] in clsSettingDialog::clsSettingDialog\n", ui8i);
             exit(EXIT_FAILURE);
         }
     }
@@ -80,9 +80,7 @@ clsSettingDialog::clsSettingDialog() {
 
 clsSettingDialog::~clsSettingDialog() {
     for(uint8_t ui8i = 0; ui8i < 12; ui8i++) {
-        if(SettingPages[ui8i] != NULL) {
-            delete SettingPages[ui8i];
-        }
+        delete SettingPages[ui8i];
     }
 
     clsSettingDialog::mPtr = NULL;

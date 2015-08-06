@@ -19,9 +19,10 @@
 //---------------------------------------------------------------------------
 #include "stdinc.h"
 //---------------------------------------------------------------------------
-#include "SettingXml.h"
+#include "SettingCom.h"
 #include "SettingDefaults.h"
 #include "SettingManager.h"
+#include "SettingStr.h"
 //---------------------------------------------------------------------------
 #include "colUsers.h"
 #include "GlobalDataQueue.h"
@@ -29,6 +30,7 @@
 #include "LuaScriptManager.h"
 #include "ProfileManager.h"
 #include "ServerManager.h"
+#include "UdpDebug.h"
 #include "User.h"
 #include "utility.h"
 //---------------------------------------------------------------------------
@@ -43,6 +45,13 @@
 //---------------------------------------------------------------------------
 #ifdef _BUILD_GUI
 	#include "../gui.win/MainWindow.h"
+#endif
+#ifdef _WITH_SQLITE
+	#include "DB-SQLite.h"
+#elif _WITH_POSTGRES
+	#include "DB-PostgreSQL.h"
+#elif _WITH_MYSQL
+	#include "DB-MySQL.h"
 #endif
 //---------------------------------------------------------------------------
 static const char* sMin = "[min]";
@@ -84,9 +93,6 @@ clsSettingManager::clsSettingManager(void) : ui64MinShare(0), ui64MaxShare(0), s
 
     // Load settings
 	Load();
-
-    //Always enable after startup !
-    bBools[SETBOOL_CHECK_IP_IN_COMMANDS] = true;
 }
 //---------------------------------------------------------------------------
 
@@ -96,7 +102,7 @@ clsSettingManager::~clsSettingManager(void) {
     if(sMOTD != NULL) {
 #ifdef _WIN32
         if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMOTD) == 0) {
-			AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::~clsSettingManager\n", 0);
+			AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::~clsSettingManager\n");
         }
 #else
 		free(sMOTD);
@@ -112,7 +118,7 @@ clsSettingManager::~clsSettingManager(void) {
 
 #ifdef _WIN32
         if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sTexts[szi]) == 0) {
-			AppendDebugLog("%s - [MEM] Cannot deallocate sTexts[%" PRIu64 "] in clsSettingManager::~clsSettingManager\n", (uint64_t)szi);
+			AppendDebugLogFormat("[MEM] Cannot deallocate sTexts[%" PRIu64 "] in clsSettingManager::~clsSettingManager\n", (uint64_t)szi);
         }
 #else
 		free(sTexts[szi]);
@@ -126,7 +132,7 @@ clsSettingManager::~clsSettingManager(void) {
 
 #ifdef _WIN32
         if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[szi]) == 0) {
-			AppendDebugLog("%s - [MEM] Cannot deallocate sPreTexts[%" PRIu64 "] in clsSettingManager::~clsSettingManager\n", (uint64_t)szi);
+			AppendDebugLogFormat("[MEM] Cannot deallocate sPreTexts[%" PRIu64 "] in clsSettingManager::~clsSettingManager\n", (uint64_t)szi);
         }
 #else
 		free(sPreTexts[szi]);
@@ -143,7 +149,7 @@ void clsSettingManager::CreateDefaultMOTD() {
 	sMOTD = (char *)malloc(18);
 #endif
     if(sMOTD == NULL) {
-		AppendDebugLog("%s - [MEM] Cannot allocate 18 bytes for sMOTD in clsSettingManager::CreateDefaultMOTD\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot allocate 18 bytes for sMOTD in clsSettingManager::CreateDefaultMOTD\n");
         exit(EXIT_FAILURE);
     }
     memcpy(sMOTD, "Welcome to PtokaX", 17);
@@ -156,7 +162,7 @@ void clsSettingManager::LoadMOTD() {
     if(sMOTD != NULL) {
 #ifdef _WIN32
         if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMOTD) == 0) {
-			AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::LoadMOTD\n", 0);
+			AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::LoadMOTD\n");
         }
 #else
 		free(sMOTD);
@@ -184,7 +190,7 @@ void clsSettingManager::LoadMOTD() {
 			sMOTD = (char *)malloc(ui16MOTDLen+1);
 #endif
             if(sMOTD == NULL) {
-				AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sMOTD in clsSettingManager::LoadMOTD\n", (uint64_t)(ui16MOTDLen+1));
+				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sMOTD in clsSettingManager::LoadMOTD\n", ui16MOTDLen+1);
                 exit(EXIT_FAILURE);
             }
 
@@ -194,7 +200,7 @@ void clsSettingManager::LoadMOTD() {
             } else {
 #ifdef _WIN32
                 if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMOTD) == 0) {
-					AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::LoadMOTD\n", 0);
+					AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::LoadMOTD\n");
                 }
 #else
 				free(sMOTD);
@@ -240,6 +246,40 @@ void clsSettingManager::CheckMOTD() {
 }
 //---------------------------------------------------------------------------
 
+void clsSettingManager::CheckAndSet(char * sName, char * sValue) {
+	// Booleans
+    for(size_t szi = 0; szi < SETBOOL_IDS_END; szi++) {
+        if(strcmp(SetBoolStr[szi], sName) == 0) {
+            SetBool(szi, sValue[0] == '1' ? true : false);
+            return;
+        }
+    }
+
+	// Integers
+    for(size_t szi = 0; szi < SETSHORT_IDS_END; szi++) {
+        if(strcmp(SetShortStr[szi], sName) == 0) {
+            int32_t iValue = atoi(sValue);
+
+            // Check if is valid value
+            if(sValue[0] == '\0' || iValue < 0 || iValue > 32767) {
+                return;
+            }
+
+            SetShort(szi, (int16_t)iValue);
+			return;
+        }
+    }
+
+	// Strings
+    for(size_t szi = 0; szi < SETTXT_IDS_END; szi++) {
+        if(strcmp(SetTxtStr[szi], sName) == 0) {
+            SetText(szi, sValue);
+            return;
+        }
+    }
+}
+//---------------------------------------------------------------------------
+
 void clsSettingManager::Load() {
     bUpdateLocked = true;
 
@@ -247,19 +287,95 @@ void clsSettingManager::Load() {
     LoadMOTD();
 
 #ifdef _WIN32
+    if(FileExist((clsServerManager::sPath + "\\cfg\\Settings.pxt").c_str()) == false) {
+#else
+    if(FileExist((clsServerManager::sPath + "/cfg/Settings.pxt").c_str()) == false) {
+#endif
+        LoadXML();
+
+        bUpdateLocked = false;
+
+        return;
+    }
+
+#ifdef _WIN32
+	FILE * fSettingsFile = fopen((clsServerManager::sPath + "\\cfg\\Settings.pxt").c_str(), "rt");
+#else
+	FILE * fSettingsFile = fopen((clsServerManager::sPath + "/cfg/Settings.pxt").c_str(), "rt");
+#endif
+    if(fSettingsFile == NULL) {
+#ifdef _WIN32
+        int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Settings.pxt %s (%d)", WSErrorStr(errno), errno);
+#else
+		int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Settings.pxt %s (%d)", ErrnoStr(errno), errno);
+#endif
+		CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "clsSettingManager::Load");
+#ifdef _BUILD_GUI
+		::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+#else
+		AppendLog(clsServerManager::pGlobalBuffer);
+#endif
+        exit(EXIT_FAILURE);
+    }
+
+	char * sValue = NULL;
+	size_t szLen = 0;
+
+	while(fgets(clsServerManager::pGlobalBuffer, (int)clsServerManager::szGlobalBufferSize, fSettingsFile) != NULL) {
+		if(clsServerManager::pGlobalBuffer[0] == '#' || clsServerManager::pGlobalBuffer[0] == '\n') {
+			continue;
+		}
+
+		sValue = NULL;
+
+		szLen = strlen(clsServerManager::pGlobalBuffer)-1;
+
+		clsServerManager::pGlobalBuffer[szLen] = '\0';
+
+		for(size_t szi = 0; szi < szLen; szi++) {
+			if(isspace(clsServerManager::pGlobalBuffer[szi]) != 0) {
+				clsServerManager::pGlobalBuffer[szi] = '\0';
+				continue;
+			}
+
+			if(clsServerManager::pGlobalBuffer[szi] == '=') {
+				if(isspace(clsServerManager::pGlobalBuffer[szi+1]) != 0) {
+					sValue = clsServerManager::pGlobalBuffer+szi+2;
+				} else {
+					sValue = clsServerManager::pGlobalBuffer+szi+1;
+				}
+
+				break;
+			}
+		}
+
+		if(sValue == NULL || clsServerManager::pGlobalBuffer[0] == '\0') {
+			continue;
+		}
+
+		CheckAndSet(clsServerManager::pGlobalBuffer, sValue);
+	}
+
+    fclose(fSettingsFile);
+
+    bUpdateLocked = false;
+}
+//---------------------------------------------------------------------------
+
+void clsSettingManager::LoadXML() {
+#ifdef _WIN32
     TiXmlDocument doc((clsServerManager::sPath + "\\cfg\\Settings.xml").c_str());
 #else
 	TiXmlDocument doc((clsServerManager::sPath + "/cfg/Settings.xml").c_str());
 #endif
     if(doc.LoadFile() == false) {
         if(doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY) {
-            char msg[2048];
-            int imsgLen = sprintf(msg, "Error loading file Settings.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
-			CheckSprintf(imsgLen, 2048, "clsSettingManager::Load");
+            int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Settings.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
+			CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "clsSettingManager::LoadXml");
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, msg, clsServerManager::sTitle.c_str(), MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-			AppendLog(msg);
+			AppendLog(clsServerManager::pGlobalBuffer);
 #endif
             exit(EXIT_FAILURE);
         }
@@ -294,7 +410,7 @@ void clsSettingManager::Load() {
                 bool bValue = atoi(SettingValue->ToElement()->GetText()) == 0 ? false : true;
 
                 for(size_t szi = 0; szi < SETBOOL_IDS_END; szi++) {
-                    if(strcmp(SetBoolXmlStr[szi], sName) == 0) {
+                    if(strcmp(SetBoolStr[szi], sName) == 0) {
                         SetBool(szi, bValue);
                     }
                 }
@@ -319,7 +435,7 @@ void clsSettingManager::Load() {
                 }
 
                 for(size_t szi = 0; szi < SETSHORT_IDS_END; szi++) {
-                    if(strcmp(SetShortXmlStr[szi], sName) == 0) {
+                    if(strcmp(SetShortStr[szi], sName) == 0) {
                         SetShort(szi, (int16_t)iValue);
                     }
                 }
@@ -344,15 +460,13 @@ void clsSettingManager::Load() {
                 }
 
                 for(size_t szi = 0; szi < SETTXT_IDS_END; szi++) {
-                    if(strcmp(SetTxtXmlStr[szi], sName) == 0) {
+                    if(strcmp(SetTxtStr[szi], sName) == 0) {
                         SetText(szi, sText);
                     }
                 }
             }
         }
     }
-
-    bUpdateLocked = false;
 }
 //---------------------------------------------------------------------------
 
@@ -360,66 +474,87 @@ void clsSettingManager::Save() {
     SaveMOTD();
 
 #ifdef _WIN32
-    TiXmlDocument doc((clsServerManager::sPath + "\\cfg\\Settings.xml").c_str());
+    FILE * fSettingsFile = fopen((clsServerManager::sPath + "\\cfg\\Settings.pxt").c_str(), "wb");
 #else
-	TiXmlDocument doc((clsServerManager::sPath + "/cfg/Settings.xml").c_str());
+	FILE * fSettingsFile = fopen((clsServerManager::sPath + "/cfg/Settings.pxt").c_str(), "wb");
 #endif
-    doc.InsertEndChild(TiXmlDeclaration("1.0", "windows-1252", "yes"));
-    TiXmlElement settings("PtokaX");
-    settings.SetAttribute("Version", PtokaXVersionString);
+    if(fSettingsFile == NULL) {
+    	return;
+    }
 
-    // Save bools
-    TiXmlElement booleans("Booleans");
+	static const char sPtokaXSettingsFile[] = "#\n# PtokaX settings file\n#\n";
+    fwrite(sPtokaXSettingsFile, 1, sizeof(sPtokaXSettingsFile)-1, fSettingsFile);
+
+	// Save booleans
+	static const char sPtokaXSettingsFileBooleans[] = "\n#\n# Boolean settings\n#\n\n";
+    fwrite(sPtokaXSettingsFileBooleans, 1, sizeof(sPtokaXSettingsFileBooleans)-1, fSettingsFile);
+
     for(size_t szi = 0; szi < SETBOOL_IDS_END; szi++) {
-        // Don't save setting with default value
-        if(bBools[szi] == SetBoolDef[szi] || SetBoolXmlStr[szi][0] == '\0') {
+    	// Don't save empty hint
+    	if(SetBoolCom[szi] != '\0') {
+			fputs(SetBoolCom[szi], fSettingsFile);
+		}
+
+        // Don't save setting with empty id
+        if(SetBoolStr[szi][0] == '\0') {
             continue;
         }
 
-        TiXmlElement boolean("Bool");
-        boolean.SetAttribute("Name", SetBoolXmlStr[szi]);
-        boolean.InsertEndChild(TiXmlText(bBools[szi] == 0 ? "0" : "1"));
-        booleans.InsertEndChild(boolean);
+		// Save setting with default value as comment
+        if(bBools[szi] == SetBoolDef[szi]) {
+        	fprintf(fSettingsFile, "#%s\t=\t%c\n", SetBoolStr[szi], bBools[szi] == 0 ? '0' : '1');
+        } else {
+        	fprintf(fSettingsFile, "%s\t=\t%c\n", SetBoolStr[szi], bBools[szi] == 0 ? '0' : '1');
+		}
     }
-    settings.InsertEndChild(booleans);
 
-    // Save integers
-    TiXmlElement integers("Integers");
-    char msg[8];
+	// Save integers
+	static const char sPtokaXSettingsFileIntegers[] = "\n#\n# Integer settings\n#\n\n";
+    fwrite(sPtokaXSettingsFileIntegers, 1, sizeof(sPtokaXSettingsFileIntegers)-1, fSettingsFile);
+
     for(size_t szi = 0; szi < SETSHORT_IDS_END; szi++) {
-        // Don't save setting with default value
-        if(i16Shorts[szi] == SetShortDef[szi] || SetShortXmlStr[szi][0] == '\0') {
+    	// Don't save empty hint
+    	if(SetShortCom[szi] != '\0') {
+			fputs(SetShortCom[szi], fSettingsFile);
+		}
+
+        // Don't save setting with empty id
+        if(SetShortStr[szi][0] == '\0') {
             continue;
         }
 
-        TiXmlElement integer("Integer");
-        integer.SetAttribute("Name", SetShortXmlStr[szi]);
-		sprintf(msg, "%hd", i16Shorts[szi]);
-        integer.InsertEndChild(TiXmlText(msg));
-        integers.InsertEndChild(integer);
+        // Save setting with default value as comment
+        if(i16Shorts[szi] == SetShortDef[szi]) {
+        	fprintf(fSettingsFile, "#%s\t=\t%hd\n", SetShortStr[szi], i16Shorts[szi]);
+        } else {
+        	fprintf(fSettingsFile, "%s\t=\t%hd\n", SetShortStr[szi], i16Shorts[szi]);
+		}
     }
-    settings.InsertEndChild(integers);
 
-    // Save strings
-    TiXmlElement setstrings("Strings");
+	// Save strings
+	static const char sPtokaXSettingsFileStrings[] = "\n#\n# String settings\n#\n\n";
+    fwrite(sPtokaXSettingsFileStrings, 1, sizeof(sPtokaXSettingsFileStrings)-1, fSettingsFile);
+
     for(size_t szi = 0; szi < SETTXT_IDS_END; szi++) {
-        // Don't save setting with default value
-        if((sTexts[szi] == NULL && SetTxtDef[szi][0] == '\0') ||
-            (sTexts[szi] != NULL && strcmp(sTexts[szi], SetTxtDef[szi]) == 0) ||
-            SetTxtXmlStr[szi][0] == '\0') {
+    	// Don't save empty hint
+    	if(SetTxtCom[szi] != '\0') {
+			fputs(SetTxtCom[szi], fSettingsFile);
+		}
+
+        // Don't save setting with empty id
+        if(SetTxtStr[szi][0] == '\0') {
             continue;
         }
-
-        TiXmlElement setstring("String");
-        setstring.SetAttribute("Name", SetTxtXmlStr[szi]);
-        setstring.InsertEndChild(TiXmlText(sTexts[szi] != NULL ? sTexts[szi] : ""));
-        setstrings.InsertEndChild(setstring);
-    }
-    settings.InsertEndChild(setstrings);
     
-    doc.InsertEndChild(settings);
+        // Save setting with default value as comment
+        if((sTexts[szi] == NULL && SetTxtDef[szi][0] == '\0') || (sTexts[szi] != NULL && strcmp(sTexts[szi], SetTxtDef[szi]) == 0)) {
+			fprintf(fSettingsFile, "#%s\t=\t%s\n", SetTxtStr[szi], sTexts[szi] != NULL ? sTexts[szi] : "");
+        } else {
+        	fprintf(fSettingsFile, "%s\t=\t%s\n", SetTxtStr[szi], sTexts[szi] != NULL ? sTexts[szi] : "");
+		}
+    }
 
-    doc.SaveFile();
+    fclose(fSettingsFile);
 }
 //---------------------------------------------------------------------------
 
@@ -534,6 +669,14 @@ void clsSettingManager::SetBool(const size_t &szBoolId, const bool &bValue) {
         case SETBOOL_ENABLE_SCRIPTING:
             UpdateScripting();
             break;
+#if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
+        case SETBOOL_ENABLE_DATABASE:
+        	if(bUpdateLocked == false) {
+        		UpdateDatabase();
+        	}
+
+        	break;
+#endif
         default:
             break;
     }
@@ -550,7 +693,7 @@ void clsSettingManager::SetMOTD(char * sTxt, const size_t &szLen) {
         if(sMOTD != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMOTD) == 0) {
-                AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::SetMOTD\n", 0);
+                AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::SetMOTD\n");
             }
 #else
             free(sMOTD);
@@ -578,7 +721,7 @@ void clsSettingManager::SetMOTD(char * sTxt, const size_t &szLen) {
             sMOTD = sOldMOTD;
             ui16MOTDLen = ui16OldMOTDLen;
 
-            AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::SetMOTD for sMOTD\n", (uint64_t)(ui16MOTDLen+1));
+            AppendDebugLogFormat("[MEM] Cannot (re)allocate %hu bytes in clsSettingManager::SetMOTD for sMOTD\n", ui16MOTDLen+1);
 
             return;
         }
@@ -643,15 +786,12 @@ void clsSettingManager::SetShort(const size_t &szShortId, const int16_t &iValue)
             break;
         case SETSHORT_MAIN_CHAT_MESSAGES:
         case SETSHORT_MAIN_CHAT_TIME:
-        case SETSHORT_SAME_MAIN_CHAT_MESSAGES:
         case SETSHORT_SAME_MAIN_CHAT_TIME:
         case SETSHORT_PM_MESSAGES:
         case SETSHORT_PM_TIME:
-        case SETSHORT_SAME_PM_MESSAGES:
         case SETSHORT_SAME_PM_TIME:
         case SETSHORT_SEARCH_MESSAGES:
         case SETSHORT_SEARCH_TIME:
-        case SETSHORT_SAME_SEARCH_MESSAGES:
         case SETSHORT_SAME_SEARCH_TIME:
         case SETSHORT_MYINFO_MESSAGES:
         case SETSHORT_MYINFO_TIME:
@@ -708,10 +848,13 @@ void clsSettingManager::SetShort(const size_t &szShortId, const int16_t &iValue)
             i16Shorts[szShortId] = iValue;
             return;
 			}
+        case SETSHORT_SAME_MAIN_CHAT_MESSAGES:
         case SETSHORT_SAME_MULTI_MAIN_CHAT_MESSAGES:
         case SETSHORT_SAME_MULTI_MAIN_CHAT_LINES:
+        case SETSHORT_SAME_PM_MESSAGES:
         case SETSHORT_SAME_MULTI_PM_MESSAGES:
         case SETSHORT_SAME_MULTI_PM_LINES:
+        case SETSHORT_SAME_SEARCH_MESSAGES:
             if(iValue < 2 || iValue > 999) {
                 return;
             }
@@ -841,6 +984,10 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
     switch(szTxtId) {
         case SETTXT_HUB_NAME:
         case SETTXT_HUB_ADDRESS:
+            if(szLen == 0 || szLen > 256 || strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL) {
+                return;
+            }
+            break;
         case SETTXT_REG_ONLY_MSG:
         case SETTXT_SHARE_LIMIT_MSG:
         case SETTXT_SLOTS_LIMIT_MSG:
@@ -848,12 +995,12 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
         case SETTXT_MAX_HUBS_LIMIT_MSG:
         case SETTXT_NO_TAG_MSG:
         case SETTXT_NICK_LIMIT_MSG:
-            if(szLen == 0 || szLen > 256) {
+            if(szLen == 0 || szLen > 256 || strchr(sTxt, '|') != NULL) {
                 return;
             }
             break;
         case SETTXT_BOT_NICK:
-            if(strchr(sTxt, '$') != NULL || strchr(sTxt, ' ') != NULL || szLen == 0 || szLen > 64) {
+            if(szLen == 0 || szLen > 64 || strpbrk(sTxt, " $|") != NULL) {
                 return;
             }
             if(clsServerManager::pServersS != NULL && bBotsSameNick == false) {
@@ -864,7 +1011,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             }
             break;
         case SETTXT_OP_CHAT_NICK:
-            if(strchr(sTxt, '$') != NULL || strchr(sTxt, ' ') != NULL || szLen == 0 || szLen > 64) {
+            if(szLen == 0 || szLen > 64 || strpbrk(sTxt, " $|") != NULL) {
                 return;
             }
             if(clsServerManager::pServersS != NULL && bBotsSameNick == false) {
@@ -875,7 +1022,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             }
             break;
         case SETTXT_ADMIN_NICK:
-            if(strchr(sTxt, '$') != NULL || strchr(sTxt, ' ') != NULL) {
+            if(szLen == 0 || szLen > 64 || strpbrk(sTxt, " $|") != NULL) {
                 return;
             }
         case SETTXT_TCP_PORTS:
@@ -890,14 +1037,18 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             UpdateUDPPort();
             break;
         case SETTXT_CHAT_COMMANDS_PREFIXES:
-            if(szLen == 0 || szLen > 5) {
+            if(szLen == 0 || szLen > 5 || strchr(sTxt, '|') != NULL || strchr(sTxt, ' ') != NULL) {
                 return;
             }
             break;
         case SETTXT_HUB_DESCRIPTION:
+        case SETTXT_HUB_TOPIC:
+            if(szLen > 256 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL))) {
+                return;
+            }
+            break;
         case SETTXT_REDIRECT_ADDRESS:
         case SETTXT_REG_ONLY_REDIR_ADDRESS:
-        case SETTXT_HUB_TOPIC:
         case SETTXT_SHARE_LIMIT_REDIR_ADDRESS:
         case SETTXT_SLOTS_LIMIT_REDIR_ADDRESS:
         case SETTXT_HUB_SLOT_RATIO_REDIR_ADDRESS:
@@ -907,7 +1058,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
         case SETTXT_PERM_BAN_REDIR_ADDRESS:
         case SETTXT_NICK_LIMIT_REDIR_ADDRESS:
         case SETTXT_MSG_TO_ADD_TO_BAN_MSG:
-            if(szLen > 256) {
+            if(szLen > 256 || (szLen != 0 && strchr(sTxt, '|') != NULL)) {
                 return;
             }
             break;
@@ -918,7 +1069,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             break;
         case SETTXT_BOT_DESCRIPTION:
         case SETTXT_BOT_EMAIL:
-            if(strchr(sTxt, '$') != NULL || szLen > 64) {
+            if(szLen > 64 || strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL) {
                 return;
             }
             if(bBools[SETBOOL_REG_BOT] == true) {
@@ -927,7 +1078,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             break;
         case SETTXT_OP_CHAT_DESCRIPTION:
         case SETTXT_OP_CHAT_EMAIL:
-            if(strchr(sTxt, '$') != NULL || szLen > 64) {
+            if(szLen > 64 || strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL) {
                 return;
             }
             if(bBools[SETBOOL_REG_OP_CHAT] == true) {
@@ -935,7 +1086,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             }
             break;
         case SETTXT_HUB_OWNER_EMAIL:
-            if(szLen > 64) {
+            if(szLen > 64 || strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL) {
                 return;
             }
             break;
@@ -945,6 +1096,16 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
 #else
 			if(szLen != 0 && FileExist((clsServerManager::sPath+"/language/"+string(sTxt, szLen)+".xml").c_str()) == false) {
 #endif
+                return;
+            }
+            break;
+        case SETTXT_IPV4_ADDRESS:
+            if(szLen > 15) {
+                return;
+            }
+            break;
+        case SETTXT_IPV6_ADDRESS:
+            if(szLen > 39) {
                 return;
             }
             break;
@@ -963,7 +1124,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
         if(sTexts[szTxtId] != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sTexts[szTxtId]) == 0) {
-                AppendDebugLog("%s - [MEM] Cannot deallocate sTexts[%" PRIu64 "] in clsSettingManager::SetText\n", (uint64_t)(szTxtId));
+                AppendDebugLogFormat("[MEM] Cannot deallocate sTexts[%" PRIu64 "] in clsSettingManager::SetText\n", (uint64_t)(szTxtId));
             }
 #else
             free(sTexts[szTxtId]);
@@ -985,7 +1146,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
         if(sTexts[szTxtId] == NULL) {
             sTexts[szTxtId] = sOldText;
 
-			AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::SetText\n", (uint64_t)(szLen+1));
+			AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::SetText\n", (uint64_t)(szLen+1));
             return;
         }
     
@@ -1035,6 +1196,10 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
 #endif
             UpdateHubNameWelcome();
             UpdateHubName();
+
+			if(clsUdpDebug::mPtr != NULL) {
+				clsUdpDebug::mPtr->UpdateHubName();
+			}
             break;
         case SETTXT_LANGUAGE:
             UpdateLanguage();
@@ -1162,7 +1327,7 @@ void clsSettingManager::UpdateHubSec() {
         if(sPreTexts[SETPRETXT_HUB_SEC] == NULL) {
             sPreTexts[SETPRETXT_HUB_SEC] = sOldHubSec;
 
-			AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateHubSec\n", (uint64_t)(ui16TextsLens[SETTXT_BOT_NICK]+1));
+			AppendDebugLogFormat("[MEM] Cannot (re)allocate %hu bytes in clsSettingManager::UpdateHubSec\n", ui16TextsLens[SETTXT_BOT_NICK]+1);
 
             return;
         }
@@ -1174,7 +1339,7 @@ void clsSettingManager::UpdateHubSec() {
         if(sPreTexts[SETPRETXT_HUB_SEC] != sHubSec) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_HUB_SEC]) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateHubSec\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateHubSec\n");
             }
 #else
 			free(sPreTexts[SETPRETXT_HUB_SEC]);
@@ -1196,7 +1361,7 @@ void clsSettingManager::UpdateMOTD() {
         if(sPreTexts[SETPRETXT_MOTD] != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_MOTD]) == 0) {
-                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateMOTD\n", 0);
+                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateMOTD\n");
             }
 #else
             free(sPreTexts[SETPRETXT_MOTD]);
@@ -1226,7 +1391,7 @@ void clsSettingManager::UpdateMOTD() {
     if(sPreTexts[SETPRETXT_MOTD] == NULL) {
         sPreTexts[SETPRETXT_MOTD] = sOldMotd;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateMOTD\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateMOTD\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1252,7 +1417,7 @@ void clsSettingManager::UpdateHubNameWelcome() {
         return;
     }
 
-    size_t szNeededMem = 19 + ui16TextsLens[SETTXT_HUB_NAME] + ui16PreTextsLens[SETPRETXT_HUB_SEC] + clsLanguageManager::mPtr->ui16TextsLens[LAN_THIS_HUB_IS_RUNNING] + clsServerManager::sTitle.size() +
+    size_t szNeededMem = 19 + ui16TextsLens[SETTXT_HUB_NAME] + ui16PreTextsLens[SETPRETXT_HUB_SEC] + clsLanguageManager::mPtr->ui16TextsLens[LAN_THIS_HUB_IS_RUNNING] + (sizeof(g_sPtokaXTitle)-1) +
         clsLanguageManager::mPtr->ui16TextsLens[LAN_UPTIME];
 
     if(sTexts[SETTXT_HUB_TOPIC] != NULL) {
@@ -1277,7 +1442,7 @@ void clsSettingManager::UpdateHubNameWelcome() {
     if(sPreTexts[SETPRETXT_HUB_NAME_WLCM] == NULL) {
         sPreTexts[SETPRETXT_HUB_NAME_WLCM] = sOldWelcome;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateHubNameWelcome\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateHubNameWelcome\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1285,18 +1450,9 @@ void clsSettingManager::UpdateHubNameWelcome() {
     int iMsgLen = 0;
 
     if(sTexts[SETTXT_HUB_TOPIC] == NULL) {
-        iMsgLen = sprintf(sPreTexts[SETPRETXT_HUB_NAME_WLCM], "$HubName %s|<%s> %s %s"
-#ifdef _PtokaX_TESTING_
-            " [build " BUILD_NUMBER "]"
-#endif
-            " (%s: ", sTexts[SETTXT_HUB_NAME], sPreTexts[SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_THIS_HUB_IS_RUNNING], clsServerManager::sTitle.c_str(), clsLanguageManager::mPtr->sTexts[LAN_UPTIME]);
+        iMsgLen = sprintf(sPreTexts[SETPRETXT_HUB_NAME_WLCM], "$HubName %s|<%s> %s %s (%s: ", sTexts[SETTXT_HUB_NAME], sPreTexts[SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_THIS_HUB_IS_RUNNING], g_sPtokaXTitle, clsLanguageManager::mPtr->sTexts[LAN_UPTIME]);
     } else {
-        iMsgLen =  sprintf(sPreTexts[SETPRETXT_HUB_NAME_WLCM], "$HubName %s - %s|<%s> %s %s"
-#ifdef _PtokaX_TESTING_
-            " [build " BUILD_NUMBER "]"
-#endif
-            " (%s: ", sTexts[SETTXT_HUB_NAME], sTexts[SETTXT_HUB_TOPIC], sPreTexts[SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_THIS_HUB_IS_RUNNING], clsServerManager::sTitle.c_str(),
-            clsLanguageManager::mPtr->sTexts[LAN_UPTIME]);
+        iMsgLen =  sprintf(sPreTexts[SETPRETXT_HUB_NAME_WLCM], "$HubName %s - %s|<%s> %s %s (%s: ", sTexts[SETTXT_HUB_NAME], sTexts[SETTXT_HUB_TOPIC], sPreTexts[SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_THIS_HUB_IS_RUNNING], g_sPtokaXTitle, clsLanguageManager::mPtr->sTexts[LAN_UPTIME]);
     }
     
     if(CheckSprintf(iMsgLen, szNeededMem, "clsSettingManager::UpdateHubNameWelcome") == false) {
@@ -1332,7 +1488,7 @@ void clsSettingManager::UpdateHubName() {
     if(sPreTexts[SETPRETXT_HUB_NAME] == NULL) {
         sPreTexts[SETPRETXT_HUB_NAME] = sOldHubName;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateHubName\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateHubName\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1366,7 +1522,7 @@ void clsSettingManager::UpdateRedirectAddress() {
         if(sPreTexts[SETPRETXT_REDIRECT_ADDRESS] != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_REDIRECT_ADDRESS]) == 0) {
-                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateRedirectAddress\n", 0);
+                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateRedirectAddress\n");
             }
 #else
             free(sPreTexts[SETPRETXT_REDIRECT_ADDRESS]);
@@ -1394,7 +1550,7 @@ void clsSettingManager::UpdateRedirectAddress() {
     if(sPreTexts[SETPRETXT_REDIRECT_ADDRESS] == NULL) {
         sPreTexts[SETPRETXT_REDIRECT_ADDRESS] = sOldRedirAddr;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateRedirectAddress\n", (uint64_t)szNeededLen);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateRedirectAddress\n", (uint64_t)szNeededLen);
 
         return;
     }
@@ -1436,7 +1592,7 @@ void clsSettingManager::UpdateRegOnlyMessage() {
     if(sPreTexts[SETPRETXT_REG_ONLY_MSG] == NULL) {
         sPreTexts[SETPRETXT_REG_ONLY_MSG] = sOldRegOnlyMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateRegOnlyMessage\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateRegOnlyMessage\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1493,7 +1649,7 @@ void clsSettingManager::UpdateShareLimitMessage() {
     if(sPreTexts[SETPRETXT_SHARE_LIMIT_MSG] == NULL) {
         sPreTexts[SETPRETXT_SHARE_LIMIT_MSG] = sOldShareLimitMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateShareLimitMessage\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateShareLimitMessage\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1590,7 +1746,7 @@ void clsSettingManager::UpdateSlotsLimitMessage() {
     if(sPreTexts[SETPRETXT_SLOTS_LIMIT_MSG] == NULL) {
         sPreTexts[SETPRETXT_SLOTS_LIMIT_MSG] = sOldSlotsLimitMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateSlotsLimitMessage\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateSlotsLimitMessage\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1681,7 +1837,7 @@ void clsSettingManager::UpdateHubSlotRatioMessage() {
     if(sPreTexts[SETPRETXT_HUB_SLOT_RATIO_MSG] == NULL) {
         sPreTexts[SETPRETXT_HUB_SLOT_RATIO_MSG] = sOldHubSlotLimitMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateHubSlotRatioMessage\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateHubSlotRatioMessage\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1769,7 +1925,7 @@ void clsSettingManager::UpdateMaxHubsLimitMessage() {
     if(sPreTexts[SETPRETXT_MAX_HUBS_LIMIT_MSG] == NULL) {
         sPreTexts[SETPRETXT_MAX_HUBS_LIMIT_MSG] = sOldHubLimitMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateMaxHubsLimitMessage\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateMaxHubsLimitMessage\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1836,7 +1992,7 @@ void clsSettingManager::UpdateNoTagMessage() {
         if(sPreTexts[SETPRETXT_NO_TAG_MSG] != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_NO_TAG_MSG]) == 0) {
-                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateNoTagMessage\n", 0);
+                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateNoTagMessage\n");
             }
 #else
             free(sPreTexts[SETPRETXT_NO_TAG_MSG]);
@@ -1872,7 +2028,7 @@ void clsSettingManager::UpdateNoTagMessage() {
     if(sPreTexts[SETPRETXT_NO_TAG_MSG] == NULL) {
         sPreTexts[SETPRETXT_NO_TAG_MSG] = sOldNoTagMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateNoTagMessage\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateNoTagMessage\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1915,7 +2071,7 @@ void clsSettingManager::UpdateTempBanRedirAddress() {
         if(sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS]) == 0) {
-                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateTempBanRedirAddress\n", 0);
+                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateTempBanRedirAddress\n");
             }
 #else
             free(sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS]);
@@ -1941,7 +2097,7 @@ void clsSettingManager::UpdateTempBanRedirAddress() {
     if(sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] == NULL) {
         sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] = sOldTempBanRedirMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateTempBanRedirAddress\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateTempBanRedirAddress\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -1978,7 +2134,7 @@ void clsSettingManager::UpdatePermBanRedirAddress() {
         if(sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS]) == 0) {
-                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdatePermBanRedirAddress\n", 0);
+                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdatePermBanRedirAddress\n");
             }
 #else
             free(sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS]);
@@ -2004,7 +2160,7 @@ void clsSettingManager::UpdatePermBanRedirAddress() {
     if(sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] == NULL) {
         sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] = sOldPermBanRedirMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdatePermBanRedirAddress\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdatePermBanRedirAddress\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -2055,7 +2211,7 @@ void clsSettingManager::UpdateNickLimitMessage() {
     if(sPreTexts[SETPRETXT_NICK_LIMIT_MSG] == NULL) {
         sPreTexts[SETPRETXT_NICK_LIMIT_MSG] = sOldNickLimitMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateNickLimitMessage\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateNickLimitMessage\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -2217,7 +2373,7 @@ void clsSettingManager::UpdateBot(const bool &bNickChanged/* = true*/) {
         if(sPreTexts[SETPRETXT_HUB_BOT_MYINFO] != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_HUB_BOT_MYINFO]) == 0) {
-                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateBot\n", 0);
+                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateBot\n");
             }
 #else
             free(sPreTexts[SETPRETXT_HUB_BOT_MYINFO]);
@@ -2245,7 +2401,7 @@ void clsSettingManager::UpdateBot(const bool &bNickChanged/* = true*/) {
     if(sPreTexts[SETPRETXT_HUB_BOT_MYINFO] == NULL) {
         sPreTexts[SETPRETXT_HUB_BOT_MYINFO] = sOldHubBotMyinfoMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateBot\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateBot\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -2275,10 +2431,9 @@ void clsSettingManager::UpdateBot(const bool &bNickChanged/* = true*/) {
     }
 
     if(bNickChanged == true && bBotsSameNick == false) {
-        char sMsg[128];
-        iMsgLen = sprintf(sMsg, "$Hello %s|", sTexts[SETTXT_BOT_NICK]);
-        if(CheckSprintf(iMsgLen, 128, "clsSettingManager::UpdateBot1") == true) {
-            clsGlobalDataQueue::mPtr->AddQueueItem(sMsg, iMsgLen, NULL, 0, clsGlobalDataQueue::CMD_HELLO);
+        iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Hello %s|", sTexts[SETTXT_BOT_NICK]);
+        if(CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsSettingManager::UpdateBot1") == true) {
+            clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::pGlobalBuffer, iMsgLen, NULL, 0, clsGlobalDataQueue::CMD_HELLO);
         }
     }
 
@@ -2301,9 +2456,8 @@ void clsSettingManager::DisableBot(const bool &bNickChanged/* = true*/, const bo
             clsUsers::mPtr->DelFromNickList(sTexts[SETTXT_BOT_NICK], true);
         }
 
-        char sMsg[128];
-        int iMsgLen = sprintf(sMsg, "$Quit %s|", sTexts[SETTXT_BOT_NICK]);
-        if(CheckSprintf(iMsgLen, 128, "clsSettingManager::DisableBot") == true) {
+        int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", sTexts[SETTXT_BOT_NICK]);
+        if(CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsSettingManager::DisableBot") == true) {
             if(bBotsSameNick == true) {
                 // PPK ... send Quit only to users without opchat permission...
                 User * curUser = NULL,
@@ -2313,11 +2467,11 @@ void clsSettingManager::DisableBot(const bool &bNickChanged/* = true*/, const bo
                     curUser = next;
                     next = curUser->pNext;
                     if(curUser->ui8State == User::STATE_ADDED && clsProfileManager::mPtr->IsAllowed(curUser, clsProfileManager::ALLOWEDOPCHAT) == false) {
-                        curUser->SendCharDelayed(sMsg, iMsgLen);
+                        curUser->SendCharDelayed(clsServerManager::pGlobalBuffer, iMsgLen);
                     }
                 }
             } else {
-                clsGlobalDataQueue::mPtr->AddQueueItem(sMsg, iMsgLen, NULL, 0, clsGlobalDataQueue::CMD_QUIT);
+                clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::pGlobalBuffer, iMsgLen, NULL, 0, clsGlobalDataQueue::CMD_QUIT);
             }
         }
     }
@@ -2337,7 +2491,7 @@ void clsSettingManager::UpdateOpChat(const bool &bNickChanged/* = true*/) {
         if(sPreTexts[SETPRETXT_OP_CHAT_HELLO] != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_OP_CHAT_HELLO]) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateOpChat\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateOpChat\n");
             }
 #else
 			free(sPreTexts[SETPRETXT_OP_CHAT_HELLO]);
@@ -2349,7 +2503,7 @@ void clsSettingManager::UpdateOpChat(const bool &bNickChanged/* = true*/) {
         if(sPreTexts[SETPRETXT_OP_CHAT_MYINFO] != NULL) {
 #ifdef _WIN32
             if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_OP_CHAT_MYINFO]) == 0) {
-                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateOpChat1\n", 0);
+                AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateOpChat1\n");
             }
 #else
             free(sPreTexts[SETPRETXT_OP_CHAT_MYINFO]);
@@ -2377,7 +2531,7 @@ void clsSettingManager::UpdateOpChat(const bool &bNickChanged/* = true*/) {
     if(sPreTexts[SETPRETXT_OP_CHAT_HELLO] == NULL) {
         sPreTexts[SETPRETXT_OP_CHAT_HELLO] = sOldOpChatHelloMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateOpChat\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateOpChat\n", (uint64_t)szNeededMem);
 
         return;
     }
@@ -2406,7 +2560,7 @@ void clsSettingManager::UpdateOpChat(const bool &bNickChanged/* = true*/) {
     if(sPreTexts[SETPRETXT_OP_CHAT_MYINFO] == NULL) {
         sPreTexts[SETPRETXT_OP_CHAT_MYINFO] = sOldOpChatMyInfoMsg;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateOpChat1\n", (uint64_t)szNeededMem);
+		AppendDebugLogFormat("[MEM] Cannot (re)allocate %" PRIu64 " bytes in clsSettingManager::UpdateOpChat1\n", (uint64_t)szNeededMem);
 
 		if(sPreTexts[SETPRETXT_OP_CHAT_MYINFO] == NULL) {
             exit(EXIT_FAILURE);
@@ -2429,9 +2583,8 @@ void clsSettingManager::UpdateOpChat(const bool &bNickChanged/* = true*/) {
     }
 
     if(bBotsSameNick == false) {
-        char sMsg[128];
-        iMsgLen = sprintf(sMsg, "$OpList %s$$|", sTexts[SETTXT_OP_CHAT_NICK]);
-        if(CheckSprintf(iMsgLen, 128, "clsSettingManager::UpdateOpChat2") == false) {
+        iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$OpList %s$$|", sTexts[SETTXT_OP_CHAT_NICK]);
+        if(CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsSettingManager::UpdateOpChat2") == false) {
             exit(EXIT_FAILURE);
         }
 
@@ -2447,7 +2600,7 @@ void clsSettingManager::UpdateOpChat(const bool &bNickChanged/* = true*/) {
                 }
                 curUser->SendCharDelayed(sPreTexts[SETPRETXT_OP_CHAT_MYINFO], ui16PreTextsLens[SETPRETXT_OP_CHAT_MYINFO]);
                 if(bNickChanged == true) {
-                    curUser->SendCharDelayed(sMsg, iMsgLen);
+                    curUser->SendCharDelayed(clsServerManager::pGlobalBuffer, iMsgLen);
                 }    
             }
         }
@@ -2463,9 +2616,8 @@ void clsSettingManager::DisableOpChat(const bool &bNickChanged/* = true*/) {
     if(bNickChanged == true) {
         clsUsers::mPtr->DelFromNickList(sTexts[SETTXT_OP_CHAT_NICK], true);
 
-        char msg[128];
-        int iMsgLen = sprintf(msg, "$Quit %s|", sTexts[SETTXT_OP_CHAT_NICK]);
-        if(CheckSprintf(iMsgLen, 128, "clsSettingManager::DisableOpChat") == true) {
+        int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", sTexts[SETTXT_OP_CHAT_NICK]);
+        if(CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsSettingManager::DisableOpChat") == true) {
             User * curUser = NULL,
                 * next = clsUsers::mPtr->pListS;
 
@@ -2473,7 +2625,7 @@ void clsSettingManager::DisableOpChat(const bool &bNickChanged/* = true*/) {
                 curUser = next;
                 next = curUser->pNext;
                 if(curUser->ui8State == User::STATE_ADDED && clsProfileManager::mPtr->IsAllowed(curUser, clsProfileManager::ALLOWEDOPCHAT) == true) {
-                    curUser->SendCharDelayed(msg, iMsgLen);
+                    curUser->SendCharDelayed(clsServerManager::pGlobalBuffer, iMsgLen);
                 }
             }
         }
@@ -2517,6 +2669,259 @@ void clsSettingManager::UpdateScripting() const {
     } else {
 		clsScriptManager::mPtr->OnExit(true);
 		clsScriptManager::mPtr->Stop();
+    }
+}
+//---------------------------------------------------------------------------
+
+void clsSettingManager::UpdateDatabase() {
+#ifdef _WITH_SQLITE
+	if(DBSQLite::mPtr == NULL) {
+		return;
+	}
+
+	delete DBSQLite::mPtr;
+
+	DBSQLite::mPtr = new (std::nothrow) DBSQLite();
+	if(DBSQLite::mPtr == NULL) {
+		AppendDebugLog("%s - [MEM] Cannot allocate DBSQLite::mPtr in clsSettingManager::SetBool\n");
+		exit(EXIT_FAILURE);
+	}
+#elif _WITH_POSTGRES
+	if(DBPostgreSQL::mPtr == NULL) {
+		return;
+	}
+
+	delete DBPostgreSQL::mPtr;
+	
+	DBPostgreSQL::mPtr = new (std::nothrow) DBPostgreSQL();
+	if(DBPostgreSQL::mPtr == NULL) {
+		AppendDebugLog("%s - [MEM] Cannot allocate DBPostgreSQL::mPtr in clsSettingManager::SetBool\n");
+		exit(EXIT_FAILURE);
+	}
+#elif _WITH_MYSQL
+	if(DBMySQL::mPtr == NULL) {
+		return;
+	}
+
+	delete DBMySQL::mPtr;
+	
+	DBMySQL::mPtr = new (std::nothrow) DBMySQL();
+	if(DBMySQL::mPtr == NULL) {
+		AppendDebugLog("%s - [MEM] Cannot allocate DBMySQL::mPtr in clsSettingManager::SetBool\n");
+		exit(EXIT_FAILURE);
+	}
+#endif
+}
+//---------------------------------------------------------------------------
+
+void clsSettingManager::CmdLineBasicSetup() {
+	bUpdateLocked = true;
+
+	printf("\nWelcome to basic setup.\nYou will now be asked for few settings required to run PtokaX.\nWhen you don't want to change default settings, then simply press enter.\n");
+
+	int16_t i16MaxUsers = 0;
+	char sMaxUsers[7];
+
+maxusers:
+	printf("%sActual value is: %hd\nEnter new value: ", SetShortCom[SETSHORT_MAX_USERS]+2, i16Shorts[SETSHORT_MAX_USERS]);
+	if(fgets(sMaxUsers, 7, stdin) != NULL) {
+		if(sMaxUsers[0] != '\n') {
+			char * sMatch = strchr(sMaxUsers, '\n');
+			if(sMatch != NULL) {
+				sMatch[0] = '\0';
+			}
+	
+			uint8_t ui8Len = (uint8_t)strlen(sMaxUsers);
+	
+			for(uint8_t ui8i = 0; ui8i < ui8Len; ui8i++) {
+				if(isdigit(sMaxUsers[ui8i]) == 0) {
+					printf("Character '%c' is not valid number!\n", sMaxUsers[ui8i]);
+	
+					if(WantAgain() == false) {
+						return;
+					}
+	
+					goto maxusers;
+				}
+			}
+	
+			i16MaxUsers = (int16_t)atoi(sMaxUsers);
+			SetShort(SETSHORT_MAX_USERS, i16MaxUsers);
+	
+			if(i16MaxUsers != i16Shorts[SETSHORT_MAX_USERS]) {
+				printf("Failed to set value %hd!\n", i16MaxUsers);
+	
+				if(WantAgain() == false) {
+					return;
+				}
+	
+				goto maxusers;
+			}
+		}
+	} else {
+		printf("Error reading value... ending.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	const uint8_t ui8Strings[] = { SETTXT_HUB_NAME, SETTXT_HUB_ADDRESS, SETTXT_ENCODING,
+#ifdef _WITH_POSTGRES
+		SETTXT_POSTGRES_HOST, SETTXT_POSTGRES_PORT, SETTXT_POSTGRES_DBNAME, SETTXT_POSTGRES_USER, SETTXT_POSTGRES_PASS,
+#elif _WITH_MYSQL
+		SETTXT_MYSQL_HOST, SETTXT_MYSQL_PORT, SETTXT_MYSQL_DBNAME, SETTXT_MYSQL_USER, SETTXT_MYSQL_PASS,
+#endif
+	};
+
+	char sValue[4098];
+
+	for(uint8_t ui8i = 0; ui8i < sizeof(ui8Strings); ui8i++) {
+value:
+		printf("%sActual value is: %s\nEnter new value: ", SetTxtCom[ui8Strings[ui8i]]+2, sTexts[ui8Strings[ui8i]] != NULL ? sTexts[ui8Strings[ui8i]] : "");
+		if(fgets(sValue, 4098, stdin) != NULL) {
+			if(sValue[0] == '\n') {
+				continue;
+			}
+
+			char * sMatch = strchr(sValue, '\n');
+			if(sMatch != NULL) {
+				sMatch[0] = '\0';
+			}
+	
+			size_t szLen = strlen(sValue);
+			SetText(ui8Strings[ui8i], sValue, szLen);
+	
+			if((szLen == 0 && sTexts[ui8Strings[ui8i]] != NULL) || strcmp(sValue, sTexts[ui8Strings[ui8i]]) != 0) {
+				printf("Failed to set new string value. Incorrect length or invalid characters?\n");
+	
+				if(WantAgain() == false) {
+					return;
+				}
+	
+				goto value;
+			}
+		} else {
+			printf("Error reading string value... ending.\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+//---------------------------------------------------------------------------
+
+void clsSettingManager::CmdLineCompleteSetup() {
+	bUpdateLocked = true;
+
+	printf("\nWelcome to complete setup.\nYou will now be asked for all PtokaX settings.\nWhen you don't want to change default settings, then simply press enter.\n\nFirst we set boolean settings. Use 1 for enabled and 0 for disabled.\n\n");
+
+	char sValue[4098];
+
+    for(size_t szi = 0; szi < SETBOOL_IDS_END; szi++) {
+        // skip obsolete settings
+        if(SetBoolStr[szi][0] == '\0') {
+            continue;
+        }
+booleanstart:
+		printf("%sActual value is: %c\nEnter new value: ", SetBoolCom[szi]+2, bBools[szi] == true ? '1' : '0');
+		if(fgets(sValue, 3, stdin) != NULL) {
+			if(sValue[0] == '\n') {
+				continue;
+			}
+
+			if(sValue[0] != '0' && sValue[0] != '1') {
+				printf("You need to use 1 or 0 for new value!\n");
+
+				if(WantAgain() == false) {
+					return;
+				}
+	
+				goto booleanstart;
+			}
+
+			SetBool(szi, sValue[0] == '0' ? false : true);
+		} else {
+			printf("Error reading boolean value... ending.\n");
+			exit(EXIT_FAILURE);
+		}
+    }
+
+	printf("\nWe finished boolean settings. Now we will set number settings.\n\n");
+
+	int16_t i16Value = 0;
+
+    for(size_t szi = 0; szi < (SETSHORT_IDS_END-1); szi++) {
+numberstart:
+		printf("%sActual value is: %hd\nEnter new value: ", SetShortCom[szi]+2, i16Shorts[szi]);
+		if(fgets(sValue, 7, stdin) != NULL) {
+			if(sValue[0] == '\n') {
+				continue;
+			}
+
+			char * sMatch = strchr(sValue, '\n');
+			if(sMatch != NULL) {
+				sMatch[0] = '\0';
+			}
+
+			uint8_t ui8Len = (uint8_t)strlen(sValue);
+
+			for(uint8_t ui8i = 0; ui8i < ui8Len; ui8i++) {
+				if(isdigit(sValue[ui8i]) == 0) {
+					printf("Character '%c' is not valid number!\n", sValue[ui8i]);
+	
+					if(WantAgain() == false) {
+						return;
+					}
+	
+					goto numberstart;
+				}
+			}
+
+			i16Value = (int16_t)atoi(sValue);
+			SetShort(szi, i16Value);
+	
+			if(i16Value != i16Shorts[szi]) {
+				printf("Failed to set value %hd!\n", i16Value);
+	
+				if(WantAgain() == false) {
+					return;
+				}
+	
+				goto numberstart;
+			}
+		} else {
+			printf("Error reading number value... ending.\n");
+			exit(EXIT_FAILURE);
+		}
+    }
+
+	printf("\nWe finished number settings. Now we will set string settings.\n\n");
+
+    for(size_t szi = 0; szi < SETTXT_IDS_END; szi++) {
+stringstart:
+		printf("%sActual value is: %s\nEnter new value: ", SetTxtCom[szi]+2, sTexts[szi] != NULL ? sTexts[szi] : "");
+		if(fgets(sValue, 4098, stdin) != NULL) {
+			if(sValue[0] == '\n') {
+				continue;
+			}
+
+			char * sMatch = strchr(sValue, '\n');
+			if(sMatch != NULL) {
+				sMatch[0] = '\0';
+			}
+
+			size_t szLen = strlen(sValue);
+			SetText(szi, sValue, szLen);
+	
+			if((szLen == 0 && sTexts[szi] != NULL) || strcmp(sValue, sTexts[szi]) != 0) {
+				printf("Failed to set new string value. Incorrect length or invalid characters?\n");
+	
+				if(WantAgain() == false) {
+					return;
+				}
+	
+				goto stringstart;
+			}
+		} else {
+			printf("Error reading string value... ending.\n");
+			exit(EXIT_FAILURE);
+		}
     }
 }
 //---------------------------------------------------------------------------

@@ -1289,10 +1289,7 @@ static int Ban(lua_State * L) {
 
     clsBanManager::mPtr->Ban(u, sReason, sBy, bFull);
 
-    int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "[SYS] User %s (%s) banned by script.", u->sNick, u->sIP);
-    if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "Ban") == true) {
-        clsUdpDebug::mPtr->Broadcast(clsServerManager::pGlobalBuffer, imsgLen);
-    }
+	clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) banned by script.", u->sNick, u->sIP);
 
     u->Close();
 
@@ -1394,24 +1391,24 @@ static int BanNick(lua_State * L) {
     User *curUser = clsHashManager::mPtr->FindUser(sNick, szNickLen);
     if(curUser != NULL) {
         if(clsBanManager::mPtr->NickBan(curUser, NULL, sReason, sBy) == true) {
-            int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "[SYS] User %s (%s) nickbanned by script.", curUser->sNick, curUser->sIP);
-            if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "NickBan") == true) {
-                clsUdpDebug::mPtr->Broadcast(clsServerManager::pGlobalBuffer, imsgLen);
-            }
+			clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) nickbanned by script.", curUser->sNick, curUser->sIP);
+
             curUser->Close();
+            lua_settop(L, 0);
             lua_pushboolean(L, 1);
         } else {
             curUser->Close();
+            lua_settop(L, 0);
             lua_pushnil(L);
         }
     } else {
         if(clsBanManager::mPtr->NickBan(NULL, sNick, sReason, sBy) == true) {
-            int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "[SYS] Nick %s nickbanned by script.", sNick);
-            if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "NickBan1") == true) {
-                clsUdpDebug::mPtr->Broadcast(clsServerManager::pGlobalBuffer, imsgLen);
-            }
+			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Nick %s nickbanned by script.", sNick);
+
+            lua_settop(L, 0);
             lua_pushboolean(L, 1);
         } else {
+        	lua_settop(L, 0);
             lua_pushnil(L);
         }
     }
@@ -1470,10 +1467,7 @@ static int TempBan(lua_State * L) {
 
     clsBanManager::mPtr->TempBan(u, sReason, sBy, iMinutes, 0, bFull);
 
-    int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "[SYS] User %s (%s) tempbanned by script.", u->sNick, u->sIP);
-    if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "TempBan2") == true) {
-        clsUdpDebug::mPtr->Broadcast(clsServerManager::pGlobalBuffer, imsgLen);
-    }
+	clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) tempbanned by script.", u->sNick, u->sIP);
 
     u->Close();
 
@@ -1542,6 +1536,7 @@ static int TempBanIP(lua_State * L) {
     return 1;
 }
 //------------------------------------------------------------------------------
+
 // NickTempBan(Nick, iTime, sReason, sBy) and user:NickTempBan(iTime, sReason, sBy)
 static int TempBanNick(lua_State * L) {
 	if(lua_gettop(L) != 4) {
@@ -1590,24 +1585,24 @@ static int TempBanNick(lua_State * L) {
     User *curUser = clsHashManager::mPtr->FindUser(sNick, szNickLen);
     if(curUser != NULL) {
         if(clsBanManager::mPtr->NickTempBan(curUser, NULL, sReason, sBy, i32Minutes, 0) == true) {
-            int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "[SYS] User %s (%s) nickbanned by script.", curUser->sNick, curUser->sIP);
-            if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "NickTempBan2") == true) {
-                clsUdpDebug::mPtr->Broadcast(clsServerManager::pGlobalBuffer, imsgLen);
-            }
-            curUser->Close();
+			clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) nickbanned by script.", curUser->sNick, curUser->sIP);
+
+			curUser->Close();
+            lua_settop(L, 0);
             lua_pushboolean(L, 1);
         } else {
             curUser->Close();
+            lua_settop(L, 0);
             lua_pushnil(L);
         }
     } else {
         if(clsBanManager::mPtr->NickTempBan(NULL, sNick, sReason, sBy, i32Minutes, 0) == true) {
-            int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "[SYS] Nick %s nickbanned by script.", sNick);
-            if(CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "NickTempBan3") == true) {
-                clsUdpDebug::mPtr->Broadcast(clsServerManager::pGlobalBuffer, imsgLen);
-            }
+			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Nick %s nickbanned by script.", sNick);
+
+            lua_settop(L, 0);
             lua_pushboolean(L, 1);
         } else {
+        	lua_settop(L, 0);
             lua_pushnil(L);
         }
     }

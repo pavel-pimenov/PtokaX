@@ -58,9 +58,6 @@ private:
 
     bool bSortAscending;
 
-    clsRangeBansDialog(const clsRangeBansDialog&);
-    const clsRangeBansDialog& operator=(const clsRangeBansDialog&);
-
     LRESULT RangeBansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     void AddAllRangeBans();
@@ -69,6 +66,7 @@ private:
     void OnContextMenu(HWND hWindow, LPARAM lParam);
     bool FilterRangeBan(const RangeBanItem * pRangeBan);
     void ChangeRangeBan();
+    DISALLOW_COPY_AND_ASSIGN(clsRangeBansDialog);
 };
 //------------------------------------------------------------------------------
 

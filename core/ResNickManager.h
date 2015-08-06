@@ -44,6 +44,10 @@ private:
 
     DISALLOW_COPY_AND_ASSIGN(clsReservedNicksManager);
 
+
+	void Load();
+	void Save();
+	void LoadXML();
 public:
     static clsReservedNicksManager * mPtr;
 

@@ -26,16 +26,11 @@
 #include "hashUsrManager.h"
 #include "LanguageManager.h"
 #include "ProfileManager.h"
+#include "PXBReader.h"
 #include "ServerManager.h"
 #include "SettingManager.h"
 #include "User.h"
 #include "utility.h"
-//---------------------------------------------------------------------------
-#ifdef _WIN32
-	#pragma hdrstop
-#endif
-//---------------------------------------------------------------------------
-#include "PXBReader.h"
 //---------------------------------------------------------------------------
 #ifdef _BUILD_GUI
     #include "../gui.win/RegisteredUserDialog.h"
@@ -44,9 +39,11 @@
 //---------------------------------------------------------------------------
 clsRegManager * clsRegManager::mPtr = NULL;
 //---------------------------------------------------------------------------
+static const char sPtokaXRegiteredUsers[] = "PtokaX Registered Users";
+static const size_t szPtokaXRegiteredUsersLen = sizeof(sPtokaXRegiteredUsers)-1;
+//---------------------------------------------------------------------------
 
-RegUser::RegUser() : sNick(NULL), pPrev(NULL), pNext(NULL), pHashTablePrev(NULL), pHashTableNext(NULL), tLastBadPass(0), ui32Hash(0), ui16Profile(0),
-	ui8BadPassCount(0), bPassHash(false){
+RegUser::RegUser() : sNick(NULL), pPrev(NULL), pNext(NULL), pHashTablePrev(NULL), pHashTableNext(NULL), tLastBadPass(0), ui32Hash(0), ui16Profile(0), ui8BadPassCount(0), bPassHash(false){
     sPass = NULL;
 }
 //---------------------------------------------------------------------------
@@ -54,7 +51,7 @@ RegUser::RegUser() : sNick(NULL), pPrev(NULL), pNext(NULL), pHashTablePrev(NULL)
 RegUser::~RegUser() {
 #ifdef _WIN32
     if(sNick != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0) {
-		AppendDebugLog("%s - [MEM] Cannot deallocate sNick in RegUser::~RegUser\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot deallocate sNick in RegUser::~RegUser\n");
     }
 #else
 	free(sNick);
@@ -63,7 +60,7 @@ RegUser::~RegUser() {
     if(bPassHash == true) {
 #ifdef _WIN32
         if(ui8PassHash != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ui8PassHash) == 0) {
-		  AppendDebugLog("%s - [MEM] Cannot deallocate ui8PassHash in RegUser::~RegUser\n", 0);
+		  AppendDebugLog("%s - [MEM] Cannot deallocate ui8PassHash in RegUser::~RegUser\n");
         }
 #else
 	   free(ui8PassHash);
@@ -71,7 +68,7 @@ RegUser::~RegUser() {
     } else {
 #ifdef _WIN32
         if(sPass != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPass) == 0) {
-		  AppendDebugLog("%s - [MEM] Cannot deallocate sPass in RegUser::~RegUser\n", 0);
+		  AppendDebugLog("%s - [MEM] Cannot deallocate sPass in RegUser::~RegUser\n");
         }
 #else
 	   free(sPass);
@@ -84,7 +81,7 @@ RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPa
     RegUser * pReg = new (std::nothrow) RegUser();
 
     if(pReg == NULL) {
-        AppendDebugLog("%s - [MEM] Cannot allocate new Reg in RegUser::CreateReg\n", 0);
+        AppendDebugLog("%s - [MEM] Cannot allocate new Reg in RegUser::CreateReg\n");
 
         return NULL;
     }
@@ -95,7 +92,7 @@ RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPa
 	pReg->sNick = (char *)malloc(szRegNickLen+1);
 #endif
     if(pReg->sNick == NULL) {
-        AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sNick in RegUser::RegUser\n", (uint64_t)(szRegNickLen+1));
+        AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in RegUser::RegUser\n", (uint64_t)(szRegNickLen+1));
 
         delete pReg;
         return NULL;
@@ -110,7 +107,7 @@ RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPa
         pReg->ui8PassHash = (uint8_t *)malloc(64);
 #endif
         if(pReg->ui8PassHash == NULL) {
-            AppendDebugLog("%s - [MEM] Cannot allocate 64 bytes for ui8PassHash in RegUser::RegUser\n", 0);
+            AppendDebugLog("%s - [MEM] Cannot allocate 64 bytes for ui8PassHash in RegUser::RegUser\n");
 
             delete pReg;
             return NULL;
@@ -124,7 +121,7 @@ RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPa
         pReg->sPass = (char *)malloc(szRegPassLen+1);
 #endif
         if(pReg->sPass == NULL) {
-            AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sPass in RegUser::RegUser\n", (uint64_t)(szRegPassLen+1));
+            AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sPass in RegUser::RegUser\n", (uint64_t)(szRegPassLen+1));
 
             delete pReg;
             return NULL;
@@ -152,7 +149,7 @@ bool RegUser::UpdatePassword(char * sNewPass, size_t &szNewLen) {
             if(sPass == NULL) {
                 ui8PassHash = (uint8_t *)sOldBuf;
 
-                AppendDebugLog("%s - [MEM] Cannot reallocate %" PRIu64 " bytes for ui8PassHash->sPass in RegUser::UpdatePassword\n", (uint64_t)(szNewLen+1));
+                AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for ui8PassHash->sPass in RegUser::UpdatePassword\n", (uint64_t)(szNewLen+1));
 
                 return false;
             }
@@ -170,7 +167,7 @@ bool RegUser::UpdatePassword(char * sNewPass, size_t &szNewLen) {
             if(sPass == NULL) {
                 sPass = sOldPass;
 
-                AppendDebugLog("%s - [MEM] Cannot reallocate %" PRIu64 " bytes for sPass in RegUser::UpdatePassword\n", (uint64_t)(szNewLen+1));
+                AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for sPass in RegUser::UpdatePassword\n", (uint64_t)(szNewLen+1));
 
                 return false;
             }
@@ -190,7 +187,7 @@ bool RegUser::UpdatePassword(char * sNewPass, size_t &szNewLen) {
             if(ui8PassHash == NULL) {
                 sPass = sOldPass;
 
-                AppendDebugLog("%s - [MEM] Cannot reallocate 64 bytes for sPass->ui8PassHash in RegUser::UpdatePassword\n", 0);
+                AppendDebugLog("%s - [MEM] Cannot reallocate 64 bytes for sPass->ui8PassHash in RegUser::UpdatePassword\n");
 
                 return false;
             }
@@ -247,7 +244,7 @@ bool clsRegManager::AddNew(char * sNick, char * sPasswd, const uint16_t &iProfil
     }
 
     if(pNewUser == NULL) {
-		AppendDebugLog("%s - [MEM] Cannot allocate pNewUser in clsRegManager::AddNew\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot allocate pNewUser in clsRegManager::AddNew\n");
  
         return false;
     }
@@ -291,14 +288,8 @@ bool clsRegManager::AddNew(char * sNick, char * sPasswd, const uint16_t &iProfil
                                 clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_OP_CHAT_HELLO]);
                         }
 
-                        AddedUser->SendCharDelayed(clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_OP_CHAT_MYINFO],
-                            clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_OP_CHAT_MYINFO]);
-
-						char msg[128];
-						int imsgLen = sprintf(msg, "$OpList %s$$|", clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK]);
-                        if(CheckSprintf(imsgLen, 128, "clsRegManager::AddNew") == true) {
-                            AddedUser->SendCharDelayed(msg, imsgLen);
-                        }
+                        AddedUser->SendCharDelayed(clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_OP_CHAT_MYINFO], clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_OP_CHAT_MYINFO]);
+                        AddedUser->SendFormat("clsRegManager::AddNew", true, "$OpList %s$$|", clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK]);
                     }
                 }
             }
@@ -386,22 +377,12 @@ void clsRegManager::ChangeReg(RegUser * pReg, char * sNewPasswd, const uint16_t 
                         clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_OP_CHAT_HELLO]);
                     }
 
-                    ChangedUser->SendCharDelayed(clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_OP_CHAT_MYINFO],
-                        clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_OP_CHAT_MYINFO]);
-
-                    char msg[128];
-                    int imsgLen = sprintf(msg, "$OpList %s$$|", clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK]);
-                    if(CheckSprintf(imsgLen, 128, "clsRegManager::ChangeReg1") == true) {
-                        ChangedUser->SendCharDelayed(msg, imsgLen);
-                    }
+                    ChangedUser->SendCharDelayed(clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_OP_CHAT_MYINFO], clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_OP_CHAT_MYINFO]);
+                    ChangedUser->SendFormat("clsRegManager::ChangeReg1", true, "$OpList %s$$|", clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK]);
                 }
             } else {
                 if(clsSettingManager::mPtr->bBools[SETBOOL_REG_OP_CHAT] == true && (clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false || clsSettingManager::mPtr->bBotsSameNick == false)) {
-                    char msg[128];
-                    int imsgLen = sprintf(msg, "$Quit %s|", clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK]);
-                    if(CheckSprintf(imsgLen, 128, "clsRegManager::ChangeReg2") == true) {
-                        ChangedUser->SendCharDelayed(msg, imsgLen);
-                    }
+                    ChangedUser->SendFormat("clsRegManager::ChangeReg2", true, "$Quit %s|", clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK]);
                 }
             }
         }
@@ -430,11 +411,7 @@ void clsRegManager::Delete(RegUser * pReg, const bool &/*bFromGui = false*/) {
                 pRemovedUser->ui32BoolBits &= ~User::BIT_OPERATOR;
 
                 if(clsSettingManager::mPtr->bBools[SETBOOL_REG_OP_CHAT] == true && (clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false || clsSettingManager::mPtr->bBotsSameNick == false)) {
-                    char msg[128];
-                    int imsgLen = sprintf(msg, "$Quit %s|", clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK]);
-                    if(CheckSprintf(imsgLen, 128, "clsRegManager::Delete") == true) {
-                        pRemovedUser->SendCharDelayed(msg, imsgLen);
-                    }
+                    pRemovedUser->SendFormat("clsRegManager::Delete", true, "$Quit %s|", clsSettingManager::mPtr->sTexts[SETTXT_OP_CHAT_NICK]);
                 }
             }
         }
@@ -581,9 +558,9 @@ void clsRegManager::Load(void) {
 
     // Open regs file
 #ifdef _WIN32
-    if(pxbRegs.OpenFileRead((clsServerManager::sPath + "\\cfg\\RegisteredUsers.pxb").c_str()) == false) {
+    if(pxbRegs.OpenFileRead((clsServerManager::sPath + "\\cfg\\RegisteredUsers.pxb").c_str(), 4) == false) {
 #else
-    if(pxbRegs.OpenFileRead((clsServerManager::sPath + "/cfg/RegisteredUsers.pxb").c_str()) == false) {
+    if(pxbRegs.OpenFileRead((clsServerManager::sPath + "/cfg/RegisteredUsers.pxb").c_str(), 4) == false) {
 #endif
         return;
     }
@@ -596,7 +573,7 @@ void clsRegManager::Load(void) {
     }
 
     // Check header if we have correct file
-    if(pxbRegs.ui16ItemLengths[0] != 23 || strncmp((char *)pxbRegs.pItemDatas[0], "PtokaX Registered Users", 23) != 0) {
+    if(pxbRegs.ui16ItemLengths[0] != szPtokaXRegiteredUsersLen || strncmp((char *)pxbRegs.pItemDatas[0], sPtokaXRegiteredUsers, szPtokaXRegiteredUsersLen) != 0) {
         return;
     }
 
@@ -644,16 +621,25 @@ void clsRegManager::Load(void) {
                     pNewUser = RegUser::CreateReg((char *)pxbRegs.pItemDatas[0], pxbRegs.ui16ItemLengths[0], (char *)pxbRegs.pItemDatas[3], pxbRegs.ui16ItemLengths[3], NULL, iProfile);
                 }
             } else if(pxbRegs.ui16ItemLengths[1] == 64) {
+#ifdef _WITHOUT_SKEIN
+				AppendDebugLog("%s - [ERR] Hashed password found in RegisteredUsers, but PtokaX is compiled without hashing support!\n");
+
+                exit(EXIT_FAILURE);
+#endif
                 pNewUser = RegUser::CreateReg((char *)pxbRegs.pItemDatas[0], pxbRegs.ui16ItemLengths[0], NULL, 0, (uint8_t *)pxbRegs.pItemDatas[1], iProfile);
             }
 
             if(pNewUser == NULL) {
-				AppendDebugLog("%s - [MEM] Cannot allocate pNewUser in clsRegManager::Load\n", 0);
-
-                exit(EXIT_FAILURE);
+				AppendDebugLog("%s - [MEM] Cannot allocate pNewUser in clsRegManager::Load\n");
+				const string l_nick((const char *)pxbRegs.pItemDatas[0],pxbRegs.ui16ItemLengths[0]);
+				printf ("[MEM] Cannot allocate pNewUser in clsRegManager::Load user = %s\n",l_nick.c_str());
+                // [-] PPA 09.07.2015 exit(EXIT_FAILURE);
             }
-
+            else
+		{
 			Add(pNewUser);
+		}
+
 		}
 
         bSuccess = pxbRegs.ReadNextItem(ui16Identificators, 3, 1);
@@ -672,13 +658,12 @@ void clsRegManager::LoadXML() {
 
     if(doc.LoadFile() == false) {
         if(doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY) {
-            char msg[2048];
-            int imsgLen = sprintf(msg, "Error loading file RegisteredUsers.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
-			CheckSprintf(imsgLen, 2048, "clsRegManager::LoadXML");
+            int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file RegisteredUsers.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
+			CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "clsRegManager::LoadXML");
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, msg, clsServerManager::sTitle.c_str(), MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-			AppendLog(msg);
+			AppendLog(clsServerManager::pGlobalBuffer);
 #endif
             exit(EXIT_FAILURE);
         }
@@ -713,15 +698,14 @@ void clsRegManager::LoadXML() {
 				uint16_t iProfile = (uint16_t)atoi(registereduser->Value());
 
 				if(iProfile > iProfilesCount) {
-                    char msg[1024];
-                    int imsgLen = sprintf(msg, "%s %s %s! %s %s.", clsLanguageManager::mPtr->sTexts[LAN_USER], nick, clsLanguageManager::mPtr->sTexts[LAN_HAVE_NOT_EXIST_PROFILE],
+                    int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "%s %s %s! %s %s.", clsLanguageManager::mPtr->sTexts[LAN_USER], nick, clsLanguageManager::mPtr->sTexts[LAN_HAVE_NOT_EXIST_PROFILE],
                         clsLanguageManager::mPtr->sTexts[LAN_CHANGED_PROFILE_TO], clsProfileManager::mPtr->ppProfilesTable[iProfilesCount]->sName);
-					CheckSprintf(imsgLen, 1024, "clsRegManager::Load");
+					CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "clsRegManager::Load");
 
 #ifdef _BUILD_GUI
-					::MessageBox(NULL, msg, clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+					::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 #else
-					AppendLog(msg);
+					AppendLog(clsServerManager::pGlobalBuffer);
 #endif
 
                     iProfile = iProfilesCount;
@@ -731,21 +715,20 @@ void clsRegManager::LoadXML() {
                 if(Find((char*)nick, strlen(nick)) == NULL) {
                     RegUser * pNewUser = RegUser::CreateReg(nick, strlen(nick), pass, strlen(pass), NULL, iProfile);
                     if(pNewUser == NULL) {
-						AppendDebugLog("%s - [MEM] Cannot allocate pNewUser in clsRegManager::LoadXML\n", 0);
+						AppendDebugLog("%s - [MEM] Cannot allocate pNewUser in clsRegManager::LoadXML\n");
 
                     	exit(EXIT_FAILURE);
                     }
 					Add(pNewUser);
                 } else {
-                    char msg[1024];
-                    int imsgLen = sprintf(msg, "%s %s %s! %s.", clsLanguageManager::mPtr->sTexts[LAN_USER], nick, clsLanguageManager::mPtr->sTexts[LAN_IS_ALREADY_IN_REGS], 
+                    int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "%s %s %s! %s.", clsLanguageManager::mPtr->sTexts[LAN_USER], nick, clsLanguageManager::mPtr->sTexts[LAN_IS_ALREADY_IN_REGS], 
                         clsLanguageManager::mPtr->sTexts[LAN_USER_DELETED]);
-					CheckSprintf(imsgLen, 1024, "clsRegManager::Load1");
+					CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "clsRegManager::Load1");
 
 #ifdef _BUILD_GUI
-					::MessageBox(NULL, msg, clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+					::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 #else
-					AppendLog(msg);
+					AppendLog(clsServerManager::pGlobalBuffer);
 #endif
 
                     bIsBuggy = true;
@@ -775,37 +758,37 @@ void clsRegManager::Save(const bool &bSaveOnChange/* = false*/, const bool &bSav
 
     // Open regs file
 #ifdef _WIN32
-    if(pxbRegs.OpenFileSave((clsServerManager::sPath + "\\cfg\\RegisteredUsers.pxb").c_str()) == false) {
+    if(pxbRegs.OpenFileSave((clsServerManager::sPath + "\\cfg\\RegisteredUsers.pxb").c_str(), 3) == false) {
 #else
-    if(pxbRegs.OpenFileSave((clsServerManager::sPath + "/cfg/RegisteredUsers.pxb").c_str()) == false) {
+    if(pxbRegs.OpenFileSave((clsServerManager::sPath + "/cfg/RegisteredUsers.pxb").c_str(), 3) == false) {
 #endif
         return;
     }
 
     // Write file header
-    pxbRegs.sItemIdentifiers[0][0] = 'F';
-    pxbRegs.sItemIdentifiers[0][1] = 'I';
-    pxbRegs.ui16ItemLengths[0] = 23;
-    pxbRegs.pItemDatas[0] = (void *)"PtokaX Registered Users";
+    pxbRegs.sItemIdentifiers[0] = 'F';
+    pxbRegs.sItemIdentifiers[1] = 'I';
+    pxbRegs.ui16ItemLengths[0] = (uint16_t)szPtokaXRegiteredUsersLen;
+    pxbRegs.pItemDatas[0] = (void *)sPtokaXRegiteredUsers;
     pxbRegs.ui8ItemValues[0] = PXBReader::PXB_STRING;
 
-    pxbRegs.sItemIdentifiers[1][0] = 'F';
-    pxbRegs.sItemIdentifiers[1][1] = 'V';
+    pxbRegs.sItemIdentifiers[2] = 'F';
+    pxbRegs.sItemIdentifiers[3] = 'V';
     pxbRegs.ui16ItemLengths[1] = 4;
     uint32_t ui32Version = 1;
     pxbRegs.pItemDatas[1] = (void *)&ui32Version;
     pxbRegs.ui8ItemValues[1] = PXBReader::PXB_FOUR_BYTES;
 
-    if(pxbRegs.WriteNextItem(27, 2) == false) {
+    if(pxbRegs.WriteNextItem(szPtokaXRegiteredUsersLen+4, 2) == false) {
         return;
     }
 
-    pxbRegs.sItemIdentifiers[0][0] = 'N';
-    pxbRegs.sItemIdentifiers[0][1] = 'I';
-    pxbRegs.sItemIdentifiers[1][0] = 'P';
-    pxbRegs.sItemIdentifiers[1][1] = 'A';
-    pxbRegs.sItemIdentifiers[2][0] = 'P';
-    pxbRegs.sItemIdentifiers[2][1] = 'R';
+    pxbRegs.sItemIdentifiers[0] = 'N';
+    pxbRegs.sItemIdentifiers[1] = 'I';
+    pxbRegs.sItemIdentifiers[2] = 'P';
+    pxbRegs.sItemIdentifiers[3] = 'A';
+    pxbRegs.sItemIdentifiers[4] = 'P';
+    pxbRegs.sItemIdentifiers[5] = 'R';
 
     pxbRegs.ui8ItemValues[0] = PXBReader::PXB_STRING;
     pxbRegs.ui8ItemValues[1] = PXBReader::PXB_STRING;
@@ -823,12 +806,12 @@ void clsRegManager::Save(const bool &bSaveOnChange/* = false*/, const bool &bSav
         pxbRegs.ui8ItemValues[0] = PXBReader::PXB_STRING;
 
         if(curReg->bPassHash == true) {
-            pxbRegs.sItemIdentifiers[1][1] = 'S';
+            pxbRegs.sItemIdentifiers[3] = 'S';
 
             pxbRegs.ui16ItemLengths[1] = 64;
             pxbRegs.pItemDatas[1] = (void *)curReg->ui8PassHash;
         } else {
-            pxbRegs.sItemIdentifiers[1][1] = 'A';
+            pxbRegs.sItemIdentifiers[3] = 'A';
 
             pxbRegs.ui16ItemLengths[1] = (uint16_t)strlen(curReg->sPass);
             pxbRegs.pItemDatas[1] = (void *)curReg->sPass;
@@ -867,7 +850,7 @@ void clsRegManager::HashPasswords() {
             if(pCurReg->ui8PassHash == NULL) {
                 pCurReg->sPass = sOldPass;
 
-                AppendDebugLog("%s - [MEM] Cannot reallocate 64bytes for sPass->ui8PassHash in clsRegManager::HashPasswords\n", 64);
+                AppendDebugLog("%s - [MEM] Cannot reallocate 64 bytes for sPass->ui8PassHash in clsRegManager::HashPasswords\n");
 
                 continue;
             }
@@ -879,7 +862,7 @@ void clsRegManager::HashPasswords() {
 
 #ifdef _WIN32
                 if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldPass) == 0) {
-                    AppendDebugLog("%s - [MEM] Cannot deallocate sOldPass in clsRegManager::HashPasswords\n", 0);
+                    AppendDebugLog("%s - [MEM] Cannot deallocate sOldPass in clsRegManager::HashPasswords\n");
                 }
 #else
                 free(sOldPass);
@@ -887,7 +870,7 @@ void clsRegManager::HashPasswords() {
             } else {
 #ifdef _WIN32
                 if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pCurReg->ui8PassHash) == 0) {
-                    AppendDebugLog("%s - [MEM] Cannot deallocate pCurReg->ui8PassHash in clsRegManager::HashPasswords\n", 0);
+                    AppendDebugLog("%s - [MEM] Cannot deallocate pCurReg->ui8PassHash in clsRegManager::HashPasswords\n");
                 }
 #else
                 free(pCurReg->ui8PassHash);
@@ -897,5 +880,156 @@ void clsRegManager::HashPasswords() {
             }
         }
     }
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void clsRegManager::AddRegCmdLine() {
+	char sNick[66];
+
+nick:
+	printf("Please enter Nick for new Registered User (Maximal length 64 characters. Characters |, $ and space are not allowed): ");
+	if(fgets(sNick, 66, stdin) != NULL) {
+		char * sMatch = strchr(sNick, '\n');
+		if(sMatch != NULL) {
+			sMatch[0] = '\0';
+		}
+
+		sMatch = strpbrk(sNick, " $|");
+		if(sMatch != NULL) {
+			printf("Character '%c' is not allowed in Nick!\n", sMatch[0]);
+
+			if(WantAgain() == false) {
+				return;
+			}
+
+			goto nick;
+		}
+
+		size_t szLen = strlen(sNick);
+
+		if(szLen == 0) {
+			printf("No Nick specified!\n");
+
+			if(WantAgain() == false) {
+				return;
+			}
+
+			goto nick;
+		}
+
+		RegUser * pReg = Find(sNick, strlen(sNick));
+		if(pReg != NULL) {
+			printf("Registered user with nick '%s' already exist!\n", sNick);
+
+			if(WantAgain() == false) {
+				return;
+			}
+
+			goto nick;
+		}
+	} else {
+		printf("Error reading Nick... ending.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	char sPassword[66];
+
+password:
+	printf("Please enter Password for new Registered User (Maximal length 64 characters. Character | is not allowed): ");
+	if(fgets(sPassword, 66, stdin) != NULL) {
+		char * sMatch = strchr(sPassword, '\n');
+		if(sMatch != NULL) {
+			sMatch[0] = '\0';
+		}
+
+		sMatch = strchr(sPassword, '|');
+		if(sMatch != NULL) {
+			printf("Character | is not allowed in Password!\n");
+
+			if(WantAgain() == false) {
+				return;
+			}
+
+			goto password;
+		}
+
+		size_t szLen = strlen(sPassword);
+
+		if(szLen == 0) {
+			printf("No Password specified!\n");
+
+			if(WantAgain() == false) {
+				return;
+			}
+
+			goto password;
+		}
+	} else {
+		printf("Error reading Password... ending.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	printf("\nAvailable profiles: \n");
+    for(uint16_t ui16i = 0; ui16i < clsProfileManager::mPtr->ui16ProfileCount; ui16i++) {
+    	printf("%hu - %s\n", ui16i, clsProfileManager::mPtr->ppProfilesTable[ui16i]->sName);
+    }
+
+	uint16_t ui16Profile = 0;
+	char sProfile[7];
+
+profile:
+
+	printf("Please enter Profile number for new Registered User: ");
+	if(fgets(sProfile, 7, stdin) != NULL) {
+		char * sMatch = strchr(sProfile, '\n');
+		if(sMatch != NULL) {
+			sMatch[0] = '\0';
+		}
+
+		uint8_t ui8Len = (uint8_t)strlen(sProfile);
+
+		if(ui8Len == 0) {
+			printf("No Profile specified!\n");
+
+			if(WantAgain() == false) {
+				return;
+			}
+
+			goto profile;
+		}
+
+		for(uint8_t ui8i = 0; ui8i < ui8Len; ui8i++) {
+			if(isdigit(sProfile[ui8i]) == 0) {
+				printf("Character '%c' is not valid number!\n", sProfile[ui8i]);
+
+				if(WantAgain() == false) {
+					return;
+				}
+
+				goto profile;
+			}
+		}
+
+		ui16Profile = (uint16_t)atoi(sProfile);
+		if(ui16Profile >= clsProfileManager::mPtr->ui16ProfileCount) {
+			printf("Profile number %hu not exist!\n", ui16Profile);
+
+			if(WantAgain() == false) {
+				return;
+			}
+
+			goto profile;
+		}
+	} else {
+		printf("Error reading Profile... ending.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if(AddNew(sNick, sPassword, ui16Profile) == false) {
+		printf("Error adding new Registered User... ending.\n");
+		exit(EXIT_FAILURE);
+	} else {
+		printf("Registered User with Nick '%s' Password '%s' and Profile '%hu' was added.", sNick, sPassword, ui16Profile);
+	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

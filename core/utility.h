@@ -59,13 +59,12 @@ uint32_t HashNick(const char * sNick, const size_t &szNickLen);
 bool HashIP(const char * sIP, uint8_t * ui128IpHash);
 uint16_t GetIpTableIdx(const uint8_t * ui128IpHash);
 
-char * GenerateBanMessage(BanItem * Ban, int32_t &iMsgLen, const time_t &acc_time);
-char * GenerateRangeBanMessage(RangeBanItem * RangeBan, int32_t &iMsgLen, const time_t &acc_time);
+int GenerateBanMessage(BanItem * pBan, const time_t &tmAccTime);
+int GenerateRangeBanMessage(RangeBanItem * pRangeBan, const time_t &tmAccTime);
 
 bool GenerateTempBanTime(const char &cMultiplyer, const uint32_t &iTime, time_t &acc_time, time_t &ban_time);
 
 bool HaveOnlyNumbers(char *sData, const uint16_t &ui16Len);
-int GetWlcmMsg(char * sWlcmMsg);
 
 inline size_t Allign256(size_t n) { return ((n+1) & 0xFFFFFF00) + 0x100; }
 inline size_t Allign512(size_t n) { return ((n+1) & 0xFFFFFE00) + 0x200; }
@@ -73,15 +72,12 @@ inline size_t Allign1024(size_t n) { return ((n+1) & 0xFFFFFC00) + 0x400; }
 inline size_t Allign16K(size_t n) { return ((n+1) & 0xFFFFC000) + 0x4000; }
 inline size_t Allign128K(size_t n) { return ((n+1) & 0xFFFE0000) + 0x20000; }
 
-#ifdef _WIN32
-	string GetMemStat();
-#endif
-
 bool CheckSprintf(const int &iRetVal, const size_t &szMax, const char * sMsg); // CheckSprintf(imsgLen, 64, "UdpDebug::New");
 bool CheckSprintf1(const int &iRetVal, const size_t &szLenVal, const size_t &szMax, const char * sMsg); // CheckSprintf1(iret, imsgLen, 64, "UdpDebug::New");
 
 void AppendLog(const string & sData, const bool &bScript = false);
-void AppendDebugLog(const char * sData, const uint64_t ui64Value);
+void AppendDebugLog(const char * sData);
+void AppendDebugLogFormat(const char * sFormatMsg, ...);
 
 #ifdef _WIN32
 	void GetHeapStats(void *hHeap, DWORD &dwCommitted, DWORD &dwUnCommitted);
@@ -99,8 +95,10 @@ bool DirExist(char * sPath);
 #ifdef _WIN32
 	void SetupOsVersion();
 	void * LuaAlocator(void * pOld, void * pData, size_t szOldSize, size_t szNewSize);
-    INT win_inet_pton(PCTSTR pAddrString, PVOID pAddrBuf);
-    void win_inet_ntop(PVOID pAddr, PTSTR pStringBuf, size_t szStringBufSize);
+	#ifndef _WIN64
+    	INT win_inet_pton(PCTSTR pAddrString, PVOID pAddrBuf);
+    	void win_inet_ntop(PVOID pAddr, PTSTR pStringBuf, size_t szStringBufSize);
+    #endif
 #endif
 
 void CheckForIPv4();
@@ -114,12 +112,20 @@ bool CheckAndResizeGlobalBuffer(const size_t &szWantedSize);
 void ReduceGlobalBuffer();
 
 bool HashPassword(char * sPassword, const size_t &szPassLen, uint8_t * ui8PassHash);
+//[+]FlylinkDC++
 inline uint16_t CalcHash(const uint32_t& ui32Hash)
 {
 	uint16_t ui16dx;
 	memcpy(&ui16dx, &ui32Hash, sizeof(uint16_t));
 	return ui16dx;
 }
+
+#ifdef _WIN32
+	uint64_t htobe64(const uint64_t & ui64Value);
+	uint64_t be64toh(const uint64_t & ui64Value);
+#endif
+
+bool WantAgain();
 //---------------------------------------------------------------------------
 
 #endif

@@ -34,6 +34,8 @@ private:
 
 	void AddRunningScript(Script * curScript);
 	void RemoveRunningScript(Script * curScript);
+
+	void LoadXML();
 public:
     static clsScriptManager * mPtr;
 
@@ -65,6 +67,8 @@ public:
 
     Script ** ppScriptTable;
 	User * pActualUser;
+
+	ScriptTimer * pTimerListS, * pTimerListE;
 
     uint8_t ui8ScriptCount, ui8BotsCount;
 
@@ -107,3 +111,4 @@ public:
 //------------------------------------------------------------------------------
 
 #endif
+

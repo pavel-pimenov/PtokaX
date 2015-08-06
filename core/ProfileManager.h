@@ -28,18 +28,20 @@ struct ProfileItem {
     ProfileItem();
     ~ProfileItem();
 
-    char *sName;
+    char * sName;
     bool bPermissions[256];
     DISALLOW_COPY_AND_ASSIGN(ProfileItem);
+
 };
 //---------------------------------------------------------------------------
 
 class clsProfileManager {
 private:
-    DISALLOW_COPY_AND_ASSIGN(clsProfileManager);
 
-    static void CreateDefaultProfiles();
     ProfileItem * CreateProfile(const char * name);
+
+	void Load();
+    void LoadXML();
 public:
     static clsProfileManager * mPtr;
 
@@ -119,7 +121,10 @@ public:
     void ChangeProfilePermission(const uint16_t &iProfile, const size_t &szId, const bool &bValue);
     void SaveProfiles();
     bool RemoveProfile(const uint16_t &iProfile);
+
+    DISALLOW_COPY_AND_ASSIGN(clsProfileManager);
 };
 //---------------------------------------------------------------------------
 
 #endif
+

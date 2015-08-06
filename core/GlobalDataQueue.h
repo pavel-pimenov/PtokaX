@@ -85,8 +85,6 @@ private:
 
     GlobalQueue GlobalQueues[144];
 
-    char msg[128];
-
     DISALLOW_COPY_AND_ASSIGN(clsGlobalDataQueue);
     static void AddDataToQueue(GlobalQueue &pQueue, char * sData, const size_t &szLen);
 public:
@@ -153,7 +151,9 @@ public:
     void * GetFirstQueueItem();
     void * InsertBlankQueueItem(void * pAfterItem, const uint8_t &ui8CmdType);
     void FillBlankQueueItem(char * sCommand, const size_t &szLen, void * pQueueItem);
+    void StatusMessageFormat(const char * sFrom, const char * sFormatMsg, ...);
 };
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #endif
+

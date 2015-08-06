@@ -30,9 +30,15 @@
 #include "GuiSettingManager.h"
 #include "GuiUtil.h"
 //---------------------------------------------------------------------------
-#pragma hdrstop
-//---------------------------------------------------------------------------
 #include "Resources.h"
+//---------------------------------------------------------------------------
+#ifdef _WITH_SQLITE
+	#include <sqlite3.h>
+#elif _WITH_POSTGRES
+	#include <libpq-fe.h>
+#elif _WITH_MYSQL
+	#include <mysql.h>
+#endif
 //---------------------------------------------------------------------------
 static ATOM atomAboutDialog = 0;
 //---------------------------------------------------------------------------
@@ -164,11 +170,19 @@ void AboutDialog::DoModal(HWND hWndParent) {
 
     ::GetClientRect(hWndWindowItems[WINDOW_HANDLE], &rcParent);
 
-    hWndWindowItems[LBL_PTOKAX_VERSION] = ::CreateWindowEx(0, WC_STATIC, "PtokaX " PtokaXVersionString " [build " BUILD_NUMBER "]", WS_CHILD | WS_VISIBLE | SS_CENTER,
+    hWndWindowItems[LBL_PTOKAX_VERSION] = ::CreateWindowEx(0, WC_STATIC, "PtokaX++ " PtokaXVersionString " [build " BUILD_NUMBER "]", WS_CHILD | WS_VISIBLE | SS_CENTER,
         73, 10, ScaleGui(290), ScaleGui(25), hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
     ::SendMessage(hWndWindowItems[LBL_PTOKAX_VERSION], WM_SETFONT, (WPARAM)hBigFont, MAKELPARAM(TRUE, 0));
 
-    hWndWindowItems[LBL_LUA_VERSION] = ::CreateWindowEx(0, WC_STATIC, LUA_RELEASE, WS_CHILD | WS_VISIBLE | SS_CENTER, 73, ScaleGui(39), ScaleGui(290), ScaleGui(25),
+    hWndWindowItems[LBL_LUA_VERSION] = ::CreateWindowEx(0, WC_STATIC, 
+#ifdef _WITH_SQLITE
+		LUA_RELEASE " / SQLite " SQLITE_VERSION
+#elif _WITH_POSTGRES
+		(LUA_RELEASE " / PostgreSQL " string(PQlibVersion())).c_str()
+#elif _WITH_MYSQL
+		LUA_RELEASE " / MySQL " MYSQL_SERVER_VERSION
+#endif
+		, WS_CHILD | WS_VISIBLE | SS_CENTER, 73, ScaleGui(39), ScaleGui(290), ScaleGui(25),
         hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
     ::SendMessage(hWndWindowItems[LBL_LUA_VERSION], WM_SETFONT, (WPARAM)hBigFont, MAKELPARAM(TRUE, 0));
 
@@ -183,7 +197,10 @@ void AboutDialog::DoModal(HWND hWndParent) {
     "PtokaX is a server-software for the Direct Connect P2P Network.\\par\n"
     "It's currently in developing by PPK and Ptaczek since May 2002.\\par\n"
     "\\par\n"
-    "\\b Homepage:\\par\n"
+    "\\b Fork homepage:\\par\n"
+    "https://github.com/pavel-pimenov/PtokaX\\par\n"
+    "\\par\n"
+    "\\b Base homepage:\\par\n"
     "http://www.PtokaX.org\\par\n"
     "\\par\n"
     "LUA Scripts forum:\\par\n"

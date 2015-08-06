@@ -343,14 +343,14 @@ bool clsBanDialog::OnAccept() {
     bool bIpBan = ::SendMessage(hWndWindowItems[BTN_IP_BAN], BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false;
 
 	if(bNickBan == false && bIpBan == false) {
-		::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_YOU_CANT_CREATE_BAN_WITHOUT_NICK_OR_IP], clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+		::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_YOU_CANT_CREATE_BAN_WITHOUT_NICK_OR_IP], g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
 
     int iNickLen = ::GetWindowTextLength(hWndWindowItems[EDT_NICK]);
 
 	if(bNickBan == true && iNickLen == 0) {
-		::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_FOR_NICK_BAN_SPECIFY_NICK], clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+		::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_FOR_NICK_BAN_SPECIFY_NICK], g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
 
@@ -364,10 +364,10 @@ bool clsBanDialog::OnAccept() {
 
 	if(bIpBan == true) {
 		if(iIpLen == 0) {
-			::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_FOR_IP_BAN_SPECIFY_IP], clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+			::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_FOR_IP_BAN_SPECIFY_IP], g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 			return false;
 		} else if(HashIP(sIP, ui128IpHash) == false) {
-			::MessageBox(hWndWindowItems[WINDOW_HANDLE], (string(sIP) + " " + clsLanguageManager::mPtr->sTexts[LAN_IS_NOT_VALID_IP_ADDRESS]).c_str(), clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+			::MessageBox(hWndWindowItems[WINDOW_HANDLE], (string(sIP) + " " + clsLanguageManager::mPtr->sTexts[LAN_IS_NOT_VALID_IP_ADDRESS]).c_str(), g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 			return false;
         }
 	}
@@ -383,9 +383,8 @@ bool clsBanDialog::OnAccept() {
         SYSTEMTIME stDate = { 0 };
         SYSTEMTIME stTime = { 0 };
 
-        if(::SendMessage(hWndWindowItems[DT_TEMP_BAN_EXPIRE_DATE], DTM_GETSYSTEMTIME, 0, (LPARAM)&stDate) != GDT_VALID ||
-            ::SendMessage(hWndWindowItems[DT_TEMP_BAN_EXPIRE_TIME], DTM_GETSYSTEMTIME, 0, (LPARAM)&stTime) != GDT_VALID) {
-            ::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_BAD_TIME_SPECIFIED], clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+        if(::SendMessage(hWndWindowItems[DT_TEMP_BAN_EXPIRE_DATE], DTM_GETSYSTEMTIME, 0, (LPARAM)&stDate) != GDT_VALID || ::SendMessage(hWndWindowItems[DT_TEMP_BAN_EXPIRE_TIME], DTM_GETSYSTEMTIME, 0, (LPARAM)&stTime) != GDT_VALID) {
+            ::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_BAD_TIME_SPECIFIED], g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 
             return false;
         }
@@ -404,8 +403,8 @@ bool clsBanDialog::OnAccept() {
 
 		ban_time = mktime(tm);
 
-		if(ban_time <= acc_time || ban_time == (time_t)-1) {
-			::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_BAD_TIME_SPECIFIED_BAN_EXPIRED], clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+		if(ban_time == (time_t)-1 || ban_time <= acc_time) {
+			::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_BAD_TIME_SPECIFIED_BAN_EXPIRED], g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 
 			return false;
         }
@@ -414,7 +413,7 @@ bool clsBanDialog::OnAccept() {
 	if(pBanToChange == NULL) {
 		BanItem * pBan = new (std::nothrow) BanItem();
 		if(pBan == NULL) {
-            AppendDebugLog("%s - [MEM] Cannot allocate Ban in clsBanDialog::OnAccept\n", 0);
+            AppendDebugLog("%s - [MEM] Cannot allocate Ban in clsBanDialog::OnAccept\n");
 			return false;
 		}
 
@@ -441,7 +440,7 @@ bool clsBanDialog::OnAccept() {
 		if(iNickLen != 0) {
 			pBan->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iNickLen+1);
 			if(pBan->sNick == NULL) {
-				AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsBanDialog::OnAccept\n", (uint64_t)(iNickLen+1));
+				AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sNick in clsBanDialog::OnAccept\n", iNickLen+1);
 				delete pBan;
 
 				return false;
@@ -460,7 +459,7 @@ bool clsBanDialog::OnAccept() {
                     // PPK ... same ban exist, delete new
                     delete pBan;
 
-                    ::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_SIMILAR_BAN_EXIST], clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+                    ::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_SIMILAR_BAN_EXIST], g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
                     return false;
                 }
 			}
@@ -473,7 +472,7 @@ bool clsBanDialog::OnAccept() {
                 // PPK ... same ban exist, delete new
                 delete pBan;
 
-                ::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_SIMILAR_BAN_EXIST], clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+                ::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_SIMILAR_BAN_EXIST], g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
                 return false;
             }
         }
@@ -483,7 +482,7 @@ bool clsBanDialog::OnAccept() {
 		if(iReasonLen != 0) {
             pBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iReasonLen+1);
             if(pBan->sReason == NULL) {
-                AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanDialog::OnAccept\n", (uint64_t)(iReasonLen+1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sReason in clsBanDialog::OnAccept\n", iReasonLen+1);
 
                 delete pBan;
 
@@ -498,7 +497,7 @@ bool clsBanDialog::OnAccept() {
         if(iByLen != 0) {
             pBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iByLen+1);
             if(pBan->sBy == NULL) {
-                AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanDialog::OnAccept\n", (uint64_t)(iByLen+1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sBy in clsBanDialog::OnAccept\n", iByLen+1);
 
                 delete pBan;
 
@@ -667,7 +666,7 @@ bool clsBanDialog::OnAccept() {
 		if(iNickLen != 0) {
             sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iNickLen+1);
             if(sNick == NULL) {
-                AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsBanDialog::OnAccept\n", (uint64_t)(iNickLen+1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sNick in clsBanDialog::OnAccept\n", iNickLen+1);
 
                 return false;
             }
@@ -681,7 +680,7 @@ bool clsBanDialog::OnAccept() {
             }
 
 			if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pBanToChange->sNick) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsBanDialog::OnAccept\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsBanDialog::OnAccept\n");
 			}
 			pBanToChange->sNick = NULL;
 
@@ -696,7 +695,7 @@ bool clsBanDialog::OnAccept() {
 
 			if(pBanToChange->sNick != NULL) {
 				if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pBanToChange->sNick) == 0) {
-					AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsBanDialog::OnAccept\n", 0);
+					AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsBanDialog::OnAccept\n");
 				}
 				pBanToChange->sNick = NULL;
 			}
@@ -716,7 +715,7 @@ bool clsBanDialog::OnAccept() {
 
         if(sNick != NULL && (pBanToChange->sNick != sNick)) {
 			if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsBanDialog::OnAccept\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsBanDialog::OnAccept\n");
 			}
         }
 
@@ -743,7 +742,7 @@ bool clsBanDialog::OnAccept() {
 		if(iReasonLen != 0) {
             sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iReasonLen+1);
             if(sReason == NULL) {
-                AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanDialog::OnAccept\n", (uint64_t)(iReasonLen+1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sReason in clsBanDialog::OnAccept\n", iReasonLen+1);
 
                 return false;
             }
@@ -755,7 +754,7 @@ bool clsBanDialog::OnAccept() {
 			if(pBanToChange->sReason == NULL || strcmp(pBanToChange->sReason, sReason) != NULL) {
 				if(pBanToChange->sReason != NULL) {
 					if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pBanToChange->sReason) == 0) {
-						AppendDebugLog("%s - [MEM] Cannot deallocate sReason in clsBanDialog::OnAccept\n", 0);
+						AppendDebugLog("%s - [MEM] Cannot deallocate sReason in clsBanDialog::OnAccept\n");
 					}
 					pBanToChange->sReason = NULL;
 				}
@@ -764,7 +763,7 @@ bool clsBanDialog::OnAccept() {
 			}
 		} else if(pBanToChange->sReason != NULL) {
 			if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pBanToChange->sReason) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate sReason in clsBanDialog::OnAccept\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate sReason in clsBanDialog::OnAccept\n");
 			}
 
 			pBanToChange->sReason = NULL;
@@ -772,7 +771,7 @@ bool clsBanDialog::OnAccept() {
 
         if(sReason != NULL && (pBanToChange->sReason != sReason)) {
 			if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sReason) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate sReason in clsBanDialog::OnAccept\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate sReason in clsBanDialog::OnAccept\n");
 			}
         }
 
@@ -782,7 +781,7 @@ bool clsBanDialog::OnAccept() {
         if(iByLen != 0) {
             sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iByLen+1);
             if(sBy == NULL) {
-                AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanDialog::OnAccept\n", (uint64_t)(iByLen+1));
+                AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sBy in clsBanDialog::OnAccept\n", iByLen+1);
 
     			return false;
             }
@@ -794,7 +793,7 @@ bool clsBanDialog::OnAccept() {
 			if(pBanToChange->sBy == NULL || strcmp(pBanToChange->sBy, sBy) != NULL) {
 				if(pBanToChange->sBy != NULL) {
 					if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pBanToChange->sBy) == 0) {
-						AppendDebugLog("%s - [MEM] Cannot deallocate sBy in clsBanDialog::OnAccept\n", 0);
+						AppendDebugLog("%s - [MEM] Cannot deallocate sBy in clsBanDialog::OnAccept\n");
 					}
 					pBanToChange->sBy = NULL;
 				}
@@ -803,14 +802,14 @@ bool clsBanDialog::OnAccept() {
 			}
 		} else if(pBanToChange->sBy != NULL) {
 			if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pBanToChange->sBy) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate sBy in clsBanDialog::OnAccept\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate sBy in clsBanDialog::OnAccept\n");
 			}
 			pBanToChange->sBy = NULL;
         }
 
         if(sBy != NULL && (pBanToChange->sBy != sBy)) {
 			if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sBy) == 0) {
-				AppendDebugLog("%s - [MEM] Cannot deallocate sBy in clsBanDialog::OnAccept\n", 0);
+				AppendDebugLog("%s - [MEM] Cannot deallocate sBy in clsBanDialog::OnAccept\n");
 			}
         }
 
@@ -829,6 +828,6 @@ void clsBanDialog::BanDeleted(BanItem * pBan) {
         return;
     }
 
-    ::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_BAN_DELETED_ACCEPT_TO_NEW], clsServerManager::sTitle.c_str(), MB_OK | MB_ICONEXCLAMATION);
+    ::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_BAN_DELETED_ACCEPT_TO_NEW], g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 }
 //------------------------------------------------------------------------------

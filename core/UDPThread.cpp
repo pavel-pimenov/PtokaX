@@ -75,7 +75,7 @@ bool UDPThread::Listen(const int &iAddressFamily) {
         sas_len = sizeof(struct sockaddr_in6);
 
         if(clsSettingManager::mPtr->bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true && clsServerManager::sHubIP6[0] != '\0') {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
             win_inet_pton(clsServerManager::sHubIP6, &((struct sockaddr_in6 *)&sas)->sin6_addr);
 #else
             inet_pton(AF_INET6, clsServerManager::sHubIP6, &((struct sockaddr_in6 *)&sas)->sin6_addr);
@@ -156,7 +156,7 @@ void UDPThread::Resume() {
 	int iRet = pthread_create(&threadId, NULL, ExecuteUDP, this);
 	if(iRet != 0) {
 #endif
-		AppendDebugLog("%s - [ERR] Failed to create new UDPThread\n", 0);
+		AppendDebugLog("%s - [ERR] Failed to create new UDPThread\n");
     }
 }
 //---------------------------------------------------------------------------
@@ -164,10 +164,9 @@ void UDPThread::Resume() {
 void UDPThread::Run() {
     sockaddr_storage sas;
 	socklen_t sas_len = sizeof(sockaddr_storage);
-	int len = 0;
 
 	while(bTerminated == false) {
-		len = recvfrom(sock, rcvbuf, 4095, 0, (struct sockaddr *)&sas, &sas_len);
+		int len = recvfrom(sock, rcvbuf, 4095, 0, (struct sockaddr *)&sas, &sas_len);
 
 		if(len < 5 || strncmp(rcvbuf, "$SR ", 4) != 0) {
 			continue;
@@ -207,7 +206,7 @@ void UDPThread::WaitFor() {
 UDPThread * UDPThread::Create(const int &iAddressFamily) {
     UDPThread * pUDPThread = new (std::nothrow) UDPThread();
     if(pUDPThread == NULL) {
-        AppendDebugLog("%s - [MEM] Cannot allocate pUDPThread in UDPThread::Create\n", 0);
+        AppendDebugLog("%s - [MEM] Cannot allocate pUDPThread in UDPThread::Create\n");
         return NULL;
     }
 

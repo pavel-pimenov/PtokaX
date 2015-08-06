@@ -23,41 +23,26 @@
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #include "hashRegManager.h"
 #include "hashUsrManager.h"
+#include "IP2Country.h"
 #include "LanguageManager.h"
 #include "ProfileManager.h"
 #include "ServerManager.h"
 #include "SettingManager.h"
+#include "TextConverter.h"
 #include "UdpDebug.h"
 #include "User.h"
 #include "utility.h"
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#ifdef _WIN32
-	#pragma hdrstop
-#endif
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#include "IP2Country.h"
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#include <iconv.h>
 #include <libpq-fe.h>
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 DBPostgreSQL * DBPostgreSQL::mPtr = NULL;
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 DBPostgreSQL::DBPostgreSQL() {
-	/*	PotsgreSQL expecting data in utf-8. But we receive data mostly in old windows code pages.
-		So first we need to check if received data are in utf-8.
-		iconv is used and to check utf-8 validity we simply try to convert from utf-8 to utf8 :)
-		iconv for that is created here */
-	iconvUtfCheck = iconv_open("utf8", "utf8");
-	if(iconvUtfCheck == (iconv_t)-1) {
-		AppendLog("DBPostgreSQL iconv_open for iconvUtfCheck failed");
-	}
+	if(clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_DATABASE] == false || clsSettingManager::mPtr->sTexts[SETTXT_POSTGRES_PASS] == NULL) {
+		bConnected = false;
 
-	/*	When received data are not in utf-8 then we convert them from our windows code page to utf-8.
-		iconv for that is created here */
-	iconvAsciiToUtf = iconv_open("utf8", clsSettingManager::mPtr->sTexts[SETTXT_ENCODING]);
-	if(iconvAsciiToUtf == (iconv_t)-1) {
-		AppendLog("DBPostgreSQL iconv_open for iconvAsciiToUtf failed");
+		return;
 	}
 
 	// Connect to PostgreSQL with our settings.
@@ -69,6 +54,7 @@ DBPostgreSQL::DBPostgreSQL() {
 	if(PQstatus(pDBConn) == CONNECTION_BAD) { // Connection to PostgreSQL failed. Save error to log and give up.
 		bConnected = false;
 		AppendLog(string("DBPostgreSQL connection failed: ")+PQerrorMessage(pDBConn));
+		PQfinish(pDBConn);
 
 		return;
 	}
@@ -84,14 +70,14 @@ DBPostgreSQL::DBPostgreSQL() {
 					"SELECT * FROM pg_catalog.pg_tables WHERE tableowner = 'ptokax' AND tablename = 'userinfo'"
 				") THEN\n"
 					"CREATE TABLE userinfo ("
-						"nick varchar(64) NOT NULL,"
-						"last_updated timestamptz NOT NULL,"
-						"ip_address varchar(39) NOT NULL,"
-						"share varchar(24) NOT NULL,"
-						"description varchar(192),"
-						"tag varchar(192),"
-						"connection varchar(32),"
-						"email varchar(96)"
+						"nick VARCHAR(64) NOT NULL PRIMARY KEY,"
+						"last_updated TIMESTAMPTZ NOT NULL,"
+						"ip_address VARCHAR(39) NOT NULL,"
+						"share VARCHAR(24) NOT NULL,"
+						"description VARCHAR(192),"
+						"tag VARCHAR(192),"
+						"connection VARCHAR(32),"
+						"email VARCHAR(96)"
 					");"
 					"CREATE UNIQUE INDEX nick_unique ON userinfo(LOWER(nick));"
 				"END IF;"
@@ -103,6 +89,7 @@ DBPostgreSQL::DBPostgreSQL() {
 		bConnected = false;
 		AppendLog(string("DBPostgreSQL check/create table failed: ")+PQresultErrorMessage(pResult));
 		PQclear(pResult);
+		PQfinish(pDBConn);
 
 		return;
 	}
@@ -119,48 +106,8 @@ DBPostgreSQL::~DBPostgreSQL() {
 		RemoveOldRecords(clsSettingManager::mPtr->i16Shorts[SETSHORT_DB_REMOVE_OLD_RECORDS]);
 	}
 
-	iconv_close(iconvUtfCheck);
-	iconv_close(iconvAsciiToUtf);
-	
-	PQfinish(pDBConn);
-}
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// Function to check if data are in utf-8 and if not then they are converted. Both using iconvs that are created in constructor.
-char * DBPostgreSQL::DoIconv(char * sInput, const uint8_t &ui8InputLen, char * sOutput, const uint8_t &ui8OutputSize) {
-	char * sInBuf = sInput;
-	size_t szInbufLeft = ui8InputLen;
-
-	char * sOutBuf = sOutput;
-	size_t szOutbufLeft = ui8OutputSize-1;
-
-	size_t szRet = iconv(iconvUtfCheck, &sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
-	if(szRet == (size_t)-1) {
-		sInBuf = sInput;
-		szInbufLeft = ui8InputLen;
-
-		sOutBuf = sOutput;
-		szOutbufLeft = ui8OutputSize-1;
-
-		szRet = iconv(iconvAsciiToUtf, &sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
-		if(szRet == (size_t)-1) {
-			if(errno == E2BIG) {
-				clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL iconv E2BIG for param: "+string(sInput, ui8InputLen));
-
-				if(ui8OutputSize == 65) {
-					return NULL;
-				}
-			} else if(errno == EILSEQ || errno == EINVAL) {
-				clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL iconv EILSEQ or EINVAL for param: "+string(sInput, ui8InputLen));
-				return NULL;
-			}
-		}
-
-		sOutput[(ui8OutputSize-szOutbufLeft)-1] = '\0';
-		return sOutput;
-	} else {
-		sOutput[ui8InputLen] = '\0';
-		return sOutput;
+	if(bConnected == true) {
+		PQfinish(pDBConn);
 	}
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -179,8 +126,8 @@ void DBPostgreSQL::UpdateRecord(User * pUser) {
 
 
 	char sNick[65];
-	paramValues[0] = DoIconv(pUser->sNick, pUser->ui8NickLen, sNick, 65);
-	if(paramValues[0] == NULL) {
+	paramValues[0] = sNick;
+	if(TextConverter::mPtr->CheckUtf8AndConvert(pUser->sNick, pUser->ui8NickLen, sNick, 65) == 0) {
 		return;
 	}
 
@@ -192,23 +139,23 @@ void DBPostgreSQL::UpdateRecord(User * pUser) {
 	paramValues[2] = sShare;
 
 	char sDescription[193];
-	if(pUser->sDescription != NULL) {
-		paramValues[3] = DoIconv(pUser->sDescription, pUser->ui8DescriptionLen, sDescription, 193);
+	if(pUser->sDescription != NULL && TextConverter::mPtr->CheckUtf8AndConvert(pUser->sDescription, pUser->ui8DescriptionLen, sDescription, 193) != 0) {
+		paramValues[3] = sDescription;
 	}
 
 	char sTag[193];
-	if(pUser->sTag != NULL) {
-		paramValues[4] = DoIconv(pUser->sTag, pUser->ui8TagLen, sTag, 193);
+	if(pUser->sTag != NULL && TextConverter::mPtr->CheckUtf8AndConvert(pUser->sTag, pUser->ui8TagLen, sTag, 193) != 0) {
+		paramValues[4] = sTag;
 	}
 
 	char sConnection[33];
-	if(pUser->sConnection != NULL) {
-		paramValues[5] = DoIconv(pUser->sConnection, pUser->ui8ConnectionLen, sConnection, 33);
+	if(pUser->sConnection != NULL && TextConverter::mPtr->CheckUtf8AndConvert(pUser->sConnection, pUser->ui8ConnectionLen, sConnection, 33) != 0) {
+		paramValues[5] = sConnection;
 	}
 
 	char sEmail[97];
-	if(pUser->sEmail != NULL) {
-		paramValues[6] = DoIconv(pUser->sEmail, pUser->ui8EmailLen, sEmail, 97);
+	if(pUser->sEmail != NULL && TextConverter::mPtr->CheckUtf8AndConvert(pUser->sEmail, pUser->ui8EmailLen, sEmail, 97) != 0) {
+		paramValues[6] = sEmail;
 	}
 
 	/*	PostgreSQL don't support UPSERT.
@@ -234,7 +181,7 @@ void DBPostgreSQL::UpdateRecord(User * pUser) {
 	);
 
 	if(PQresultStatus(pResult) != PGRES_COMMAND_OK) {
-		clsUdpDebug::mPtr->Broadcast(string("[LOG] DBPostgreSQL update record failed: ")+PQresultErrorMessage(pResult));
+		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL update record failed: %s", PQresultErrorMessage(pResult));
 	}
 
 	char * sRows = PQcmdTuples(pResult);
@@ -270,7 +217,7 @@ void DBPostgreSQL::UpdateRecord(User * pUser) {
 	);
 
 	if(PQresultStatus(pResult) != PGRES_COMMAND_OK) {
-		clsUdpDebug::mPtr->Broadcast(string("[LOG] DBPostgreSQL insert record failed: ")+PQresultErrorMessage(pResult));
+		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL insert record failed: %s", PQresultErrorMessage(pResult));
 	}
 
 	PQclear(pResult);
@@ -291,7 +238,7 @@ bool SendQueryResults(User * pUser, const bool &bFromPM, PGresult * pResult, int
 
 		int iLength = PQgetlength(pResult, 0, 0);
 		if(iLength <= 0 || iLength > 64) {
-			clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL search returned invalid nick length: "+string(iLength));
+			clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid nick length: %d", iLength);
 			return false;
 		}
 
@@ -416,13 +363,13 @@ bool SendQueryResults(User * pUser, const bool &bFromPM, PGresult * pResult, int
 
 			iLength = PQgetlength(pResult, 0, 2);
 			if(iLength <= 0 || iLength > 39) {
-				clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL search returned invalid ip length: "+string(iLength));
+				clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid ip length: %d", iLength);
 				return false;
 			}
 
 			iLength = PQgetlength(pResult, 0, 3);
 			if(iLength <= 0 || iLength > 24) {
-				clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL search returned invalid share length: "+string(iLength));
+				clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid share length: %d", iLength);
 				return false;
 			}
 
@@ -437,7 +384,7 @@ bool SendQueryResults(User * pUser, const bool &bFromPM, PGresult * pResult, int
             if(PQgetisnull(pResult, 0, 4) == 0) {
 				iLength = PQgetlength(pResult, 0, 4);
 				if(iLength > 192) {
-					clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL search returned invalid description length: "+string(iLength));
+					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid description length: %d", iLength);
 					return  false;
 				}
 
@@ -453,7 +400,7 @@ bool SendQueryResults(User * pUser, const bool &bFromPM, PGresult * pResult, int
             if(PQgetisnull(pResult, 0, 5) == 0) {
 				iLength = PQgetlength(pResult, 0, 5);
 				if(iLength > 192) {
-					clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL search returned invalid tag length: "+string(iLength));
+					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid tag length: %d", iLength);
 					return false;
 				}
 
@@ -469,7 +416,7 @@ bool SendQueryResults(User * pUser, const bool &bFromPM, PGresult * pResult, int
             if(PQgetisnull(pResult, 0, 6) == 0) {
 				iLength = PQgetlength(pResult, 0, 6);
 				if(iLength > 32) {
-					clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL search returned invalid connection length: "+string(iLength));
+					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid connection length: %d", iLength);
 					return false;
 				}
 
@@ -485,7 +432,7 @@ bool SendQueryResults(User * pUser, const bool &bFromPM, PGresult * pResult, int
             if(PQgetisnull(pResult, 0, 7) == 0) {
 				iLength = PQgetlength(pResult, 0, 7);
 				if(iLength > 96) {
-					clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL search returned invalid email length: "+string(iLength));
+					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid email length: %d", iLength);
 					return false;
 				}
 
@@ -537,13 +484,13 @@ bool SendQueryResults(User * pUser, const bool &bFromPM, PGresult * pResult, int
 		for(int iActualTuple = 0; iActualTuple < iTuples; iActualTuple++) {
 			int iLength = PQgetlength(pResult, iActualTuple, 0);
 			if(iLength <= 0 || iLength > 64) {
-				clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL search returned invalid nick length: "+string(iLength));
+				clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid nick length: %d", iLength);
 				return false;
 			}
 
 			iLength = PQgetlength(pResult, iActualTuple, 2);
 			if(iLength <= 0 || iLength > 39) {
-				clsUdpDebug::mPtr->Broadcast("[LOG] DBPostgreSQL search returned invalid ip length: "+string(iLength));
+				clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid ip length: %d", iLength);
 				return false;
 			}
 
@@ -573,8 +520,8 @@ bool DBPostgreSQL::SearchNick(char * sNick, const uint8_t &ui8NickLen, User * pU
 	char * paramValues[1] = { NULL };
 
 	char sUtfNick[65];
-	paramValues[0] = DoIconv(sNick, ui8NickLen, sUtfNick, 65);
-	if(paramValues[0] == NULL) {
+	paramValues[0] = sUtfNick;
+	if(TextConverter::mPtr->CheckUtf8AndConvert(sNick, ui8NickLen, sUtfNick, 65) == 0) {
 		return false;
 	}
 
@@ -586,7 +533,7 @@ bool DBPostgreSQL::SearchNick(char * sNick, const uint8_t &ui8NickLen, User * pU
 	PGresult * pResult = PQexecParams(pDBConn, "SELECT nick, EXTRACT(EPOCH FROM last_updated), ip_address, share, description, tag, connection, email FROM userinfo WHERE LOWER(nick) LIKE LOWER($1) ORDER BY last_updated DESC LIMIT 50;", 1, NULL, paramValues, NULL, NULL, 0);
 
 	if(PQresultStatus(pResult) != PGRES_TUPLES_OK) {
-		clsUdpDebug::mPtr->Broadcast(string("[LOG] DBPostgreSQL search for nick failed: ")+PQresultErrorMessage(pResult));
+		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search for nick failed: %s", PQresultErrorMessage(pResult));
 		PQclear(pResult);
 
 		return false;
@@ -620,7 +567,7 @@ bool DBPostgreSQL::SearchIP(char * sIP, User * pUser, const bool &bFromPM) {
 	PGresult * pResult = PQexecParams(pDBConn, "SELECT nick, EXTRACT(EPOCH FROM last_updated), ip_address, share, description, tag, connection, email FROM userinfo WHERE ip_address LIKE $1 ORDER BY last_updated DESC LIMIT 50;", 1, NULL, paramValues, NULL, NULL, 0);
 
 	if(PQresultStatus(pResult) != PGRES_TUPLES_OK) {
-		clsUdpDebug::mPtr->Broadcast(string("[LOG] DBPostgreSQL search for IP failed: ")+PQresultErrorMessage(pResult));
+		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search for IP failed: %s", PQresultErrorMessage(pResult));
 		PQclear(pResult);
 
 		return false;
@@ -670,14 +617,14 @@ void DBPostgreSQL::RemoveOldRecords(const uint16_t &ui16Days) {
 	PGresult * pResult = PQexecParams(pDBConn, "DELETE FROM userinfo WHERE last_updated < to_timestamp($1);", 1, NULL, paramValues, NULL, NULL, 0);
 
 	if(PQresultStatus(pResult) != PGRES_COMMAND_OK) {
-		clsUdpDebug::mPtr->Broadcast(string("[LOG] DBPostgreSQL remove old records failed: ")+PQresultErrorMessage(pResult));
+		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL remove old records failed: %s", PQresultErrorMessage(pResult));
 	}
 
 	char * sRows = PQcmdTuples(pResult);
 
 	/*	When non-zero rows was affected then send info to UDP debug */
 	if(sRows[0] != '0' || sRows[1] != '\0') {
-		clsUdpDebug::mPtr->Broadcast(string("[LOG] DBPostgreSQL removed old records: ")+sRows);
+		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL removed old records: %s", sRows);
 	}
 
 	PQclear(pResult);

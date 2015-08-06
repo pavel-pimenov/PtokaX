@@ -107,7 +107,8 @@ struct User {
 
 	void SendChar(const char * cText, const size_t &szTextLen);
 	void SendCharDelayed(const char * cText, const size_t &szTextLen);
-	void SendTextDelayed(const string & sText);
+	void SendFormat(const char * sFrom, const bool &bDelayed, const char * sFormatMsg, ...);
+	void SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const bool &bDelayed, const char * sFormatMsg, ...);
 
     bool PutInSendBuf(const char * Text, const size_t &szTxtLen);
     bool Try2Send();
@@ -219,7 +220,8 @@ struct User {
     	SUPPORTBIT_ZPIPE                   = 0x20,
     	SUPPORTBIT_IP64                    = 0x40,
     	SUPPORTBIT_IPV4                    = 0x80,
-    	SUPPORTBIT_TLS2                    = 0x100
+    	SUPPORTBIT_TLS2                    = 0x100,
+    	SUPPORTBIT_ZPIPE0                  = 0x200
     };
 
     uint64_t ui64SharedSize, ui64ChangedSharedSizeShort, ui64ChangedSharedSizeLong;

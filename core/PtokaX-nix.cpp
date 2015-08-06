@@ -28,9 +28,6 @@
 #include "SettingManager.h"
 #include "utility.h"
 //---------------------------------------------------------------------------
-#include "regtmrinc.h"
-#include "scrtmrinc.h"
-//---------------------------------------------------------------------------
 static bool bTerminatedBySignal = false;
 static int iSignal = 0;
 //---------------------------------------------------------------------------
@@ -51,15 +48,11 @@ static void SigHandler(int sig) {
 //---------------------------------------------------------------------------
 
 int main(int argc, char* argv[]) {
-	clsServerManager::sTitle = "PtokaX " PtokaXVersionString " build " BUILD_NUMBER " for dchub://dc.fly-server.ru";
-	
-#ifdef _DEBUG
-	clsServerManager::sTitle += " [debug]";
-#endif
-	
+	bool bSetup = false;
+
 	char * sPidFile = NULL;
 
-	for(int i = 0; i < argc; i++) {
+	for(int i = 1; i < argc; i++) {
 	    if(strcasecmp(argv[i], "-d") == 0) {
 	    	clsServerManager::bDaemon = true;
 	    } else if(strcasecmp(argv[i], "-c") == 0) {
@@ -90,10 +83,17 @@ int main(int argc, char* argv[]) {
 	            }
             }
 	    } else if(strcasecmp(argv[i], "-v") == 0) {
-	        printf("%s built on %s %s\n", clsServerManager::sTitle.c_str(), __DATE__, __TIME__);
+	        printf("%s built on %s %s\n", g_sPtokaXTitle, __DATE__, __TIME__);
 	        return EXIT_SUCCESS;
 	    } else if(strcasecmp(argv[i], "-h") == 0) {
-	        printf("PtokaX [-d] [-c <configdir>] [-p <pidfile>] [-v]\n");
+	        printf("Usage: PtokaX [-d] [-v] [-m] [-c configdir] [-p pidfile]\n\n"
+				"Options:\n"
+				"\t-d\t\t- run as daemon.\n"
+				"\t-c configdir\t- absolute path to PtokaX configuration directory.\n"
+				"\t-p pidfile\t-p <pidfile>	- path with filename where PtokaX PID will be stored.\n"
+				"\t-v\t\t- show PtokaX version with build date and time.\n"
+				"\t-m\t\t- show PtokaX configuration menu.\n"
+			);
 	        return EXIT_SUCCESS;
 	    } else if(strcasecmp(argv[i], "-p") == 0) {
 	    	if(++i == argc) {
@@ -105,7 +105,19 @@ int main(int argc, char* argv[]) {
 	    } else if(strcasecmp(argv[i], "/generatexmllanguage") == 0) {
 	        clsLanguageManager::GenerateXmlExample();
 	        return EXIT_SUCCESS;
-	    }
+	    } else if(strcasecmp(argv[i], "-m") == 0) {
+	    	bSetup = true;
+	    } else {
+	    	printf("Unknown parameter %s.\nUsage: PtokaX [-d] [-v] [-m] [-c configdir] [-p pidfile]\n\n"
+				"Options:\n"
+				"\t-d\t\t- run as daemon.\n"
+				"\t-c configdir\t- absolute path to PtokaX configuration directory.\n"
+				"\t-p pidfile\t-p <pidfile>	- path with filename where PtokaX PID will be stored.\n"
+				"\t-v\t\t- show PtokaX version with build date and time.\n"
+				"\t-m\t\t- show PtokaX configuration menu.\n",
+				argv[i]);
+	    	return EXIT_SUCCESS;
+		}
 	}
 	
 	if(clsServerManager::sPath.size() == 0) {
@@ -125,9 +137,19 @@ int main(int argc, char* argv[]) {
 	        clsServerManager::sPath = ".";
 	    }
 	}
-	
+
+	if(bSetup == true) {
+		clsServerManager::Initialize();
+
+		clsServerManager::CommandLineSetup();
+		
+		clsServerManager::FinalClose();
+
+		return EXIT_SUCCESS;
+	}
+
 	if(clsServerManager::bDaemon == true) {
-	    printf("Starting %s as daemon using %s as config directory.\n", clsServerManager::sTitle.c_str(), clsServerManager::sPath.c_str());
+	    printf("Starting %s as daemon using %s as config directory.\n", g_sPtokaXTitle, clsServerManager::sPath.c_str());
 	
 	    pid_t pid1 = fork();
 	    if(pid1 == -1) {
@@ -136,7 +158,7 @@ int main(int argc, char* argv[]) {
 	    } else if(pid1 > 0) {
 	        return EXIT_SUCCESS;
 	    }
-	
+
 	    if(setsid() == -1) {
 	        syslog(LOG_USER | LOG_ERR, "Setsid failed!\n");
 	        return EXIT_FAILURE;
@@ -149,7 +171,7 @@ int main(int argc, char* argv[]) {
 	    } else if(pid2 > 0) {
             return EXIT_SUCCESS;
 	    }
-	
+
 		if(sPidFile != NULL) {
 			FILE * fw = fopen(sPidFile, "w");
 			if(fw != NULL) {
@@ -189,8 +211,6 @@ int main(int argc, char* argv[]) {
 	sigaddset(&sst, SIGPIPE);
 	sigaddset(&sst, SIGURG);
 	sigaddset(&sst, SIGALRM);
-	sigaddset(&sst, SIGSCRTMR);
-	sigaddset(&sst, SIGREGTMR);
 	
 	if(clsServerManager::bDaemon == true) {
 	    sigaddset(&sst, SIGHUP);
@@ -204,91 +224,93 @@ int main(int argc, char* argv[]) {
 	sigact.sa_flags = 0;
 	
 	if(sigaction(SIGINT, &sigact, NULL) == -1) {
-	    AppendDebugLog("%s - [ERR] Cannot create sigaction SIGINT in main\n", 0);
+	    AppendDebugLog("%s - [ERR] Cannot create sigaction SIGINT in main\n");
 	    exit(EXIT_FAILURE);
 	}
 	
 	if(sigaction(SIGTERM, &sigact, NULL) == -1) {
-	    AppendDebugLog("%s - [ERR] Cannot create sigaction SIGTERM in main\n", 0);
+	    AppendDebugLog("%s - [ERR] Cannot create sigaction SIGTERM in main\n");
 	    exit(EXIT_FAILURE);
 	}
 	
 	if(sigaction(SIGQUIT, &sigact, NULL) == -1) {
-	    AppendDebugLog("%s - [ERR] Cannot create sigaction SIGQUIT in main\n", 0);
+	    AppendDebugLog("%s - [ERR] Cannot create sigaction SIGQUIT in main\n");
 	    exit(EXIT_FAILURE);
 	}
 	
 	if(clsServerManager::bDaemon == false && sigaction(SIGHUP, &sigact, NULL) == -1) {
-	    AppendDebugLog("%s - [ERR] Cannot create sigaction SIGHUP in main\n", 0);
+	    AppendDebugLog("%s - [ERR] Cannot create sigaction SIGHUP in main\n");
 	    exit(EXIT_FAILURE);
 	}
 
 	clsServerManager::Initialize();
 
 	if(clsServerManager::Start() == false) {
-	    if(clsServerManager::bDaemon == false) {
-	        printf("Server start failed!\n");
-	    } else {
-	        syslog(LOG_USER | LOG_ERR, "Server start failed!\n");
-	    }
-	    return EXIT_FAILURE;
+		if(clsServerManager::bDaemon == false) {
+		    printf("Server start failed!\n");
+		} else {
+		    syslog(LOG_USER | LOG_ERR, "Server start failed!\n");
+		}
+		return EXIT_FAILURE;
 	} else if(clsServerManager::bDaemon == false) {
-	    printf("%s running...\n", clsServerManager::sTitle.c_str());
+		printf("%s running...\n", g_sPtokaXTitle);
 	}
-
-    struct timespec sleeptime;
-    sleeptime.tv_sec = 0;
-    sleeptime.tv_nsec = 100000000;
-
-	while(true) {
-	    clsServiceLoop::mPtr->Looper();
 	
-	    if(clsServerManager::bServerTerminated == true) {
+	struct timespec sleeptime;
+	sleeptime.tv_sec = 0;
+	sleeptime.tv_nsec = 100000000;
+	
+	while(true) {
+		clsServiceLoop::mPtr->Looper();
+		
+		if(clsServerManager::bServerTerminated == true) {
+		    break;
+		}
+	
+	    if(bTerminatedBySignal == true) {
+	        if(clsServerManager::bIsClose == true) {
+	            break;
+	        }
+	
+	        string str = "Received signal ";
+	
+	        if(iSignal == SIGINT) {
+	            str += "SIGINT";
+	        } else if(iSignal == SIGTERM) {
+	            str += "SIGTERM";
+	        } else if(iSignal == SIGQUIT) {
+	            str += "SIGQUIT";
+	        } else if(iSignal == SIGHUP) {
+	            str += "SIGHUP";
+	        } else {
+	            str += string(iSignal);
+	        }
+	
+	        str += " ending...";
+	
+	        AppendLog(str.c_str());
+	
+	        clsServerManager::bIsClose = true;
+	        clsServerManager::Stop();
+	
+	        // tell the scripts about the end
+	        clsScriptManager::mPtr->OnExit();
+	
+	        // send last possible global data
+	        clsGlobalDataQueue::mPtr->SendFinalQueue();
+	
+	        clsServerManager::FinalStop(true);
+	
 	        break;
 	    }
-
-        if(bTerminatedBySignal == true) {
-            if(clsServerManager::bIsClose == true) {
-                break;
-            }
-
-            string str = "Received signal ";
-
-            if(iSignal == SIGINT) {
-                str += "SIGINT";
-            } else if(iSignal == SIGTERM) {
-                str += "SIGTERM";
-            } else if(iSignal == SIGQUIT) {
-                str += "SIGQUIT";
-            } else if(iSignal == SIGHUP) {
-                str += "SIGHUP";
-            } else {
-                str += string(iSignal);
-            }
-
-            str += " ending...";
-
-            AppendLog(str.c_str());
-
-            clsServerManager::bIsClose = true;
-            clsServerManager::Stop();
-
-            // tell the scripts about the end
-            clsScriptManager::mPtr->OnExit();
-
-            // send last possible global data
-            clsGlobalDataQueue::mPtr->SendFinalQueue();
-
-            clsServerManager::FinalStop(true);
-
-            break;
-        }
-
-        nanosleep(&sleeptime, NULL);
+	
+	    nanosleep(&sleeptime, NULL);
 	}
 
 	if(clsServerManager::bDaemon == false) {
-	    printf("%s ending...\n", clsServerManager::sTitle.c_str());
+	    printf("%s ending...\n", g_sPtokaXTitle);
+	} else if(sPidFile != NULL) {
+		unlink(sPidFile);
 	}
 
     return EXIT_SUCCESS;

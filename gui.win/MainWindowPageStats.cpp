@@ -241,7 +241,7 @@ char * MainWindowPageStats::GetPageName() {
 void OnRedirectAllOk(char * sLine, const int &iLen) {
     char *sMSG = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iLen+16);
     if(sMSG == NULL) {
-		AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sMSG in OnRedirectAllOk\n", (uint64_t)(iLen+16));
+		AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sMSG in OnRedirectAllOk\n", iLen+16);
         return;
     }
 
@@ -263,13 +263,14 @@ void OnRedirectAllOk(char * sLine, const int &iLen) {
     }
 
     if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMSG) == 0) {
-		AppendDebugLog("%s - [MEM] Cannot deallocate sMSG in OnRedirectAllOk\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot deallocate sMSG in OnRedirectAllOk\n");
 	}
 }
 //---------------------------------------------------------------------------
 
 void MainWindowPageStats::OnRedirectAll() {
-    clsUdpDebug::mPtr->Broadcast("[SYS] Redirect All.");
+	const char sRedirectAll[] = "[SYS] Redirect All.";
+    clsUdpDebug::mPtr->Broadcast(sRedirectAll, sizeof(sRedirectAll)-1);
 
 	LineDialog * pRedirectAllDlg = new (std::nothrow) LineDialog(&OnRedirectAllOk);
 
@@ -283,14 +284,12 @@ void MainWindowPageStats::OnRedirectAll() {
 void OnMassMessageOk(char * sLine, const int &iLen) {
     char *sMSG = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iLen+256);
     if(sMSG == NULL) {
-		AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes for sMSG in OnMassMessageOk\n", (uint64_t)(iLen+256));
+		AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sMSG in OnMassMessageOk\n", iLen+256);
         return;
     }
 
-    int imsgLen = sprintf(sMSG, "%s $<%s> %s|",
-        clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false ? clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK] : clsSettingManager::mPtr->sTexts[SETTXT_BOT_NICK],
-        clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false ? clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK] : clsSettingManager::mPtr->sTexts[SETTXT_BOT_NICK],
-        sLine);
+    int imsgLen = sprintf(sMSG, "%s $<%s> %s|", clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false ? clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK] : clsSettingManager::mPtr->sTexts[SETTXT_BOT_NICK], 
+		clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false ? clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK] : clsSettingManager::mPtr->sTexts[SETTXT_BOT_NICK], sLine);
     if(CheckSprintf(imsgLen, iLen+256, "OnMassMessageOk") == false) {
         return;
     }
@@ -298,7 +297,7 @@ void OnMassMessageOk(char * sLine, const int &iLen) {
     clsGlobalDataQueue::mPtr->SingleItemStore(sMSG, imsgLen, NULL, 0, clsGlobalDataQueue::SI_PM2ALL);
 
     if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMSG) == 0) {
-		AppendDebugLog("%s - [MEM] Cannot deallocate sMSG in OnMassMessageOk\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot deallocate sMSG in OnMassMessageOk\n");
 	}
 }
 

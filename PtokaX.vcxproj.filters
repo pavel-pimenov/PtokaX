@@ -274,6 +274,15 @@
     <ClCompile Include="zlib\src\zutil.c">
       <Filter>zlib</Filter>
     </ClCompile>
+    <ClCompile Include="sqlite\sqlite3.c">
+      <Filter>sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="core\TextConverter.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\DB-SQLite.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\eventqueue.h">
@@ -387,7 +396,7 @@
     <ClInclude Include="core\SettingManager.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="core\SettingXml.h">
+    <ClInclude Include="core\SettingStr.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="core\stdinc.h">
@@ -540,6 +549,18 @@
     <ClInclude Include="zlib\src\zutil.h">
       <Filter>zlib</Filter>
     </ClInclude>
+    <ClInclude Include="sqlite\sqlite3.h">
+      <Filter>sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="core\TextConverter.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\DB-SQLite.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\SettingCom.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ico\Spider16M-32x32.ico">
@@ -567,6 +588,9 @@
     </Filter>
     <Filter Include="zlib">
       <UniqueIdentifier>{3485dbac-b20e-4800-8072-3ee39ea8b54f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sqlite">
+      <UniqueIdentifier>{49aee817-015f-428f-845c-659b8f813081}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

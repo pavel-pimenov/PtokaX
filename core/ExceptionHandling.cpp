@@ -20,11 +20,12 @@
 #include "stdinc.h"
 //---------------------------------------------------------------------------
 #include "ExceptionHandling.h"
+
+#ifdef PTOKAX_DEAD_CODE
 //---------------------------------------------------------------------------
+#include "LuaInc.h"
 #include "ServerManager.h"
 #include "utility.h"
-//---------------------------------------------------------------------------
-#pragma hdrstop
 //---------------------------------------------------------------------------
 #include <Dbghelp.h>
 #include <delayimp.h>
@@ -33,8 +34,16 @@
 #pragma comment(lib, "DelayImp.lib")
 
 //---------------------------------------------------------------------------
+#ifdef _WITH_SQLITE
+	#include <sqlite3.h>
+#elif _WITH_POSTGRES
+	#include <libpq-fe.h>
+#elif _WITH_MYSQL
+	#include <mysql.h>
+#endif
+//---------------------------------------------------------------------------
 LPTOP_LEVEL_EXCEPTION_FILTER pOldTLEF = NULL;
-string sLogPath = "", sDebugSymbolsFile = "";
+string sLogPath, sDebugSymbolsFile;
 static const size_t szDebugBufLen = 512;
 static char sDebugBuf[szDebugBufLen];
 //---------------------------------------------------------------------------
@@ -106,7 +115,7 @@ void GetSourceFileInfo(DWORD64 dw64Address, FILE * fw) {
 void GetFunctionInfo(DWORD64 dw64Address, FILE * fw) {
 	DWORD64 dw64Displacement = 0;
 
-    char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+    char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)] = {0};
     PSYMBOL_INFO pSym = (PSYMBOL_INFO)buffer;
 
     pSym->SizeOfStruct = sizeof(SYMBOL_INFO);
@@ -196,7 +205,7 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
 		exit(EXIT_FAILURE);
     }
 
-    string sCrashMsg = "Something bad happen and PtokaX crashed. PtokaX collected information why this crash happen to file ";
+    string sCrashMsg("Something bad happen and PtokaX crashed. PtokaX collected information why this crash happen to file ");
     sCrashMsg += string(sDebugBuf);
     sCrashMsg += ", please send that file to PPK@PtokaX.org!";
 
@@ -205,7 +214,23 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
 #ifdef _M_X64
         " (x64)"
 #endif
-        "\nException Code: %x\n", ExceptionInfo->ExceptionRecord->ExceptionCode);
+#if LUA_VERSION_NUM > 501
+		"\nLua: " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR "." LUA_VERSION_RELEASE
+#else
+        "\n" LUA_RELEASE
+#endif
+#ifdef _WITH_SQLITE
+		"\nSQLite: " SQLITE_VERSION
+#elif _WITH_POSTGRES
+		"\nPostgreSQL: %d"
+#elif _WITH_MYSQL
+		"\nMySQL: " MYSQL_SERVER_VERSION
+#endif
+        "\nException Code: %x\n",
+#ifdef _WITH_POSTGRES
+		PQlibVersion(),
+#endif
+		ExceptionInfo->ExceptionRecord->ExceptionCode);
 
     {
         // Write windoze version where we crashed if is possible
@@ -304,3 +329,4 @@ void ExceptionHandlingUnitialize() {
     SetUnhandledExceptionFilter(pOldTLEF);
 }
 //---------------------------------------------------------------------------
+#endif //  PTOKAX_DEAD_CODE

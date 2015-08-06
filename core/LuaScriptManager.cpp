@@ -41,11 +41,7 @@
 clsScriptManager * clsScriptManager::mPtr = NULL;
 //------------------------------------------------------------------------------
 
-clsScriptManager::clsScriptManager() : pRunningScriptE(NULL), pRunningScriptS(NULL), ppScriptTable(NULL), pActualUser(NULL), ui8ScriptCount(0), ui8BotsCount(0), bMoved(false) {
-#ifdef _WIN32
-    clsServerManager::hLuaHeap = ::HeapCreate(HEAP_NO_SERIALIZE, 0x80000, 0);
-#endif
-
+void clsScriptManager::LoadXML() {
 	// PPK ... first start all script in order from xml file
 #ifdef _WIN32
 	TiXmlDocument doc((clsServerManager::sPath+"\\cfg\\Scripts.xml").c_str());
@@ -54,13 +50,12 @@ clsScriptManager::clsScriptManager() : pRunningScriptE(NULL), pRunningScriptS(NU
 #endif
 	if(doc.LoadFile() == false) {
         if(doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY) {
-            char msg[2048];
-            int imsgLen = sprintf(msg, "Error loading file Scripts.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
-			CheckSprintf(imsgLen, 2048, "clsScriptManager::clsScriptManager");
+            int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Scripts.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
+			CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsScriptManager::LoadXML");
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, msg, clsServerManager::sTitle.c_str(), MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-			AppendLog(msg);
+			AppendLog(clsServerManager::pGlobalBuffer);
 #endif
             exit(EXIT_FAILURE);
         }
@@ -100,6 +95,80 @@ clsScriptManager::clsScriptManager() : pRunningScriptE(NULL), pRunningScriptS(NU
 }
 //------------------------------------------------------------------------------
 
+clsScriptManager::clsScriptManager() : pRunningScriptE(NULL), pRunningScriptS(NULL), ppScriptTable(NULL), pActualUser(NULL), pTimerListS(NULL), pTimerListE(NULL), ui8ScriptCount(0), ui8BotsCount(0), bMoved(false) {
+#ifdef _WIN32
+    clsServerManager::hLuaHeap = ::HeapCreate(HEAP_NO_SERIALIZE, 0x80000, 0);
+#endif
+
+#ifdef _WIN32
+    if(FileExist((clsServerManager::sPath + "\\cfg\\Scripts.pxt").c_str()) == false) {
+#else
+    if(FileExist((clsServerManager::sPath + "/cfg/Scripts.pxt").c_str()) == false) {
+#endif
+        LoadXML();
+
+        return;
+    }
+
+#ifdef _WIN32
+	FILE * fScriptsFile = fopen((clsServerManager::sPath + "\\cfg\\Scripts.pxt").c_str(), "rt");
+#else
+	FILE * fScriptsFile = fopen((clsServerManager::sPath + "/cfg/Scripts.pxt").c_str(), "rt");
+#endif
+    if(fScriptsFile == NULL) {
+#ifdef _WIN32
+        int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Scripts.pxt %s (%d)", WSErrorStr(errno), errno);
+#else
+		int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Scripts.pxt %s (%d)", ErrnoStr(errno), errno);
+#endif
+		CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "clsScriptManager::clsScriptManager");
+#ifdef _BUILD_GUI
+		::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+#else
+		AppendLog(clsServerManager::pGlobalBuffer);
+#endif
+        exit(EXIT_FAILURE);
+    }
+
+	size_t szLen = 0;
+
+	while(fgets(clsServerManager::pGlobalBuffer, (int)clsServerManager::szGlobalBufferSize, fScriptsFile) != NULL) {
+		if(clsServerManager::pGlobalBuffer[0] == '#' || clsServerManager::pGlobalBuffer[0] == '\n') {
+			continue;
+		}
+
+		szLen = strlen(clsServerManager::pGlobalBuffer)-1;
+
+		if(szLen < 7) {
+			continue;
+		}
+
+		clsServerManager::pGlobalBuffer[szLen] = '\0';
+
+		for(size_t szi = szLen-1; szi != 0; szi--) {
+			if(isspace(clsServerManager::pGlobalBuffer[szi-1]) != 0 || clsServerManager::pGlobalBuffer[szi-1] == '=') {
+				clsServerManager::pGlobalBuffer[szi-1] = '\0';
+				continue;
+			}
+
+			break;
+		}
+
+		if(clsServerManager::pGlobalBuffer[0] == '\0' || (clsServerManager::pGlobalBuffer[szLen-1] != '1' && clsServerManager::pGlobalBuffer[szLen-1] != '0')) {
+			continue;
+		}
+
+		if(FileExist((clsServerManager::sScriptPath+string(clsServerManager::pGlobalBuffer)).c_str()) == false || FindScript(clsServerManager::pGlobalBuffer) != NULL) {
+			continue;
+		}
+
+		AddScript(clsServerManager::pGlobalBuffer, clsServerManager::pGlobalBuffer[szLen-1] == '1' ? true : false, false);
+	}
+
+    fclose(fScriptsFile);
+}
+//------------------------------------------------------------------------------
+
 clsScriptManager::~clsScriptManager() {
     pRunningScriptS = NULL;
     pRunningScriptE = NULL;
@@ -110,7 +179,7 @@ clsScriptManager::~clsScriptManager() {
 
 #ifdef _WIN32
 	if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ppScriptTable) == 0) {
-		AppendDebugLog("%s - [MEM] Cannot deallocate ScriptTable in clsScriptManager::~clsScriptManager\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot deallocate ScriptTable in clsScriptManager::~clsScriptManager\n");
 	}
 #else
 	free(ppScriptTable);
@@ -178,14 +247,14 @@ bool clsScriptManager::AddScript(char * sName, const bool &bEnabled, const bool 
 	if(ppScriptTable == NULL) {
         ppScriptTable = oldbuf;
 
-		AppendDebugLog("%s - [MEM] Cannot (re)allocate ppScriptTable in clsScriptManager::AddScript\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot (re)allocate ppScriptTable in clsScriptManager::AddScript\n");
         return false;
     }
 
     ppScriptTable[ui8ScriptCount] = Script::CreateScript(sName, bEnabled);
 
     if(ppScriptTable[ui8ScriptCount] == NULL) {
-        AppendDebugLog("%s - [MEM] Cannot allocate new Script in clsScriptManager::AddScript\n", 0);
+        AppendDebugLog("%s - [MEM] Cannot allocate new Script in clsScriptManager::AddScript\n");
 
         return false;
     }
@@ -267,36 +336,26 @@ void clsScriptManager::RemoveRunningScript(Script * curScript) {
 
 void clsScriptManager::SaveScripts() {
 #ifdef _WIN32
-    TiXmlDocument doc((clsServerManager::sPath+"\\cfg\\Scripts.xml").c_str());
+    FILE * fScriptsFile = fopen((clsServerManager::sPath + "\\cfg\\Scripts.pxt").c_str(), "wb");
 #else
-	TiXmlDocument doc((clsServerManager::sPath+"/cfg/Scripts.xml").c_str());
+	FILE * fScriptsFile = fopen((clsServerManager::sPath + "/cfg/Scripts.pxt").c_str(), "wb");
 #endif
-    doc.InsertEndChild(TiXmlDeclaration("1.0", "windows-1252", "yes"));
-    TiXmlElement scripts("Scripts");
+    if(fScriptsFile == NULL) {
+    	return;
+    }
+
+	static const char sPtokaXScriptsFile[] = "#\n# PtokaX scripts settings file\n#\n\n";
+    fwrite(sPtokaXScriptsFile, 1, sizeof(sPtokaXScriptsFile)-1, fScriptsFile);
 
 	for(uint8_t ui8i = 0; ui8i < ui8ScriptCount; ui8i++) {
 		if(FileExist((clsServerManager::sScriptPath+string(ppScriptTable[ui8i]->sName)).c_str()) == false) {
 			continue;
         }
 
-        TiXmlElement name("Name");
-        name.InsertEndChild(TiXmlText(ppScriptTable[ui8i]->sName));
-        
-        TiXmlElement enabled("Enabled");
-        if(ppScriptTable[ui8i]->bEnabled == true) {
-            enabled.InsertEndChild(TiXmlText("1"));
-        } else {
-            enabled.InsertEndChild(TiXmlText("0"));
-        }
-        
-        TiXmlElement script("Script");
-        script.InsertEndChild(name);
-        script.InsertEndChild(enabled);
-        
-        scripts.InsertEndChild(script);
+        fprintf(fScriptsFile, "%s\t=\t%c\n", ppScriptTable[ui8i]->sName, ppScriptTable[ui8i]->bEnabled == true ? '1' : '0');
     }
-    doc.InsertEndChild(scripts);
-    doc.SaveFile();
+
+    fclose(fScriptsFile);
 }
 //------------------------------------------------------------------------------
 
@@ -785,7 +844,7 @@ bool clsScriptManager::Arrival(User * u, char * sData, const size_t &szLen, cons
 
             lua_getglobal(cur->pLUA, arrival[uiType]);
             iTop = lua_gettop(cur->pLUA);
-            if(lua_isnil(cur->pLUA, iTop)) {
+            if(lua_isfunction(cur->pLUA, iTop) == 0) {
                 cur->ui32DataArrivals &= ~iLuaArrivalBits[uiType];
 
                 lua_settop(cur->pLUA, 0);
@@ -875,7 +934,7 @@ bool clsScriptManager::UserConnected(User * u) {
 
             lua_getglobal(cur->pLUA, ConnectedFunction[ui8Type]);
             iTop = lua_gettop(cur->pLUA);
-			if(lua_isnil(cur->pLUA, iTop)) {
+			if(lua_isfunction(cur->pLUA, iTop) == 0) {
 				switch(ui8Type) {
 					case 0:
 						cur->ui16Functions &= ~Script::USERCONNECTED;
@@ -980,7 +1039,7 @@ void clsScriptManager::UserDisconnected(User * u, Script * pScript/* = NULL*/) {
 
             lua_getglobal(cur->pLUA, DisconnectedFunction[ui8Type]);
             iTop = lua_gettop(cur->pLUA);
-            if(lua_isnil(cur->pLUA, iTop)) {
+            if(lua_isfunction(cur->pLUA, iTop) == 0) {
 				switch(ui8Type) {
 					case 0:
 						cur->ui16Functions &= ~Script::USERDISCONNECTED;

@@ -98,7 +98,7 @@ void ServerThread::Resume() {
     int iRet = pthread_create(&threadId, NULL, ExecuteServerThread, this);
     if(iRet != 0) {
 #endif
-		AppendDebugLog("%s - [ERR] Failed to create new ServerThread\n", 0);
+		AppendDebugLog("%s - [ERR] Failed to create new ServerThread\n");
     }
 }
 //---------------------------------------------------------------------------
@@ -244,11 +244,9 @@ bool ServerThread::Listen(bool bSilent/* = false*/) {
 #endif
 		} else {
 #ifdef _BUILD_GUI
-            ::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_UNB_CRT_SRVR_SCK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_UNB_CRT_SRVR_SCK]) + " " +
-				string(ui16Port) + " ! " + clsLanguageManager::mPtr->sTexts[LAN_ERROR_CODE] + " " + string(WSAGetLastError())).c_str(), clsServerManager::sTitle.c_str(), MB_OK | MB_ICONERROR);
+            ::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_UNB_CRT_SRVR_SCK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_UNB_CRT_SRVR_SCK]) + " " + string(ui16Port) + " ! " + clsLanguageManager::mPtr->sTexts[LAN_ERROR_CODE] + " " + string(WSAGetLastError())).c_str(), g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-            AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_UNB_CRT_SRVR_SCK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_UNB_CRT_SRVR_SCK]) + " " +
-				string(ui16Port) + " ! " + clsLanguageManager::mPtr->sTexts[LAN_ERROR_CODE] + " " + string(errno));
+            AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_UNB_CRT_SRVR_SCK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_UNB_CRT_SRVR_SCK]) + " " + string(ui16Port) + " ! " + clsLanguageManager::mPtr->sTexts[LAN_ERROR_CODE] + " " + string(errno));
 #endif
         }
         return false;
@@ -281,7 +279,7 @@ bool ServerThread::Listen(bool bSilent/* = false*/) {
         sas_len = sizeof(struct sockaddr_in6);
 
         if(clsSettingManager::mPtr->bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true && clsServerManager::sHubIP6[0] != '\0') {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
             win_inet_pton(clsServerManager::sHubIP6, &((struct sockaddr_in6 *)&sas)->sin6_addr);
 #else
             inet_pton(AF_INET6, clsServerManager::sHubIP6, &((struct sockaddr_in6 *)&sas)->sin6_addr);
@@ -327,8 +325,8 @@ bool ServerThread::Listen(bool bSilent/* = false*/) {
 #endif
 		} else {
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_SRV_BIND_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_BIND_ERR]) +
-				": " + string(WSErrorStr(err)) + " (" + string(err) + ") " + clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR] + ": " + string(ui16Port)).c_str(), clsServerManager::sTitle.c_str(), MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_SRV_BIND_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_BIND_ERR]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ") " + clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR] + ": " + string(ui16Port)).c_str(), 
+				g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
             AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_BIND_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_BIND_ERR])+
 #ifdef _WIN32
@@ -363,12 +361,10 @@ bool ServerThread::Listen(bool bSilent/* = false*/) {
 #endif
         } else {
 #ifdef _BUILD_GUI
-            ::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_SRV_LISTEN_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_LISTEN_ERR]) +
-				": " + string(WSErrorStr(err)) + " (" + string(err) + ") " + clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR] + ": " + string(ui16Port)).c_str(), clsServerManager::sTitle.c_str(), MB_OK | MB_ICONERROR);
+            ::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_SRV_LISTEN_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_LISTEN_ERR]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ") " + clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR] + ": " + string(ui16Port)).c_str(), 
+				g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-            AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_LISTEN_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_LISTEN_ERR])+
-				": " + string(errno)+" "+
-				string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR])+": "+string(ui16Port));
+            AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_LISTEN_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_LISTEN_ERR])+": " + string(errno)+" "+string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR])+": "+string(ui16Port));
 #endif
         }
 #ifdef _WIN32
@@ -430,7 +426,7 @@ bool ServerThread::isFlooder(const int &s, const sockaddr_storage &addr) {
 
     AntiConFlood * pNewItem = new (std::nothrow) AntiConFlood(ui128IpHash);
     if(pNewItem == NULL) {
-		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem  in theLoop::isFlooder\n", 0);
+		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem  in theLoop::isFlooder\n");
     	return true;
     }
 

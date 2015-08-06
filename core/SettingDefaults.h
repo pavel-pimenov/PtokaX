@@ -74,12 +74,15 @@ bool SetBoolDef[] = {
     true, //BAN_MSG_SHOW_REASON
     true, //BAN_MSG_SHOW_BY
     true, //REPORT_SUSPICIOUS_TAG
-/*OABSOLETE*/true, //ACCEPT_UNKNOWN_TAG
-    true, //CHECK_IP_IN_COMMANDS
+/*OBSOLETE*/true, //ACCEPT_UNKNOWN_TAG
+/*OBSOLETE*/true, //CHECK_IP_IN_COMMANDS
 /*OBSOLETE*/false, //ABSOLOTE_POPUP_SCRIPT_WINDOW
     false, //LOG_SCRIPT_ERRORS
     false, //NO_QUACK_SUPPORTS
     false, //HASH_PASSWORDS
+#if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
+    true, //ENABLE_DATABASE,
+#endif
 };
 
 int16_t SetShortDef[] = {
@@ -197,7 +200,7 @@ int16_t SetShortDef[] = {
     60, //SEARCH_INTERVAL_TIME, 
     5, //MAX_CONN_SAME_IP
     10, //MIN_RECONN_TIME
-#ifdef _WITH_POSTGRES
+#if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
     0, //DB_REMOVE_OLD_RECORDS
 #endif
     0, //SETSHORT_MAX_USERS_PEAK
@@ -241,13 +244,19 @@ const char* SetTxtDef[] = {
     "", //LANGUAGE
     "", //IPV4_ADDRESS
     "", //IPV6_ADDRESS
+	"cp1252", //ENCODING
 #ifdef _WITH_POSTGRES
-	"", //ENCODING
 	"localhost", //POSTGRES_HOST
 	"5432", //POSTGRES_PORT
 	"ptokax", //POSTGRES_DBNAME
 	"ptokax", //POSTGRES_USER
 	"", //POSTGRES_PASS
+#elif _WITH_MYSQL
+	"localhost", // MYSQL_HOST,
+	"3306", // MYSQL_PORT,
+	"ptokax", //MYSQL_DBNAME,
+	"ptokax", //MYSQL_USER,
+	"", //MYSQL_PASS,
 #endif
 };
 //---------------------------------------------------------------------------

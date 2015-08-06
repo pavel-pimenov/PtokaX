@@ -62,9 +62,7 @@ public:
 private:
     bool bIgnoreItemChanged;
 
-    clsMainWindowPageScripts(const clsMainWindowPageScripts&);
-    const clsMainWindowPageScripts& operator=(const clsMainWindowPageScripts&);
-
+ 
     LRESULT MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     void OnContextMenu(HWND hWindow, LPARAM lParam);
@@ -82,6 +80,8 @@ private:
 
     HWND GetWindowHandle();
     void UpdateSplitterParts();
+
+    DISALLOW_COPY_AND_ASSIGN(clsMainWindowPageScripts);
 };
 //---------------------------------------------------------------------------
 

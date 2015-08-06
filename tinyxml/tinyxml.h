@@ -43,6 +43,10 @@ distribution.
 #define DEBUG
 #endif
 
+#ifdef _WIN32
+	#define TIXML_USE_STL // [+} FlylinkDC++
+#endif
+
 #ifdef TIXML_USE_STL
 	#include <string>
  	#include <iostream>

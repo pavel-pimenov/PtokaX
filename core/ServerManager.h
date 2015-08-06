@@ -26,16 +26,14 @@ class ServerThread;
 
 class clsServerManager {
 public:
-#ifdef _WIN32
-    static void OnSecTimer();
+	static void OnSecTimer();
     static void OnRegTimer();
-#endif
 
     static void Initialize();
 
     static void FinalStop(const bool &bDeleteServiceLoop);
     static void ResumeAccepts();
-    static void SuspendAccepts(const uint32_t &iTime);
+    static void SuspendAccepts(const uint32_t &ui32Time);
     static void UpdateAutoRegState();
 
     static bool Start();
@@ -44,7 +42,9 @@ public:
     static void FinalClose();
     static void CreateServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber, const bool &bResume = false);
 
-    static string sPath, sScriptPath, sTitle;
+	static void CommandLineSetup();
+
+    static string sPath, sScriptPath;
 
 #ifdef _WIN32
 	static string sLuaPath, sOS;
@@ -56,6 +56,10 @@ public:
 
 #ifdef _WIN32
 	static HANDLE hConsole, hLuaHeap, hPtokaXHeap, hRecvHeap, hSendHeap;
+#endif
+
+#ifdef __MACH__
+	static clock_serv_t csMachClock;
 #endif
 
     static double daCpuUsage[60], dCpuUsage;

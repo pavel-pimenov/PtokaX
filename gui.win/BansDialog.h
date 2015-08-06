@@ -58,17 +58,17 @@ private:
 
     bool bSortAscending;
 
-    clsBansDialog(const clsBansDialog&);
-    const clsBansDialog& operator=(const clsBansDialog&);
-
     LRESULT BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
+ 
     void AddAllBans();
     void OnColumnClick(const LPNMLISTVIEW &pListView);
     void RemoveBans();
     void OnContextMenu(HWND hWindow, LPARAM lParam);
     bool FilterBan(const BanItem * pBan);
     void ChangeBan();
+
+    DISALLOW_COPY_AND_ASSIGN(clsBansDialog);
+
 };
 //------------------------------------------------------------------------------
 

@@ -48,6 +48,9 @@
 #define IDC_KICK_USER               1020
 #define IDC_BAN_USER                1021
 #define IDC_REDIRECT_USER           1022
+
+//[+]FlylinkDC++
+#define IDC_HOMEPAGE_FORK           1023
 //---------------------------------------------------------------------------
 
 #endif

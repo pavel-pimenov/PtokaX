@@ -39,7 +39,7 @@ clsReservedNicksManager::ReservedNick::ReservedNick() : sNick(NULL), pPrev(NULL)
 clsReservedNicksManager::ReservedNick::~ReservedNick() {
 #ifdef _WIN32
 	if(sNick != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0) {
-        AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsReservedNicksManager::ReservedNick::~ReservedNick\n", 0);
+        AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsReservedNicksManager::ReservedNick::~ReservedNick\n");
     }
 #else
 	free(sNick);
@@ -51,7 +51,7 @@ clsReservedNicksManager::ReservedNick * clsReservedNicksManager::ReservedNick::C
     ReservedNick * pReservedNick = new (std::nothrow) ReservedNick();
 
     if(pReservedNick == NULL) {
-        AppendDebugLog("%s - [MEM] Cannot allocate new pReservedNick in ReservedNick::CreateReservedNick\n", 0);
+        AppendDebugLog("%s - [MEM] Cannot allocate new pReservedNick in ReservedNick::CreateReservedNick\n");
 
         return NULL;
     }
@@ -63,7 +63,7 @@ clsReservedNicksManager::ReservedNick * clsReservedNicksManager::ReservedNick::C
 	pReservedNick->sNick = (char *)malloc(szNickLen+1);
 #endif
     if(pReservedNick->sNick == NULL) {
-        AppendDebugLog("%s - [MEM] Cannot allocate %" PRIu64 " bytes in ReservedNick::CreateReservedNick\n", (uint64_t)(szNickLen+1));
+        AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes in ReservedNick::CreateReservedNick\n", (uint64_t)(szNickLen+1));
 
         delete pReservedNick;
         return NULL;
@@ -77,48 +77,86 @@ clsReservedNicksManager::ReservedNick * clsReservedNicksManager::ReservedNick::C
 }
 //---------------------------------------------------------------------------
 
-clsReservedNicksManager::clsReservedNicksManager() : pReservedNicks(NULL) {
-	TiXmlDocument doc;
+void clsReservedNicksManager::Load() {
 #ifdef _WIN32
-	if(doc.LoadFile((clsServerManager::sPath+"\\cfg\\ReservedNicks.xml").c_str()) == false && (doc.ErrorId() == TiXmlBase::TIXML_ERROR_OPENING_FILE || doc.ErrorId() == TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY)) {
-		TiXmlDocument doc((clsServerManager::sPath+"\\cfg\\ReservedNicks.xml").c_str());
+	FILE * fReservedNicks = fopen((clsServerManager::sPath + "\\cfg\\ReservedNicks.pxt").c_str(), "rt");
 #else
-	if(doc.LoadFile((clsServerManager::sPath+"/cfg/ReservedNicks.xml").c_str()) == false && (doc.ErrorId() == TiXmlBase::TIXML_ERROR_OPENING_FILE || doc.ErrorId() == TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY)) {
-		TiXmlDocument doc((clsServerManager::sPath+"/cfg/ReservedNicks.xml").c_str());
+	FILE * fReservedNicks = fopen((clsServerManager::sPath + "/cfg/ReservedNicks.pxt").c_str(), "rt");
 #endif
-		doc.InsertEndChild(TiXmlDeclaration("1.0", "windows-1252", "yes"));
-		TiXmlElement reservednicks("ReservedNicks");
-		const char* Nicks[] = { "Hub-Security", "Admin", "Client", "PtokaX", "OpChat" };
-		for(uint8_t ui8i = 0; ui8i < 5; ui8i++) {
-			AddReservedNick(Nicks[ui8i]);
-			TiXmlElement reservednick("ReservedNick");
-			reservednick.InsertEndChild(TiXmlText(Nicks[ui8i]));
-
-			reservednicks.InsertEndChild(reservednick);
-		}
-		doc.InsertEndChild(reservednicks);
-		doc.SaveFile();
+    if(fReservedNicks == NULL) {
+#ifdef _WIN32
+        int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file ReservedNicks.pxt %s (%d)", WSErrorStr(errno), errno);
+#else
+		int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file ReservedNicks.pxt %s (%d)", ErrnoStr(errno), errno);
+#endif
+		CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "clsReservedNicksManager::Load");
+#ifdef _BUILD_GUI
+		::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+#else
+		AppendLog(clsServerManager::pGlobalBuffer);
+#endif
+        exit(EXIT_FAILURE);
     }
 
+	size_t szLen = 0;
+
+	while(fgets(clsServerManager::pGlobalBuffer, (int)clsServerManager::szGlobalBufferSize, fReservedNicks) != NULL) {
+		if(clsServerManager::pGlobalBuffer[0] == '#' || clsServerManager::pGlobalBuffer[0] == '\n') {
+			continue;
+		}
+
+		szLen = strlen(clsServerManager::pGlobalBuffer)-1;
+
+		clsServerManager::pGlobalBuffer[szLen] = '\0';
+
+		if(clsServerManager::pGlobalBuffer[0] == '\0') {
+			continue;
+		}
+
+		AddReservedNick(clsServerManager::pGlobalBuffer);
+	}
+
+    fclose(fReservedNicks);
+}
+//---------------------------------------------------------------------------
+
+void clsReservedNicksManager::Save() {
 #ifdef _WIN32
-	if(doc.LoadFile((clsServerManager::sPath+"\\cfg\\ReservedNicks.xml").c_str()) == false) {
+    FILE * fReservedNicks = fopen((clsServerManager::sPath + "\\cfg\\ReservedNicks.pxt").c_str(), "wb");
 #else
-	if(doc.LoadFile((clsServerManager::sPath+"/cfg/ReservedNicks.xml").c_str()) == false) {
+	FILE * fReservedNicks = fopen((clsServerManager::sPath + "/cfg/ReservedNicks.pxt").c_str(), "wb");
 #endif
-        if(doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY) {
-            char msg[2048];
-            int imsgLen = sprintf(msg, "Error loading file ReservedNicks.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
-			CheckSprintf(imsgLen, 2048, "clsReservedNicksManager::clsReservedNicksManager");
-#ifdef _BUILD_GUI
-			::MessageBox(NULL, msg, clsServerManager::sTitle.c_str(), MB_OK | MB_ICONERROR);
+    if(fReservedNicks == NULL) {
+    	return;
+    }
+
+	static const char sPtokaXResNickFile[] = "#\n# PtokaX reserved nicks file\n#\n\n";
+    fwrite(sPtokaXResNickFile, 1, sizeof(sPtokaXResNickFile)-1, fReservedNicks);
+
+    ReservedNick * pCur = NULL,
+        * pNext = pReservedNicks;
+
+    while(pNext != NULL) {
+        pCur = pNext;
+        pNext = pCur->pNext;
+
+		fprintf(fReservedNicks, "%s\n", pCur->sNick);
+    }
+
+	fclose(fReservedNicks);
+}
+//---------------------------------------------------------------------------
+
+void clsReservedNicksManager::LoadXML() {
+	TiXmlDocument doc;
+
+#ifdef _WIN32
+	if(doc.LoadFile((clsServerManager::sPath+"\\cfg\\ReservedNicks.xml").c_str()) == true) {
 #else
-			AppendLog(msg);
+	if(doc.LoadFile((clsServerManager::sPath+"/cfg/ReservedNicks.xml").c_str()) == true) {
 #endif
-            exit(EXIT_FAILURE);
-        }
-    } else {
 		TiXmlHandle cfg(&doc);
-		TiXmlNode *reservednicks = cfg.FirstChild("ReservedNicks").Node();
+		TiXmlNode * reservednicks = cfg.FirstChild("ReservedNicks").Node();
 		if(reservednicks != NULL) {
 			TiXmlNode *child = NULL;
 			while((child = reservednicks->IterateChildren(child)) != NULL) {
@@ -136,8 +174,38 @@ clsReservedNicksManager::clsReservedNicksManager() : pReservedNicks(NULL) {
     }
 }
 //---------------------------------------------------------------------------
+
+clsReservedNicksManager::clsReservedNicksManager() : pReservedNicks(NULL) {
+#ifdef _WIN32
+    if(FileExist((clsServerManager::sPath + "\\cfg\\ReservedNicks.pxt").c_str()) == true) {
+#else
+    if(FileExist((clsServerManager::sPath + "/cfg/ReservedNicks.pxt").c_str()) == true) {
+#endif
+        Load();
+
+        return;
+#ifdef _WIN32
+    } else if(FileExist((clsServerManager::sPath + "\\cfg\\ReservedNicks.xml").c_str()) == true) {
+#else
+    } else if(FileExist((clsServerManager::sPath + "/cfg/ReservedNicks.xml").c_str()) == true) {
+#endif
+        LoadXML();
+
+        return;
+    } else {
+		const char * sNicks[] = { "Hub-Security", "Admin", "Client", "PtokaX", "OpChat" };
+		for(uint8_t ui8i = 0; ui8i < 5; ui8i++) {
+			AddReservedNick(sNicks[ui8i]);
+		}
+
+		Save();
+	}
+}
+//---------------------------------------------------------------------------
 	
 clsReservedNicksManager::~clsReservedNicksManager() {
+	Save();
+
     ReservedNick * cur = NULL,
         * next = pReservedNicks;
 
@@ -174,7 +242,7 @@ void clsReservedNicksManager::AddReservedNick(const char * sNick, const bool &bF
     if(CheckReserved(sNick, ulHash) == false) {
         ReservedNick * pNewNick = ReservedNick::CreateReservedNick(sNick, ulHash);
         if(pNewNick == NULL) {
-			AppendDebugLog("%s - [MEM] Cannot allocate pNewNick in clsReservedNicksManager::AddReservedNick\n", 0);
+			AppendDebugLog("%s - [MEM] Cannot allocate pNewNick in clsReservedNicksManager::AddReservedNick\n");
         	return;
         }
 

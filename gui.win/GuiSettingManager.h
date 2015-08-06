@@ -25,8 +25,6 @@
 
 class clsGuiSettingManager {
 private:
-    clsGuiSettingManager(const clsGuiSettingManager&);
-    const clsGuiSettingManager& operator=(const clsGuiSettingManager&);
 
     void Load();
 public:
@@ -68,6 +66,9 @@ public:
     void SetInteger(const size_t &szIntegerId, const int32_t &i32Value); //clsGuiSettingManager::mPtr->SetInteger()
 
     void Save() const;
+
+    DISALLOW_COPY_AND_ASSIGN(clsGuiSettingManager);
+
 };
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

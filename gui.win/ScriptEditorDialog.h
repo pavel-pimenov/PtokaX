@@ -23,38 +23,38 @@
 
 class ScriptEditorDialog {
 public:
-    HWND hWndWindowItems[5];
+	HWND hWndWindowItems[5];
 
-    enum enmWindowItems {
-        WINDOW_HANDLE,
-        REDT_SCRIPT,
-        BTN_LOAD_SCRIPT,
-        BTN_CHECK_SYNTAX,
-        BTN_SAVE_SCRIPT
-    };
+	enum enmWindowItems {
+		WINDOW_HANDLE,
+		REDT_SCRIPT,
+		BTN_LOAD_SCRIPT,
+		BTN_CHECK_SYNTAX,
+		BTN_SAVE_SCRIPT
+	};
 
-    ScriptEditorDialog();
-    ~ScriptEditorDialog();
+	ScriptEditorDialog();
+	~ScriptEditorDialog();
 
-    static LRESULT CALLBACK StaticScriptEditorDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK StaticScriptEditorDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	void DoModal(HWND hWndParent);
 	void LoadScript(char * sScript);
 private:
-    string sScriptPath;
+	string sScriptPath;
 
-    ScriptEditorDialog(const ScriptEditorDialog&);
-    const ScriptEditorDialog& operator=(const ScriptEditorDialog&);
+	ScriptEditorDialog(const ScriptEditorDialog&);
+	const ScriptEditorDialog& operator=(const ScriptEditorDialog&);
 
-    LRESULT ScriptEditorDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT ScriptEditorDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    void OnContextMenu(HWND hWindow, LPARAM lParam);
-    void OnUpdate();
-    void OnLoadScript();
-    void OnCheckSyntax();
-    void OnSaveScript();
-    string prepareLoadSaveScript(OPENFILENAME& OpenFileName, bool isSave);
+	void OnContextMenu(HWND hWindow, LPARAM lParam);
+	void OnUpdate();
+	void OnLoadScript();
+	void OnCheckSyntax();
+	void OnSaveScript();
+	string prepareLoadSaveScript(OPENFILENAME& OpenFileName, bool isSave); //[+]FlylinkDC++
+	//------------------------------------------------------------------------------
 };
-//------------------------------------------------------------------------------
 
 #endif
