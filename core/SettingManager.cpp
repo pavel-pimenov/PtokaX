@@ -975,9 +975,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt) {
 //---------------------------------------------------------------------------
 
 void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const size_t &szLen) {
-    if((ui16TextsLens[szTxtId] == (uint16_t)szLen &&
-        (sTexts[szTxtId] != NULL && strcmp(sTexts[szTxtId], sTxt) == 0)) ||
-        strchr(sTxt, '|') != NULL) {
+    if(ui16TextsLens[szTxtId] == (uint16_t)szLen && (sTexts[szTxtId] != NULL && strcmp(sTexts[szTxtId], sTxt) == 0)) {
         return;
     }
 
@@ -1069,7 +1067,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             break;
         case SETTXT_BOT_DESCRIPTION:
         case SETTXT_BOT_EMAIL:
-            if(szLen > 64 || strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL) {
+            if(szLen > 64 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL))) {
                 return;
             }
             if(bBools[SETBOOL_REG_BOT] == true) {
@@ -1078,7 +1076,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             break;
         case SETTXT_OP_CHAT_DESCRIPTION:
         case SETTXT_OP_CHAT_EMAIL:
-            if(szLen > 64 || strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL) {
+            if(szLen > 64 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL))) {
                 return;
             }
             if(bBools[SETBOOL_REG_OP_CHAT] == true) {
@@ -1086,7 +1084,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
             }
             break;
         case SETTXT_HUB_OWNER_EMAIL:
-            if(szLen > 64 || strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL) {
+            if(szLen > 64 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL))) {
                 return;
             }
             break;

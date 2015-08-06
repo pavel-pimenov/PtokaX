@@ -3,6 +3,8 @@ del .\compiled\PtokaX-gui.exe
 del .\compiled\PtokaX.pdb
 del .\compiled\PtokaX-gui.pdb
 
+svn log > PtokaX-svn-log.txt
+
 call "%VS100COMNTOOLS%\..\..\VC\bin\vcvars32.bat"
 "%VS100COMNTOOLS%..\ide\devenv" PtokaX-gui.sln /Rebuild "Release|Win32"
 
