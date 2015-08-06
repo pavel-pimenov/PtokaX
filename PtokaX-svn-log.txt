@@ -1,0 +1,426 @@
+------------------------------------------------------------------------
+r62 | pavel.pimenov@gmail.com | 2015-08-06 14:47:44 +0300 (Чт, 06 авг 2015) | 4 lines
+
+Merged revision(s) 61 from branches/vendors:
+* PtokaX-svn-144
+........
+
+------------------------------------------------------------------------
+r60 | pavel.pimenov@gmail.com | 2015-08-05 09:20:44 +0300 (Ср, 05 авг 2015) | 4 lines
+
+Merged revision(s) 58 from branches/vendors:
+* PtokaX-svn-143
+........
+
+------------------------------------------------------------------------
+r59 | pavel.pimenov@gmail.com | 2015-08-05 09:15:58 +0300 (Ср, 05 авг 2015) | 1 line
+
+# fix error merge
+------------------------------------------------------------------------
+r57 | pavel.pimenov@gmail.com | 2015-07-29 20:36:29 +0300 (Ср, 29 июл 2015) | 4 lines
+
+Merged revision(s) 56 from branches/vendors:
+* PtokaX-svn-142
+........
+
+------------------------------------------------------------------------
+r55 | pavel.pimenov@gmail.com | 2015-07-29 15:54:34 +0300 (Ср, 29 июл 2015) | 1 line
+
+* sqlite 3.8.11
+------------------------------------------------------------------------
+r54 | pavel.pimenov@gmail.com | 2015-07-27 09:23:16 +0300 (Пн, 27 июл 2015) | 1 line
+
+# Fix build - part-2
+------------------------------------------------------------------------
+r53 | pavel.pimenov@gmail.com | 2015-07-27 09:10:56 +0300 (Пн, 27 июл 2015) | 86 lines
+
+Merged revision(s) 52 from branches/vendors:
+Revision: 141
+Author: PPK
+Date: 27.07.2015 6:38:21
+Message:
+Changed: Profiles file from xml to binary format.
+-------------------------------
+M(T ) : /Changelog.txt
+
+D : /cfg.example/Profiles.xml
+
+M(T ) : /core/LuaScriptManager.cpp
+
+M(T ) : /core/PXBReader.cpp
+
+M(T ) : /core/PXBReader.h
+
+M(T ) : /core/ProfileManager.cpp
+
+M(T ) : /core/ProfileManager.h
+
+M(T ) : /core/ResNickManager.cpp
+
+M(T ) : /core/SettingManager.cpp
+
+M(T ) : /core/hashRegManager.cpp
+
+M(T ) : /core/stdinc.h
+
+M(T ) : /gui.win/SettingPage.cpp
+
+M(T ) : /gui.win/SettingPage.h
+
+M(T ) : /gui.win/SettingPageAdvanced.cpp
+
+M(T ) : /gui.win/SettingPageDeflood.cpp
+
+M(T ) : /gui.win/SettingPageDeflood2.cpp
+
+M(T ) : /gui.win/SettingPageDeflood3.cpp
+
+M(T ) : /gui.win/SettingPageGeneral.cpp
+
+M(T ) : /gui.win/SettingPageGeneral2.cpp
+
+M(T ) : /gui.win/SettingPageMyINFO.cpp
+
+M(T ) : /language/Turkish.xml
+
+Revision: 140
+Author: PPK
+Date: 26.07.2015 6:46:10
+Message:
+Changed: Reserved Nicks and Scripts settings files from xml to simple text format.
+-------------------------------
+M(T ) : /Changelog.txt
+
+A(T ) : /cfg.example/ReservedNicks.pxt
+
+D : /cfg.example/ReservedNicks.xml
+
+A(T ) : /cfg.example/Scripts.pxt
+
+D : /cfg.example/Scripts.xml
+
+M(T ) : /core/LuaScriptManager.cpp
+
+M(T ) : /core/LuaScriptManager.h
+
+M(T ) : /core/ResNickManager.cpp
+
+M(T ) : /core/ResNickManager.h
+
+M(T ) : /core/SettingManager.cpp
+
+M(T ) : /core/stdinc.h
+
+M(T ) : /gui.win/MainWindow.cpp
+
+M(T ) : /gui.win/MainWindowPageUsersChat.cpp
+
+M(T ) : /gui.win/RangeBansDialog.cpp
+
+
+........
+
+------------------------------------------------------------------------
+r51 | pavel.pimenov@gmail.com | 2015-07-24 08:28:44 +0300 (Пт, 24 июл 2015) | 4 lines
+
+Merged revision(s) 50 from branches/vendors:
+* PtokaX-svn
+........
+
+------------------------------------------------------------------------
+r49 | pavel.pimenov@gmail.com | 2015-07-23 08:30:36 +0300 (Чт, 23 июл 2015) | 1 line
+
+* Fix build AppendDebugLog (part-1)
+------------------------------------------------------------------------
+r48 | pavel.pimenov@gmail.com | 2015-07-23 07:58:51 +0300 (Чт, 23 июл 2015) | 4 lines
+
+Merged revision(s) 47 from branches/vendors:
+* PtokaX-svn
+........
+
+------------------------------------------------------------------------
+r46 | pavel.pimenov@gmail.com | 2015-07-21 09:55:55 +0300 (Вт, 21 июл 2015) | 6 lines
+
+Merged revision(s) 44-45 from branches/vendors:
+* House cleaning...
+........
+* House cleaning...
+........
+
+------------------------------------------------------------------------
+r43 | pavel.pimenov@gmail.com | 2015-07-18 00:28:12 +0300 (Сб, 18 июл 2015) | 5 lines
+
+Merged revision(s) 42 from branches/vendors:
+* PtokaX-svn 
+ - Improved: Performance for strings sent do UDP Debug.
+........
+
+------------------------------------------------------------------------
+r41 | pavel.pimenov@gmail.com | 2015-07-17 23:08:35 +0300 (Пт, 17 июл 2015) | 1 line
+
+* git-sync
+------------------------------------------------------------------------
+r40 | pavel.pimenov@gmail.com | 2015-07-15 08:51:48 +0300 (Ср, 15 июл 2015) | 1 line
+
+* cppcheck
+------------------------------------------------------------------------
+r39 | pavel.pimenov@gmail.com | 2015-07-14 21:49:47 +0300 (Вт, 14 июл 2015) | 1 line
+
+# Fix linux build
+------------------------------------------------------------------------
+r38 | pavel.pimenov@gmail.com | 2015-07-14 21:44:21 +0300 (Вт, 14 июл 2015) | 5 lines
+
+Merged revision(s) 37 from branches/vendors:
+Added: Support to compile PtokaX on OpenBSD, NetBSD and Mac OS X.
+Changed: Timer handling on Unixes.
+........
+
+------------------------------------------------------------------------
+r36 | pavel.pimenov@gmail.com | 2015-07-14 21:25:56 +0300 (Вт, 14 июл 2015) | 1 line
+
+* Fix build win32
+------------------------------------------------------------------------
+r35 | pavel.pimenov@gmail.com | 2015-07-11 16:06:05 +0300 (Сб, 11 июл 2015) | 4 lines
+
+Merged revision(s) 34 from branches/vendors:
+* PtokaX-svn-502
+........
+
+------------------------------------------------------------------------
+r33 | pavel.pimenov@gmail.com | 2015-07-11 15:59:23 +0300 (Сб, 11 июл 2015) | 2 lines
+
+* Исправил путь к xml парсеру
+* sqlite
+------------------------------------------------------------------------
+r32 | pavel.pimenov@gmail.com | 2015-07-09 16:44:08 +0300 (Чт, 09 июл 2015) | 4 lines
+
+Merged revision(s) 31 from branches/vendors:
+* PtokaX-svn
+........
+
+------------------------------------------------------------------------
+r30 | pavel.pimenov@gmail.com | 2015-06-17 13:32:23 +0300 (Ср, 17 июн 2015) | 4 lines
+
+Merged revision(s) 29 from branches/vendors:
+* PtokaX-svn
+........
+
+------------------------------------------------------------------------
+r28 | pavel.pimenov@gmail.com | 2015-06-02 21:59:51 +0300 (Вт, 02 июн 2015) | 5 lines
+
+Merged revision(s) 27 from branches/vendors:
+Added: Support for MySQL database to store info about users.
+Fixed: Few bad possitions of gui items in settings window (thx keep_clear for report).
+........
+
+------------------------------------------------------------------------
+r26 | pavel.pimenov@gmail.com | 2015-05-25 21:17:55 +0300 (Пн, 25 май 2015) | 5 lines
+
+Merged revision(s) 25 from branches/vendors:
+# Added: Support for SQLite database to store info about users.
+ 
+........
+
+------------------------------------------------------------------------
+r24 | pavel.pimenov@gmail.com | 2015-05-17 10:18:20 +0300 (Вс, 17 май 2015) | 1 line
+
+#
+------------------------------------------------------------------------
+r22 | pavel.pimenov@gmail.com | 2015-04-28 21:54:19 +0300 (Вт, 28 апр 2015) | 4 lines
+
+Merged revision(s) 21 from branches/vendors:
+Added: -p command line param for pid file.
+........
+
+------------------------------------------------------------------------
+r20 | pavel.pimenov@gmail.com | 2015-04-16 19:16:22 +0300 (Чт, 16 апр 2015) | 19 lines
+
+Merged revision(s) 18 from branches/vendors:
+Revision: 114
+Author: PPK
+Date: 16.04.2015 15:33:32
+Message:
+Added: Little time delay before $Lock is sent by hub. That way hub don't sending $Lock if new connection is CTM DDOS (idea from original NeoModus Direct Connect Hub 1.0.25).
+Changed: Support for CTM2HUB in now enabled.
+-------------------------------
+M : /Changelog.txt
+
+M : /core/DcCommands.cpp
+
+M : /core/User.cpp
+
+M : /core/serviceLoop.cpp
+
+
+........
+
+------------------------------------------------------------------------
+r19 | pavel.pimenov@gmail.com | 2015-04-16 19:14:54 +0300 (Чт, 16 апр 2015) | 56 lines
+
+Merged revision(s) 17 from branches/vendors:
+Revision: 113
+Author: PPK
+Date: 12.04.2015 16:48:54
+Message:
+Minor fixes.
+-------------------------------
+M : /core/ServerManager.cpp
+
+M : /core/ServerManager.h
+
+M : /core/User.h
+
+M : /core/hashBanManager.h
+
+M : /core/serviceLoop.cpp
+
+M : /core/stdinc.h
+
+M : /core/utility.cpp
+
+M : /gui.win/BanDialog.cpp
+
+M : /gui.win/MainWindowPageStats.cpp
+
+M : /gui.win/RangeBanDialog.cpp
+
+M : /gui.win/RegisteredUserDialog.cpp
+
+M : /gui.win/SettingPageAdvanced.cpp
+
+M : /gui.win/SettingPageBans.cpp
+
+M : /gui.win/SettingPageBots.cpp
+
+M : /gui.win/SettingPageDeflood.cpp
+
+M : /gui.win/SettingPageDeflood2.cpp
+
+M : /gui.win/SettingPageDeflood3.cpp
+
+M : /gui.win/SettingPageGeneral.cpp
+
+M : /gui.win/SettingPageGeneral2.cpp
+
+M : /gui.win/SettingPageMyINFO.cpp
+
+M : /gui.win/SettingPageRules.cpp
+
+M : /gui.win/SettingPageRules2.cpp
+
+
+........
+
+
+
+------------------------------------------------------------------------
+r16 | pavel.pimenov@gmail.com | 2015-04-05 10:38:14 +0300 (Вс, 05 апр 2015) | 1 line
+
+* Add lua-iconv
+------------------------------------------------------------------------
+r15 | pavel.pimenov@gmail.com | 2015-04-04 13:06:51 +0300 (Сб, 04 апр 2015) | 1 line
+
+# Fix build (revert inline uint16_t CalcHash(const uint32_t& ui32Hash))
+------------------------------------------------------------------------
+r14 | pavel.pimenov@gmail.com | 2015-04-04 13:00:43 +0300 (Сб, 04 апр 2015) | 39 lines
+
+Merged revision(s) 13 from branches/vendors:
+Revision: 112
+Author: PPK
+Date: 04.04.2015 5:37:54
+Message:
+Added: Support for PostgreSQL database to store info about users.
+Added: Chat command !getipinfo to get info about ip(s) from PostgreSQL.
+Added: Support for TLS2 protocol extension.
+Changed: Chat command !getinfo to get info about offline user(s) from PostgreSQL.
+-------------------------------
+M : /Changelog.txt
+
+A : /core/DB-PostgreSQL.cpp
+
+A : /core/DB-PostgreSQL.h
+
+M : /core/DcCommands.cpp
+
+M : /core/HubCommands.cpp
+
+M : /core/LanguageIds.h
+
+M : /core/LanguageStrings.h
+
+M : /core/LanguageXml.h
+
+M : /core/User.cpp
+
+M : /core/User.h
+
+M : /core/stdinc.h
+
+A : /init_script_postgres
+
+A : /makefile-postgres
+
+
+........
+
+------------------------------------------------------------------------
+r12 | pavel.pimenov@gmail.com | 2015-03-29 17:57:42 +0300 (Вс, 29 мар 2015) | 5 lines
+
+Merged revision(s) 11 from branches/vendors:
+Added: Support for CTM2HUB in disabled state for now.
+Fixed: Missing settings and profiles identificator tables with Lua 5.1.
+........
+
+------------------------------------------------------------------------
+r10 | pavel.pimenov@gmail.com | 2015-03-29 17:45:15 +0300 (Вс, 29 мар 2015) | 1 line
+
+# Fix for CheckPort
+------------------------------------------------------------------------
+r9 | pavel.pimenov@gmail.com | 2015-02-23 14:15:49 +0300 (Пн, 23 фев 2015) | 1 line
+
+* svn::ignore
+------------------------------------------------------------------------
+r8 | pavel.pimenov@gmail.com | 2015-02-22 12:14:12 +0300 (Вс, 22 фев 2015) | 1 line
+
+* svn::ignore
+------------------------------------------------------------------------
+r7 | pavel.pimenov@gmail.com | 2015-02-22 11:44:15 +0300 (Вс, 22 фев 2015) | 25 lines
+
+* Merged revision(s) 6 from branches/vendors:
+PtokaX 0.5.0.3 released. (svn://svn.czdc.org/PtokaX r110)
+Changelog:
+    Added: install part to makefile including setcap allowing PtokaX to listen on ports below 1024 without running as privileged user (require capabilities support, libcap2-bin in debian).
+    Added: hublist.te-home.net and dc.gwhublist.com to default hublist register addresses.
+    Added: init script for *nix.
+    Added: Port validity checking in commands to disallow exploit that can be used to ddos in dc++ core.
+    Added: Tables with definitions for SetMan booleans, numbers and strings identificators.
+    Added: Table with definitions for ProfMan permissions identificators.
+    Fixed: User profile is set after correct password is received to disable possible exploit in scripts (thx Alexey for report).
+    Fixed: Missing hub bot key after nick change when opchat have same nick.
+    Fixed: Possible crash on closing some gui windows (thx Alex82 for report).
+    Fixed: Directory/file permissions on *nix.
+    Fixed: Partial IP was shown as wrong when IPv6 user without IPv4 connection sent IPv4 address in command (thx Mank for report).
+    Fixed: Possible crash when new throw exception on memory failure.
+    Fixed: Few possible issues found by PVS studio (thx Pavel Pimenov for report).
+    Fixed: Memory access outside array in script editor window on load/save (thx Pavel Pimenov for report).
+    Fixed: User who was allowed to kick can ban and tempban user without permissions for ban and tempban (thx Alexey for report).
+    Fixed: Range ban and range temp ban command was not working for IPv6 addresses longer than 15 characters (thx Alexey for report).
+    Fixed: Few possible memory leaks when memory allocation fail.
+    Fixed: On !rangeban command when range was already banned was sent wrong second message (thx Alexey for report).
+    Fixed: Active search character counting for ipv6 request when ip is very short.
+    Other: Some minor performance improvements.
+........
+
+------------------------------------------------------------------------
+r5 | pavel.pimenov@gmail.com | 2015-02-22 11:24:45 +0300 (Вс, 22 фев 2015) | 1 line
+
+* Update from https://github.com/pavel-pimenov/PtokaX/commits/master (6378b0db2aed4940e17a1fd7b5ed136c4d5752c9)
+------------------------------------------------------------------------
+r4 | pavel.pimenov@gmail.com | 2015-02-22 11:16:30 +0300 (Вс, 22 фев 2015) | 1 line
+
+* FlylinkDC++ hub init
+------------------------------------------------------------------------
+r2 | pavel.pimenov@gmail.com | 2015-02-22 11:10:18 +0300 (Вс, 22 фев 2015) | 1 line
+
+* PtokaX r109 svn://svn.czdc.org/PtokaX
+------------------------------------------------------------------------
