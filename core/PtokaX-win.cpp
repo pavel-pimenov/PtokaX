@@ -387,7 +387,7 @@ int __cdecl main(int argc, char* argv[]) {
 		// {
 		//	crash_test_doctor_dump();
 		// }
-	    } else if(strcasecmp(argv[i], "-m") == 0) {
+	    else if(strcasecmp(argv[i], "-m") == 0) {
 	    	bSetup = true;
 	    } else {
 	    	printf("Unknown parameter %s.\nUsage: PtokaX [-v] [-m] [-i servicename] [-u servicename] [-c configdir]\n\n"
