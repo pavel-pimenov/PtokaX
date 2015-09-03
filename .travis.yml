@@ -5,4 +5,4 @@ compiler:
 before_install:
   - sudo apt-get install -y liblua5.1-dev zlib1g-dev libtinyxml-dev lua-iconv
 script:
-  - make
+  - make lua51
