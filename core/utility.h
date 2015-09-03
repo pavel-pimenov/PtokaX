@@ -126,6 +126,7 @@ inline uint16_t CalcHash(const uint32_t& ui32Hash)
 #endif
 
 bool WantAgain();
+bool IsPrivateIP(const char * sIP);
 //---------------------------------------------------------------------------
 
 #endif
