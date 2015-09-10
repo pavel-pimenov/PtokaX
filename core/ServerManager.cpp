@@ -1042,7 +1042,7 @@ void clsServerManager::CommandLineSetup() {
 		"4. Exit this setup.\n\n"
 		"Your choice: ";
 
-	printf(sMenu);
+	printf("%s",sMenu);
 
 	while(true) {
 		int iChar = getchar();
@@ -1054,15 +1054,15 @@ void clsServerManager::CommandLineSetup() {
 		switch(iChar) {
 			case '1':
 				clsSettingManager::mPtr->CmdLineBasicSetup();
-				printf(sMenu);
+				printf("%s",sMenu);
 				continue;
 			case '2':
 				clsSettingManager::mPtr->CmdLineCompleteSetup();
-				printf(sMenu);
+				printf("%s",sMenu);
 				continue;
 			case '3':
 				clsRegManager::mPtr->AddRegCmdLine();
-				printf(sMenu);
+				printf("%s",sMenu);
 				continue;
 			case '4':
 				printf("%s ending...\n", g_sPtokaXTitle);

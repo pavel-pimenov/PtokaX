@@ -1,5 +1,5 @@
 # Hint 1:
-# setcap 'cap_net_bind_service=+ep' /home/xxx/src/PtokaX/PtokaX 
+# setcap 'cap_net_bind_service=+ep' /home/dc/src/PtokaX/PtokaX 
 
 git pull
 rm PtokaX

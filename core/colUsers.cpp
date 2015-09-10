@@ -730,8 +730,8 @@ void clsUsers::DelFromMyInfos(User * pUser) {
 #ifdef USE_FLYLINKDC_HUB
 	if (pUser->m_user_ext_info)
     {
-		const std::string l_fly_info = pUser->m_user_ext_info->GetFlyINFO(pUser);
-      const auto i = m_FlyINFO.find(l_fly_info);
+	const std::string l_fly_info = pUser->m_user_ext_info->GetFlyINFO(pUser);
+      const size_t i = m_FlyINFO.find(l_fly_info);
       if(i != std::string::npos)
       {
           m_FlyINFO.erase(i,l_fly_info.size());
