@@ -106,6 +106,9 @@ public:
         CMD_PASSIVE_SEARCH_V4,
         CMD_PASSIVE_SEARCH_V4_ONLY,
         CMD_PASSIVE_SEARCH_V6_ONLY,
+#ifdef USE_FLYLINKDC_HUB
+        CMD_FLYINFO
+#endif
     };
 
     enum {

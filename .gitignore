@@ -69,3 +69,4 @@ valgrind*.log
 /*.7z
 /compiled/*.dmp
 /obj/*.idb
+/compiled/*.7z

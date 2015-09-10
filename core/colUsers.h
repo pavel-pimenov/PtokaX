@@ -29,6 +29,10 @@ static const uint32_t ZLISTSIZE = 1024*16;
 static const uint32_t ZMYINFOLISTSIZE = 1024*128;
 //---------------------------------------------------------------------------
 
+#ifdef USE_FLYLINKDC_HUB
+#include <vector>
+#endif
+
 class clsUsers {
 private:
     struct RecTime {
@@ -65,6 +69,11 @@ public:
 
     char * pNickList, * pZNickList, * pOpList, * pZOpList, * pUserIPList, * pZUserIPList;
     char * pMyInfos, * pZMyInfos, * pMyInfosTag, * pZMyInfosTag;
+
+#ifdef USE_FLYLINKDC_HUB
+    std::string m_FlyINFO;
+    std::vector<char> m_FlyINFOZlib;
+#endif
 
     User * pListS;
     

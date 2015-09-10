@@ -66,6 +66,17 @@ clsZlibUtility::~clsZlibUtility() {
 //---------------------------------------------------------------------------
 
 char * clsZlibUtility::CreateZPipe(const char *sInData, const size_t &szInDataSize, uint32_t &ui32OutDataLen) {
+
+#ifdef USE_FLYLINKDC_HUB
+#ifdef _WIN32
+    printf("\r\n\r\n[1]CreateZPipe [size = %d], sInData = [%s]\r\n", szInDataSize, sInData);
+#endif
+#ifdef _DEBUG
+    AppendDebugLog("\r\n[1] CreateZPipe", szInDataSize);
+    AppendDebugLog(sInData, 0);
+#endif
+#endif
+
     // prepare Zbuffer
     if(szZbufferSize < szInDataSize + 128) {
         size_t szOldZbufferSize = szZbufferSize;
@@ -131,6 +142,15 @@ char * clsZlibUtility::CreateZPipe(const char *sInData, const size_t &szInDataSi
 char * clsZlibUtility::CreateZPipe(char *sInData, const size_t &szInDataSize, char *sOutData, size_t &szOutDataLen, size_t &szOutDataSize) {
     if(szInDataSize < ZMINLEN)
         return sOutData;
+#ifdef USE_FLYLINKDC_HUB
+#ifdef _DEBUG
+    AppendDebugLog("\r\n[2] CreateZPipe", szInDataSize);
+    AppendDebugLog(sInData, 0);
+#endif
+#ifdef _WIN32
+    printf("\r\n\r\n[2]CreateZPipe [size = %d], sInData = [%s]\r\n", szInDataSize, sInData);
+#endif
+#endif
 
     // prepare Zbuffer
     if(szZbufferSize < szInDataSize + 128) {
@@ -220,7 +240,15 @@ char * clsZlibUtility::CreateZPipe(char *sInData, const size_t &szInDataSize, ch
 char * clsZlibUtility::CreateZPipe(char *sInData, const unsigned int &uiInDataSize, char *sOutData, unsigned int &uiOutDataLen, unsigned int &uiOutDataSize, size_t (* pAllignFunc)(size_t n)) {
     if(uiInDataSize < ZMINLEN)
         return sOutData;
-
+#ifdef USE_FLYLINKDC_HUB
+#ifdef _DEBUG
+    AppendDebugLog("\r\n[3] CreateZPipe", uiInDataSize);
+    AppendDebugLog(sInData, 0);
+#endif
+#ifdef _WIN32
+    printf("\r\n\r\n[3]CreateZPipe [size = %d], sInData = [%s]\r\n", uiInDataSize, sInData);
+#endif
+#endif
     // prepare Zbuffer
     if(szZbufferSize < uiInDataSize + 128) {
         size_t szOldZbufferSize = szZbufferSize;

@@ -210,7 +210,7 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo) 
     sCrashMsg += ", please send that file to PPK@PtokaX.org!";
 
     // Write PtokaX version, build and exception code
-	fprintf(fw, "PtokaX version: " PtokaXVersionString " [build " BUILD_NUMBER "]"
+	fprintf(fw, "PtokaX++ version: " PtokaXVersionString " [build " BUILD_NUMBER "]"
 #ifdef _M_X64
         " (x64)"
 #endif

@@ -63,6 +63,9 @@ clsDcCommands::PassBf::PassBf(const uint8_t * ui128Hash) : iCount(1), pPrev (NUL
 clsDcCommands::clsDcCommands() : PasswdBfCheck(NULL), iStatChat(0), iStatCmdUnknown(0), iStatCmdTo(0), iStatCmdMyInfo(0), iStatCmdSearch(0), iStatCmdSR(0), iStatCmdRevCTM(0), iStatCmdOpForceMove(0), iStatCmdMyPass(0), iStatCmdValidate(0), iStatCmdKey(0), iStatCmdGetInfo(0), iStatCmdGetNickList(0), iStatCmdConnectToMe(0), 
 	iStatCmdVersion(0), iStatCmdKick(0), iStatCmdSupports(0), iStatBotINFO(0), iStatZPipe(0), iStatCmdMultiSearch(0), iStatCmdMultiConnectToMe(0), iStatCmdClose(0) {
 	// ...
+#ifdef USE_FLYLINKDC_HUB
+  iStatCmdFlyInfo = 0;
+#endif
 }
 //---------------------------------------------------------------------------
 
@@ -299,56 +302,75 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool &bChec
 
                     return;
                 }
-            }
+#ifdef USE_FLYLINKDC_HUB
+                else if(memcmp(sData+1, "FlyINFO $ALL ", 13) == 0) {
+                    iStatCmdFlyInfo++;
+                }
+#endif // USE_FLYLINKDC_HUB
+		}
             break;
         }
         case User::STATE_IPV4_CHECK:
         case User::STATE_ADDME:
         case User::STATE_ADDME_1LOOP: {
             if(sData[0] == '$') {
-                switch(sData[1]) {
-                    case 'G':
-                        if(ui32Len == 13 && memcmp(sData+2, "etNickList", 10) == 0) {
-                            iStatCmdGetNickList++;
-                            if(GetNickList(pUser, sData, ui32Len, bCheck) == true) {
-                                pUser->ui32BoolBits |= User::BIT_GETNICKLIST;
-                            }
-                            return;
-                        }
-                        break;
-                    case 'M': {
-                        if(memcmp(sData+2, "yINFO $ALL ", 11) == 0) {
-                            iStatCmdMyInfo++;
-                            if(MyINFODeflood(pUser, sData, ui32Len, bCheck) == false) {
-                                return;
-                            }
+				switch (sData[1]) {
+				case 'G':
+					if (ui32Len == 13 && memcmp(sData + 2, "etNickList", 10) == 0) {
+						iStatCmdGetNickList++;
+						if (GetNickList(pUser, sData, ui32Len, bCheck) == true) {
+							pUser->ui32BoolBits |= User::BIT_GETNICKLIST;
+						}
+						return;
+					}
+					break;
+				case 'M': {
+					if (memcmp(sData + 2, "yINFO $ALL ", 11) == 0) {
+						iStatCmdMyInfo++;
+						if (MyINFODeflood(pUser, sData, ui32Len, bCheck) == false) {
+							return;
+						}
 
-                            // Am I sending MyINFO of someone other ?
-                            // OR i try to fuck up hub with some chars after my nick ??? ... PPK
-                            if((sData[13+pUser->ui8NickLen] != ' ') || (memcmp(pUser->sNick, sData+13, pUser->ui8NickLen) != 0)) {
-								clsUdpDebug::mPtr->BroadcastFormat("[SYS] Nick spoofing in myinfo from %s (%s) - user closed. (%s)", pUser->sNick, pUser->sIP, sData);
+						// Am I sending MyINFO of someone other ?
+						// OR i try to fuck up hub with some chars after my nick ??? ... PPK
+						if ((sData[13 + pUser->ui8NickLen] != ' ') || (memcmp(pUser->sNick, sData + 13, pUser->ui8NickLen) != 0)) {
+							clsUdpDebug::mPtr->BroadcastFormat("[SYS] Nick spoofing in myinfo from %s (%s) - user closed. (%s)", pUser->sNick, pUser->sIP, sData);
 
-                                pUser->Close();
-                                return;
-                            }
+							pUser->Close();
+							return;
+						}
 
-                            MyINFO(pUser, sData, ui32Len);
-                            
-                            return;
-                        } else if(memcmp(sData+2, "ultiSearch ", 11) == 0) {
-                            iStatCmdMultiSearch++;
-                            SearchDeflood(pUser, sData, ui32Len, bCheck, true);
-                            return;
-                        }
-                        break;
-                    }
-                    case 'S':
-                        if(memcmp(sData+2, "earch ", 6) == 0) {
-                            iStatCmdSearch++;
-                            SearchDeflood(pUser, sData, ui32Len, bCheck, false);
-                            return;
-                        }
-                        break;
+						MyINFO(pUser, sData, ui32Len);
+
+						return;
+					}
+					else if (memcmp(sData + 2, "ultiSearch ", 11) == 0) {
+						iStatCmdMultiSearch++;
+						SearchDeflood(pUser, sData, ui32Len, bCheck, true);
+						return;
+					}
+					break;
+				}
+				case 'S':
+					if (memcmp(sData + 2, "earch ", 6) == 0) {
+						iStatCmdSearch++;
+						SearchDeflood(pUser, sData, ui32Len, bCheck, false);
+						return;
+					}
+					break;
+#ifdef USE_FLYLINKDC_HUB
+				case 'F': {
+					if(memcmp(sData+2, "lyINFO $ALL ", 12) == 0) {
+						iStatCmdFlyInfo++;
+						if(MyINFODeflood(pUser, sData, ui32Len, bCheck) == false) {
+							return;
+						}
+						if(pUser->m_user_ext_info == NULL)
+							pUser->m_user_ext_info = new UserExtInfo;
+						pUser->m_user_ext_info->m_FlyINFO = sData + 14; // TODO FlyINFO
+					}
+				}
+#endif // USE_FLYLINKDC_HUB
                     default:
                         break;
                 }
@@ -731,6 +753,21 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool &bChec
                         return;
                     }
                     break;
+#ifdef USE_FLYLINKDC_HUB
+                case 'F':
+                    if(memcmp(sData+2, "lyINFO ", 7) == 0) {
+                        #ifdef _DBG
+						int iret = sprintf(msg, "%s (%s) bad state in case $FlyINFO: %d", pUser->Nick, pUser->IP, pUser->iState);
+                            if(CheckSprintf(iret, 1024, "clsDcCommands::PreProcessData56") == true) {
+                                Memo(msg);
+                            }
+                        #endif
+							clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad state (%d) in $FlyINFO %s (%s) - user closed.", (int)pUser->ui8State, pUser->sNick, pUser->sIP);
+						            // curUser->Close();
+                        return;
+                    }
+                    break;
+#endif
                 default:
                     break;
             }
@@ -2136,6 +2173,15 @@ void clsDcCommands::Supports(User * pUser, char * sData, const uint32_t &ui32Len
                     }
             	}
 				break;
+#ifdef USE_FLYLINKDC_HUB
+            case 'F':
+                if(sSupport[1] == 'l') {
+					if (((pUser->ui32SupportBits & User::SUPPORTBIT_FLYHUB) == User::SUPPORTBIT_FLYHUB) == false && szDataLen == 6 && memcmp(sSupport + 2, "yHUB", 4) == 0) {
+						pUser->ui32SupportBits |= User::SUPPORTBIT_FLYHUB;
+                    } 
+                }
+                break;
+#endif
 			}
             case '\0': {
                 // PPK ... corrupted $Supports ???
@@ -2997,7 +3043,13 @@ void clsDcCommands::ProcessCmds(User * pUser) {
                     memcpy(clsServerManager::pGlobalBuffer+iSupportsLen, " NoGetINFO", 10);
                     iSupportsLen += 10;
                 }
-
+#ifdef USE_FLYLINKDC_HUB
+				if ((pUser->ui32SupportBits & User::SUPPORTBIT_FLYHUB) == User::SUPPORTBIT_FLYHUB) {
+                    // PPK ... Hmmm Client not really need it, but for now send it ;-)
+					memcpy(clsServerManager::pGlobalBuffer+iSupportsLen, " FlyHUB", 7);
+                    iSupportsLen += 7;
+                }
+#endif
                 if((pUser->ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64) {
                     memcpy(clsServerManager::pGlobalBuffer+iSupportsLen, " IP64", 5);
                     iSupportsLen += 5;

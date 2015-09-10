@@ -96,6 +96,9 @@ public:
 	uint32_t iStatCmdOpForceMove, iStatCmdMyPass, iStatCmdValidate, iStatCmdKey, iStatCmdGetInfo, iStatCmdGetNickList;
 	uint32_t iStatCmdConnectToMe, iStatCmdVersion, iStatCmdKick, iStatCmdSupports, iStatBotINFO, iStatZPipe;
     uint32_t iStatCmdMultiSearch, iStatCmdMultiConnectToMe, iStatCmdClose;
+#ifdef USE_FLYLINKDC_HUB
+  uint32_t iStatCmdFlyInfo;
+#endif
 };
 //---------------------------------------------------------------------------
 

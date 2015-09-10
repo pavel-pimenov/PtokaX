@@ -721,6 +721,16 @@ void clsServiceLoop::ReceiveLoop() {
                     default:
                         break;
                 }
+#ifdef USE_FLYLINKDC_HUB
+/*
+imsgLen = sprintf(msg, "$FlyINFO %s Russia$Lipetsk$Beeline|", curUser->sNick);
+            	  if(CheckSprintf(imsgLen, 1024, "clsServiceLoop::ReceiveLoop6_1") == true) {
+                    //clsGlobalDataQueue::mPtr->AddQueueItem(msg, imsgLen, msg, imsgLen, clsGlobalDataQueue::CMD_MYINFO);
+                    curUser->SendTextDelayed(msg);
+                }
+
+*/
+#endif
                 
                 if(((curUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true) {
                     clsGlobalDataQueue::mPtr->OpListStore(curUser->sNick);

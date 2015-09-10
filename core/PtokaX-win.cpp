@@ -65,7 +65,7 @@ crash_rpt::ApplicationInfo* GetApplicationInfo()
 	appInfo.Company = L"PtokaX++ developers";  // Company name that will be used in message box.
 	appInfo.V[0] = 0;
 	appInfo.V[1] = 5;
-	appInfo.V[2] = 1;
+	appInfo.V[2] = 2;
 	appInfo.V[3] = USHORT(atoi(BUILD_NUMBER));
 	return &appInfo;
 }

@@ -716,10 +716,28 @@ void clsUsers::Add2MyInfos(User * pUser) {
     pMyInfos[ui32MyInfosLen] = '\0';
 
     ui32ZMyInfosLen = 0;
+#ifdef USE_FLYLINKDC_HUB
+	if (pUser->m_user_ext_info)
+    {
+		m_FlyINFO += pUser->m_user_ext_info->GetFlyINFO(pUser);
+        m_FlyINFOZlib.clear();
+    }
+#endif
 }
 //---------------------------------------------------------------------------
 
 void clsUsers::DelFromMyInfos(User * pUser) {
+#ifdef USE_FLYLINKDC_HUB
+	if (pUser->m_user_ext_info)
+    {
+		const std::string l_fly_info = pUser->m_user_ext_info->GetFlyINFO(pUser);
+      const auto i = m_FlyINFO.find(l_fly_info);
+      if(i != std::string::npos)
+      {
+          m_FlyINFO.erase(i,l_fly_info.size());
+      }
+    }
+#endif
 	char * sMatch = strstr(pMyInfos, pUser->sMyInfoShort+8);
     if(sMatch != NULL) {
 		sMatch -= 8;

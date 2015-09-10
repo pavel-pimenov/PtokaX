@@ -20,6 +20,9 @@
 #ifndef stdincH
 #define stdincH
 //---------------------------------------------------------------------------
+
+#define USE_FLYLINKDC_HUB
+
 #ifndef _WIN32
 	#define _REENTRANT 1
 	#define __STDC_FORMAT_MACROS 1
@@ -110,7 +113,11 @@
 //---------------------------------------------------------------------------
 #define PtokaXVersionString "0.5.2.1"
 #define BUILD_NUMBER "524"
-const char g_sPtokaXTitle[] = "PtokaX DC Hub " PtokaXVersionString
+#ifdef USE_FLYLINKDC_HUB
+const char g_sPtokaXTitle[] = "PtokaX DC Hub for FlylinkDC++ " PtokaXVersionString
+#else
+const char g_sPtokaXTitle[] = "PtokaX++ DC Hub " PtokaXVersionString
+#endif // USE_FLYLINKDC_HUB
 #ifdef _PtokaX_TESTING_
 	" [build " BUILD_NUMBER "]";
 #else

@@ -596,6 +596,9 @@ User::User() : ui64SharedSize(0), ui64ChangedSharedSizeShort(0), ui64ChangedShar
 	sIP[0] = '\0';
 	sIPv4[0] = '\0';
 	sModes[0] = '\0';
+#ifdef USE_FLYLINKDC_HUB
+	m_user_ext_info = NULL;
+#endif
 }
 //---------------------------------------------------------------------------
 
@@ -1154,6 +1157,26 @@ void User::SendCharDelayed(const char * cText, const size_t &szTextLen) {
     }
 }
 //---------------------------------------------------------------------------
+
+void User::SendTextDelayed(const string &sText) {
+	if(ui8State >= STATE_CLOSING || sText.size() == 0) {
+        return;
+    }
+      
+    if(((ui32SupportBits & SUPPORTBIT_ZPIPE) == SUPPORTBIT_ZPIPE) == false || sText.size() < ZMINDATALEN) {
+        PutInSendBuf(sText.c_str(), sText.size());
+    } else {
+        uint32_t iLen = 0;
+        char *sData = clsZlibUtility::mPtr->CreateZPipe(sText.c_str(), sText.size(), iLen);
+            
+        if(iLen == 0) {
+            PutInSendBuf(sText.c_str(), sText.size());
+        } else {
+            PutInSendBuf(sData, iLen);
+            clsServerManager::ui64BytesSentSaved += sText.size()-iLen;
+        }
+    }
+}
 
 void User::SendFormat(const char * sFrom, const bool &bDelayed, const char * sFormatMsg, ...) {
 	if(ui8State >= STATE_CLOSING) {
@@ -2132,6 +2155,14 @@ void User::AddUserList() {
 	
 	switch(clsSettingManager::mPtr->ui8FullMyINFOOption) {
     	case 0: {
+#ifdef USE_FLYLINKDC_HUB
+            // TODO - прокинуть сюда пачку FlyINFO
+                // TODO - ZPipe
+                    if(!clsUsers::mPtr->m_FlyINFO.empty())
+                    {
+                     SendCharDelayed(clsUsers::mPtr->m_FlyINFO.c_str(), clsUsers::mPtr->m_FlyINFO.size());
+                    }
+#endif
             if(clsUsers::mPtr->ui32MyInfosTagLen == 0) {
                 break;
             }
@@ -2156,6 +2187,14 @@ void User::AddUserList() {
             break;
     	}
     	case 1: {
+#ifdef USE_FLYLINKDC_HUB
+                // TODO - прокинуть сюда пачку FlyINFO
+                // TODO - ZPipe
+                    if(!clsUsers::mPtr->m_FlyINFO.empty())
+                    {
+                     SendCharDelayed(clsUsers::mPtr->m_FlyINFO.c_str(), clsUsers::mPtr->m_FlyINFO.size());
+                    }
+#endif
     		if(clsProfileManager::mPtr->IsAllowed(this, clsProfileManager::SENDFULLMYINFOS) == false) {
                 if(clsUsers::mPtr->ui32MyInfosLen == 0) {
                     break;
@@ -2182,7 +2221,9 @@ void User::AddUserList() {
                 if(clsUsers::mPtr->ui32MyInfosTagLen == 0) {
                     break;
                 }
-
+#ifdef USE_FLYLINKDC_HUB
+                // TODO - прокинуть сюда пачку FlyINFO
+#endif
                 if(((ui32SupportBits & SUPPORTBIT_ZPIPE) == SUPPORTBIT_ZPIPE) == false) {
                     SendCharDelayed(clsUsers::mPtr->pMyInfosTag, clsUsers::mPtr->ui32MyInfosTagLen);
                 } else {
@@ -2204,6 +2245,14 @@ void User::AddUserList() {
     		break;
     	}
         case 2: {
+#ifdef USE_FLYLINKDC_HUB
+                // TODO - прокинуть сюда пачку FlyINFO
+                // TODO - ZPipe
+                    if(!clsUsers::mPtr->m_FlyINFO.empty())
+                    {
+                     SendCharDelayed(clsUsers::mPtr->m_FlyINFO.c_str(), clsUsers::mPtr->m_FlyINFO.size());
+                    }
+#endif
             if(clsUsers::mPtr->ui32MyInfosLen == 0) {
                 break;
             }
@@ -2904,3 +2953,12 @@ void User::DeletePrcsdUsrCmd(PrcsdUsrCmd * pCommand) {
 #endif
     delete pCommand;
 }
+//------------------------------------------------------------------------------
+#ifdef USE_FLYLINKDC_HUB
+std::string UserExtInfo::GetFlyINFO(User* u) const
+{
+      std::string l_all_fly_info = "$FlyINFO $ALL ";
+      l_all_fly_info += u->m_user_ext_info->m_FlyINFO; 
+      return l_all_fly_info;
+}
+#endif
