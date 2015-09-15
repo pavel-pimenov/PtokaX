@@ -97,12 +97,12 @@ struct PrcsdToUsrCmd {
 //---------------------------------------------------------------------------
 struct QzBuf; // for send queue
 //---------------------------------------------------------------------------
-#ifdef USE_FLYLINKDC_HUB
+#ifdef USE_FLYLINKDC_EXT_JSON
 struct User;
 struct UserExtInfo
 {
-    std::string m_FlyINFO;
-    std::string GetFlyINFO(User* u) const;
+    std::string m_ExtJSON;
+    std::string GetExtJSON(User* u) const;
 };
 #endif
 
@@ -231,12 +231,12 @@ struct User {
     	SUPPORTBIT_IPV4                    = 0x80,
     	SUPPORTBIT_TLS2                    = 0x100,
     	SUPPORTBIT_ZPIPE0                  = 0x200,
-#ifdef USE_FLYLINKDC_HUB
-      SUPPORTBIT_FLYHUB                  = 0x400
+#ifdef USE_FLYLINKDC_EXT_JSON
+		SUPPORTBIT_EXTJSON                  = 0x400
 #endif
     };
 
-#ifdef USE_FLYLINKDC_HUB
+#ifdef USE_FLYLINKDC_EXT_JSON
     UserExtInfo * m_user_ext_info;
 #endif
 

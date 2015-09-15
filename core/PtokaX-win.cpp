@@ -433,6 +433,7 @@ int __cdecl main(int argc, char* argv[]) {
 	        return EXIT_FAILURE;
 	    } else {
 	        printf("%s running...\n", g_sPtokaXTitle);
+			printf("Fork: https://github.com/pavel-pimenov/PtokaX\n", g_sPtokaXTitle);
 	    }
 
 	    MSG msg = { 0 };

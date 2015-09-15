@@ -716,25 +716,25 @@ void clsUsers::Add2MyInfos(User * pUser) {
     pMyInfos[ui32MyInfosLen] = '\0';
 
     ui32ZMyInfosLen = 0;
-#ifdef USE_FLYLINKDC_HUB
+#ifdef USE_FLYLINKDC_EXT_JSON
 	if (pUser->m_user_ext_info)
     {
-		m_FlyINFO += pUser->m_user_ext_info->GetFlyINFO(pUser);
-        m_FlyINFOZlib.clear();
+		m_ExtJSON += pUser->m_user_ext_info->GetExtJSON(pUser);
+		// TODO m_ExtJSONZlib.clear();
     }
 #endif
 }
 //---------------------------------------------------------------------------
 
 void clsUsers::DelFromMyInfos(User * pUser) {
-#ifdef USE_FLYLINKDC_HUB
+#ifdef USE_FLYLINKDC_EXT_JSON
 	if (pUser->m_user_ext_info)
     {
-	const std::string l_fly_info = pUser->m_user_ext_info->GetFlyINFO(pUser);
-      const size_t i = m_FlyINFO.find(l_fly_info);
+		const std::string l_fly_info = pUser->m_user_ext_info->GetExtJSON(pUser);
+		const size_t i = m_ExtJSON.find(l_fly_info);
       if(i != std::string::npos)
       {
-          m_FlyINFO.erase(i,l_fly_info.size());
+		  m_ExtJSON.erase(i, l_fly_info.size());
       }
     }
 #endif

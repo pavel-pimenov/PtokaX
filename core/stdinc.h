@@ -21,7 +21,7 @@
 #define stdincH
 //---------------------------------------------------------------------------
 
-#define USE_FLYLINKDC_HUB
+#define USE_FLYLINKDC_EXT_JSON
 
 #ifndef _WIN32
 	#define _REENTRANT 1
@@ -113,11 +113,11 @@
 //---------------------------------------------------------------------------
 #define PtokaXVersionString "0.5.2.1"
 #define BUILD_NUMBER "524"
-#ifdef USE_FLYLINKDC_HUB
+#ifdef USE_FLYLINKDC_EXT_JSON
 const char g_sPtokaXTitle[] = "PtokaX DC Hub for FlylinkDC++ " PtokaXVersionString
 #else
 const char g_sPtokaXTitle[] = "PtokaX++ DC Hub " PtokaXVersionString
-#endif // USE_FLYLINKDC_HUB
+#endif // USE_FLYLINKDC_EXT_JSON
 #ifdef _PtokaX_TESTING_
 	" [build " BUILD_NUMBER "]";
 #else

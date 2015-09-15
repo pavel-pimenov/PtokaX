@@ -596,7 +596,7 @@ User::User() : ui64SharedSize(0), ui64ChangedSharedSizeShort(0), ui64ChangedShar
 	sIP[0] = '\0';
 	sIPv4[0] = '\0';
 	sModes[0] = '\0';
-#ifdef USE_FLYLINKDC_HUB
+#ifdef USE_FLYLINKDC_EXT_JSON
 	m_user_ext_info = NULL;
 #endif
 }
@@ -2155,12 +2155,12 @@ void User::AddUserList() {
 	
 	switch(clsSettingManager::mPtr->ui8FullMyINFOOption) {
     	case 0: {
-#ifdef USE_FLYLINKDC_HUB
-            // TODO - прокинуть сюда пачку FlyINFO
+#ifdef USE_FLYLINKDC_EXT_JSON
+            // TODO - прокинуть сюда пачку ExtJSON
                 // TODO - ZPipe
-                    if(!clsUsers::mPtr->m_FlyINFO.empty())
+                    if(!clsUsers::mPtr->m_ExtJSON.empty())
                     {
-                     SendCharDelayed(clsUsers::mPtr->m_FlyINFO.c_str(), clsUsers::mPtr->m_FlyINFO.size());
+                     SendCharDelayed(clsUsers::mPtr->m_ExtJSON.c_str(), clsUsers::mPtr->m_ExtJSON.size());
                     }
 #endif
             if(clsUsers::mPtr->ui32MyInfosTagLen == 0) {
@@ -2187,12 +2187,12 @@ void User::AddUserList() {
             break;
     	}
     	case 1: {
-#ifdef USE_FLYLINKDC_HUB
-                // TODO - прокинуть сюда пачку FlyINFO
+#ifdef USE_FLYLINKDC_EXT_JSON
+                // TODO - прокинуть сюда пачку ExtJSON
                 // TODO - ZPipe
-                    if(!clsUsers::mPtr->m_FlyINFO.empty())
+                    if(!clsUsers::mPtr->m_ExtJSON.empty())
                     {
-                     SendCharDelayed(clsUsers::mPtr->m_FlyINFO.c_str(), clsUsers::mPtr->m_FlyINFO.size());
+                     SendCharDelayed(clsUsers::mPtr->m_ExtJSON.c_str(), clsUsers::mPtr->m_ExtJSON.size());
                     }
 #endif
     		if(clsProfileManager::mPtr->IsAllowed(this, clsProfileManager::SENDFULLMYINFOS) == false) {
@@ -2218,12 +2218,13 @@ void User::AddUserList() {
                     }
                 }
     		} else {
-                if(clsUsers::mPtr->ui32MyInfosTagLen == 0) {
+
+#ifdef USE_FLYLINKDC_EXT_JSON
+				// TODO - прокинуть сюда пачку ExtJSON
+#endif
+				if (clsUsers::mPtr->ui32MyInfosTagLen == 0) {
                     break;
                 }
-#ifdef USE_FLYLINKDC_HUB
-                // TODO - прокинуть сюда пачку FlyINFO
-#endif
                 if(((ui32SupportBits & SUPPORTBIT_ZPIPE) == SUPPORTBIT_ZPIPE) == false) {
                     SendCharDelayed(clsUsers::mPtr->pMyInfosTag, clsUsers::mPtr->ui32MyInfosTagLen);
                 } else {
@@ -2245,12 +2246,12 @@ void User::AddUserList() {
     		break;
     	}
         case 2: {
-#ifdef USE_FLYLINKDC_HUB
-                // TODO - прокинуть сюда пачку FlyINFO
+#ifdef USE_FLYLINKDC_EXT_JSON
+                // TODO - прокинуть сюда пачку ExtJSON
                 // TODO - ZPipe
-                    if(!clsUsers::mPtr->m_FlyINFO.empty())
+                    if(!clsUsers::mPtr->m_ExtJSON.empty())
                     {
-                     SendCharDelayed(clsUsers::mPtr->m_FlyINFO.c_str(), clsUsers::mPtr->m_FlyINFO.size());
+                     SendCharDelayed(clsUsers::mPtr->m_ExtJSON.c_str(), clsUsers::mPtr->m_ExtJSON.size());
                     }
 #endif
             if(clsUsers::mPtr->ui32MyInfosLen == 0) {
@@ -2954,11 +2955,11 @@ void User::DeletePrcsdUsrCmd(PrcsdUsrCmd * pCommand) {
     delete pCommand;
 }
 //------------------------------------------------------------------------------
-#ifdef USE_FLYLINKDC_HUB
-std::string UserExtInfo::GetFlyINFO(User* u) const
+#ifdef USE_FLYLINKDC_EXT_JSON
+std::string UserExtInfo::GetExtJSON(User* u) const
 {
-      std::string l_all_fly_info = "$FlyINFO $ALL ";
-      l_all_fly_info += u->m_user_ext_info->m_FlyINFO; 
+      std::string l_all_fly_info = "$ExtJSON $ALL ";
+      l_all_fly_info += u->m_user_ext_info->m_ExtJSON; 
       return l_all_fly_info;
 }
 #endif

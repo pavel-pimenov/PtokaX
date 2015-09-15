@@ -1096,7 +1096,7 @@ bool clsServerManager::ResolveHubAddress(const bool &bSilent/* = false*/) {
             struct addrinfo *res;
 
             if(::getaddrinfo(clsSettingManager::mPtr->sTexts[SETTXT_HUB_ADDRESS], NULL, &hints, &res) != 0 || (res->ai_family != AF_INET && res->ai_family != AF_INET6)) {
-            	if(&bSilent == false) {
+            	if(bSilent == false) {
 #ifdef _WIN32
             		int err = WSAGetLastError();
 	#ifdef _BUILD_GUI
