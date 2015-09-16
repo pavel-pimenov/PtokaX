@@ -115,7 +115,7 @@ struct User {
 
 	void SendChar(const char * cText, const size_t &szTextLen);
 	void SendCharDelayed(const char * cText, const size_t &szTextLen);
-  void SendTextDelayed(const string & sText);
+    void SendTextDelayed(const string & sText);
 	void SendFormat(const char * sFrom, const bool &bDelayed, const char * sFormatMsg, ...);
 	void SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const bool &bDelayed, const char * sFormatMsg, ...);
 
@@ -124,6 +124,13 @@ struct User {
 
     void SetIP(char * sNewIP);
     void SetNick(char * sNewNick, const uint8_t &ui8NewNickLen);
+#ifdef USE_FLYLINKDC_EXT_JSON
+	void SetExtJSONOriginal(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen);
+	bool ComparExtJSON(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen) const
+	{
+		return m_user_ext_json_original == std::string(sNewExtJSON, ui16NewExtJSONLen);
+	}
+#endif
     void SetMyInfoOriginal(char * sNewMyInfo, const uint16_t &ui16NewMyInfoLen);
     void SetVersion(char * sNewVer);
     void SetLastChat(char * sNewData, const size_t &szLen);
@@ -199,7 +206,10 @@ struct User {
     	BIT_WAITING_FOR_PASS           = 0x2000000,
     	BIT_WARNED_WRONG_IP            = 0x4000000,
     	BIT_IPV6_ACTIVE                = 0x8000000,
-    	BIT_CHAT_INSERT                = 0x10000000
+    	BIT_CHAT_INSERT                = 0x10000000,
+#ifdef USE_FLYLINKDC_EXT_JSON
+		BIT_PRCSD_EXT_JSON             = 0x20000000
+#endif
     };
 
     enum UserInfoBits {
@@ -238,6 +248,8 @@ struct User {
 
 #ifdef USE_FLYLINKDC_EXT_JSON
     UserExtInfo * m_user_ext_info;
+	std::string   m_user_ext_json_original;
+	uint64_t      iLastExtJSONSendTick;
 #endif
 
     uint64_t ui64SharedSize, ui64ChangedSharedSizeShort, ui64ChangedSharedSizeLong;

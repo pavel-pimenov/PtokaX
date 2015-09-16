@@ -141,7 +141,7 @@ public:
     clsGlobalDataQueue();
     ~clsGlobalDataQueue();
 
-    void AddQueueItem(char * sCommand1, const size_t &szLen1, char * sCommand2, const size_t &szLen2, const uint8_t &ui8CmdType);
+    void AddQueueItem(const char * sCommand1, const size_t &szLen1, const char * sCommand2, const size_t &szLen2, const uint8_t &ui8CmdType);
     void OpListStore(char * sNick);
     void UserIPStore(User * pUser);
     void PrepareQueueItems();

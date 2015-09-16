@@ -437,6 +437,24 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool &bChec
 					case 'E': 
 						if (memcmp(sData + 2, "xtJSON $ALL ", 12) == 0) {
 							iStatCmdExtJSON++;
+							if (ExtJSONDeflood(pUser, sData, ui32Len, bCheck) == false) {
+								return;
+							}
+
+							// Am I sending MyINFO of someone other ?
+							// OR i try to fuck up hub with some chars after my nick ??? ... PPK
+							if ((sData[14 + pUser->ui8NickLen] != ' ') || (memcmp(pUser->sNick, sData + 14, pUser->ui8NickLen) != 0)) {
+								clsUdpDebug::mPtr->BroadcastFormat("[SYS] Nick spoofing in ExtJSON from %s (%s) - user closed. (%s)", pUser->sNick, pUser->sIP, sData);
+
+								pUser->Close();
+								return;
+							}
+
+							if (ExtJSON(pUser, sData, ui32Len) == true) {
+								pUser->ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
+							}
+							return;
+
 						}
 						break;
 #endif // USE_FLYLINKDC_EXT_JSON
@@ -1600,8 +1618,80 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 		}
     }
 }
+#ifdef USE_FLYLINKDC_EXT_JSON
+//---------------------------------------------------------------------------
+// $ExtJSON $ALL  $ $$$$|
+bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck) {
+	if (ui32Len < (22u + pUser->ui8NickLen)) {
+		clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad $ExtJSON (%s) from %s (%s) - user closed.", sData, pUser->sNick, pUser->sIP);
+
+		pUser->Close();
+		return false;
+	}
+	/* TODO
+	// PPK ... check flood ...
+	if (bCheck == true && clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::NODEFLOODMYINFO) == false) {
+		if (clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_ACTION] != 0) {
+			if (DeFloodCheckForFlood(pUser, DEFLOOD_MYINFO, clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_ACTION],
+				pUser->ui16MyINFOs, pUser->ui64MyINFOsTick, clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_MESSAGES],
+				(uint32_t)clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_TIME]) == true) {
+				return false;
+			}
+		}
+
+		if (clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_ACTION2] != 0) {
+			if (DeFloodCheckForFlood(pUser, DEFLOOD_MYINFO, clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_ACTION2],
+				pUser->ui16MyINFOs2, pUser->ui64MyINFOsTick2, clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_MESSAGES2],
+				(uint32_t)clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_TIME2]) == true) {
+				return false;
+			}
+		}
+	}
+
+	if (ui32Len > (uint32_t)clsSettingManager::mPtr->i16Shorts[SETSHORT_MAX_MYINFO_LEN]) {
+		pUser->SendFormat("clsDcCommands::ExtJSONDeflood", true, "<%s> %s!|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_MYINFO_TOO_LONG]);
+
+		clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad $ExtJSON from %s (%s) - user closed. (%s)", pUser->sNick, pUser->sIP, sData);
+
+		pUser->Close();
+		return false;
+	}
+  */
+	return true;
+}
 //---------------------------------------------------------------------------
 
+// $ExtJSON $ALL  $ $$$$|
+bool clsDcCommands::ExtJSON(User * pUser, char * sData, const uint32_t &ui32Len) {
+
+	if (pUser->ComparExtJSON(sData,ui32Len)) 
+	{
+			return false;
+	}
+
+	pUser->SetExtJSONOriginal(sData, (uint16_t)ui32Len);
+
+	if (pUser->ui8State >= User::STATE_CLOSING) {
+		return false;
+	}
+
+	if (pUser->ProcessRules() == false) {
+		pUser->Close();
+		return false;
+	}
+	/*
+	// PPK ... moved lua here -> another "optimization" ;o)
+	clsScriptManager::mPtr->Arrival(pUser, sData, ui32Len, clsScriptManager::MYINFO_ARRIVAL);
+
+	if (pUser->ui8State >= User::STATE_CLOSING) {
+		return false;
+	}
+	*/
+	return true;
+}
+
+#endif
+//---------------------------------------------------------------------------
 // $MyINFO $ALL  $ $$$$|
 bool clsDcCommands::MyINFODeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck) {
     if(ui32Len < (22u+pUser->ui8NickLen)) {
@@ -3240,6 +3330,29 @@ void clsDcCommands::ProcessCmds(User * pUser) {
 
 		clsGlobalDataQueue::mPtr->AddQueueItem(sShortMyINFO, szShortMyINFOLen, pUser->sMyInfoLong, pUser->ui16MyInfoLongLen, clsGlobalDataQueue::CMD_MYINFO);
     }
+
+#ifdef USE_FLYLINKDC_EXT_JSON
+	if ((pUser->ui32BoolBits & User::BIT_PRCSD_EXT_JSON) == User::BIT_PRCSD_EXT_JSON) {
+		pUser->ui32BoolBits &= ~User::BIT_PRCSD_EXT_JSON;
+
+			// TODO - ????? clsUsers::mPtr->Add2MyInfosTag(pUser);
+		if (!pUser->m_user_ext_json_original.empty())
+		{
+			if (clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY] == 0 || clsServerManager::ui64ActualTick > ((60 * clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY]) + pUser->iLastExtJSONSendTick))				
+			{
+				clsGlobalDataQueue::mPtr->AddQueueItem(pUser->m_user_ext_json_original.c_str(), pUser->m_user_ext_json_original.size(), NULL, 0, clsGlobalDataQueue::CMD_EXTJSON);
+				pUser->iLastExtJSONSendTick = clsServerManager::ui64ActualTick;
+			}
+			else
+			{
+				clsGlobalDataQueue::mPtr->AddQueueItem(pUser->m_user_ext_json_original.c_str(), pUser->m_user_ext_json_original.size(), NULL, 0, clsGlobalDataQueue::CMD_OPS);
+			}
+		}
+			return;
+		}
+
+#endif // USE_FLYLINKDC_EXT_JSON
+	
 }
 //---------------------------------------------------------------------------
 

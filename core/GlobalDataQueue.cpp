@@ -234,7 +234,7 @@ clsGlobalDataQueue::~clsGlobalDataQueue() {
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::AddQueueItem(char * sCommand1, const size_t &szLen1, char * sCommand2, const size_t &szLen2, const uint8_t &ui8CmdType) {
+void clsGlobalDataQueue::AddQueueItem(const char * sCommand1, const size_t &szLen1, const char * sCommand2, const size_t &szLen2, const uint8_t &ui8CmdType) {
     QueueItem * pNewItem = new (std::nothrow) QueueItem;
     if(pNewItem == NULL) {
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in clsGlobalDataQueue::AddQueueItem\n");
@@ -552,6 +552,11 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser) {
                             AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
                         }
                         break;
+		    case CMD_EXTJSON:
+			if (pCur->pCommand1 != NULL) {
+				AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+			}
+			break;
                     case CMD_MYINFO:
                         if((ui16QueueBits & BIT_LONG_MYINFO) == BIT_LONG_MYINFO) {
                             if(pCur->pCommand2 != NULL) {

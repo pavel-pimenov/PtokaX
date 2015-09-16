@@ -598,6 +598,7 @@ User::User() : ui64SharedSize(0), ui64ChangedSharedSizeShort(0), ui64ChangedShar
 	sModes[0] = '\0';
 #ifdef USE_FLYLINKDC_EXT_JSON
 	m_user_ext_info = NULL;
+	iLastExtJSONSendTick = 0;
 #endif
 }
 //---------------------------------------------------------------------------
@@ -1525,7 +1526,13 @@ void User::SetNick(char * sNewNick, const uint8_t &ui8NewNickLen) {
     ui32NickHash = HashNick(sNick, ui8NickLen);
 }
 //------------------------------------------------------------------------------
-
+#ifdef USE_FLYLINKDC_EXT_JSON
+void User::SetExtJSONOriginal(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen)
+{
+	m_user_ext_json_original = std::string(sNewExtJSON, ui16NewExtJSONLen);
+}
+#endif
+//------------------------------------------------------------------------------
 void User::SetMyInfoOriginal(char * sNewMyInfo, const uint16_t &ui16NewMyInfoLen) {
     char * sOldMyInfo = sMyInfoOriginal;
 
