@@ -22,6 +22,10 @@
 #define UserH
 //---------------------------------------------------------------------------
 
+#ifndef USE_FLYLINKDC_EXT_JSON
+#define USE_FLYLINKDC_EXT_JSON
+#endif
+
 struct UserBan {
     UserBan();
     ~UserBan();
@@ -99,10 +103,58 @@ struct QzBuf; // for send queue
 //---------------------------------------------------------------------------
 #ifdef USE_FLYLINKDC_EXT_JSON
 struct User;
-struct UserExtInfo
+class ExtJSONInfo
 {
     std::string m_ExtJSON;
-    std::string GetExtJSON(User* u) const;
+	std::string m_ExtJSONOriginal;
+	uint64_t    m_iLastExtJSONSendTick;
+
+public:
+	ExtJSONInfo() :m_iLastExtJSONSendTick(0)
+	{
+	}
+	ExtJSONInfo(const char* p_info) :m_iLastExtJSONSendTick(0)
+	{
+		m_ExtJSON = p_info;
+	}
+	uint64_t   getLastExtJSONSendTick() const
+	{
+		return m_iLastExtJSONSendTick;
+	}
+	void   setLastExtJSONSendTick(uint64_t p_tick)
+	{
+		m_iLastExtJSONSendTick = p_tick;
+	}
+	bool ComparExtJSON(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen) const
+	{
+		if (!m_ExtJSONOriginal.empty())
+			return m_ExtJSONOriginal == std::string(sNewExtJSON, ui16NewExtJSONLen);
+		else
+		    return m_ExtJSON == std::string(sNewExtJSON, ui16NewExtJSONLen);
+	}
+	void SetJSON(const std::string& p_json)
+	{
+		m_ExtJSON = p_json;
+	}
+	void SetJSONOroginal(const std::string& p_json)
+	{
+		m_ExtJSON = p_json;
+		m_ExtJSONOriginal = p_json;
+	}
+	const std::string& GetExtJSONCommand() const
+	{
+		return m_ExtJSON;
+/*		if (!m_ExtJSON.empty())
+		{
+			std::string l_all_fly_info = ;
+			return l_all_fly_info;
+		}
+		else
+		{
+			return "";
+		}
+*/
+	}
 };
 #endif
 
@@ -115,7 +167,10 @@ struct User {
 
 	void SendChar(const char * cText, const size_t &szTextLen);
 	void SendCharDelayed(const char * cText, const size_t &szTextLen);
-    void SendTextDelayed(const string & sText);
+#ifdef USE_FLYLINKDC_EXT_JSON
+	void SendCharDelayedExtJSON();
+#endif
+	void SendTextDelayed(const string & sText);
 	void SendFormat(const char * sFrom, const bool &bDelayed, const char * sFormatMsg, ...);
 	void SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const bool &bDelayed, const char * sFormatMsg, ...);
 
@@ -128,7 +183,10 @@ struct User {
 	void SetExtJSONOriginal(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen);
 	bool ComparExtJSON(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen) const
 	{
-		return m_user_ext_json_original == std::string(sNewExtJSON, ui16NewExtJSONLen);
+		if (m_user_ext_info == NULL)
+			return true;
+		else
+			return m_user_ext_info->ComparExtJSON(sNewExtJSON,ui16NewExtJSONLen);
 	}
 #endif
     void SetMyInfoOriginal(char * sNewMyInfo, const uint16_t &ui16NewMyInfoLen);
@@ -247,9 +305,18 @@ struct User {
     };
 
 #ifdef USE_FLYLINKDC_EXT_JSON
-    UserExtInfo * m_user_ext_info;
-	std::string   m_user_ext_json_original;
-	uint64_t      iLastExtJSONSendTick;
+	ExtJSONInfo * m_user_ext_info;
+	uint64_t   getLastExtJSONSendTick() const
+	{
+		return m_user_ext_info ? m_user_ext_info->getLastExtJSONSendTick() : 0;
+	}
+	void  setLastExtJSONSendTick(uint64_t p_tick)
+	{
+		if (m_user_ext_info)
+		{
+			m_user_ext_info->setLastExtJSONSendTick(p_tick);
+		}
+	}
 #endif
 
     uint64_t ui64SharedSize, ui64ChangedSharedSizeShort, ui64ChangedSharedSizeLong;

@@ -719,7 +719,7 @@ void clsUsers::Add2MyInfos(User * pUser) {
 #ifdef USE_FLYLINKDC_EXT_JSON
 	if (pUser->m_user_ext_info)
     {
-		m_ExtJSON += pUser->m_user_ext_info->GetExtJSON(pUser);
+		m_AllExtJSON += pUser->m_user_ext_info->GetExtJSONCommand();
 		// TODO m_ExtJSONZlib.clear();
     }
 #endif
@@ -730,11 +730,11 @@ void clsUsers::DelFromMyInfos(User * pUser) {
 #ifdef USE_FLYLINKDC_EXT_JSON
 	if (pUser->m_user_ext_info)
     {
-		const std::string l_fly_info = pUser->m_user_ext_info->GetExtJSON(pUser);
-		const size_t i = m_ExtJSON.find(l_fly_info);
+		const std::string l_ext_json_info = pUser->m_user_ext_info->GetExtJSONCommand();
+	  const size_t i = m_AllExtJSON.find(l_ext_json_info);
       if(i != std::string::npos)
       {
-		  m_ExtJSON.erase(i, l_fly_info.size());
+		  m_AllExtJSON.erase(i, l_ext_json_info.size());
       }
     }
 #endif

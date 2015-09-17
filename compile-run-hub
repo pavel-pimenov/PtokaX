@@ -3,7 +3,7 @@
 
 git pull
 rm PtokaX
-make lua51
+make -B lua51
 ulimit -n 32768
 LANG=ru_RU.CP1251
 valgrind --leak-check=full --leak-resolution=med --log-file=valgrind-log-file.log --time-stamp=yes ./PtokaX

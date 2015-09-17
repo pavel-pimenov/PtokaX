@@ -71,7 +71,7 @@ public:
     char * pMyInfos, * pZMyInfos, * pMyInfosTag, * pZMyInfosTag;
 
 #ifdef USE_FLYLINKDC_EXT_JSON
-	std::string m_ExtJSON;
+	std::string m_AllExtJSON;
 	// TODO std::vector<char> m_ExtJSONZlib;
 #endif
 

@@ -349,8 +349,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool &bChec
 							return;
 						}
 						if (pUser->m_user_ext_info == NULL)
-							pUser->m_user_ext_info = new UserExtInfo;
-						pUser->m_user_ext_info->m_ExtJSON = sData + 14; // TODO ExtJSON
+							pUser->m_user_ext_info = new ExtJSONInfo(sData); // + 14
 					}
 					  break;
 #endif // USE_FLYLINKDC_EXT_JSON
@@ -3334,25 +3333,26 @@ void clsDcCommands::ProcessCmds(User * pUser) {
 #ifdef USE_FLYLINKDC_EXT_JSON
 	if ((pUser->ui32BoolBits & User::BIT_PRCSD_EXT_JSON) == User::BIT_PRCSD_EXT_JSON) {
 		pUser->ui32BoolBits &= ~User::BIT_PRCSD_EXT_JSON;
-
-			// TODO - ????? clsUsers::mPtr->Add2MyInfosTag(pUser);
-		if (!pUser->m_user_ext_json_original.empty())
+		// TODO - ????? clsUsers::mPtr->Add2MyInfosTag(pUser);
+		if (pUser->m_user_ext_info)
 		{
-			if (clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY] == 0 || clsServerManager::ui64ActualTick > ((60 * clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY]) + pUser->iLastExtJSONSendTick))				
+			const std::string& l_ext_json = pUser->m_user_ext_info->GetExtJSONCommand();
+			if (!l_ext_json.empty())
 			{
-				clsGlobalDataQueue::mPtr->AddQueueItem(pUser->m_user_ext_json_original.c_str(), pUser->m_user_ext_json_original.size(), NULL, 0, clsGlobalDataQueue::CMD_EXTJSON);
-				pUser->iLastExtJSONSendTick = clsServerManager::ui64ActualTick;
-			}
-			else
-			{
-				clsGlobalDataQueue::mPtr->AddQueueItem(pUser->m_user_ext_json_original.c_str(), pUser->m_user_ext_json_original.size(), NULL, 0, clsGlobalDataQueue::CMD_OPS);
+				// TODO if (clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY] == 0 || clsServerManager::ui64ActualTick > ((60 * clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY]) + pUser->getLastExtJSONSendTick()))
+				if (pUser->getLastExtJSONSendTick() || clsServerManager::ui64ActualTick > pUser->getLastExtJSONSendTick() + 60)
+				{
+					clsGlobalDataQueue::mPtr->AddQueueItem(l_ext_json.c_str(), l_ext_json.size(), NULL, 0, clsGlobalDataQueue::CMD_EXTJSON);
+					pUser->setLastExtJSONSendTick(clsServerManager::ui64ActualTick);
+				}
+				else
+				{
+					clsGlobalDataQueue::mPtr->AddQueueItem(l_ext_json.c_str(), l_ext_json.size(), NULL, 0, clsGlobalDataQueue::CMD_OPS);
+				}				
 			}
 		}
-			return;
-		}
-
-#endif // USE_FLYLINKDC_EXT_JSON
-	
+	}
+#endif // USE_FLYLINKDC_EXT_JSON	
 }
 //---------------------------------------------------------------------------
 

@@ -598,7 +598,6 @@ User::User() : ui64SharedSize(0), ui64ChangedSharedSizeShort(0), ui64ChangedShar
 	sModes[0] = '\0';
 #ifdef USE_FLYLINKDC_EXT_JSON
 	m_user_ext_info = NULL;
-	iLastExtJSONSendTick = 0;
 #endif
 }
 //---------------------------------------------------------------------------
@@ -1137,6 +1136,16 @@ void User::SendChar(const char * cText, const size_t &szTextLen) {
     }
 }
 //---------------------------------------------------------------------------
+#ifdef USE_FLYLINKDC_EXT_JSON
+void User::SendCharDelayedExtJSON()
+{
+	if (!clsUsers::mPtr->m_AllExtJSON.empty())
+	{
+		SendCharDelayed(clsUsers::mPtr->m_AllExtJSON.c_str(), clsUsers::mPtr->m_AllExtJSON.size());
+	}
+}
+#endif // USE_FLYLINKDC_EXT_JSON
+//---------------------------------------------------------------------------
 
 void User::SendCharDelayed(const char * cText, const size_t &szTextLen) {
 	if(ui8State >= STATE_CLOSING || szTextLen == 0) {
@@ -1529,7 +1538,11 @@ void User::SetNick(char * sNewNick, const uint8_t &ui8NewNickLen) {
 #ifdef USE_FLYLINKDC_EXT_JSON
 void User::SetExtJSONOriginal(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen)
 {
-	m_user_ext_json_original = std::string(sNewExtJSON, ui16NewExtJSONLen);
+	if (m_user_ext_info)
+	{
+		std::string l_info(sNewExtJSON, ui16NewExtJSONLen);
+		m_user_ext_info->SetJSONOroginal(l_info);
+	}
 }
 #endif
 //------------------------------------------------------------------------------
@@ -2163,12 +2176,8 @@ void User::AddUserList() {
 	switch(clsSettingManager::mPtr->ui8FullMyINFOOption) {
     	case 0: {
 #ifdef USE_FLYLINKDC_EXT_JSON
-            // TODO - прокинуть сюда пачку ExtJSON
-                // TODO - ZPipe
-                    if(!clsUsers::mPtr->m_ExtJSON.empty())
-                    {
-                     SendCharDelayed(clsUsers::mPtr->m_ExtJSON.c_str(), clsUsers::mPtr->m_ExtJSON.size());
-                    }
+            // TODO - ZPipe
+			SendCharDelayedExtJSON();
 #endif
             if(clsUsers::mPtr->ui32MyInfosTagLen == 0) {
                 break;
@@ -2195,12 +2204,8 @@ void User::AddUserList() {
     	}
     	case 1: {
 #ifdef USE_FLYLINKDC_EXT_JSON
-                // TODO - прокинуть сюда пачку ExtJSON
-                // TODO - ZPipe
-                    if(!clsUsers::mPtr->m_ExtJSON.empty())
-                    {
-                     SendCharDelayed(clsUsers::mPtr->m_ExtJSON.c_str(), clsUsers::mPtr->m_ExtJSON.size());
-                    }
+            // TODO - ZPipe
+			SendCharDelayedExtJSON();
 #endif
     		if(clsProfileManager::mPtr->IsAllowed(this, clsProfileManager::SENDFULLMYINFOS) == false) {
                 if(clsUsers::mPtr->ui32MyInfosLen == 0) {
@@ -2254,12 +2259,8 @@ void User::AddUserList() {
     	}
         case 2: {
 #ifdef USE_FLYLINKDC_EXT_JSON
-                // TODO - прокинуть сюда пачку ExtJSON
-                // TODO - ZPipe
-                    if(!clsUsers::mPtr->m_ExtJSON.empty())
-                    {
-                     SendCharDelayed(clsUsers::mPtr->m_ExtJSON.c_str(), clsUsers::mPtr->m_ExtJSON.size());
-                    }
+             // TODO - ZPipe
+			SendCharDelayedExtJSON();
 #endif
             if(clsUsers::mPtr->ui32MyInfosLen == 0) {
                 break;
@@ -2962,11 +2963,4 @@ void User::DeletePrcsdUsrCmd(PrcsdUsrCmd * pCommand) {
     delete pCommand;
 }
 //------------------------------------------------------------------------------
-#ifdef USE_FLYLINKDC_EXT_JSON
-std::string UserExtInfo::GetExtJSON(User* u) const
-{
-      std::string l_all_fly_info = "$ExtJSON $ALL ";
-      l_all_fly_info += u->m_user_ext_info->m_ExtJSON; 
-      return l_all_fly_info;
-}
-#endif
+
