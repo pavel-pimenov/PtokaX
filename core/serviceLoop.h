@@ -35,6 +35,8 @@ private:
     #ifdef _WIN_IOT
     	uint64_t ui64LastSecond;
     #endif
+#else
+	uint64_t ui64LastSecond;
 #endif
 
     struct AcceptedSocket {
