@@ -24,23 +24,23 @@
 class clsReservedNicksManager {
 private:
     struct ReservedNick {
-        ReservedNick();
-        ~ReservedNick();
+    	ReservedNick * pPrev, * pNext;
 
         char * sNick;
-
-        ReservedNick * pPrev, * pNext;
 
         uint32_t ui32Hash;
 
         bool bFromScript;
+
+        ReservedNick();
+        ~ReservedNick();
 
         static ReservedNick * CreateReservedNick(const char * sNewNick, uint32_t ui32NickHash);
 
         DISALLOW_COPY_AND_ASSIGN(ReservedNick);
     };
 
-    ReservedNick * pReservedNicks;
+	ReservedNick * pReservedNicks;
 
     DISALLOW_COPY_AND_ASSIGN(clsReservedNicksManager);
 

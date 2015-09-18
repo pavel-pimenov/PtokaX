@@ -20,6 +20,7 @@
 //---------------------------------------------------------------------------
 #ifndef serviceLoopH
 #define serviceLoopH
+
 #include "CriticalSection.h"
 //---------------------------------------------------------------------------
 struct User;
@@ -27,9 +28,19 @@ struct User;
 
 class clsServiceLoop {
 private:
-    struct AcceptedSocket {
-        AcceptedSocket();
+    uint64_t ui64LstUptmTck;
+    CriticalSection csAcceptQueue;
 
+#ifdef _WIN32
+    #ifdef _WIN_IOT
+    	uint64_t ui64LastSecond;
+    #endif
+#endif
+
+    struct AcceptedSocket {
+        sockaddr_storage addr;
+
+        AcceptedSocket * pNext;
 
 #ifdef _WIN32
         SOCKET s;
@@ -37,42 +48,34 @@ private:
 		int s;
 #endif
 
-        sockaddr_storage addr;
+        AcceptedSocket();
 
-        AcceptedSocket * pNext;
         DISALLOW_COPY_AND_ASSIGN(AcceptedSocket);
     };
 
-    uint64_t ui64LstUptmTck;
-
-    CriticalSection csAcceptQueue;
-
 	AcceptedSocket * pAcceptedSocketsS, * pAcceptedSocketsE;
-
-#ifndef _WIN32
-      uint64_t ui64LastSecond;
-#endif
 
     DISALLOW_COPY_AND_ASSIGN(clsServiceLoop);
 
     void AcceptUser(AcceptedSocket * AccptSocket);
 protected:
 public:
-    static clsServiceLoop * mPtr;
+	double dLoggedUsers, dActualSrvLoopLogins;
 
-	clsServiceLoop();
-	~clsServiceLoop();
-
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN_IOT)
     static UINT_PTR srvLoopTimer;
 #else
 	uint64_t ui64LastRegToHublist;
 #endif
 
-    double dLoggedUsers, dActualSrvLoopLogins;
+	static clsServiceLoop * mPtr;
 
     uint32_t ui32LastSendRest,  ui32SendRestsPeak,  ui32LastRecvRest,  ui32RecvRestsPeak,  ui32LoopsForLogins;
+
     bool bRecv;
+
+	clsServiceLoop();
+	~clsServiceLoop();
 
 #ifdef _WIN32
 	void AcceptSocket(const SOCKET &s, const sockaddr_storage &addr);
@@ -86,5 +89,4 @@ public:
 //---------------------------------------------------------------------------
 
 #endif
-
 

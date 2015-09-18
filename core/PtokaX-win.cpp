@@ -30,7 +30,9 @@
 //---------------------------------------------------------------------------
 #pragma hdrstop
 //---------------------------------------------------------------------------
-#include "ExceptionHandling.h"
+#ifndef _WIN_IOT
+	#include "ExceptionHandling.h"
+#endif
 #include "LuaScript.h"
 #ifndef _DEBUG
 #include "DbgHelp.h"
@@ -212,7 +214,51 @@ static void WINAPI CtrlHandler(DWORD dwCtrl) {
 	}
 }
 //---------------------------------------------------------------------------
-	
+
+static void MainLoop() {
+#ifdef _WIN_IOT
+	while(true) {
+		clsServiceLoop::mPtr->Looper();
+		
+		if(clsServerManager::bServerTerminated == true) {
+		    break;
+		}
+
+		::Sleep(100);
+	}
+#else
+	MSG msg = { 0 };
+	BOOL bRet = -1;
+	        
+	while((bRet = ::GetMessage(&msg, NULL, 0, 0)) != 0) {
+	    if(bRet == -1) {
+	        // handle the error and possibly exit
+	    } else {
+	        if(msg.message == WM_USER+1) {
+	            break;
+	        } else if(msg.message == WM_TIMER) {
+				if (msg.wParam == clsServerManager::sectimer) {
+					clsServerManager::OnSecTimer();
+				} else if (msg.wParam == clsServiceLoop::srvLoopTimer) {
+                    clsServiceLoop::mPtr->Looper();
+                } else if(msg.wParam == clsServerManager::regtimer) {
+					clsServerManager::OnRegTimer();
+                } else {
+                    //Must be script timer
+                    ScriptOnTimer(msg.wParam);
+                }
+            }
+
+	    	::TranslateMessage(&msg);
+	        ::DispatchMessage(&msg);
+	    }
+	}
+
+    ExceptionHandlingUnitialize();
+#endif
+}
+//---------------------------------------------------------------------------
+
 static void WINAPI StartService(DWORD /*argc*/, char* argv[]) {
 	ssh = RegisterServiceCtrlHandler(argv[0], CtrlHandler);
 	
@@ -249,34 +295,7 @@ static void WINAPI StartService(DWORD /*argc*/, char* argv[]) {
 		return;
 	}
 
-	MSG msg = { 0 };
-	BOOL bRet = -1;
-	        
-	while((bRet = GetMessage(&msg, NULL, 0, 0)) != 0) {
-	    if(bRet == -1) {
-	        // handle the error and possibly exit
-	    } else {
-	        if(msg.message == WM_USER+1) {
-	            break;
-	        } else if(msg.message == WM_TIMER) {
-				if (msg.wParam == clsServerManager::sectimer) {
-					clsServerManager::OnSecTimer();
-				} else if (msg.wParam == clsServiceLoop::srvLoopTimer) {
-                    clsServiceLoop::mPtr->Looper();
-                } else if(msg.wParam == clsServerManager::regtimer) {
-					clsServerManager::OnRegTimer();
-                } else {
-                    //Must be script timer
-                    ScriptOnTimer(msg.wParam);
-                }
-            }
-
-	    	TranslateMessage(&msg);
-	        DispatchMessage(&msg);
-	    }
-	}
-
-    ExceptionHandlingUnitialize();
+	MainLoop();
 
 	ss.dwCurrentState = SERVICE_STOPPED;
 	SetServiceStatus(ssh, &ss);
@@ -284,9 +303,11 @@ static void WINAPI StartService(DWORD /*argc*/, char* argv[]) {
 //---------------------------------------------------------------------------
 
 int __cdecl main(int argc, char* argv[]) {
+#ifndef _WIN_IOT
     ::SetDllDirectory("");
+#endif
 
-#ifndef _WIN64
+#if !defined(_WIN64) && !defined(_WIN_IOT)
     HINSTANCE hKernel32 = ::LoadLibrary("Kernel32.dll");
 
     typedef BOOL (WINAPI * SPDEPP)(DWORD);
@@ -420,48 +441,25 @@ int __cdecl main(int argc, char* argv[]) {
 		}
 	}
 
+#ifndef _WIN_IOT
     ExceptionHandlingInitialize(clsServerManager::sPath, sBuf);
+#endif
 
 	if(clsServerManager::bService == false) {
 	    clsServerManager::Initialize();
 	
 	    if(clsServerManager::Start() == false) {
 	        printf("Server start failed!");
-
+#ifndef _WIN_IOT
             ExceptionHandlingUnitialize();
-
+#endif
 	        return EXIT_FAILURE;
 	    } else {
 	        printf("%s running...\n", g_sPtokaXTitle);
 			printf("Fork: https://github.com/pavel-pimenov/PtokaX\n", g_sPtokaXTitle);
 	    }
 
-	    MSG msg = { 0 };
-	    BOOL bRet = -1;
-
-	    while((bRet = ::GetMessage(&msg, NULL, 0, 0)) != 0) {
-	        if(bRet == -1) {
-	            // handle the error and possibly exit
-	        } else {
-	            if(msg.message == WM_USER+1) {
-	                break;
-	            } else if(msg.message == WM_TIMER) {
-                    if(msg.wParam == clsServiceLoop::srvLoopTimer) {
-                        clsServiceLoop::mPtr->Looper();
-                    } else if(msg.wParam == clsServerManager::regtimer) {
-                        clsServerManager::OnRegTimer();
-                    } else {
-                        //Must be script timer
-                        ScriptOnTimer(msg.wParam);
-                    }
-                }
-	
-	    		::TranslateMessage(&msg);
-	            ::DispatchMessage(&msg);
-	        }
-	    }
-
-        ExceptionHandlingUnitialize();
+		MainLoop();
 	} else {
 	    SERVICE_TABLE_ENTRY DispatchTable[] = {
 	        { sServiceName, StartService },
@@ -470,9 +468,9 @@ int __cdecl main(int argc, char* argv[]) {
 	       
 	    if(StartServiceCtrlDispatcher(DispatchTable) == false) {
 			AppendLog("StartServiceCtrlDispatcher failed ("+string((uint32_t)GetLastError())+")!");
-
+#ifndef _WIN_IOT
             ExceptionHandlingUnitialize();
-
+#endif
 	        return EXIT_FAILURE;
 	    }
 	}

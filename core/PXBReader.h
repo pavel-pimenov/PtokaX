@@ -24,9 +24,9 @@
 class PXBReader {
     DISALLOW_COPY_AND_ASSIGN(PXBReader);
 private:
-    char * pActualPosition;
+	FILE * pFile;
 
-    FILE * pFile;
+    char * pActualPosition;
 
     size_t szRemainingSize;
 

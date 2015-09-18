@@ -26,15 +26,15 @@ struct User;
 struct BanItem {
     time_t tTempBanExpire;
 
-    uint32_t ui32NickHash;
-
-    uint8_t ui128IpHash[16];
-
-    char *sNick, *sReason, *sBy;
+    char * sNick, * sReason, * sBy;
 
     BanItem * pPrev, * pNext;
     BanItem * pHashNickTablePrev, * pHashNickTableNext;
     BanItem * pHashIpTablePrev, * pHashIpTableNext;
+
+    uint32_t ui32NickHash;
+
+    uint8_t ui128IpHash[16];
 
     uint8_t ui8Bits;
     char sIp[40];
@@ -49,11 +49,11 @@ struct BanItem {
 struct RangeBanItem {
     time_t tTempBanExpire;
 
-    uint8_t ui128FromIpHash[16], ui128ToIpHash[16];
-
-    char *sReason, *sBy;
+    char * sReason, * sBy;
 
     RangeBanItem * pPrev, * pNext;
+
+    uint8_t ui128FromIpHash[16], ui128ToIpHash[16];
 
     uint8_t ui8Bits;
 
@@ -68,18 +68,21 @@ struct RangeBanItem {
 
 class clsBanManager {
 private:
+    BanItem * pNickTable[65536];
+
     struct IpTableItem {
+        IpTableItem * pPrev, * pNext;
+
+        BanItem * pFirstBan;
+
         IpTableItem() : pPrev(NULL), pNext(NULL), pFirstBan(NULL) { };
 
-        IpTableItem * pPrev, * pNext;
-        BanItem * pFirstBan;
-        DISALLOW_COPY_AND_ASSIGN(IpTableItem);
+       DISALLOW_COPY_AND_ASSIGN(IpTableItem);
     };
 
-    uint32_t ui32SaveCalled;
+	IpTableItem * pIpTable[65536];
 
-    BanItem * pNickTable[65536];
-    IpTableItem * pIpTable[65536];
+    uint32_t ui32SaveCalled;
 
     DISALLOW_COPY_AND_ASSIGN(clsBanManager);
 public:

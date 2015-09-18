@@ -28,56 +28,60 @@ static const uint32_t OPLISTSIZE = 1024*32;
 static const uint32_t ZLISTSIZE = 1024*16;
 static const uint32_t ZMYINFOLISTSIZE = 1024*128;
 //---------------------------------------------------------------------------
-
 #ifdef USE_FLYLINKDC_EXT_JSON
 #include <vector>
 #endif
 
 class clsUsers {
 private:
+	uint64_t ui64ChatMsgsTick, ui64ChatLockFromTick;
+
     struct RecTime {
+        uint64_t ui64DisConnTick;
+
+        RecTime * pPrev, * pNext;
+
+        char * sNick;
+
+        uint32_t ui32NickHash;
+
+        uint8_t ui128IpHash[16];
+
         explicit RecTime(const uint8_t * pIpHash);
 
-        uint64_t ui64DisConnTick;
-        uint32_t ui32NickHash;
-        RecTime * pPrev, * pNext;
-        char * sNick;
-        uint8_t ui128IpHash[16];
         DISALLOW_COPY_AND_ASSIGN(RecTime);
     };
 
-    uint64_t ui64ChatMsgsTick, ui64ChatLockFromTick;
-
-    uint16_t ui16ChatMsgs;
-
     RecTime * pRecTimeList;
 
-	  User * pListE;
+	User * pListE;
+
+	uint16_t ui16ChatMsgs;
 
     bool bChatLocked;
 
-    DISALLOW_COPY_AND_ASSIGN(clsUsers);
-
+     DISALLOW_COPY_AND_ASSIGN(clsUsers);
 public:
     static clsUsers * mPtr;
+
+	User * pListS;
+
+    char * pNickList, * pZNickList, * pOpList, * pZOpList, * pUserIPList, * pZUserIPList;
+    char * pMyInfos, * pZMyInfos, * pMyInfosTag, * pZMyInfosTag;
+
 
     uint32_t ui32MyInfosLen, ui32MyInfosSize, ui32ZMyInfosLen, ui32ZMyInfosSize;
     uint32_t ui32MyInfosTagLen, ui32MyInfosTagSize, ui32ZMyInfosTagLen, ui32ZMyInfosTagSize;
     uint32_t ui32NickListLen, ui32NickListSize, ui32ZNickListLen, ui32ZNickListSize;
     uint32_t ui32OpListLen, ui32OpListSize, ui32ZOpListLen, ui32ZOpListSize;
     uint32_t ui32UserIPListSize, ui32UserIPListLen, ui32ZUserIPListSize, ui32ZUserIPListLen;
-
-    char * pNickList, * pZNickList, * pOpList, * pZOpList, * pUserIPList, * pZUserIPList;
-    char * pMyInfos, * pZMyInfos, * pMyInfosTag, * pZMyInfosTag;
+    
+    uint16_t ui16ActSearchs, ui16PasSearchs;
 
 #ifdef USE_FLYLINKDC_EXT_JSON
 	std::string m_AllExtJSON;
 	// TODO std::vector<char> m_ExtJSONZlib;
 #endif
-
-    User * pListS;
-    
-    uint16_t ui16ActSearchs, ui16PasSearchs;
 
     clsUsers();
     ~clsUsers();
@@ -101,8 +105,8 @@ public:
 	void DelFromUserIP(User * pUser);
 	void Add2RecTimes(User * pUser);
 	bool CheckRecTime(User * pUser);
-
 };
 //---------------------------------------------------------------------------
 
 #endif
+

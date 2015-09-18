@@ -3,7 +3,6 @@
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
  * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
-
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
  * as published by the Free Software Foundation.
@@ -25,10 +24,11 @@
 class clsRegisterThread {
 private:
     struct RegSocket {
-        RegSocket();
-        ~RegSocket();
-
         uint64_t ui64TotalShare;
+
+		RegSocket * pPrev, * pNext;
+
+		char * sAddress, * pRecvBuf, * pSendBuf, * pSendBufHead;
 
 #ifdef _WIN32
         SOCKET sock;
@@ -40,28 +40,27 @@ private:
 
         uint32_t ui32AddrLen;
 
-		char * sAddress, * pRecvBuf, * pSendBuf, * pSendBufHead;
-
-        RegSocket * pPrev, * pNext;
+        RegSocket();
+        ~RegSocket();
 
         DISALLOW_COPY_AND_ASSIGN(RegSocket);
     };
 
-#ifdef _WIN32
-    unsigned int threadId;
+	RegSocket * pRegSockListS, * pRegSockListE;
 
-    HANDLE threadHandle;
+#ifdef _WIN32
+	HANDLE threadHandle;
+
+    unsigned int threadId;
 #else
 	pthread_t threadId;
 #endif
-
-    RegSocket * pRegSockListS, * pRegSockListE;
 
     bool bTerminated;
 
     char sMsg[2048];
 
-    DISALLOW_COPY_AND_ASSIGN(clsRegisterThread);
+	DISALLOW_COPY_AND_ASSIGN(clsRegisterThread);
 
 	void AddSock(char * sAddress, const size_t &szLen);
 	bool Receive(RegSocket * pSock);
@@ -85,3 +84,4 @@ public:
 //---------------------------------------------------------------------------
 
 #endif
+

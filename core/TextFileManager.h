@@ -26,15 +26,17 @@ struct User;
 class clsTextFilesManager {
 private:
     struct TextFile {
+    	TextFile * pPrev, * pNext;
+
+        char * sCommand, * sText;
+
         TextFile();
         ~TextFile();
 
-        char * sCommand, * sText;
-        TextFile * pPrev, * pNext;
         DISALLOW_COPY_AND_ASSIGN(TextFile);
     };
 
-    TextFile * pTextFiles;
+	TextFile * pTextFiles;
 
     DISALLOW_COPY_AND_ASSIGN(clsTextFilesManager);
 public:

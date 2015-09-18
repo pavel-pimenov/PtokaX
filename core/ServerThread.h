@@ -25,44 +25,44 @@
 class ServerThread {
 private:
     struct AntiConFlood {
-        explicit AntiConFlood(const uint8_t * pIpHash);
-
-        uint8_t ui128IpHash[16];
-
         uint64_t ui64Time;
 
         AntiConFlood * pPrev, * pNext;
 
         int16_t ui16Hits;
+
+        uint8_t ui128IpHash[16];
+
+        explicit AntiConFlood(const uint8_t * pIpHash);
+
         DISALLOW_COPY_AND_ASSIGN(AntiConFlood);
     };
 
-    CriticalSection csServerThread;
+	AntiConFlood * pAntiFloodList;
+
+	CriticalSection csServerThread;
 #ifdef _WIN32
+	HANDLE threadHandle;
+
+
     SOCKET server;
 
     unsigned int threadId;
+
     uint32_t iSuspendTime;
-
-    HANDLE threadHandle;
-
 #else
+	pthread_t threadId;
+
     int server;
 
-    pthread_t threadId;
-
 	unsigned int iSuspendTime;
-
-    pthread_mutex_t mtxServerThread;
 #endif
-
-	AntiConFlood * pAntiFloodList;
 
     int iAdressFamily;
 
 	bool bTerminated;
 
-    DISALLOW_COPY_AND_ASSIGN(ServerThread);
+	DISALLOW_COPY_AND_ASSIGN(ServerThread);
 public:
     ServerThread * pPrev, * pNext;
 

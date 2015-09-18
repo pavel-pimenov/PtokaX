@@ -25,11 +25,13 @@ struct User;
 //---------------------------------------------------------------------------
 
 struct ProfileItem {
+    char * sName;
+
+    bool bPermissions[256];
+
     ProfileItem();
     ~ProfileItem();
 
-    char * sName;
-    bool bPermissions[256];
     DISALLOW_COPY_AND_ASSIGN(ProfileItem);
 
 };
@@ -44,6 +46,10 @@ private:
     void LoadXML();
 public:
     static clsProfileManager * mPtr;
+
+    ProfileItem ** ppProfilesTable;
+
+	uint16_t ui16ProfileCount;
 
     enum ProfilePermissions {
         HASKEYICON,
@@ -103,9 +109,6 @@ public:
         NOUSRSAMEIP, 
         NORECONNTIME
     };
-
-    uint16_t ui16ProfileCount;
-    ProfileItem ** ppProfilesTable;
 
     clsProfileManager();
     ~clsProfileManager();

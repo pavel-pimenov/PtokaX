@@ -112,7 +112,7 @@
 #include "pxstring.h"
 //---------------------------------------------------------------------------
 #define PtokaXVersionString "0.5.2.1"
-#define BUILD_NUMBER "524"
+#define BUILD_NUMBER "527"
 #ifdef USE_FLYLINKDC_EXT_JSON
 const char g_sPtokaXTitle[] = "PtokaX DC Hub for FlylinkDC++ " PtokaXVersionString
 #else

@@ -26,19 +26,21 @@ struct User;
 
 class clsHashManager {
 private:
-    struct IpTableItem {
-        IpTableItem() : pPrev(NULL), pNext(NULL), pFirstUser(NULL), ui16Count(0) { };
+    User * pNickTable[65536];
 
+    struct IpTableItem {
         IpTableItem * pPrev, * pNext;
 
         User * pFirstUser;
 
         uint16_t ui16Count;
+
+        IpTableItem() : pPrev(NULL), pNext(NULL), pFirstUser(NULL), ui16Count(0) { };
+
         DISALLOW_COPY_AND_ASSIGN(IpTableItem);
     };
 
-    User * pNickTable[65536];
-    IpTableItem * pIpTable[65536];
+	IpTableItem * pIpTable[65536];
 
     DISALLOW_COPY_AND_ASSIGN(clsHashManager);
 public:
@@ -59,3 +61,4 @@ public:
 //---------------------------------------------------------------------------
 
 #endif
+

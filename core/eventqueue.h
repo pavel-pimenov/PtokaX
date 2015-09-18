@@ -21,28 +21,30 @@
 #define eventqueueH
 //---------------------------------------------------------------------------
 #include "CriticalSection.h"
-
 class clsEventQueue {
 private:
+
     struct event {
-        event();
+    	event * pPrev, * pNext;
 
         char * sMsg;
 
-        event * pPrev, * pNext;
-
         uint8_t ui128IpHash[16];
         uint8_t ui8Id;
-        DISALLOW_COPY_AND_ASSIGN(event);
+
+        event();
+
+       DISALLOW_COPY_AND_ASSIGN(event);
     };
 
-    event * pNormalE, * pThreadE;
+	event * pNormalE, * pThreadE;
 
-	CriticalSection csEventQueue;
-
-  DISALLOW_COPY_AND_ASSIGN(clsEventQueue);
+     CriticalSection csEventQueue;
+	DISALLOW_COPY_AND_ASSIGN(clsEventQueue);
 public:
     static clsEventQueue * mPtr;
+
+	event * pNormalS, * pThreadS;
 
 	enum {
         EVENT_RESTART, 
@@ -56,8 +58,6 @@ public:
         EVENT_UDP_SR
 	};
 
-    event * pNormalS, * pThreadS;
-
     clsEventQueue();
     ~clsEventQueue();
 
@@ -68,3 +68,4 @@ public:
 //---------------------------------------------------------------------------
 
 #endif
+

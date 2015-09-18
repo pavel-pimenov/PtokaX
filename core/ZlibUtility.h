@@ -23,8 +23,9 @@
 
 class clsZlibUtility {
 private:
+	char * pZbuffer;
+
     size_t szZbufferSize;
-    char * pZbuffer;
 
     DISALLOW_COPY_AND_ASSIGN(clsZlibUtility);
 public:
