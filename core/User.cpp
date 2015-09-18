@@ -864,6 +864,9 @@ User::~User() {
 
 	pCmdToUserStrt = NULL;
 	pCmdToUserEnd = NULL;
+#ifdef USE_FLYLINKDC_EXT_JSON
+	delete m_user_ext_info;
+#endif
 }
 //---------------------------------------------------------------------------
 
