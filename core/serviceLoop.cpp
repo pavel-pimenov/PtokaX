@@ -746,7 +746,7 @@ void clsServiceLoop::ReceiveLoop() {
                         break;
                 }
 #ifdef USE_FLYLINKDC_EXT_JSON
-				// TODO
+				// TODO ExtJSON
 /*
 imsgLen = sprintf(msg, "$ExtJSON %s Russia$Lipetsk$Beeline|", curUser->sNick);
             	  if(CheckSprintf(imsgLen, 1024, "clsServiceLoop::ReceiveLoop6_1") == true) {
@@ -755,6 +755,18 @@ imsgLen = sprintf(msg, "$ExtJSON %s Russia$Lipetsk$Beeline|", curUser->sNick);
                 }
 
 */
+				if (curUser->m_user_ext_info) {
+					const std::string& l_ext_json = curUser->m_user_ext_info->GetExtJSONCommand();
+					if (!l_ext_json.empty())
+					{
+						// TODO ExtJSON if (clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY] == 0 || clsServerManager::ui64ActualTick > ((60 * clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY]) + pUser->getLastExtJSONSendTick()))
+						//if (curUser->getLastExtJSONSendTick() || clsServerManager::ui64ActualTick > curUser->getLastExtJSONSendTick() + 60)
+						{
+							clsGlobalDataQueue::mPtr->AddQueueItem(l_ext_json.c_str(), l_ext_json.size(), NULL, 0, clsGlobalDataQueue::CMD_EXTJSON);
+							curUser->setLastExtJSONSendTick(clsServerManager::ui64ActualTick);
+						}
+					}
+				}				
 #endif
                 
                 if(((curUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true) {

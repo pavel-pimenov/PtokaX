@@ -80,7 +80,7 @@ public:
 
 #ifdef USE_FLYLINKDC_EXT_JSON
 	std::string m_AllExtJSON;
-	// TODO std::vector<char> m_ExtJSONZlib;
+	// TODO ExtJSON std::vector<char> m_ExtJSONZlib;
 #endif
 
     clsUsers();

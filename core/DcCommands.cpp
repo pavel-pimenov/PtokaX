@@ -686,7 +686,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool &bChec
 
 #endif
 						iStatCmdExtJSON++;
-						// TODO ?? clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad state (%d) in $ExtJSON %s (%s) - user closed.", (int)pUser->ui8State, pUser->sNick, pUser->sIP);
+						// TODO ExtJSON ?? clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad state (%d) in $ExtJSON %s (%s) - user closed.", (int)pUser->ui8State, pUser->sNick, pUser->sIP);
 						// curUser->Close();
 						return;
 					}
@@ -3333,13 +3333,13 @@ void clsDcCommands::ProcessCmds(User * pUser) {
 #ifdef USE_FLYLINKDC_EXT_JSON
 	if ((pUser->ui32BoolBits & User::BIT_PRCSD_EXT_JSON) == User::BIT_PRCSD_EXT_JSON) {
 		pUser->ui32BoolBits &= ~User::BIT_PRCSD_EXT_JSON;
-		// TODO - ????? clsUsers::mPtr->Add2MyInfosTag(pUser);
+		// TODO ExtJSON - ????? clsUsers::mPtr->Add2MyInfosTag(pUser);
 		if (pUser->m_user_ext_info)
 		{
 			const std::string& l_ext_json = pUser->m_user_ext_info->GetExtJSONCommand();
 			if (!l_ext_json.empty())
 			{
-				// TODO if (clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY] == 0 || clsServerManager::ui64ActualTick > ((60 * clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY]) + pUser->getLastExtJSONSendTick()))
+				// TODO ExtJSON if (clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY] == 0 || clsServerManager::ui64ActualTick > ((60 * clsSettingManager::mPtr->i16Shorts[SETSHORT_MYINFO_DELAY]) + pUser->getLastExtJSONSendTick()))
 				if (pUser->getLastExtJSONSendTick() || clsServerManager::ui64ActualTick > pUser->getLastExtJSONSendTick() + 60)
 				{
 					clsGlobalDataQueue::mPtr->AddQueueItem(l_ext_json.c_str(), l_ext_json.size(), NULL, 0, clsGlobalDataQueue::CMD_EXTJSON);

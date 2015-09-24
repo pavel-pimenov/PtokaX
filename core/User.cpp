@@ -2183,7 +2183,7 @@ void User::AddUserList() {
 	switch(clsSettingManager::mPtr->ui8FullMyINFOOption) {
     	case 0: {
 #ifdef USE_FLYLINKDC_EXT_JSON
-            // TODO - ZPipe
+            // TODO ExtJSON - ZPipe
 			SendCharDelayedExtJSON();
 #endif
             if(clsUsers::mPtr->ui32MyInfosTagLen == 0) {
@@ -2211,7 +2211,7 @@ void User::AddUserList() {
     	}
     	case 1: {
 #ifdef USE_FLYLINKDC_EXT_JSON
-            // TODO - ZPipe
+            // TODO ExtJSON - ZPipe
 			SendCharDelayedExtJSON();
 #endif
     		if(clsProfileManager::mPtr->IsAllowed(this, clsProfileManager::SENDFULLMYINFOS) == false) {
@@ -2239,7 +2239,7 @@ void User::AddUserList() {
     		} else {
 
 #ifdef USE_FLYLINKDC_EXT_JSON
-				// TODO - прокинуть сюда пачку ExtJSON
+				// TODO ExtJSON 
 #endif
 				if (clsUsers::mPtr->ui32MyInfosTagLen == 0) {
                     break;
@@ -2266,7 +2266,7 @@ void User::AddUserList() {
     	}
         case 2: {
 #ifdef USE_FLYLINKDC_EXT_JSON
-             // TODO - ZPipe
+             // TODO ExtJSON ZPipe
 			SendCharDelayedExtJSON();
 #endif
             if(clsUsers::mPtr->ui32MyInfosLen == 0) {

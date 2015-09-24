@@ -720,7 +720,7 @@ void clsUsers::Add2MyInfos(User * pUser) {
 	if (pUser->m_user_ext_info)
     {
 		m_AllExtJSON += pUser->m_user_ext_info->GetExtJSONCommand();
-		// TODO m_ExtJSONZlib.clear();
+		// TODO ExtJSON m_ExtJSONZlib.clear();
     }
 #endif
 }
