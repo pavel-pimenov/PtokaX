@@ -214,7 +214,7 @@ const char* SetTxtDef[] = {
     "0", //UDP_PORT
     "", //HUB_DESCRIPTION
     "dc.fly-server.ru", //REDIRECT_ADDRESS
-	"reg.hublist.org;hublist.te-home.net", //REGISTER_SERVERS
+    "reg.hublist.org;hublist.te-home.net;dc.gwhublist.com", //REGISTER_SERVERS
     "Sorry, this hub is only for registered users.", //REG_ONLY_MSG
     "", //REG_ONLY_REDIR_ADDRESS
     "", //HUB_TOPIC

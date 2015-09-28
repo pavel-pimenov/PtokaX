@@ -1,5 +1,12 @@
 # Hint 1:
 # setcap 'cap_net_bind_service=+ep' /home/dc/src/PtokaX/PtokaX 
+# allow dns requests to google nameservers
+# iptables -A OUTPUT -p udp --dport 53 -d 8.8.8.8 -j ACCEPT
+# iptables -A OUTPUT -p udp --dport 53 -d 8.8.4.4 -j ACCEPT
+# block all other udp
+# iptables -A OUTPUT -p udp -j DROP
+# ip6tables -A OUTPUT -p udp -j DROP
+
 
 git pull
 rm PtokaX
