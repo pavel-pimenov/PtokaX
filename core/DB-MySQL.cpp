@@ -1,6 +1,6 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
-
+ 
  * Copyright (C) 2004-2015 Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
@@ -66,7 +66,7 @@ DBMySQL::DBMySQL() {
 
 	if(mysql_query(pDBHandle, 
 		"CREATE TABLE IF NOT EXISTS userinfo ("
-			"nick VARCHAR(64) NOT NULL PRIMARY KEY,"
+			"nick VARCHAR(64) NOT NULL,"
 			"last_updated DATETIME NOT NULL,"
 			"ip_address VARCHAR(39) NOT NULL,"
 			"share VARCHAR(24) NOT NULL,"

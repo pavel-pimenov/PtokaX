@@ -75,7 +75,7 @@ DBSQLite::DBSQLite() {
 
 	iRet = sqlite3_exec(pDB, 
 		"CREATE TABLE IF NOT EXISTS userinfo ("
-			"nick VARCHAR(64) NOT NULL PRIMARY KEY,"
+			"nick VARCHAR(64) NOT NULL,"
 			"last_updated DATETIME NOT NULL,"
 			"ip_address VARCHAR(39) NOT NULL,"
 			"share VARCHAR(24) NOT NULL,"
@@ -148,36 +148,8 @@ void DBSQLite::UpdateRecord(User * pUser) {
 	}
 
 	char sSQLCommand[1024];
-	sqlite3_snprintf(1024, sSQLCommand,
-		"UPDATE userinfo SET "
-		"nick = %Q,"
-		"last_updated = DATETIME('now')," // last_updated
-		"ip_address = %Q," // ip
-		"share = %Q," // share
-		"description = %Q," // description
-		"tag = %Q," // tag
-		"connection = %Q," // connection
-		"email = %Q" // email
-		"WHERE LOWER(nick) = LOWER(%Q);", // nick
-		sNick, pUser->sIP, sShare, sDescription, sTag, sConnection, sEmail, sNick
-	);
-
-	char * sErrMsg = NULL;
-
-	int iRet = sqlite3_exec(pDB, sSQLCommand, NULL, NULL, &sErrMsg);
-
-	if(iRet != SQLITE_OK) {
-		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite update record failed: %s", sErrMsg);
-		sqlite3_free(sErrMsg);
-	}
-
-	iRet = sqlite3_changes(pDB);
-	if(iRet != 0) {
-		return;
-	}
-
-	sqlite3_snprintf(1024, sSQLCommand,
-		"INSERT INTO userinfo (nick, last_updated, ip_address, share, description, tag, connection, email) VALUES ("
+	sqlite3_snprintf(sizeof(sSQLCommand), sSQLCommand,
+		"INSERT OR REPLACE INTO userinfo (nick, last_updated, ip_address, share, description, tag, connection, email) VALUES ("
 		"%Q," // nick
 		"DATETIME('now')," // last_updated
 		"%Q," // ip
@@ -189,8 +161,8 @@ void DBSQLite::UpdateRecord(User * pUser) {
 		");",
 		sNick, pUser->sIP, sShare, sDescription, sTag, sConnection, sEmail
 	);
-
-	iRet = sqlite3_exec(pDB, sSQLCommand, NULL, NULL, &sErrMsg);
+	char * sErrMsg = NULL;
+	int iRet = sqlite3_exec(pDB, sSQLCommand, NULL, NULL, &sErrMsg);
 
 	if(iRet != SQLITE_OK) {
 		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite insert record failed: %s", sErrMsg);

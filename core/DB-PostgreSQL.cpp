@@ -70,7 +70,7 @@ DBPostgreSQL::DBPostgreSQL() {
 					"SELECT * FROM pg_catalog.pg_tables WHERE tableowner = 'ptokax' AND tablename = 'userinfo'"
 				") THEN\n"
 					"CREATE TABLE userinfo ("
-						"nick VARCHAR(64) NOT NULL PRIMARY KEY,"
+						"nick VARCHAR(64) NOT NULL,"
 						"last_updated TIMESTAMPTZ NOT NULL,"
 						"ip_address VARCHAR(39) NOT NULL,"
 						"share VARCHAR(24) NOT NULL,"
