@@ -3020,10 +3020,12 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
             } else {
                    
 				if (Reg == NULL) {
-					if (OtherUser->ui64SharedSize == pUser->ui64SharedSize && strcmp(OtherUser->sNick, pUser->sNick) == 0 && strcmp(OtherUser->sIP, pUser->sIP) == 0) //[+] FlylinkDC++
+					if (// TODO OtherUser->ui64SharedSize == pUser->ui64SharedSize && 
+						strcmp(OtherUser->sNick, pUser->sNick) == 0 && strcmp(OtherUser->sIP, pUser->sIP) == 0) //[+] FlylinkDC++
 					{
+						OtherUser->SendFormat("clsDcCommands::ValidateUserNick8", false, "<%s> Ghost in validate nick %s user closed.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], sNick);
 						OtherUser->ui32BoolBits |= User::BIT_ERROR;
-						clsUdpDebug::mPtr->BroadcastFormat("[SYS] Remove clone user nick %s (%s) share = %lu - user closed.", OtherUser->sNick, OtherUser->sIP, OtherUser->ui64SharedSize);
+						clsUdpDebug::mPtr->BroadcastFormat("[SYS] Remove clone user nick %s (%s) - user closed.", OtherUser->sNick, OtherUser->sIP);
 						OtherUser->Close();
 						return ValidateUserNickFinally(Reg == NULL, pUser, szNickLen, ValidateNick); // [+] FlylinkDC++
 					}
