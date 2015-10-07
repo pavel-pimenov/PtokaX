@@ -75,6 +75,7 @@ private:
     void MyNick(User * pUser, char * sData, const uint32_t &ui32Len);
     
     bool ValidateUserNick(User * pUser, char * sNick, const size_t &szNickLen, const bool &ValidateNick);
+	bool ValidateUserNickFinally(bool pIsNotReg, User * pUser, const size_t &szNickLen, const bool ValidateNick); // [+] FlylinkDC++
 
 	PassBf * Find(const uint8_t * ui128IpHash);
 	void Remove(PassBf * PassBfItem);

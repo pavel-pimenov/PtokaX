@@ -1620,7 +1620,7 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 #ifdef USE_FLYLINKDC_EXT_JSON
 //---------------------------------------------------------------------------
 // $ExtJSON $ALL  $ $$$$|
-bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck) {
+bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool& /* bCheck */) {
 	if (ui32Len < (22u + pUser->ui8NickLen)) {
 		clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad $ExtJSON (%s) from %s (%s) - user closed.", sData, pUser->sNick, pUser->sIP);
 
@@ -3018,10 +3018,17 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
                 OtherUser->Close();
                 return false;
             } else {
-                   //[+] FlylinkDC++
-		   const bool l_is_duplicate_user = OtherUser->ui64SharedSize == pUser->ui64SharedSize && strcmp(OtherUser->sNick, pUser->sNick) == 0 && strcmp(OtherUser->sIP, pUser->sIP) == 0;
-		   if (Reg == NULL && l_is_duplicate_user == false) {
-
+                   
+				if (Reg == NULL) {
+					if (OtherUser->ui64SharedSize == pUser->ui64SharedSize && strcmp(OtherUser->sNick, pUser->sNick) == 0 && strcmp(OtherUser->sIP, pUser->sIP) == 0) //[+] FlylinkDC++
+					{
+						OtherUser->ui32BoolBits |= User::BIT_ERROR;
+						clsUdpDebug::mPtr->BroadcastFormat("[SYS] Remove clone user nick %s (%s) share = %lu - user closed.", OtherUser->sNick, OtherUser->sIP, OtherUser->ui64SharedSize);
+						OtherUser->Close();
+						return ValidateUserNickFinally(Reg == NULL, pUser, szNickLen, ValidateNick); // [+] FlylinkDC++
+					}
+					else
+					{
                     pUser->SendFormat("clsDcCommands::ValidateUserNick7", false, "$ValidateDenide %s|", sNick);
 
                     if(strcmp(OtherUser->sIP, pUser->sIP) != 0 || strcmp(OtherUser->sNick, pUser->sNick) != 0) {
@@ -3030,6 +3037,7 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
 
                     pUser->Close();
                     return false;
+					}
                 } else {
                     // PPK ... addition for registered users, kill your own ghost >:-]
                     pUser->ui8State = User::STATE_VERSION_OR_MYPASS;
@@ -3040,8 +3048,13 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
             }
         }
     }
-        
-    if(Reg == NULL) {
+	return ValidateUserNickFinally(Reg == NULL, pUser, szNickLen, ValidateNick); // [+] FlylinkDC++
+}
+// [+] FlylinkDC++
+//---------------------------------------------------------------------------
+bool clsDcCommands::ValidateUserNickFinally(bool pIsNotReg, User * pUser, const size_t &szNickLen, const bool ValidateNick)
+{
+	if (pIsNotReg) {
         // user is NOT registered
         
         // nick length check
@@ -3062,7 +3075,8 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
 
             pUser->Close();
             return false;
-        } else {
+		}
+		else {
        	    // hub is public, proceed to Hello
             if(clsHashManager::mPtr->Add(pUser) == false) {
                 return false;
@@ -3076,7 +3090,8 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
             }
             return true;
         }
-    } else {
+	}
+	else {
         // user is registered, wait for password
         if(clsHashManager::mPtr->Add(pUser) == false) {
             return false;
@@ -3088,9 +3103,9 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
         pUser->AddPrcsdCmd(PrcsdUsrCmd::GETPASS, NULL, 0, NULL);
         return true;
     }
+  return false;
 }
 //---------------------------------------------------------------------------
-
 clsDcCommands::PassBf * clsDcCommands::Find(const uint8_t * ui128IpHash) {
 	PassBf * cur = NULL,
         * next = PasswdBfCheck;
