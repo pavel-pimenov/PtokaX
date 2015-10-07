@@ -3018,7 +3018,10 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
                 OtherUser->Close();
                 return false;
             } else {
-                if(Reg == NULL) {
+                   //[+] FlylinkDC++
+		   const bool l_is_duplicate_user = OtherUser->ui64SharedSize == pUser->ui64SharedSize && strcmp(OtherUser->sNick, pUser->sNick) == 0 && strcmp(OtherUser->sIP, pUser->sIP) == 0;
+		   if (Reg == NULL && l_is_duplicate_user == false) {
+
                     pUser->SendFormat("clsDcCommands::ValidateUserNick7", false, "$ValidateDenide %s|", sNick);
 
                     if(strcmp(OtherUser->sIP, pUser->sIP) != 0 || strcmp(OtherUser->sNick, pUser->sNick) != 0) {
