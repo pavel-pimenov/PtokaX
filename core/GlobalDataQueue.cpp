@@ -554,8 +554,18 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser) {
                         break;
 		    case CMD_EXTJSON:
 			if (pCur->pCommand1 != NULL) {
+							if (((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON) == User::SUPPORTBIT_EXTJSON) == true)
+							{
 				AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
 			}
+#ifdef _DEBUG
+							else
+							{
+								int a = 0;
+								a++;
+							}
+#endif
+						}
 			break;
                     case CMD_MYINFO:
                         if((ui16QueueBits & BIT_LONG_MYINFO) == BIT_LONG_MYINFO) {

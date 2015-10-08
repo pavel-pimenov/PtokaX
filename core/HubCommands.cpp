@@ -3331,10 +3331,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t &szCm
     			" ARM"
     #endif
 #endif
-#ifdef _PtokaX_TESTING_
-                " [build " BUILD_NUMBER "]"
-#endif
-                " built on " __DATE__ " " __TIME__ "\n"
+				" [build " BUILD_NUMBER "] on " __DATE__ " " __TIME__ "\n"
 #if LUA_VERSION_NUM > 501
 				"Lua: " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR "." LUA_VERSION_RELEASE "\n";
 #else

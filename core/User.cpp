@@ -1296,6 +1296,13 @@ bool User::PutInSendBuf(const char * Text, const size_t &szTxtLen) {
 	iSendCalled++;
 
     size_t szAllignLen = 0;
+#ifdef _DEBUG
+	if (strstr(Text, "$ExtJSON $ALL") != NULL)
+	{
+		int a = 0;
+		a++;
+	}
+#endif
 
     if(ui32SendBufLen < ui32SendBufDataLen+szTxtLen) {
         if(pSendBuf == NULL) {
@@ -1449,6 +1456,13 @@ bool User::Try2Send() {
 
         return false;
     }
+#ifdef _DEBUG
+	if (strstr(pSendBufHead, "$ExtJSON $ALL") != NULL)
+	{
+		int a = 0;
+		a++;
+	}
+#endif
 
     int n = send(Sck, pSendBufHead, len < 32768 ? len : 32768, 0);
 
@@ -2220,6 +2234,7 @@ void User::AddUserList() {
     	case 1: {
 #ifdef USE_FLYLINKDC_EXT_JSON
             // TODO ExtJSON - ZPipe
+			// ExtJSON Step reconnect - 1
 			SendCharDelayedExtJSON();
 #endif
     		if(clsProfileManager::mPtr->IsAllowed(this, clsProfileManager::SENDFULLMYINFOS) == false) {

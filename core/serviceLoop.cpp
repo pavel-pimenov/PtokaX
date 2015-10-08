@@ -286,6 +286,14 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket) {
             if(CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsServiceLoop::AcceptUser4") == true) {
                 send(AccptSocket->s, clsServerManager::pGlobalBuffer, iMsgLen, 0);
                 clsServerManager::ui64BytesSent += iMsgLen;
+#ifdef _DEBUG
+				if (strstr(clsServerManager::pGlobalBuffer, "$ExtJSON $ALL") != NULL)
+				{
+					int a = 0;
+					a++;
+				}
+#endif
+
             }
         }
 #ifdef _WIN32

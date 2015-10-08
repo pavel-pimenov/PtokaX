@@ -118,12 +118,7 @@ const char g_sPtokaXTitle[] = "PtokaX DC Hub for FlylinkDC++ " PtokaXVersionStri
 #else
 const char g_sPtokaXTitle[] = "PtokaX++ DC Hub " PtokaXVersionString
 #endif // USE_FLYLINKDC_EXT_JSON
-#ifdef _PtokaX_TESTING_
 	" [build " BUILD_NUMBER "]";
-#else
-	;
-#endif
-
 #ifdef _WIN32
     #define strcasecmp stricmp
     #define strncasecmp strnicmp
