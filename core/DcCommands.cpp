@@ -344,12 +344,15 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool &bChec
 #ifdef USE_FLYLINKDC_EXT_JSON
 				case 'E': 
 					if (memcmp(sData + 2, "xtJSON $ALL ", 12) == 0) {
-						iStatCmdExtJSON++;
-						if (MyINFODeflood(pUser, sData, ui32Len, bCheck) == false) {
+						iStatCmdExtJSON++; // ExtJSON Step 1 First Login
+						if (ExtJSONDeflood(pUser, sData, ui32Len, bCheck) == false) {
 							return;
 						}
 						if (pUser->m_user_ext_info == NULL)
+						{
 							pUser->m_user_ext_info = new ExtJSONInfo(sData); // + 14
+							pUser->ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
+						}
 					}
 					  break;
 #endif // USE_FLYLINKDC_EXT_JSON
@@ -435,7 +438,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool &bChec
 #ifdef USE_FLYLINKDC_EXT_JSON
 					case 'E': 
 						if (memcmp(sData + 2, "xtJSON $ALL ", 12) == 0) {
-							iStatCmdExtJSON++;
+							iStatCmdExtJSON++; // ExtJSON Step 3 - Change ExtJSON  
 							if (ExtJSONDeflood(pUser, sData, ui32Len, bCheck) == false) {
 								return;
 							}
@@ -685,7 +688,8 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool &bChec
 						}
 
 #endif
-						iStatCmdExtJSON++;
+						// pUser->ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
+						iStatCmdExtJSON++; // ExtJSON Step 2 (After Login)
 						// TODO ExtJSON ?? clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad state (%d) in $ExtJSON %s (%s) - user closed.", (int)pUser->ui8State, pUser->sNick, pUser->sIP);
 						// curUser->Close();
 						return;
@@ -3351,9 +3355,12 @@ void clsDcCommands::ProcessCmds(User * pUser) {
     }
 
 #ifdef USE_FLYLINKDC_EXT_JSON
-	if ((pUser->ui32BoolBits & User::BIT_PRCSD_EXT_JSON) == User::BIT_PRCSD_EXT_JSON) {
+	if ((pUser->ui32BoolBits & User::BIT_PRCSD_EXT_JSON) == User::BIT_PRCSD_EXT_JSON) 
+	{
 		pUser->ui32BoolBits &= ~User::BIT_PRCSD_EXT_JSON;
 		// TODO ExtJSON - ????? clsUsers::mPtr->Add2MyInfosTag(pUser);
+		if((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON) == User::SUPPORTBIT_EXTJSON)
+		{
 		if (pUser->m_user_ext_info)
 		{
 			const std::string& l_ext_json = pUser->m_user_ext_info->GetExtJSONCommand();
@@ -3371,6 +3378,7 @@ void clsDcCommands::ProcessCmds(User * pUser) {
 				}				
 			}
 		}
+	}
 	}
 #endif // USE_FLYLINKDC_EXT_JSON	
 }

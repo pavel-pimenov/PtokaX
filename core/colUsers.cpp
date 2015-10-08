@@ -689,7 +689,6 @@ void clsUsers::SendChat2All(User * pUser, char * sData, const size_t &szChatLen,
     }
 }
 //---------------------------------------------------------------------------
-
 void clsUsers::Add2MyInfos(User * pUser) {
     if(ui32MyInfosSize < ui32MyInfosLen+pUser->ui16MyInfoShortLen) {
         char * pOldBuf = pMyInfos;
@@ -717,17 +716,28 @@ void clsUsers::Add2MyInfos(User * pUser) {
 
     ui32ZMyInfosLen = 0;
 #ifdef USE_FLYLINKDC_EXT_JSON
-	if (pUser->m_user_ext_info)
-    {
-		m_AllExtJSON += pUser->m_user_ext_info->GetExtJSONCommand();
-		// TODO ExtJSON m_ExtJSONZlib.clear();
-    }
+	Add2ExtJSON(pUser);
 #endif
 }
 //---------------------------------------------------------------------------
-
-void clsUsers::DelFromMyInfos(User * pUser) {
 #ifdef USE_FLYLINKDC_EXT_JSON
+void clsUsers::Add2ExtJSON(User * pUser)
+{
+	if (pUser->m_user_ext_info)
+    {
+		const std::string l_ext_json_info = pUser->m_user_ext_info->GetExtJSONCommand();
+		const size_t i = m_AllExtJSON.find(l_ext_json_info);
+		if (i == std::string::npos)
+			m_AllExtJSON += l_ext_json_info;
+		else
+		{
+			// assert!
+		}
+    }
+}
+//---------------------------------------------------------------------------
+void clsUsers::DelFromExtJSONInfos(User * pUser)
+{
 	if (pUser->m_user_ext_info)
     {
 		const std::string l_ext_json_info = pUser->m_user_ext_info->GetExtJSONCommand();
@@ -737,6 +747,12 @@ void clsUsers::DelFromMyInfos(User * pUser) {
 		  m_AllExtJSON.erase(i, l_ext_json_info.size());
       }
     }
+}
+#endif
+//---------------------------------------------------------------------------
+void clsUsers::DelFromMyInfos(User * pUser) {
+#ifdef USE_FLYLINKDC_EXT_JSON
+	DelFromExtJSONInfos(pUser);
 #endif
 	char * sMatch = strstr(pMyInfos, pUser->sMyInfoShort+8);
     if(sMatch != NULL) {
@@ -774,10 +790,16 @@ void clsUsers::Add2MyInfosTag(User * pUser) {
     pMyInfosTag[ui32MyInfosTagLen] = '\0';
 
     ui32ZMyInfosTagLen = 0;
+#ifdef USE_FLYLINKDC_EXT_JSON
+	Add2ExtJSON(pUser);
+#endif
 }
 //---------------------------------------------------------------------------
 
 void clsUsers::DelFromMyInfosTag(User * pUser) {
+#ifdef USE_FLYLINKDC_EXT_JSON
+	DelFromExtJSONInfos(pUser);
+#endif
 	char * sMatch = strstr(pMyInfosTag, pUser->sMyInfoLong+8);
     if(sMatch != NULL) {
 		sMatch -= 8;

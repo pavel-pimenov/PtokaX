@@ -868,6 +868,7 @@ User::~User() {
 	pCmdToUserEnd = NULL;
 #ifdef USE_FLYLINKDC_EXT_JSON
 	delete m_user_ext_info;
+	m_user_ext_info = NULL;
 #endif
 }
 //---------------------------------------------------------------------------
@@ -1146,10 +1147,13 @@ void User::SendChar(const char * cText, const size_t &szTextLen) {
 #ifdef USE_FLYLINKDC_EXT_JSON
 void User::SendCharDelayedExtJSON()
 {
+	if (((ui32SupportBits & SUPPORTBIT_EXTJSON) == SUPPORTBIT_EXTJSON) == true)
+	{
 	if (!clsUsers::mPtr->m_AllExtJSON.empty())
 	{
 		SendCharDelayed(clsUsers::mPtr->m_AllExtJSON.c_str(), clsUsers::mPtr->m_AllExtJSON.size());
 	}
+}
 }
 #endif // USE_FLYLINKDC_EXT_JSON
 //---------------------------------------------------------------------------
@@ -1547,8 +1551,10 @@ void User::SetExtJSONOriginal(char * sNewExtJSON, const uint16_t &ui16NewExtJSON
 {
 	if (m_user_ext_info)
 	{
+		clsUsers::mPtr->DelFromExtJSONInfos(this);
 		std::string l_info(sNewExtJSON, ui16NewExtJSONLen);
 		m_user_ext_info->SetJSONOroginal(l_info);
+		clsUsers::mPtr->Add2ExtJSON(this);
 	}
 }
 #endif
@@ -2078,6 +2084,8 @@ void User::Close(bool bNoQuit/* = false*/) {
     		clsUsers::mPtr->DelFromMyInfos(this);
         }
     }
+
+	clsUsers::mPtr->DelFromExtJSONInfos(this);
 
     if(ui32SendBufDataLen == 0 || (ui32BoolBits & BIT_ERROR) == BIT_ERROR) {
         ui8State = STATE_REMME;

@@ -80,7 +80,6 @@ public:
 
 #ifdef USE_FLYLINKDC_EXT_JSON
 	std::string m_AllExtJSON;
-	// TODO ExtJSON std::vector<char> m_ExtJSONZlib;
 #endif
 
     clsUsers();
@@ -97,6 +96,10 @@ public:
     void SendChat2All(User * pUser, char * sData, const size_t &szChatLen, void * pToUser);
 	void Add2MyInfos(User * pUser);
 	void DelFromMyInfos(User * pUser);
+#ifdef USE_FLYLINKDC_EXT_JSON
+	void Add2ExtJSON(User * pUser);
+	void DelFromExtJSONInfos(User * pUser);
+#endif
     void Add2MyInfosTag(User * pUser);
 	void DelFromMyInfosTag(User * pUser);
     void AddBot2MyInfos(char * sMyInfo);

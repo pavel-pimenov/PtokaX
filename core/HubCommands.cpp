@@ -3384,6 +3384,9 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t &szCm
 				Statinfo+="RevCTM commands: "+string(clsDcCommands::mPtr->iStatCmdRevCTM)+" x\n";
 				Statinfo+="BotINFO commands: "+string(clsDcCommands::mPtr->iStatBotINFO)+" x\n";
 				Statinfo+="Close commands: "+string(clsDcCommands::mPtr->iStatCmdClose)+" x\n";
+#ifdef USE_FLYLINKDC_EXT_JSON
+				Statinfo += "ExtJSON commands: " + string(clsDcCommands::mPtr->iStatCmdExtJSON) + " x\n";
+#endif
 				//Statinfo+="------------------------------------------------------------\n";
 				//Statinfo+="ClientSocket Errors: "+string(iStatUserSocketErrors)+" x\n";
 				Statinfo+="------------------------------------------------------------\n";
