@@ -21,33 +21,34 @@
 #define BasicSplitterH
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class BasicSplitter {
-public:
-    RECT rcSplitter;
-
-    int iSplitterPos, iPercentagePos;
-
-    BasicSplitter();
-    virtual ~BasicSplitter() { }
-
-    bool BasicSplitterProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-    void SetSplitterRect(const LPRECT &lpRect);
-private:
-    bool bUpdatePercentagePos;
-
-    BasicSplitter(const BasicSplitter&);
-    const BasicSplitter& operator=(const BasicSplitter&);
-
-    virtual HWND GetWindowHandle() = NULL;
-    virtual void UpdateSplitterParts() = NULL;
-
-	bool OnMouseMove(WPARAM wParam, LPARAM lParam);
-	void OnLButtonDown(LPARAM lParam);
-	static void OnLButtonUp();
-
-    void SetSplitterPosition(int iPos, const bool &bUpdate = true);
-	bool IsCursorOverSplitter(const int &iX, const int &iY) const;
+class BasicSplitter
+{
+	public:
+		RECT rcSplitter;
+		
+		int iSplitterPos, iPercentagePos;
+		
+		BasicSplitter();
+		virtual ~BasicSplitter() { }
+		
+		bool BasicSplitterProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		
+		void SetSplitterRect(const LPRECT &lpRect);
+	private:
+		bool bUpdatePercentagePos;
+		
+		BasicSplitter(const BasicSplitter&);
+		const BasicSplitter& operator=(const BasicSplitter&);
+		
+		virtual HWND GetWindowHandle() = NULL;
+		virtual void UpdateSplitterParts() = NULL;
+		
+		bool OnMouseMove(WPARAM wParam, LPARAM lParam);
+		void OnLButtonDown(LPARAM lParam);
+		static void OnLButtonUp();
+		
+		void SetSplitterPosition(int iPos, const bool &bUpdate = true);
+		bool IsCursorOverSplitter(const int &iX, const int &iY) const;
 };
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

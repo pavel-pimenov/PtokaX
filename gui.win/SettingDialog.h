@@ -23,32 +23,34 @@
 #include "SettingPage.h"
 //---------------------------------------------------------------------------
 
-class clsSettingDialog {
-public:
-    static clsSettingDialog * mPtr;
-
-    HWND hWndWindowItems[4];
-
-    enum enmWindowItems {
-        WINDOW_HANDLE,
-        TV_TREE,
-        BTN_OK,
-        BTN_CANCEL
-    };
-
-    clsSettingDialog();
-    ~clsSettingDialog();
-
-    static LRESULT CALLBACK StaticSettingDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-	void DoModal(HWND hWndParent);
-private:
-    SettingPage * SettingPages[12];
- 
-    LRESULT SettingDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-    void OnSelChanged();
-    DISALLOW_COPY_AND_ASSIGN(clsSettingDialog);
+class clsSettingDialog
+{
+	public:
+		static clsSettingDialog * mPtr;
+		
+		HWND hWndWindowItems[4];
+		
+		enum enmWindowItems
+		{
+			WINDOW_HANDLE,
+			TV_TREE,
+			BTN_OK,
+			BTN_CANCEL
+		};
+		
+		clsSettingDialog();
+		~clsSettingDialog();
+		
+		static LRESULT CALLBACK StaticSettingDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		
+		void DoModal(HWND hWndParent);
+	private:
+		SettingPage * SettingPages[12];
+		
+		LRESULT SettingDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		
+		void OnSelChanged();
+		DISALLOW_COPY_AND_ASSIGN(clsSettingDialog);
 };
 //------------------------------------------------------------------------------
 

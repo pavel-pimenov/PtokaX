@@ -21,65 +21,67 @@
 #define RegThreadH
 //---------------------------------------------------------------------------
 
-class clsRegisterThread {
-private:
-    struct RegSocket {
-        uint64_t ui64TotalShare;
-
-		RegSocket * pPrev, * pNext;
-
-		char * sAddress, * pRecvBuf, * pSendBuf, * pSendBufHead;
-
+class clsRegisterThread
+{
+	private:
+		struct RegSocket
+		{
+			uint64_t ui64TotalShare;
+			
+			RegSocket * pPrev, * pNext;
+			
+			char * sAddress, * pRecvBuf, * pSendBuf, * pSendBufHead;
+			
 #ifdef _WIN32
-        SOCKET sock;
+			SOCKET sock;
 #else
-		int sock;
+			int sock;
 #endif
-
-        uint32_t ui32RecvBufLen, ui32RecvBufSize, ui32SendBufLen, ui32TotalUsers;
-
-        uint32_t ui32AddrLen;
-
-        RegSocket();
-        ~RegSocket();
-
-        DISALLOW_COPY_AND_ASSIGN(RegSocket);
-    };
-
-	RegSocket * pRegSockListS, * pRegSockListE;
-
+			
+			uint32_t ui32RecvBufLen, ui32RecvBufSize, ui32SendBufLen, ui32TotalUsers;
+			
+			uint32_t ui32AddrLen;
+			
+			RegSocket();
+			~RegSocket();
+			
+			DISALLOW_COPY_AND_ASSIGN(RegSocket);
+		};
+		
+		RegSocket * pRegSockListS, * pRegSockListE;
+		
 #ifdef _WIN32
-	HANDLE threadHandle;
-
-    unsigned int threadId;
+		HANDLE threadHandle;
+		
+		unsigned int threadId;
 #else
-	pthread_t threadId;
+		pthread_t threadId;
 #endif
-
-    bool bTerminated;
-
-    char sMsg[2048];
-
-	DISALLOW_COPY_AND_ASSIGN(clsRegisterThread);
-
-	void AddSock(char * sAddress, const size_t &szLen);
-	bool Receive(RegSocket * pSock);
-    static void Add2SendBuf(RegSocket * pSock, char * sData);
-    bool Send(RegSocket * pSock);
-    void RemoveSock(RegSocket * pSock);
-public:
-    static clsRegisterThread * mPtr;
-
-    uint32_t ui32BytesRead, ui32BytesSent;
-
-	clsRegisterThread();
-	~clsRegisterThread();
-
-	void Setup(char * sAddresses, const uint16_t &ui16AddrsLen);
-	void Resume();
-	void Run();
-	void Close();
-	void WaitFor();
+		
+		bool bTerminated;
+		
+		char sMsg[2048];
+		
+		DISALLOW_COPY_AND_ASSIGN(clsRegisterThread);
+		
+		void AddSock(char * sAddress, const size_t &szLen);
+		bool Receive(RegSocket * pSock);
+		static void Add2SendBuf(RegSocket * pSock, char * sData);
+		bool Send(RegSocket * pSock);
+		void RemoveSock(RegSocket * pSock);
+	public:
+		static clsRegisterThread * mPtr;
+		
+		uint32_t ui32BytesRead, ui32BytesSent;
+		
+		clsRegisterThread();
+		~clsRegisterThread();
+		
+		void Setup(char * sAddresses, const uint16_t &ui16AddrsLen);
+		void Resume();
+		void Run();
+		void Close();
+		void WaitFor();
 };
 //---------------------------------------------------------------------------
 

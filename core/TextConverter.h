@@ -21,24 +21,25 @@
 #define TextConverterH
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class TextConverter {
-private:
+class TextConverter
+{
+	private:
 #ifndef _WIN32
-	iconv_t iconvUtfCheck;
-	iconv_t iconvAsciiToUtf;
+		iconv_t iconvUtfCheck;
+		iconv_t iconvAsciiToUtf;
 #endif
-
-	bool CheckUtf8Validity(char * sInput, const uint8_t &ui8InputLen, char * sOutput, const uint8_t &ui8OutputSize);
-
-    TextConverter(const TextConverter&);
-    const TextConverter& operator=(const TextConverter&);
-public:
-    static TextConverter * mPtr;
-
-	TextConverter();
-	~TextConverter();
-
-	size_t CheckUtf8AndConvert(char * sInput, const uint8_t &ui8InputLen, char * sOutput, const uint8_t &ui8OutputSize);
+		
+		bool CheckUtf8Validity(char * sInput, const uint8_t &ui8InputLen, char * sOutput, const uint8_t &ui8OutputSize);
+		
+		TextConverter(const TextConverter&);
+		const TextConverter& operator=(const TextConverter&);
+	public:
+		static TextConverter * mPtr;
+		
+		TextConverter();
+		~TextConverter();
+		
+		size_t CheckUtf8AndConvert(char * sInput, const uint8_t &ui8InputLen, char * sOutput, const uint8_t &ui8OutputSize);
 };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

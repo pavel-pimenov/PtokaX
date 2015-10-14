@@ -23,91 +23,93 @@
 //---------------------------------------------------------------------------
 struct User;
 //---------------------------------------------------------------------------
-static const uint32_t NICKLISTSIZE = 1024*64;
-static const uint32_t OPLISTSIZE = 1024*32;
-static const uint32_t ZLISTSIZE = 1024*16;
-static const uint32_t ZMYINFOLISTSIZE = 1024*128;
+static const uint32_t NICKLISTSIZE = 1024 * 64;
+static const uint32_t OPLISTSIZE = 1024 * 32;
+static const uint32_t ZLISTSIZE = 1024 * 16;
+static const uint32_t ZMYINFOLISTSIZE = 1024 * 128;
 //---------------------------------------------------------------------------
 #ifdef USE_FLYLINKDC_EXT_JSON
 #include <vector>
 #endif
 
-class clsUsers {
-private:
-	uint64_t ui64ChatMsgsTick, ui64ChatLockFromTick;
-
-    struct RecTime {
-        uint64_t ui64DisConnTick;
-
-        RecTime * pPrev, * pNext;
-
-        char * sNick;
-
-        uint32_t ui32NickHash;
-
-        uint8_t ui128IpHash[16];
-
-        explicit RecTime(const uint8_t * pIpHash);
-
-        DISALLOW_COPY_AND_ASSIGN(RecTime);
-    };
-
-    RecTime * pRecTimeList;
-
-	User * pListE;
-
-	uint16_t ui16ChatMsgs;
-
-    bool bChatLocked;
-
-     DISALLOW_COPY_AND_ASSIGN(clsUsers);
-public:
-    static clsUsers * mPtr;
-
-	User * pListS;
-
-    char * pNickList, * pZNickList, * pOpList, * pZOpList, * pUserIPList, * pZUserIPList;
-    char * pMyInfos, * pZMyInfos, * pMyInfosTag, * pZMyInfosTag;
-
-
-    uint32_t ui32MyInfosLen, ui32MyInfosSize, ui32ZMyInfosLen, ui32ZMyInfosSize;
-    uint32_t ui32MyInfosTagLen, ui32MyInfosTagSize, ui32ZMyInfosTagLen, ui32ZMyInfosTagSize;
-    uint32_t ui32NickListLen, ui32NickListSize, ui32ZNickListLen, ui32ZNickListSize;
-    uint32_t ui32OpListLen, ui32OpListSize, ui32ZOpListLen, ui32ZOpListSize;
-    uint32_t ui32UserIPListSize, ui32UserIPListLen, ui32ZUserIPListSize, ui32ZUserIPListLen;
-    
-    uint16_t ui16ActSearchs, ui16PasSearchs;
-
+class clsUsers
+{
+	private:
+		uint64_t ui64ChatMsgsTick, ui64ChatLockFromTick;
+		
+		struct RecTime
+		{
+			uint64_t ui64DisConnTick;
+			
+			RecTime * pPrev, * pNext;
+			
+			char * sNick;
+			
+			uint32_t ui32NickHash;
+			
+			uint8_t ui128IpHash[16];
+			
+			explicit RecTime(const uint8_t * pIpHash);
+			
+			DISALLOW_COPY_AND_ASSIGN(RecTime);
+		};
+		
+		RecTime * pRecTimeList;
+		
+		User * pListE;
+		
+		uint16_t ui16ChatMsgs;
+		
+		bool bChatLocked;
+		
+		DISALLOW_COPY_AND_ASSIGN(clsUsers);
+	public:
+		static clsUsers * mPtr;
+		
+		User * pListS;
+		
+		char * pNickList, * pZNickList, * pOpList, * pZOpList, * pUserIPList, * pZUserIPList;
+		char * pMyInfos, * pZMyInfos, * pMyInfosTag, * pZMyInfosTag;
+		
+		
+		uint32_t ui32MyInfosLen, ui32MyInfosSize, ui32ZMyInfosLen, ui32ZMyInfosSize;
+		uint32_t ui32MyInfosTagLen, ui32MyInfosTagSize, ui32ZMyInfosTagLen, ui32ZMyInfosTagSize;
+		uint32_t ui32NickListLen, ui32NickListSize, ui32ZNickListLen, ui32ZNickListSize;
+		uint32_t ui32OpListLen, ui32OpListSize, ui32ZOpListLen, ui32ZOpListSize;
+		uint32_t ui32UserIPListSize, ui32UserIPListLen, ui32ZUserIPListSize, ui32ZUserIPListLen;
+		
+		uint16_t ui16ActSearchs, ui16PasSearchs;
+		
 #ifdef USE_FLYLINKDC_EXT_JSON
-	std::string m_AllExtJSON;
+		std::string m_AllExtJSON;
 #endif
-
-    clsUsers();
-    ~clsUsers();
-
-    void DisconnectAll();
-    void AddUser(User * pUser);
-    void RemUser(User * pUser);
-    void Add2NickList(User * pUser);
-    void AddBot2NickList(char * sNick, const size_t &szNickLen, const bool &bIsOp);
-    void Add2OpList(User * pUser);
-    void DelFromNickList(char * sNick, const bool &bIsOp);
-    void DelFromOpList(char * sNick);
-    void SendChat2All(User * pUser, char * sData, const size_t &szChatLen, void * pToUser);
-	void Add2MyInfos(User * pUser);
-	void DelFromMyInfos(User * pUser);
+		
+		clsUsers();
+		~clsUsers();
+		
+		void DisconnectAll();
+		void AddUser(User * pUser);
+		void RemUser(User * pUser);
+		void Add2NickList(User * pUser);
+		void AddBot2NickList(char * sNick, const size_t &szNickLen, const bool &bIsOp);
+		void Add2OpList(User * pUser);
+		void DelFromNickList(char * sNick, const bool &bIsOp);
+		void DelFromOpList(char * sNick);
+		void SendChat2All(User * pUser, char * sData, const size_t &szChatLen, void * pToUser);
+		void Add2MyInfos(User * pUser);
+		void DelFromMyInfos(User * pUser);
 #ifdef USE_FLYLINKDC_EXT_JSON
-	void Add2ExtJSON(User * pUser);
-	void DelFromExtJSONInfos(User * pUser);
+		void Add2ExtJSON(User * pUser);
+		void DelFromExtJSONInfos(User * pUser);
 #endif
-    void Add2MyInfosTag(User * pUser);
-	void DelFromMyInfosTag(User * pUser);
-    void AddBot2MyInfos(char * sMyInfo);
-	void DelBotFromMyInfos(char * sMyInfo);
-	void Add2UserIP(User * pUser);
-	void DelFromUserIP(User * pUser);
-	void Add2RecTimes(User * pUser);
-	bool CheckRecTime(User * pUser);
+		void Add2MyInfosTag(User * pUser);
+		void DelFromMyInfosTag(User * pUser);
+		void AddBot2MyInfos(char * sMyInfo);
+		void DelBotFromMyInfos(char * sMyInfo);
+		void Add2UserIP(User * pUser);
+		void DelFromUserIP(User * pUser);
+		void Add2RecTimes(User * pUser);
+		bool CheckRecTime(User * pUser);
 };
 //---------------------------------------------------------------------------
 

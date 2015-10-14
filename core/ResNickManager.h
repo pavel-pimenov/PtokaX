@@ -21,42 +21,44 @@
 #define ResNickManagerH
 //---------------------------------------------------------------------------
 
-class clsReservedNicksManager {
-private:
-    struct ReservedNick {
-    	ReservedNick * pPrev, * pNext;
-
-        char * sNick;
-
-        uint32_t ui32Hash;
-
-        bool bFromScript;
-
-        ReservedNick();
-        ~ReservedNick();
-
-        static ReservedNick * CreateReservedNick(const char * sNewNick, uint32_t ui32NickHash);
-
-        DISALLOW_COPY_AND_ASSIGN(ReservedNick);
-    };
-
-	ReservedNick * pReservedNicks;
-
-    DISALLOW_COPY_AND_ASSIGN(clsReservedNicksManager);
-
-
-	void Load();
-	void Save();
-	void LoadXML();
-public:
-    static clsReservedNicksManager * mPtr;
-
-	clsReservedNicksManager();
-	~clsReservedNicksManager();
-
-    bool CheckReserved(const char * sNick, const uint32_t &hash) const;
-    void AddReservedNick(const char * sNick, const bool &bFromScript = false);
-    void DelReservedNick(char * sNick, const bool &bFromScript = false);
+class clsReservedNicksManager
+{
+	private:
+		struct ReservedNick
+		{
+			ReservedNick * pPrev, * pNext;
+			
+			char * sNick;
+			
+			uint32_t ui32Hash;
+			
+			bool bFromScript;
+			
+			ReservedNick();
+			~ReservedNick();
+			
+			static ReservedNick * CreateReservedNick(const char * sNewNick, uint32_t ui32NickHash);
+			
+			DISALLOW_COPY_AND_ASSIGN(ReservedNick);
+		};
+		
+		ReservedNick * pReservedNicks;
+		
+		DISALLOW_COPY_AND_ASSIGN(clsReservedNicksManager);
+		
+		
+		void Load();
+		void Save();
+		void LoadXML();
+	public:
+		static clsReservedNicksManager * mPtr;
+		
+		clsReservedNicksManager();
+		~clsReservedNicksManager();
+		
+		bool CheckReserved(const char * sNick, const uint32_t &hash) const;
+		void AddReservedNick(const char * sNick, const bool &bFromScript = false);
+		void DelReservedNick(char * sNick, const bool &bFromScript = false);
 };
 //---------------------------------------------------------------------------
 

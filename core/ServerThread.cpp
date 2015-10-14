@@ -29,463 +29,562 @@
 #include "utility.h"
 //---------------------------------------------------------------------------
 #ifdef _WIN32
-	#pragma hdrstop
+#pragma hdrstop
 #endif
 //---------------------------------------------------------------------------
 #include "ServerThread.h"
 //---------------------------------------------------------------------------
 
-ServerThread::AntiConFlood::AntiConFlood(const uint8_t * pIpHash) : ui64Time(clsServerManager::ui64ActualTick), pPrev(NULL), pNext(NULL), ui16Hits(1) {
-    memcpy(ui128IpHash, pIpHash, 16);
+ServerThread::AntiConFlood::AntiConFlood(const uint8_t * pIpHash) : ui64Time(clsServerManager::ui64ActualTick), pPrev(NULL), pNext(NULL), ui16Hits(1)
+{
+	memcpy(ui128IpHash, pIpHash, 16);
 };
 //---------------------------------------------------------------------------
 
-ServerThread::ServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber) : pAntiFloodList(NULL), threadId(0), 
+ServerThread::ServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber) : pAntiFloodList(NULL), threadId(0),
 #ifdef _WIN32
-    server(INVALID_SOCKET),
+	server(INVALID_SOCKET),
 #else
-    server(-1),
+	server(-1),
 #endif
-	iSuspendTime(0), iAdressFamily(iAddrFamily), bTerminated(false), pPrev(NULL), pNext(NULL), ui16Port(ui16PortNumber), 
-	bActive(false), bSuspended(false) {
+	iSuspendTime(0), iAdressFamily(iAddrFamily), bTerminated(false), pPrev(NULL), pNext(NULL), ui16Port(ui16PortNumber),
+	bActive(false), bSuspended(false)
+{
 
 #ifdef _WIN32
-    threadHandle = INVALID_HANDLE_VALUE;
+	threadHandle = INVALID_HANDLE_VALUE;
 #endif
 }
 //---------------------------------------------------------------------------
 
-ServerThread::~ServerThread() {
+ServerThread::~ServerThread()
+{
 #ifndef _WIN32
-    if(threadId != 0) {
-        Close();
-        WaitFor();
-    }
+	if (threadId != 0)
+	{
+		Close();
+		WaitFor();
+	}
 #endif
-        
-    AntiConFlood * acfcur = NULL,
-        * acfnext = pAntiFloodList;
-        
-    while(acfnext != NULL) {
-        acfcur = acfnext;
-        acfnext = acfcur->pNext;
+	
+	AntiConFlood * acfcur = NULL,
+	               * acfnext = pAntiFloodList;
+	               
+	while (acfnext != NULL)
+	{
+		acfcur = acfnext;
+		acfnext = acfcur->pNext;
 		delete acfcur;
-    }
-
+	}
+	
 #ifdef _WIN32
-    if(threadHandle != INVALID_HANDLE_VALUE) {
-        CloseHandle(threadHandle);
-    }
+	if (threadHandle != INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(threadHandle);
+	}
 #endif
 }
 //---------------------------------------------------------------------------
 
 #ifdef _WIN32
-	unsigned __stdcall ExecuteServerThread(void* SrvThread) {
+unsigned __stdcall ExecuteServerThread(void* SrvThread)
+{
 #else
-	static void* ExecuteServerThread(void* SrvThread) {
+static void* ExecuteServerThread(void* SrvThread)
+{
 #endif
 	((ServerThread *)SrvThread)->Run();
 	return 0;
 }
 //---------------------------------------------------------------------------
 
-void ServerThread::Resume() {
+void ServerThread::Resume()
+{
 #ifdef _WIN32
-    threadHandle = (HANDLE)_beginthreadex(NULL, 0, ExecuteServerThread, this, 0, &threadId);
-    if(threadHandle == 0) {
+	threadHandle = (HANDLE)_beginthreadex(NULL, 0, ExecuteServerThread, this, 0, &threadId);
+	if (threadHandle == 0)
+	{
 #else
-    int iRet = pthread_create(&threadId, NULL, ExecuteServerThread, this);
-    if(iRet != 0) {
+	int iRet = pthread_create(&threadId, NULL, ExecuteServerThread, this);
+	if (iRet != 0)
+	{
 #endif
 		AppendDebugLog("%s - [ERR] Failed to create new ServerThread\n");
-    }
+	}
 }
 //---------------------------------------------------------------------------
 
-void ServerThread::Run() {
-    bActive = true;
+void ServerThread::Run()
+{
+	bActive = true;
 #ifdef _WIN32
-    SOCKET s = INVALID_SOCKET;
+	SOCKET s = INVALID_SOCKET;
 #else
 	int s = -1;
 #endif
-    sockaddr_storage addr;
+	sockaddr_storage addr;
 	socklen_t len = sizeof(addr);
-
+	
 #ifndef _WIN32
-    struct timespec sleeptime;
-    sleeptime.tv_sec = 0;
-    sleeptime.tv_nsec = 1000000;
+	struct timespec sleeptime;
+	sleeptime.tv_sec = 0;
+	sleeptime.tv_nsec = 1000000;
 #endif
-
-	while(bTerminated == false) {
+	
+	while (bTerminated == false)
+	{
 		s = accept(server, (struct sockaddr *)&addr, &len);
-
-		if(iSuspendTime == 0) {
-			if(bTerminated == true) {
+		
+		if (iSuspendTime == 0)
+		{
+			if (bTerminated == true)
+			{
 #ifdef _WIN32
-				if(s != INVALID_SOCKET)
+				if (s != INVALID_SOCKET)
 					shutdown(s, SD_SEND);
-                        
+					
 				closesocket(s);
 #else
-                if(s != -1)
-                    shutdown(s, SHUT_RDWR);
-                        
+				if (s != -1)
+					shutdown(s, SHUT_RDWR);
+				
 				close(s);
 #endif
 				continue;
 			}
-
+			
 #ifdef _WIN32
-			if(s == INVALID_SOCKET) {
-				if(WSAEWOULDBLOCK != WSAGetLastError()) {
-#else
-            if(s == -1) {
-                if(errno != EWOULDBLOCK) {
-                    if(errno == EMFILE) { // max opened file descriptors limit reached
-                        sleep(1); // longer sleep give us better chance to have free file descriptor available on next accept call
-                    } else {
-#endif
-						clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG, 
-                            ("[ERR] accept() for port "+string(ui16Port)+" has returned error.").c_str());
-                    }
-#ifndef _WIN32
-				}
-#endif
-			} else {
-				if(isFlooder(s, addr) == true) {
-#ifdef _WIN32
-					shutdown(s, SD_SEND);
-					closesocket(s);
-#else
-                    shutdown(s, SHUT_RDWR);
-                    close(s);
-#endif
-				}
-
-#ifdef _WIN32
-				::Sleep(1);
-#else
-                nanosleep(&sleeptime, NULL);
-#endif
-			}
-		} else {
-			uint32_t iSec = 0;
-			while(bTerminated == false) {
-				if(iSuspendTime > iSec) {
-#ifdef _WIN32
-					::Sleep(1000);
-#else
-					sleep(1);
-#endif
-					if(bSuspended == false) {
-						iSec++;
-					}
-					continue;
-				}
-
+			if (s == INVALID_SOCKET)
+			{
+				if (WSAEWOULDBLOCK != WSAGetLastError())
 				{
-					Lock l(csServerThread);
-					iSuspendTime = 0;
+#else
+			if (s == -1)
+			{
+				if (errno != EWOULDBLOCK)
+				{
+					if (errno == EMFILE)  // max opened file descriptors limit reached
+					{
+						sleep(1); // longer sleep give us better chance to have free file descriptor available on next accept call
+					}
+					else
+					{
+#endif
+					clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG,
+					                               ("[ERR] accept() for port " + string(ui16Port) + " has returned error.").c_str());
 				}
-				if(Listen(true) == true) {
-					clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG, 
-						("[SYS] Server socket for port "+string(ui16Port)+" sucessfully recovered from suspend state.").c_str());
-				} else {
-					Close();
-				}
-				break;
+#ifndef _WIN32
 			}
+#endif
+		}
+		else
+		{
+			if (isFlooder(s, addr) == true)
+			{
+#ifdef _WIN32
+				shutdown(s, SD_SEND);
+				closesocket(s);
+#else
+				shutdown(s, SHUT_RDWR);
+				close(s);
+#endif
+			}
+			
+#ifdef _WIN32
+			::Sleep(1);
+#else
+			nanosleep(&sleeptime, NULL);
+#endif
 		}
 	}
+	else
+	{
+		uint32_t iSec = 0;
+		while (bTerminated == false)
+		{
+			if (iSuspendTime > iSec)
+			{
+#ifdef _WIN32
+				::Sleep(1000);
+#else
+				sleep(1);
+#endif
+				if (bSuspended == false)
+				{
+					iSec++;
+				}
+				continue;
+			}
+			
+			{
+				Lock l(csServerThread);
+				iSuspendTime = 0;
+			}
+			if (Listen(true) == true)
+			{
+				clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG,
+				                               ("[SYS] Server socket for port " + string(ui16Port) + " sucessfully recovered from suspend state.").c_str());
+			}
+			else
+			{
+				Close();
+			}
+			break;
+		}
+	}
+}
 
-    bActive = false;
+bActive = false;
 }
 //---------------------------------------------------------------------------
 
-void ServerThread::Close() {
-    bTerminated = true;
+void ServerThread::Close()
+{
+	bTerminated = true;
 #ifdef _WIN32
 	closesocket(server);
 #else
-    shutdown(server, SHUT_RDWR);
+	shutdown(server, SHUT_RDWR);
 	close(server);
 #endif
 }
 //---------------------------------------------------------------------------
 
-void ServerThread::WaitFor() {
+void ServerThread::WaitFor()
+{
 #ifdef _WIN32
-    WaitForSingleObject(threadHandle, INFINITE);
+	WaitForSingleObject(threadHandle, INFINITE);
 #else
-	if(threadId != 0) {
+	if (threadId != 0)
+	{
 		pthread_join(threadId, NULL);
-        threadId = 0;
+		threadId = 0;
 	}
 #endif
 }
 //---------------------------------------------------------------------------
 
-bool ServerThread::Listen(bool bSilent/* = false*/) {
-    server = socket(iAdressFamily, SOCK_STREAM, IPPROTO_TCP);
+bool ServerThread::Listen(bool bSilent/* = false*/)
+{
+	server = socket(iAdressFamily, SOCK_STREAM, IPPROTO_TCP);
 #ifdef _WIN32
-    if(server == INVALID_SOCKET) {
+	if (server == INVALID_SOCKET)
+	{
 #else
-    if(server == -1) {
+	if (server == -1)
+	{
 #endif
-        if(bSilent == true) {
-            clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG, 
+		if (bSilent == true)
+		{
+			clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG,
 #ifdef _WIN32
-                ("[ERR] Unable to create server socket for port "+string(ui16Port)+" ! ErrorCode "+string(WSAGetLastError())).c_str());
+			                               ("[ERR] Unable to create server socket for port " + string(ui16Port) + " ! ErrorCode " + string(WSAGetLastError())).c_str());
 #else
-				("[ERR] Unable to create server socket for port "+string(ui16Port)+" ! ErrorCode "+string(errno)).c_str());
+			                               ("[ERR] Unable to create server socket for port " + string(ui16Port) + " ! ErrorCode " + string(errno)).c_str());
 #endif
-		} else {
+		}
+		else
+		{
 #ifdef _BUILD_GUI
-            ::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_UNB_CRT_SRVR_SCK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_UNB_CRT_SRVR_SCK]) + " " + string(ui16Port) + " ! " + clsLanguageManager::mPtr->sTexts[LAN_ERROR_CODE] + " " + string(WSAGetLastError())).c_str(), g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_UNB_CRT_SRVR_SCK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_UNB_CRT_SRVR_SCK]) + " " + string(ui16Port) + " ! " + clsLanguageManager::mPtr->sTexts[LAN_ERROR_CODE] + " " + string(WSAGetLastError())).c_str(), g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-            AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_UNB_CRT_SRVR_SCK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_UNB_CRT_SRVR_SCK]) + " " + string(ui16Port) + " ! " + clsLanguageManager::mPtr->sTexts[LAN_ERROR_CODE] + " " + string(errno));
+			AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_UNB_CRT_SRVR_SCK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_UNB_CRT_SRVR_SCK]) + " " + string(ui16Port) + " ! " + clsLanguageManager::mPtr->sTexts[LAN_ERROR_CODE] + " " + string(errno));
 #endif
-        }
-        return false;
-    }
-
+		}
+		return false;
+	}
+	
 #ifndef _WIN32
-    int on = 1;
-    if(setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1) {
-        if(bSilent == true) {
-            clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG,
-                ("[ERR] Server socket setsockopt error: " + string(errno)+" for port: "+string(ui16Port)).c_str());
-        } else {
-            AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_SCKOPT_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_SCKOPT_ERR])+
-                ": " + string(ErrnoStr(errno))+" (" + string(errno)+") "+
-                string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR])+": "+string(ui16Port));
-        }
-        close(server);
-        return false;
-    }
+	int on = 1;
+	if (setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1)
+	{
+		if (bSilent == true)
+		{
+			clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG,
+			                               ("[ERR] Server socket setsockopt error: " + string(errno) + " for port: " + string(ui16Port)).c_str());
+		}
+		else
+		{
+			AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_SCKOPT_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_SCKOPT_ERR]) +
+			          ": " + string(ErrnoStr(errno)) + " (" + string(errno) + ") " +
+			          string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR]) + ": " + string(ui16Port));
+		}
+		close(server);
+		return false;
+	}
 #endif
-
-    // set the socket properties
-    sockaddr_storage sas;
-    memset(&sas, 0, sizeof(sockaddr_storage));
-    socklen_t sas_len;
-
-    if(iAdressFamily == AF_INET6) {
-        ((struct sockaddr_in6 *)&sas)->sin6_family = AF_INET6;
-        ((struct sockaddr_in6 *)&sas)->sin6_port = htons(ui16Port);
-        sas_len = sizeof(struct sockaddr_in6);
-
-        if(clsSettingManager::mPtr->bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true && clsServerManager::sHubIP6[0] != '\0') {
+	
+	// set the socket properties
+	sockaddr_storage sas;
+	memset(&sas, 0, sizeof(sockaddr_storage));
+	socklen_t sas_len;
+	
+	if (iAdressFamily == AF_INET6)
+	{
+		((struct sockaddr_in6 *)&sas)->sin6_family = AF_INET6;
+		((struct sockaddr_in6 *)&sas)->sin6_port = htons(ui16Port);
+		sas_len = sizeof(struct sockaddr_in6);
+		
+		if (clsSettingManager::mPtr->bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true && clsServerManager::sHubIP6[0] != '\0')
+		{
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_WIN_IOT)
-            win_inet_pton(clsServerManager::sHubIP6, &((struct sockaddr_in6 *)&sas)->sin6_addr);
+			win_inet_pton(clsServerManager::sHubIP6, &((struct sockaddr_in6 *)&sas)->sin6_addr);
 #else
-            inet_pton(AF_INET6, clsServerManager::sHubIP6, &((struct sockaddr_in6 *)&sas)->sin6_addr);
+			inet_pton(AF_INET6, clsServerManager::sHubIP6, &((struct sockaddr_in6 *)&sas)->sin6_addr);
 #endif
-        } else {
-            ((struct sockaddr_in6 *)&sas)->sin6_addr = in6addr_any;
-
-            if(iAdressFamily == AF_INET6 && clsServerManager::bIPv6DualStack == true) {
+		}
+		else
+		{
+			((struct sockaddr_in6 *)&sas)->sin6_addr = in6addr_any;
+			
+			if (iAdressFamily == AF_INET6 && clsServerManager::bIPv6DualStack == true)
+			{
 #ifdef _WIN32
-                DWORD dwIPv6 = 0;
-                setsockopt(server, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&dwIPv6, sizeof(dwIPv6));
+				DWORD dwIPv6 = 0;
+				setsockopt(server, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&dwIPv6, sizeof(dwIPv6));
 #else
-                int iIPv6 = 0;
-                setsockopt(server, IPPROTO_IPV6, IPV6_V6ONLY, &iIPv6, sizeof(iIPv6));
+				int iIPv6 = 0;
+				setsockopt(server, IPPROTO_IPV6, IPV6_V6ONLY, &iIPv6, sizeof(iIPv6));
 #endif
-            }
-        }
-    } else {
-        ((struct sockaddr_in *)&sas)->sin_family = AF_INET;
-        ((struct sockaddr_in *)&sas)->sin_port = htons(ui16Port);
-        sas_len = sizeof(struct sockaddr_in);
-
-        if(clsSettingManager::mPtr->bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true && clsServerManager::sHubIP[0] != '\0') {
-            ((struct sockaddr_in *)&sas)->sin_addr.s_addr = inet_addr(clsServerManager::sHubIP);
-        } else {
-            ((struct sockaddr_in *)&sas)->sin_addr.s_addr = INADDR_ANY;
-        }
-    }
-
-    // bind it
+			}
+		}
+	}
+	else
+	{
+		((struct sockaddr_in *)&sas)->sin_family = AF_INET;
+		((struct sockaddr_in *)&sas)->sin_port = htons(ui16Port);
+		sas_len = sizeof(struct sockaddr_in);
+		
+		if (clsSettingManager::mPtr->bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true && clsServerManager::sHubIP[0] != '\0')
+		{
+			((struct sockaddr_in *)&sas)->sin_addr.s_addr = inet_addr(clsServerManager::sHubIP);
+		}
+		else
+		{
+			((struct sockaddr_in *)&sas)->sin_addr.s_addr = INADDR_ANY;
+		}
+	}
+	
+	// bind it
 #ifdef _WIN32
-    if(bind(server, (struct sockaddr *)&sas, sas_len) == SOCKET_ERROR) {
-    	int err = WSAGetLastError();
+	if (bind(server, (struct sockaddr *)&sas, sas_len) == SOCKET_ERROR)
+	{
+		int err = WSAGetLastError();
 #else
-	if(bind(server, (struct sockaddr *)&sas, sas_len) == -1) {
+	if (bind(server, (struct sockaddr *)&sas, sas_len) == -1)
+	{
 #endif
-        if(bSilent == true) {
-            clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG, 
+		if (bSilent == true)
+		{
+			clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG,
 #ifdef _WIN32
-                ("[ERR] Server socket bind error: " + string(WSErrorStr(err))+" ("+string(err)+") for port: "+string(ui16Port)).c_str());
+			                               ("[ERR] Server socket bind error: " + string(WSErrorStr(err)) + " (" + string(err) + ") for port: " + string(ui16Port)).c_str());
 #else
-				("[ERR] Server socket bind error: " + string(ErrnoStr(errno))+" ("+string(errno)+") for port: "+string(ui16Port)).c_str());
+			                               ("[ERR] Server socket bind error: " + string(ErrnoStr(errno)) + " (" + string(errno) + ") for port: " + string(ui16Port)).c_str());
 #endif
-		} else {
+		}
+		else
+		{
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_SRV_BIND_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_BIND_ERR]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ") " + clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR] + ": " + string(ui16Port)).c_str(), 
-				g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_SRV_BIND_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_BIND_ERR]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ") " + clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR] + ": " + string(ui16Port)).c_str(),
+			             g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-            AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_BIND_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_BIND_ERR])+
+			AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_BIND_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_BIND_ERR]) +
 #ifdef _WIN32
-				": " + string(WSErrorStr(err))+" (" + string(err)+") "+
+			          ": " + string(WSErrorStr(err)) + " (" + string(err) + ") " +
 #else
-				": " + string(ErrnoStr(errno))+" (" + string(errno)+") "+
+			          ": " + string(ErrnoStr(errno)) + " (" + string(errno) + ") " +
 #endif
-				string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR])+": "+string(ui16Port));
+			          string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR]) + ": " + string(ui16Port));
 #endif
-        }
-#ifdef _WIN32
-		closesocket(server);
-#else
-        close(server);
-#endif
-        return false;
-    }
-
-    // set listen mode
-#ifdef _WIN32
-    if(listen(server, 512) == SOCKET_ERROR) {
-	    int err = WSAGetLastError();
-#else
-	if(listen(server, 512) == -1) {
-#endif
-        if(bSilent == true) {
-            clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG, 
-#ifdef _WIN32
-                ("[ERR] Server socket listen() error: " + string(WSErrorStr(err))+" ("+string(err)+") for port: "+string(ui16Port)).c_str());
-#else
-				("[ERR] Server socket listen() error: " + string(errno)+" for port: "+string(ui16Port)).c_str());
-#endif
-        } else {
-#ifdef _BUILD_GUI
-            ::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_SRV_LISTEN_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_LISTEN_ERR]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ") " + clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR] + ": " + string(ui16Port)).c_str(), 
-				g_sPtokaXTitle, MB_OK | MB_ICONERROR);
-#else
-            AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_LISTEN_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_LISTEN_ERR])+": " + string(errno)+" "+string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR])+": "+string(ui16Port));
-#endif
-        }
+		}
 #ifdef _WIN32
 		closesocket(server);
 #else
 		close(server);
 #endif
-        return false;
-    }
-
-    return true;
+		return false;
+	}
+	
+	// set listen mode
+#ifdef _WIN32
+	if (listen(server, 512) == SOCKET_ERROR)
+	{
+		int err = WSAGetLastError();
+#else
+	if (listen(server, 512) == -1)
+	{
+#endif
+		if (bSilent == true)
+		{
+			clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_SRVTHREAD_MSG,
+#ifdef _WIN32
+			                               ("[ERR] Server socket listen() error: " + string(WSErrorStr(err)) + " (" + string(err) + ") for port: " + string(ui16Port)).c_str());
+#else
+			                               ("[ERR] Server socket listen() error: " + string(errno) + " for port: " + string(ui16Port)).c_str());
+#endif
+		}
+		else
+		{
+#ifdef _BUILD_GUI
+			::MessageBox(NULL, (string(clsLanguageManager::mPtr->sTexts[LAN_SRV_LISTEN_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_LISTEN_ERR]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ") " + clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR] + ": " + string(ui16Port)).c_str(),
+			             g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+#else
+			AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_LISTEN_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_LISTEN_ERR]) + ": " + string(errno) + " " + string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR]) + ": " + string(ui16Port));
+#endif
+		}
+#ifdef _WIN32
+		closesocket(server);
+#else
+		close(server);
+#endif
+		return false;
+	}
+	
+	return true;
 }
 //---------------------------------------------------------------------------
 
 #ifdef _WIN32
-bool ServerThread::isFlooder(const SOCKET &s, const sockaddr_storage &addr) {
+bool ServerThread::isFlooder(const SOCKET &s, const sockaddr_storage &addr)
+{
 #else
-bool ServerThread::isFlooder(const int &s, const sockaddr_storage &addr) {
+bool ServerThread::isFlooder(const int &s, const sockaddr_storage &addr)
+{
 #endif
-    uint8_t ui128IpHash[16];
-    memset(ui128IpHash, 0, 16);
-
-    if(addr.ss_family == AF_INET6) {
-        memcpy(ui128IpHash, &((struct sockaddr_in6 *)&addr)->sin6_addr, 16);
-    } else {
-        ui128IpHash[10] = 255;
-        ui128IpHash[11] = 255;
-        memcpy(ui128IpHash, &((struct sockaddr_in *)&addr)->sin_addr.s_addr, 4);
-    }
-
-    int16_t iConDefloodCount = clsSettingManager::mPtr->GetShort(SETSHORT_NEW_CONNECTIONS_COUNT);
-    int16_t iConDefloodTime = clsSettingManager::mPtr->GetShort(SETSHORT_NEW_CONNECTIONS_TIME);
-   
-    AntiConFlood * cur = NULL,
-        * nxt = pAntiFloodList;
-
-	while(nxt != NULL) {
+	uint8_t ui128IpHash[16];
+	memset(ui128IpHash, 0, 16);
+	
+	if (addr.ss_family == AF_INET6)
+	{
+		memcpy(ui128IpHash, &((struct sockaddr_in6 *)&addr)->sin6_addr, 16);
+	}
+	else
+	{
+		ui128IpHash[10] = 255;
+		ui128IpHash[11] = 255;
+		memcpy(ui128IpHash, &((struct sockaddr_in *)&addr)->sin_addr.s_addr, 4);
+	}
+	
+	int16_t iConDefloodCount = clsSettingManager::mPtr->GetShort(SETSHORT_NEW_CONNECTIONS_COUNT);
+	int16_t iConDefloodTime = clsSettingManager::mPtr->GetShort(SETSHORT_NEW_CONNECTIONS_TIME);
+	
+	AntiConFlood * cur = NULL,
+	               * nxt = pAntiFloodList;
+	               
+	while (nxt != NULL)
+	{
 		cur = nxt;
 		nxt = cur->pNext;
-
-    	if(memcmp(ui128IpHash, cur->ui128IpHash, 16) == 0) {
-            if(cur->ui64Time+((uint64_t)iConDefloodTime) >= clsServerManager::ui64ActualTick) {
-                cur->ui16Hits++;
-                if(cur->ui16Hits > iConDefloodCount) {
-                    return true;
-                } else {
-                    clsServiceLoop::mPtr->AcceptSocket(s, addr);
-                    return false;
-                }
-            } else {
-                RemoveConFlood(cur);
-                delete cur;
-            }
-        } else if(cur->ui64Time+((uint64_t)iConDefloodTime) < clsServerManager::ui64ActualTick) {
-            RemoveConFlood(cur);
-            delete cur;
-        }
-    }
-
-    AntiConFlood * pNewItem = new (std::nothrow) AntiConFlood(ui128IpHash);
-    if(pNewItem == NULL) {
-		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem  in theLoop::isFlooder\n");
-    	return true;
-    }
-
-    pNewItem->pNext = pAntiFloodList;
-
-    if(pAntiFloodList != NULL) {
-        pAntiFloodList->pPrev = pNewItem;
-    }
-
-    pAntiFloodList = pNewItem;
-
-    clsServiceLoop::mPtr->AcceptSocket(s, addr);
-
-    return false;
-}
-//---------------------------------------------------------------------------
-
-void ServerThread::RemoveConFlood(AntiConFlood *cur) {
-    if(cur->pPrev == NULL) {
-        if(cur->pNext == NULL) {
-            pAntiFloodList = NULL;
-        } else {
-            cur->pNext->pPrev = NULL;
-            pAntiFloodList = cur->pNext;
-        }
-    } else if(cur->pNext == NULL) {
-        cur->pPrev->pNext = NULL;
-    } else {
-        cur->pPrev->pNext = cur->pNext;
-        cur->pNext->pPrev = cur->pPrev;
-    }
-}
-//---------------------------------------------------------------------------
-
-void ServerThread::ResumeSck() {
-    if(bActive == true) {
-		Lock l(csServerThread);
-        bSuspended = false;
-        iSuspendTime = 0;
-    }
-}
-//---------------------------------------------------------------------------
-
-void ServerThread::SuspendSck(const uint32_t &iTime) {
-    if(bActive == true) {
+		
+		if (memcmp(ui128IpHash, cur->ui128IpHash, 16) == 0)
 		{
-        Lock l(csServerThread);
-        if(iTime != 0) {
-            iSuspendTime = iTime;
-        } else {
-            bSuspended = true;
-            iSuspendTime = 1;            
-        }
+			if (cur->ui64Time + ((uint64_t)iConDefloodTime) >= clsServerManager::ui64ActualTick)
+			{
+				cur->ui16Hits++;
+				if (cur->ui16Hits > iConDefloodCount)
+				{
+					return true;
+				}
+				else
+				{
+					clsServiceLoop::mPtr->AcceptSocket(s, addr);
+					return false;
+				}
+			}
+			else
+			{
+				RemoveConFlood(cur);
+				delete cur;
+			}
 		}
-#ifdef _WIN32        
-    	closesocket(server);
+		else if (cur->ui64Time + ((uint64_t)iConDefloodTime) < clsServerManager::ui64ActualTick)
+		{
+			RemoveConFlood(cur);
+			delete cur;
+		}
+	}
+	
+	AntiConFlood * pNewItem = new(std::nothrow) AntiConFlood(ui128IpHash);
+	if (pNewItem == NULL)
+	{
+		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem  in theLoop::isFlooder\n");
+		return true;
+	}
+	
+	pNewItem->pNext = pAntiFloodList;
+	
+	if (pAntiFloodList != NULL)
+	{
+		pAntiFloodList->pPrev = pNewItem;
+	}
+	
+	pAntiFloodList = pNewItem;
+	
+	clsServiceLoop::mPtr->AcceptSocket(s, addr);
+	
+	return false;
+}
+//---------------------------------------------------------------------------
+
+void ServerThread::RemoveConFlood(AntiConFlood *cur)
+{
+	if (cur->pPrev == NULL)
+	{
+		if (cur->pNext == NULL)
+		{
+			pAntiFloodList = NULL;
+		}
+		else
+		{
+			cur->pNext->pPrev = NULL;
+			pAntiFloodList = cur->pNext;
+		}
+	}
+	else if (cur->pNext == NULL)
+	{
+		cur->pPrev->pNext = NULL;
+	}
+	else
+	{
+		cur->pPrev->pNext = cur->pNext;
+		cur->pNext->pPrev = cur->pPrev;
+	}
+}
+//---------------------------------------------------------------------------
+
+void ServerThread::ResumeSck()
+{
+	if (bActive == true)
+	{
+		Lock l(csServerThread);
+		bSuspended = false;
+		iSuspendTime = 0;
+	}
+}
+//---------------------------------------------------------------------------
+
+void ServerThread::SuspendSck(const uint32_t &iTime)
+{
+	if (bActive == true)
+	{
+		{
+			Lock l(csServerThread);
+			if (iTime != 0)
+			{
+				iSuspendTime = iTime;
+			}
+			else
+			{
+				bSuspended = true;
+				iSuspendTime = 1;
+			}
+		}
+#ifdef _WIN32
+		closesocket(server);
 #else
-    	close(server);
+		close(server);
 #endif
-    }
+	}
 }
 //---------------------------------------------------------------------------

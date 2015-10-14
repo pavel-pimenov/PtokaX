@@ -22,70 +22,72 @@
 #define ServerThreadH
 //---------------------------------------------------------------------------
 
-class ServerThread {
-private:
-    struct AntiConFlood {
-        uint64_t ui64Time;
-
-        AntiConFlood * pPrev, * pNext;
-
-        int16_t ui16Hits;
-
-        uint8_t ui128IpHash[16];
-
-        explicit AntiConFlood(const uint8_t * pIpHash);
-
-        DISALLOW_COPY_AND_ASSIGN(AntiConFlood);
-    };
-
-	AntiConFlood * pAntiFloodList;
-
-	CriticalSection csServerThread;
+class ServerThread
+{
+	private:
+		struct AntiConFlood
+		{
+			uint64_t ui64Time;
+			
+			AntiConFlood * pPrev, * pNext;
+			
+			int16_t ui16Hits;
+			
+			uint8_t ui128IpHash[16];
+			
+			explicit AntiConFlood(const uint8_t * pIpHash);
+			
+			DISALLOW_COPY_AND_ASSIGN(AntiConFlood);
+		};
+		
+		AntiConFlood * pAntiFloodList;
+		
+		CriticalSection csServerThread;
 #ifdef _WIN32
-	HANDLE threadHandle;
-
-
-    SOCKET server;
-
-    unsigned int threadId;
-
-    uint32_t iSuspendTime;
+		HANDLE threadHandle;
+		
+		
+		SOCKET server;
+		
+		unsigned int threadId;
+		
+		uint32_t iSuspendTime;
 #else
-	pthread_t threadId;
-
-    int server;
-
-	unsigned int iSuspendTime;
+		pthread_t threadId;
+		
+		int server;
+		
+		unsigned int iSuspendTime;
 #endif
-
-    int iAdressFamily;
-
-	bool bTerminated;
-
-	DISALLOW_COPY_AND_ASSIGN(ServerThread);
-public:
-    ServerThread * pPrev, * pNext;
-
-    uint16_t ui16Port;
-
-    bool bActive, bSuspended;
-
-	ServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber);
-	~ServerThread();
-
-	void Resume();
-	void Run();
-	void Close();
-	void WaitFor();
-	bool Listen(bool bSilent = false);
+		
+		int iAdressFamily;
+		
+		bool bTerminated;
+		
+		DISALLOW_COPY_AND_ASSIGN(ServerThread);
+	public:
+		ServerThread * pPrev, * pNext;
+		
+		uint16_t ui16Port;
+		
+		bool bActive, bSuspended;
+		
+		ServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber);
+		~ServerThread();
+		
+		void Resume();
+		void Run();
+		void Close();
+		void WaitFor();
+		bool Listen(bool bSilent = false);
 #ifdef _WIN32
-	bool isFlooder(const SOCKET &s, const sockaddr_storage &addr);
+		bool isFlooder(const SOCKET &s, const sockaddr_storage &addr);
 #else
-	bool isFlooder(const int &s, const sockaddr_storage &addr);
+		bool isFlooder(const int &s, const sockaddr_storage &addr);
 #endif
-	void RemoveConFlood(AntiConFlood * cur);
-	void ResumeSck();
-	void SuspendSck(const uint32_t &iTime);
+		void RemoveConFlood(AntiConFlood * cur);
+		void ResumeSck();
+		void SuspendSck(const uint32_t &iTime);
 };
 //---------------------------------------------------------------------------
 

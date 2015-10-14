@@ -26,87 +26,89 @@ struct ScriptTimer;
 struct User;
 //------------------------------------------------------------------------------
 
-class clsScriptManager {
-private:
-	Script * pRunningScriptE;
-
-    DISALLOW_COPY_AND_ASSIGN(clsScriptManager);
-
-	void AddRunningScript(Script * curScript);
-	void RemoveRunningScript(Script * curScript);
-
-	void LoadXML();
-public:
-    static clsScriptManager * mPtr;
-
-    Script * pRunningScriptS;
-
-    Script ** ppScriptTable;
-	User * pActualUser;
-
-	ScriptTimer * pTimerListS, * pTimerListE;
-
-    uint8_t ui8ScriptCount, ui8BotsCount;
-
-    bool bMoved;
-
-    enum LuaArrivals {
-        CHAT_ARRIVAL,
-        KEY_ARRIVAL,
-        VALIDATENICK_ARRIVAL,
-        PASSWORD_ARRIVAL,
-        VERSION_ARRIVAL,
-        GETNICKLIST_ARRIVAL,
-        MYINFO_ARRIVAL,
-        GETINFO_ARRIVAL,
-        SEARCH_ARRIVAL,
-        TO_ARRIVAL,
-        CONNECTTOME_ARRIVAL,
-        MULTICONNECTTOME_ARRIVAL,
-        REVCONNECTTOME_ARRIVAL,
-        SR_ARRIVAL,
-        UDP_SR_ARRIVAL,
-        KICK_ARRIVAL,
-        OPFORCEMOVE_ARRIVAL,
-        SUPPORTS_ARRIVAL,
-        BOTINFO_ARRIVAL,
-        CLOSE_ARRIVAL, 
-        UNKNOWN_ARRIVAL
-    };
-    
-    clsScriptManager();
-    ~clsScriptManager();
-    
-    void Start();
-    void Stop();
-
-    void SaveScripts();
-
-    void CheckForDeletedScripts();
-    void CheckForNewScripts();
-
-    void Restart();
-
-    Script * FindScript(char * sName);
-    Script * FindScript(lua_State * L);
-    uint8_t FindScriptIdx(char * sName);
-
-	bool AddScript(char * sName, const bool &bEnabled, const bool &bNew);
-
-	bool StartScript(Script * curScript, const bool &bEnable);
-	void StopScript(Script * curScript, const bool &bDisable);
-
-	void MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool &bUp);
-
-    void DeleteScript(const uint8_t &ui8ScriptPosInTbl);
-
-    void OnStartup();
-    void OnExit(bool bForce = false);
-    bool Arrival(User * u, char * sData, const size_t &szLen, const unsigned char &uiType);
-    bool UserConnected(User * u);
-	void UserDisconnected(User * u, Script * pScript = NULL);
-
-    void PrepareMove(lua_State * L);
+class clsScriptManager
+{
+	private:
+		Script * pRunningScriptE;
+		
+		DISALLOW_COPY_AND_ASSIGN(clsScriptManager);
+		
+		void AddRunningScript(Script * curScript);
+		void RemoveRunningScript(Script * curScript);
+		
+		void LoadXML();
+	public:
+		static clsScriptManager * mPtr;
+		
+		Script * pRunningScriptS;
+		
+		Script ** ppScriptTable;
+		User * pActualUser;
+		
+		ScriptTimer * pTimerListS, * pTimerListE;
+		
+		uint8_t ui8ScriptCount, ui8BotsCount;
+		
+		bool bMoved;
+		
+		enum LuaArrivals
+		{
+			CHAT_ARRIVAL,
+			KEY_ARRIVAL,
+			VALIDATENICK_ARRIVAL,
+			PASSWORD_ARRIVAL,
+			VERSION_ARRIVAL,
+			GETNICKLIST_ARRIVAL,
+			MYINFO_ARRIVAL,
+			GETINFO_ARRIVAL,
+			SEARCH_ARRIVAL,
+			TO_ARRIVAL,
+			CONNECTTOME_ARRIVAL,
+			MULTICONNECTTOME_ARRIVAL,
+			REVCONNECTTOME_ARRIVAL,
+			SR_ARRIVAL,
+			UDP_SR_ARRIVAL,
+			KICK_ARRIVAL,
+			OPFORCEMOVE_ARRIVAL,
+			SUPPORTS_ARRIVAL,
+			BOTINFO_ARRIVAL,
+			CLOSE_ARRIVAL,
+			UNKNOWN_ARRIVAL
+		};
+		
+		clsScriptManager();
+		~clsScriptManager();
+		
+		void Start();
+		void Stop();
+		
+		void SaveScripts();
+		
+		void CheckForDeletedScripts();
+		void CheckForNewScripts();
+		
+		void Restart();
+		
+		Script * FindScript(char * sName);
+		Script * FindScript(lua_State * L);
+		uint8_t FindScriptIdx(char * sName);
+		
+		bool AddScript(char * sName, const bool &bEnabled, const bool &bNew);
+		
+		bool StartScript(Script * curScript, const bool &bEnable);
+		void StopScript(Script * curScript, const bool &bDisable);
+		
+		void MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool &bUp);
+		
+		void DeleteScript(const uint8_t &ui8ScriptPosInTbl);
+		
+		void OnStartup();
+		void OnExit(bool bForce = false);
+		bool Arrival(User * u, char * sData, const size_t &szLen, const unsigned char &uiType);
+		bool UserConnected(User * u);
+		void UserDisconnected(User * u, Script * pScript = NULL);
+		
+		void PrepareMove(lua_State * L);
 };
 //------------------------------------------------------------------------------
 

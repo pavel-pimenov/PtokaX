@@ -24,69 +24,73 @@ struct User;
 struct Script;
 //---------------------------------------------------------------------------
 
-struct ScriptBot {
+struct ScriptBot
+{
 	ScriptBot * pPrev, * pNext;
-
-    char *sNick;
-    char *sMyINFO;
-
-    bool bIsOP;
-
-    ScriptBot();
-    ~ScriptBot();
-
-    static ScriptBot * CreateScriptBot(char * sNick, const size_t &szNickLen, char * sDescription, const size_t &szDscrLen, char * sEmail, const size_t &szEmailLen, const bool &bOP);
-    DISALLOW_COPY_AND_ASSIGN(ScriptBot);
+	
+	char *sNick;
+	char *sMyINFO;
+	
+	bool bIsOP;
+	
+	ScriptBot();
+	~ScriptBot();
+	
+	static ScriptBot * CreateScriptBot(char * sNick, const size_t &szNickLen, char * sDescription, const size_t &szDscrLen, char * sEmail, const size_t &szEmailLen, const bool &bOP);
+	DISALLOW_COPY_AND_ASSIGN(ScriptBot);
 };
 //------------------------------------------------------------------------------
 
-struct ScriptTimer {
+struct ScriptTimer
+{
 #if defined(_WIN32) && !defined(_WIN_IOT)
-    UINT_PTR uiTimerId;
+	UINT_PTR uiTimerId;
 #else
 	uint64_t ui64Interval;
 	uint64_t ui64LastTick;
 #endif
-
+	
 	ScriptTimer * pPrev, * pNext;
-
+	
 	lua_State * pLua;
-
-    char * sFunctionName;
-
-    int iFunctionRef;
-
+	
+	char * sFunctionName;
+	
+	int iFunctionRef;
+	
 	static char sDefaultTimerFunc[];
-
-    ScriptTimer();
-    ~ScriptTimer();
-
+	
+	ScriptTimer();
+	~ScriptTimer();
+	
 #if defined(_WIN32) && !defined(_WIN_IOT)
-    static ScriptTimer * CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t &szLen, const int &iRef, lua_State * pLuaState);
+	static ScriptTimer * CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t &szLen, const int &iRef, lua_State * pLuaState);
 #else
 	static ScriptTimer * CreateScriptTimer(char * sFunctName, const size_t &szLen, const int &iRef, lua_State * pLuaState);
 #endif
-      DISALLOW_COPY_AND_ASSIGN(ScriptTimer);
-
+	DISALLOW_COPY_AND_ASSIGN(ScriptTimer);
+	
 };
 //------------------------------------------------------------------------------
 
-struct Script {
-    Script * pPrev, * pNext;
-
-    ScriptBot * pBotList;
-
-    lua_State * pLUA;
-
-    char * sName;
-
-    uint32_t ui32DataArrivals;
-
+struct Script
+{
+	Script * pPrev, * pNext;
+	
+	ScriptBot * pBotList;
+	
+	lua_State * pLUA;
+	
+	char * sName;
+	
+	uint32_t ui32DataArrivals;
+	
 	uint16_t ui16Functions;
-
-    bool bEnabled, bRegUDP, bProcessed;
-
-    enum LuaFunctions {
+	
+	bool bEnabled, bRegUDP, bProcessed;
+	
+	enum LuaFunctions
+	{
 		ONSTARTUP         = 0x1,
 		ONEXIT            = 0x2,
 		ONERROR           = 0x4,
@@ -97,12 +101,12 @@ struct Script {
 		REGDISCONNECTED   = 0x80,
 		OPDISCONNECTED    = 0x100
 	};
-
-    Script();
-    ~Script();
-
-    static Script * CreateScript(char *Name, const bool &enabled);
-    DISALLOW_COPY_AND_ASSIGN(Script);
+	
+	Script();
+	~Script();
+	
+	static Script * CreateScript(char *Name, const bool &enabled);
+	DISALLOW_COPY_AND_ASSIGN(Script);
 };
 //------------------------------------------------------------------------------
 
@@ -122,9 +126,9 @@ User * ScriptGetUser(lua_State * L, const int &iTop, const char * sFunction);
 void ScriptError(Script * cur);
 
 #if defined(_WIN32) && !defined(_WIN_IOT)
-    void ScriptOnTimer(const UINT_PTR &uiTimerId);
+void ScriptOnTimer(const UINT_PTR &uiTimerId);
 #else
-	void ScriptOnTimer(const uint64_t &ui64ActualMillis);
+void ScriptOnTimer(const uint64_t &ui64ActualMillis);
 #endif
 
 int ScriptTraceback(lua_State * L);

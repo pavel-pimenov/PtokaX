@@ -26,67 +26,69 @@
 struct User;
 //---------------------------------------------------------------------------
 
-class clsServiceLoop {
-private:
-    uint64_t ui64LstUptmTck;
-    CriticalSection csAcceptQueue;
-
+class clsServiceLoop
+{
+	private:
+		uint64_t ui64LstUptmTck;
+		CriticalSection csAcceptQueue;
+		
 #ifdef _WIN32
-    #ifdef _WIN_IOT
-    	uint64_t ui64LastSecond;
-    #endif
-#else
-	uint64_t ui64LastSecond;
+#ifdef _WIN_IOT
+		uint64_t ui64LastSecond;
 #endif
-
-    struct AcceptedSocket {
-        sockaddr_storage addr;
-
-        AcceptedSocket * pNext;
-
+#else
+		uint64_t ui64LastSecond;
+#endif
+		
+		struct AcceptedSocket
+		{
+			sockaddr_storage addr;
+			
+			AcceptedSocket * pNext;
+			
 #ifdef _WIN32
-        SOCKET s;
+			SOCKET s;
 #else
-		int s;
+			int s;
 #endif
-
-        AcceptedSocket();
-
-        DISALLOW_COPY_AND_ASSIGN(AcceptedSocket);
-    };
-
-	AcceptedSocket * pAcceptedSocketsS, * pAcceptedSocketsE;
-
-    DISALLOW_COPY_AND_ASSIGN(clsServiceLoop);
-
-    void AcceptUser(AcceptedSocket * AccptSocket);
-protected:
-public:
-	double dLoggedUsers, dActualSrvLoopLogins;
-
+			
+			AcceptedSocket();
+			
+			DISALLOW_COPY_AND_ASSIGN(AcceptedSocket);
+		};
+		
+		AcceptedSocket * pAcceptedSocketsS, * pAcceptedSocketsE;
+		
+		DISALLOW_COPY_AND_ASSIGN(clsServiceLoop);
+		
+		void AcceptUser(AcceptedSocket * AccptSocket);
+	protected:
+	public:
+		double dLoggedUsers, dActualSrvLoopLogins;
+		
 #if defined(_WIN32) && !defined(_WIN_IOT)
-    static UINT_PTR srvLoopTimer;
+		static UINT_PTR srvLoopTimer;
 #else
-	uint64_t ui64LastRegToHublist;
+		uint64_t ui64LastRegToHublist;
 #endif
-
-	static clsServiceLoop * mPtr;
-
-    uint32_t ui32LastSendRest,  ui32SendRestsPeak,  ui32LastRecvRest,  ui32RecvRestsPeak,  ui32LoopsForLogins;
-
-    bool bRecv;
-
-	clsServiceLoop();
-	~clsServiceLoop();
-
+		
+		static clsServiceLoop * mPtr;
+		
+		uint32_t ui32LastSendRest,  ui32SendRestsPeak,  ui32LastRecvRest,  ui32RecvRestsPeak,  ui32LoopsForLogins;
+		
+		bool bRecv;
+		
+		clsServiceLoop();
+		~clsServiceLoop();
+		
 #ifdef _WIN32
-	void AcceptSocket(const SOCKET &s, const sockaddr_storage &addr);
+		void AcceptSocket(const SOCKET &s, const sockaddr_storage &addr);
 #else
-	void AcceptSocket(const int &s, const sockaddr_storage &addr);
+		void AcceptSocket(const int &s, const sockaddr_storage &addr);
 #endif
-	void ReceiveLoop();
-	void SendLoop();
-	void Looper();
+		void ReceiveLoop();
+		void SendLoop();
+		void Looper();
 };
 //---------------------------------------------------------------------------
 

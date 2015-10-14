@@ -23,30 +23,32 @@
 struct User;
 //---------------------------------------------------------------------------
 
-class clsTextFilesManager {
-private:
-    struct TextFile {
-    	TextFile * pPrev, * pNext;
-
-        char * sCommand, * sText;
-
-        TextFile();
-        ~TextFile();
-
-        DISALLOW_COPY_AND_ASSIGN(TextFile);
-    };
-
-	TextFile * pTextFiles;
-
-    DISALLOW_COPY_AND_ASSIGN(clsTextFilesManager);
-public:
-    static clsTextFilesManager * mPtr;
-
-	clsTextFilesManager();
-	~clsTextFilesManager();
-
-	bool ProcessTextFilesCmd(User * u, char * cmd, bool fromPM = false) const;
-	void RefreshTextFiles();
+class clsTextFilesManager
+{
+	private:
+		struct TextFile
+		{
+			TextFile * pPrev, * pNext;
+			
+			char * sCommand, * sText;
+			
+			TextFile();
+			~TextFile();
+			
+			DISALLOW_COPY_AND_ASSIGN(TextFile);
+		};
+		
+		TextFile * pTextFiles;
+		
+		DISALLOW_COPY_AND_ASSIGN(clsTextFilesManager);
+	public:
+		static clsTextFilesManager * mPtr;
+		
+		clsTextFilesManager();
+		~clsTextFilesManager();
+		
+		bool ProcessTextFilesCmd(User * u, char * cmd, bool fromPM = false) const;
+		void RefreshTextFiles();
 };
 //---------------------------------------------------------------------------
 

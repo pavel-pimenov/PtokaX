@@ -21,27 +21,28 @@
 #define MainWindowPageH
 //------------------------------------------------------------------------------
 
-class MainWindowPage {
-public:
-    HWND m_hWnd;
-
-    MainWindowPage();
-    virtual ~MainWindowPage() { };
-
-    static LRESULT CALLBACK StaticMainWindowPageProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-    virtual bool CreateMainWindowPage(HWND hOwner) = NULL;
-    virtual void UpdateLanguage() = NULL;
-    virtual char * GetPageName() = NULL;
-    virtual void FocusFirstItem() = NULL;
-    virtual void FocusLastItem() = NULL;
-protected:
-    void CreateHWND(HWND hOwner);
-private:
-    MainWindowPage(const MainWindowPage&);
-    const MainWindowPage& operator=(const MainWindowPage&);
-
-    virtual LRESULT MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = NULL;
+class MainWindowPage
+{
+	public:
+		HWND m_hWnd;
+		
+		MainWindowPage();
+		virtual ~MainWindowPage() { };
+		
+		static LRESULT CALLBACK StaticMainWindowPageProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		
+		virtual bool CreateMainWindowPage(HWND hOwner) = NULL;
+		virtual void UpdateLanguage() = NULL;
+		virtual char * GetPageName() = NULL;
+		virtual void FocusFirstItem() = NULL;
+		virtual void FocusLastItem() = NULL;
+	protected:
+		void CreateHWND(HWND hOwner);
+	private:
+		MainWindowPage(const MainWindowPage&);
+		const MainWindowPage& operator=(const MainWindowPage&);
+		
+		virtual LRESULT MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = NULL;
 };
 //------------------------------------------------------------------------------
 

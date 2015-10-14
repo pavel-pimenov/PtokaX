@@ -21,28 +21,30 @@
 #define UpdateDialogH
 //------------------------------------------------------------------------------
 
-class clsUpdateDialog {
-public:
-    static clsUpdateDialog * mPtr;
-
-    clsUpdateDialog();
-    ~clsUpdateDialog();
-
-    static LRESULT CALLBACK StaticUpdateDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-	void DoModal(HWND hWndParent);
-	void Message(char * sData);
-	bool ParseData(char * sData, HWND hWndParent);
-private:
-    HWND hWndWindowItems[2];
-
-    enum enmWindowItems {
-        WINDOW_HANDLE,
-        REDT_UPDATE
-    };
- 
-    LRESULT UpdateDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-    DISALLOW_COPY_AND_ASSIGN(clsUpdateDialog);
+class clsUpdateDialog
+{
+	public:
+		static clsUpdateDialog * mPtr;
+		
+		clsUpdateDialog();
+		~clsUpdateDialog();
+		
+		static LRESULT CALLBACK StaticUpdateDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		
+		void DoModal(HWND hWndParent);
+		void Message(char * sData);
+		bool ParseData(char * sData, HWND hWndParent);
+	private:
+		HWND hWndWindowItems[2];
+		
+		enum enmWindowItems
+		{
+			WINDOW_HANDLE,
+			REDT_UPDATE
+		};
+		
+		LRESULT UpdateDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		DISALLOW_COPY_AND_ASSIGN(clsUpdateDialog);
 };
 //------------------------------------------------------------------------------
 

@@ -24,26 +24,27 @@ struct User;
 typedef struct sqlite3 sqlite3;
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class DBSQLite {
-private:
-	sqlite3 * pDB;
-
-	bool bConnected;
-
-    DBSQLite(const DBSQLite&);
-    const DBSQLite& operator=(const DBSQLite&);
-public:
-    static DBSQLite * mPtr;
-
-	DBSQLite();
-	~DBSQLite();
-
-	void UpdateRecord(User * pUser);
-
-	bool SearchNick(char * sNick, const uint8_t &ui8NickLen, User * pUser, const bool &bFromPM);
-	bool SearchIP(char * sIP, User * pUser, const bool &bFromPM);
-
-	void RemoveOldRecords(const uint16_t &ui16Days);
+class DBSQLite
+{
+	private:
+		sqlite3 * pDB;
+		
+		bool bConnected;
+		
+		DBSQLite(const DBSQLite&);
+		const DBSQLite& operator=(const DBSQLite&);
+	public:
+		static DBSQLite * mPtr;
+		
+		DBSQLite();
+		~DBSQLite();
+		
+		void UpdateRecord(User * pUser);
+		
+		bool SearchNick(char * sNick, const uint8_t &ui8NickLen, User * pUser, const bool &bFromPM);
+		bool SearchIP(char * sIP, User * pUser, const bool &bFromPM);
+		
+		void RemoveOldRecords(const uint16_t &ui16Days);
 };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

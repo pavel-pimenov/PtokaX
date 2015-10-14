@@ -21,22 +21,23 @@
 #define zlibutilityH
 //---------------------------------------------------------------------------
 
-class clsZlibUtility {
-private:
-	char * pZbuffer;
-
-    size_t szZbufferSize;
-
-    DISALLOW_COPY_AND_ASSIGN(clsZlibUtility);
-public:
-    static clsZlibUtility * mPtr;
-
-	clsZlibUtility();
-	~clsZlibUtility();
-	
-    char * CreateZPipe(const char *sInData, const size_t &sInDataSize, uint32_t &iOutDataLen);
-    char * CreateZPipe(char *sInData, const size_t &sInDataSize, char *sOutData, size_t &szOutDataLen, size_t &szOutDataSize);
-    char * CreateZPipe(char *sInData, const unsigned int &sInDataSize, char *sOutData, unsigned int &iOutDataLen, unsigned int &iOutDataSize, size_t (* pAllignFunc)(size_t n));
+class clsZlibUtility
+{
+	private:
+		char * pZbuffer;
+		
+		size_t szZbufferSize;
+		
+		DISALLOW_COPY_AND_ASSIGN(clsZlibUtility);
+	public:
+		static clsZlibUtility * mPtr;
+		
+		clsZlibUtility();
+		~clsZlibUtility();
+		
+		char * CreateZPipe(const char *sInData, const size_t &sInDataSize, uint32_t &iOutDataLen);
+		char * CreateZPipe(char *sInData, const size_t &sInDataSize, char *sOutData, size_t &szOutDataLen, size_t &szOutDataSize);
+		char * CreateZPipe(char *sInData, const unsigned int &sInDataSize, char *sOutData, unsigned int &iOutDataLen, unsigned int &iOutDataSize, size_t (* pAllignFunc)(size_t n));
 };
 //---------------------------------------------------------------------------
 

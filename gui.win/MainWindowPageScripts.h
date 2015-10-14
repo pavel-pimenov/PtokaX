@@ -26,62 +26,64 @@
 class ScriptEditorDialog;
 //------------------------------------------------------------------------------
 
-class clsMainWindowPageScripts : public MainWindowPage, private BasicSplitter {
-public:
-    static clsMainWindowPageScripts * mPtr;
-
-    HWND hWndPageItems[8];
-
-    enum enmPageItems {
-        GB_SCRIPTS_ERRORS,
-        REDT_SCRIPTS_ERRORS,
-        BTN_OPEN_SCRIPT_EDITOR,
-        BTN_REFRESH_SCRIPTS,
-        LV_SCRIPTS,
-        BTN_MOVE_UP,
-        BTN_MOVE_DOWN,
-        BTN_RESTART_SCRIPTS
-    };
-
-    clsMainWindowPageScripts();
-    ~clsMainWindowPageScripts();
-
-    bool CreateMainWindowPage(HWND hOwner);
-    void UpdateLanguage();
-    char * GetPageName();
-    void FocusFirstItem();
-    void FocusLastItem();
-
-    void ClearMemUsageAll();
-    void UpdateMemUsage();
-    void MoveScript(uint8_t ui8ScriptId, const bool &bUp);
-    void AddScriptsToList(const bool &bDelete);
-    void ScriptToList(const uint8_t &ui8ScriptId, const bool &bInsert, const bool &bSelected);
-    void UpdateCheck(const uint8_t &ui8ScriptId);
-    void OpenInScriptEditor();
-private:
-    bool bIgnoreItemChanged;
-
- 
-    LRESULT MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-    void OnContextMenu(HWND hWindow, LPARAM lParam);
-    static void OpenScriptEditor(char * sScript = NULL);
-    void RefreshScripts();
-    void OnItemChanged(const LPNMLISTVIEW &pListView);
-    void OnDoubleClick(const LPNMITEMACTIVATE &pItemActivate);
-    void MoveUp();
-    void MoveDown();
-    static void RestartScripts();
-    void UpdateUpDown();
-    void OpenInExternalEditor();
-    void DeleteScript();
-    void ClearMemUsage(uint8_t ui8ScriptId);
-
-    HWND GetWindowHandle();
-    void UpdateSplitterParts();
-
-    DISALLOW_COPY_AND_ASSIGN(clsMainWindowPageScripts);
+class clsMainWindowPageScripts : public MainWindowPage, private BasicSplitter
+{
+	public:
+		static clsMainWindowPageScripts * mPtr;
+		
+		HWND hWndPageItems[8];
+		
+		enum enmPageItems
+		{
+			GB_SCRIPTS_ERRORS,
+			REDT_SCRIPTS_ERRORS,
+			BTN_OPEN_SCRIPT_EDITOR,
+			BTN_REFRESH_SCRIPTS,
+			LV_SCRIPTS,
+			BTN_MOVE_UP,
+			BTN_MOVE_DOWN,
+			BTN_RESTART_SCRIPTS
+		};
+		
+		clsMainWindowPageScripts();
+		~clsMainWindowPageScripts();
+		
+		bool CreateMainWindowPage(HWND hOwner);
+		void UpdateLanguage();
+		char * GetPageName();
+		void FocusFirstItem();
+		void FocusLastItem();
+		
+		void ClearMemUsageAll();
+		void UpdateMemUsage();
+		void MoveScript(uint8_t ui8ScriptId, const bool &bUp);
+		void AddScriptsToList(const bool &bDelete);
+		void ScriptToList(const uint8_t &ui8ScriptId, const bool &bInsert, const bool &bSelected);
+		void UpdateCheck(const uint8_t &ui8ScriptId);
+		void OpenInScriptEditor();
+	private:
+		bool bIgnoreItemChanged;
+		
+		
+		LRESULT MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		
+		void OnContextMenu(HWND hWindow, LPARAM lParam);
+		static void OpenScriptEditor(char * sScript = NULL);
+		void RefreshScripts();
+		void OnItemChanged(const LPNMLISTVIEW &pListView);
+		void OnDoubleClick(const LPNMITEMACTIVATE &pItemActivate);
+		void MoveUp();
+		void MoveDown();
+		static void RestartScripts();
+		void UpdateUpDown();
+		void OpenInExternalEditor();
+		void DeleteScript();
+		void ClearMemUsage(uint8_t ui8ScriptId);
+		
+		HWND GetWindowHandle();
+		void UpdateSplitterParts();
+		
+		DISALLOW_COPY_AND_ASSIGN(clsMainWindowPageScripts);
 };
 //---------------------------------------------------------------------------
 

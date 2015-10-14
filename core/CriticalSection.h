@@ -12,7 +12,7 @@ class CriticalSection
 			assert(cs.RecursionCount == 0 || (cs.RecursionCount > 0 && tryLock() == true));
 			EnterCriticalSection(&cs);
 #else
-			pthread_mutex_lock (&mutex);
+			pthread_mutex_lock(&mutex);
 #endif
 		}
 		void unlock()
@@ -32,10 +32,10 @@ class CriticalSection
 			else
 				return false;
 #else
-            const int rc = pthread_mutex_trylock (&mutex);
-            if (rc == EBUSY)
-                return false;
-            return true;
+			const int rc = pthread_mutex_trylock(&mutex);
+			if (rc == EBUSY)
+				return false;
+			return true;
 #endif
 		}
 		explicit CriticalSection()
@@ -43,7 +43,7 @@ class CriticalSection
 #ifdef _WIN32
 			InitializeCriticalSectionAndSpinCount(&cs, 2000);
 #else
-			pthread_mutex_init (&mutex, NULL);
+			pthread_mutex_init(&mutex, NULL);
 #endif
 		}
 		~CriticalSection()
@@ -51,7 +51,7 @@ class CriticalSection
 #ifdef _WIN32
 			DeleteCriticalSection(&cs);
 #else
-			pthread_mutex_destroy (&mutex);
+			pthread_mutex_destroy(&mutex);
 #endif
 		}
 	private:
@@ -98,7 +98,7 @@ class FastCriticalSection
 		}
 		void unlock()
 		{
-			unlockState(state); 
+			unlockState(state);
 		}
 	private:
 		volatile long state;
@@ -119,7 +119,7 @@ class LockBase
 		}
 	private:
 		T& cs;
-    DISALLOW_COPY_AND_ASSIGN(LockBase);
+		DISALLOW_COPY_AND_ASSIGN(LockBase);
 };
 typedef LockBase<CriticalSection> Lock;
 // typedef LockBase<FastCriticalSection> FastLock;

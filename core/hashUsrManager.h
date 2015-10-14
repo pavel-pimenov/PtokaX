@@ -24,39 +24,41 @@
 struct User;
 //---------------------------------------------------------------------------
 
-class clsHashManager {
-private:
-    User * pNickTable[65536];
-
-    struct IpTableItem {
-        IpTableItem * pPrev, * pNext;
-
-        User * pFirstUser;
-
-        uint16_t ui16Count;
-
-        IpTableItem() : pPrev(NULL), pNext(NULL), pFirstUser(NULL), ui16Count(0) { };
-
-        DISALLOW_COPY_AND_ASSIGN(IpTableItem);
-    };
-
-	IpTableItem * pIpTable[65536];
-
-    DISALLOW_COPY_AND_ASSIGN(clsHashManager);
-public:
-    static clsHashManager * mPtr;
-
-    clsHashManager();
-    ~clsHashManager();
-
-    bool Add(User * pUser);
-    void Remove(User * pUser);
-
-    User * FindUser(char * sNick, const size_t &szNickLen);
-    User * FindUser(User * pUser);
-    User * FindUser(const uint8_t * ui128IpHash);
-
-    uint32_t GetUserIpCount(User * pUser) const;
+class clsHashManager
+{
+	private:
+		User * pNickTable[65536];
+		
+		struct IpTableItem
+		{
+			IpTableItem * pPrev, * pNext;
+			
+			User * pFirstUser;
+			
+			uint16_t ui16Count;
+			
+			IpTableItem() : pPrev(NULL), pNext(NULL), pFirstUser(NULL), ui16Count(0) { };
+			
+			DISALLOW_COPY_AND_ASSIGN(IpTableItem);
+		};
+		
+		IpTableItem * pIpTable[65536];
+		
+		DISALLOW_COPY_AND_ASSIGN(clsHashManager);
+	public:
+		static clsHashManager * mPtr;
+		
+		clsHashManager();
+		~clsHashManager();
+		
+		bool Add(User * pUser);
+		void Remove(User * pUser);
+		
+		User * FindUser(char * sNick, const size_t &szNickLen);
+		User * FindUser(User * pUser);
+		User * FindUser(const uint8_t * ui128IpHash);
+		
+		uint32_t GetUserIpCount(User * pUser) const;
 };
 //---------------------------------------------------------------------------
 

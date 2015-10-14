@@ -23,49 +23,51 @@
 struct RegUser;
 //------------------------------------------------------------------------------
 
-class clsRegisteredUsersDialog {
-public:
-    static clsRegisteredUsersDialog * mPtr;
-
-    HWND hWndWindowItems[6];
-
-    enum enmWindowItems {
-        WINDOW_HANDLE,
-        BTN_ADD_REG,
-        LV_REGS,
-        GB_FILTER,
-        EDT_FILTER,
-        CB_FILTER,
-    };
-
-    clsRegisteredUsersDialog();
-    ~clsRegisteredUsersDialog();
-
-    static LRESULT CALLBACK StaticRegisteredUsersDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    static int CompareRegs(const void * pItem, const void * pOtherItem);
-    static int CALLBACK SortCompareRegs(LPARAM lParam1, LPARAM lParam2, LPARAM /*lParamSort*/);
-
-	void DoModal(HWND hWndParent);
-	void FilterRegs();
-	void AddReg(const RegUser * pReg);
-	void RemoveReg(const RegUser * pReg);
-	void UpdateProfiles();
-private:
-    string sFilterString;
-
-    int iFilterColumn, iSortColumn;
-
-    bool bSortAscending;
-
-
-    LRESULT RegisteredUsersDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-    void AddAllRegs();
-    void OnColumnClick(const LPNMLISTVIEW &pListView);
-    void RemoveRegs();
-    void OnContextMenu(HWND hWindow, LPARAM lParam);
-    void ChangeReg();
-    DISALLOW_COPY_AND_ASSIGN(clsRegisteredUsersDialog);
+class clsRegisteredUsersDialog
+{
+	public:
+		static clsRegisteredUsersDialog * mPtr;
+		
+		HWND hWndWindowItems[6];
+		
+		enum enmWindowItems
+		{
+			WINDOW_HANDLE,
+			BTN_ADD_REG,
+			LV_REGS,
+			GB_FILTER,
+			EDT_FILTER,
+			CB_FILTER,
+		};
+		
+		clsRegisteredUsersDialog();
+		~clsRegisteredUsersDialog();
+		
+		static LRESULT CALLBACK StaticRegisteredUsersDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		static int CompareRegs(const void * pItem, const void * pOtherItem);
+		static int CALLBACK SortCompareRegs(LPARAM lParam1, LPARAM lParam2, LPARAM /*lParamSort*/);
+		
+		void DoModal(HWND hWndParent);
+		void FilterRegs();
+		void AddReg(const RegUser * pReg);
+		void RemoveReg(const RegUser * pReg);
+		void UpdateProfiles();
+	private:
+		string sFilterString;
+		
+		int iFilterColumn, iSortColumn;
+		
+		bool bSortAscending;
+		
+		
+		LRESULT RegisteredUsersDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		
+		void AddAllRegs();
+		void OnColumnClick(const LPNMLISTVIEW &pListView);
+		void RemoveRegs();
+		void OnContextMenu(HWND hWindow, LPARAM lParam);
+		void ChangeReg();
+		DISALLOW_COPY_AND_ASSIGN(clsRegisteredUsersDialog);
 };
 //------------------------------------------------------------------------------
 
