@@ -3017,7 +3017,7 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
 #endif
                 OtherUser->ui32BoolBits |= User::BIT_ERROR;
 
-				clsUdpDebug::mPtr->BroadcastFormat("[SYS] Ghost in validate nick %s (%s) - user closed.", OtherUser->sNick, OtherUser->sIP);
+				clsUdpDebug::mPtr->BroadcastFormat("[SYS] Detected clone of yourself, byebye! Nick %s (%s) - user closed. Please close the second DC++ client!", OtherUser->sNick, OtherUser->sIP);
 
                 OtherUser->Close();
                 return false;
