@@ -6,7 +6,22 @@
 # block all other udp
 # iptables -A OUTPUT -p udp -j DROP
 # ip6tables -A OUTPUT -p udp -j DROP
-
+#-----------------------------------------------------
+# iptables -vnL
+# for port in 411 80
+#  do
+#         iptables -A INPUT -p tcp -d x.x.x.x --dport $port -m connlimit --connlimit-above 10 -j DROP
+#         iptables -I INPUT -p tcp -d x.x.x.x --syn -j DROP -m connlimit --connlimit-above 20
+#         iptables -A INPUT -p tcp -d x.x.x.x --dport $port -m state --state NEW -m recent --update --seconds 60 --hitcount 20 --rttl -j DROP
+#         ##iptables -A INPUT -p tcp -d x.x.x.x --dport $port -m state --state NEW,ESTABLISHED -m string --algo bm --string '$MyNick' -j DROP
+# done
+#-----------------------------------------------------
+#
+#iptables -A INPUT -p tcp -d x.x.x.x --dport 80 -m  connlimit --connlimit-above 10 -j DROP
+#iptables -I INPUT -p tcp -d x.x.x.x --syn -j DROP -m connlimit --connlimit-above 20
+#iptables -A INPUT -p tcp -d x.x.x.x --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 20 --rttl -j DROP
+##iptables -A INPUT -p tcp -d x.x.x.x --dport 80 -m state --state NEW,ESTABLISHED -m string --algo bm --string '$MyNick' -j DROP
+#-----------------------------------------------------
 
 git pull
 rm PtokaX

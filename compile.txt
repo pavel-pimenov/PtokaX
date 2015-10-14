@@ -1,6 +1,7 @@
 #[+]FlylinkDC++
 # sudo apt-get install -y liblua5.1-dev zlib1g-dev libtinyxml-dev lua-filesystem lua-iconv lua-sql-sqlite3 lua-svn
-#
+# sudo apt-get install conntrack munin
+# ln -s /usr/share/munin/plugins/fw_conntrack fw_conntrack
 
 To compile PtokaX on Unix operating system is needed to have installed: GNU make, GCC or Clang compiler, Lua, zlib.
 Optionaly for database support is required: PostgreSQL or SQLite or MySQL or MariaDB.
