@@ -167,6 +167,7 @@ public:
     void PrepareQueueItems();
     void ClearQueues();
     void ProcessQueues(User * u);
+    void AddSearchDataToQueue(const User * pUser, uint32_t ui32QueueType, const QueueItem * pCur); // FlylinkDC++
     void ProcessSingleItems(User * u) const;
     void SingleItemStore(char * sData, const size_t &szDataLen, User * pFromUser, const int32_t &i32Profile, const uint8_t &ui8Type);
     void SendFinalQueue();

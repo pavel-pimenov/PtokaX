@@ -909,7 +909,6 @@ imsgLen = sprintf(msg, "$ExtJSON %s Russia$Lipetsk$Beeline|", curUser->sNick);
 						clsGlobalDataQueue::mPtr->AddQueueItem(curUser->pCmdPassiveSearch->sCommand, curUser->pCmdPassiveSearch->ui32Len, NULL, 0, ui8CmdType);
 
                         User::DeletePrcsdUsrCmd(curUser->pCmdPassiveSearch);
-                        curUser->pCmdPassiveSearch = NULL;
                     }
                 }
 

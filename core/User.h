@@ -385,7 +385,7 @@ struct User {
 
     void RemFromSendBuf(const char * sData, const uint32_t &iLen, const uint32_t &iSbLen);
 
-    static void DeletePrcsdUsrCmd(PrcsdUsrCmd * pCommand);
+    static void DeletePrcsdUsrCmd(PrcsdUsrCmd *& pCommand); //[+]FlylinkDC++
 
     DISALLOW_COPY_AND_ASSIGN(User);
 };

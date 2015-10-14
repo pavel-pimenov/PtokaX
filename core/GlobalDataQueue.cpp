@@ -471,7 +471,14 @@ void clsGlobalDataQueue::ClearQueues() {
     pSingleItems = NULL;
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+void clsGlobalDataQueue::AddSearchDataToQueue(const User * pUser, uint32_t ui32QueueType, const QueueItem * pCur) // FlylinkDC++
+{
+	if (pUser->ui64SharedSize)
+	{
+		AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+	}
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void clsGlobalDataQueue::ProcessQueues(User * pUser) {
     uint32_t ui32QueueType = 0; // short myinfos
     uint16_t ui16QueueBits = 0;
@@ -552,12 +559,12 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser) {
                             AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
                         }
                         break;
-		    case CMD_EXTJSON:
-			if (pCur->pCommand1 != NULL) {
+					case CMD_EXTJSON:
+						if (pCur->pCommand1 != NULL) {
 							if (((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON) == User::SUPPORTBIT_EXTJSON) == true)
 							{
-				AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
-			}
+								AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							}
 #ifdef _DEBUG
 							else
 							{
@@ -566,7 +573,7 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser) {
 							}
 #endif
 						}
-			break;
+					break;
                     case CMD_MYINFO:
                         if((ui16QueueBits & BIT_LONG_MYINFO) == BIT_LONG_MYINFO) {
                             if(pCur->pCommand2 != NULL) {
@@ -588,51 +595,51 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser) {
                     case CMD_ACTIVE_SEARCH_V6:
                         if(((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4) == false &&
                             ((ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV4) == BIT_ACTIVE_SEARCHES_IPV4) == false) {
-                            AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
                         }
                         break;
                     case CMD_ACTIVE_SEARCH_V64:
                         if(((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4) == false &&
                             ((ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV4) == BIT_ACTIVE_SEARCHES_IPV4) == false) {
-                            AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
                         } else if(((ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6) == false &&
                             ((ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV6) == BIT_ACTIVE_SEARCHES_IPV6) == false) {
-                            AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand2, pCur->szLen2);
+							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
                         }
                         break;
                     case CMD_ACTIVE_SEARCH_V4:
                         if(((ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6) == false &&
                             ((ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV6) == BIT_ACTIVE_SEARCHES_IPV6) == false) {
-                            AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
                         }
                         break;
                     case CMD_PASSIVE_SEARCH_V6:
                         if((ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6 || (ui16QueueBits & BIT_ALL_SEARCHES_IPV64) == BIT_ALL_SEARCHES_IPV64 ||
                             (ui16QueueBits & BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4) == BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4) {
-                            AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
                         }
                         break;
                     case CMD_PASSIVE_SEARCH_V64:
                         if((ui16QueueBits & BIT_ALL_SEARCHES_IPV64) == BIT_ALL_SEARCHES_IPV64 || (ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6 ||
                             (ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4 || (ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4) == BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4 ||
                             (ui16QueueBits & BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4) == BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4) {
-                            AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
                         }
                         break;
                     case CMD_PASSIVE_SEARCH_V4:
                         if((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4 || (ui16QueueBits & BIT_ALL_SEARCHES_IPV64) == BIT_ALL_SEARCHES_IPV64 ||
                             (ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4) == BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4) {
-                            AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
                         }
                         break;
                     case CMD_PASSIVE_SEARCH_V4_ONLY:
                         if((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4) {
-                            AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
                         }
                         break;
                     case CMD_PASSIVE_SEARCH_V6_ONLY:
                         if((ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6) {
-                            AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
                         }
                         break;
                     case CMD_CHAT:
@@ -666,15 +673,8 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser) {
 
     if(GlobalQueues[ui32QueueType].szLen == 0) {
         if(clsServerManager::ui8SrCntr == 0) {
-            if(pUser->pCmdActive6Search != NULL) {
 				User::DeletePrcsdUsrCmd(pUser->pCmdActive6Search);
-                pUser->pCmdActive6Search = NULL;
-            }
-
-            if(pUser->pCmdActive4Search != NULL) {
 				User::DeletePrcsdUsrCmd(pUser->pCmdActive4Search);
-                pUser->pCmdActive4Search = NULL;
-            }
         }
 
         return;
@@ -687,10 +687,7 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser) {
 			cmdActiveSearch = pUser->pCmdActive6Search;
 			pUser->pCmdActive6Search = NULL;
 
-			if(pUser->pCmdActive4Search != NULL) {
-				User::DeletePrcsdUsrCmd(pUser->pCmdActive4Search);
-				pUser->pCmdActive4Search = NULL;
-			}
+			User::DeletePrcsdUsrCmd(pUser->pCmdActive4Search);
 		} else {
 			cmdActiveSearch = pUser->pCmdActive4Search;
 			pUser->pCmdActive4Search = NULL;

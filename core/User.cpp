@@ -798,20 +798,9 @@ User::~User() {
         
 	delete pLogInOut;
     
-	if(pCmdActive4Search != NULL) {
-        User::DeletePrcsdUsrCmd(pCmdActive4Search);
-		pCmdActive4Search = NULL;
-    }
-
-	if(pCmdActive6Search != NULL) {
-        User::DeletePrcsdUsrCmd(pCmdActive6Search);
-		pCmdActive6Search = NULL;
-    }
-
-	if(pCmdPassiveSearch != NULL) {
-        User::DeletePrcsdUsrCmd(pCmdPassiveSearch);
-		pCmdPassiveSearch = NULL;
-    }
+    User::DeletePrcsdUsrCmd(pCmdActive4Search);
+    User::DeletePrcsdUsrCmd(pCmdActive6Search);
+    User::DeletePrcsdUsrCmd(pCmdPassiveSearch);
                 
 	PrcsdUsrCmd * cur = NULL,
         * next = pCmdStrt;
@@ -1149,11 +1138,11 @@ void User::SendCharDelayedExtJSON()
 {
 	if (((ui32SupportBits & SUPPORTBIT_EXTJSON) == SUPPORTBIT_EXTJSON) == true)
 	{
-	if (!clsUsers::mPtr->m_AllExtJSON.empty())
-	{
-		SendCharDelayed(clsUsers::mPtr->m_AllExtJSON.c_str(), clsUsers::mPtr->m_AllExtJSON.size());
+		if (!clsUsers::mPtr->m_AllExtJSON.empty())
+		{
+			SendCharDelayed(clsUsers::mPtr->m_AllExtJSON.c_str(), clsUsers::mPtr->m_AllExtJSON.size());
+		}
 	}
-}
 }
 #endif // USE_FLYLINKDC_EXT_JSON
 //---------------------------------------------------------------------------
@@ -1162,7 +1151,7 @@ void User::SendCharDelayed(const char * cText, const size_t &szTextLen) {
 	if(ui8State >= STATE_CLOSING || szTextLen == 0) {
         return;
     }
-        
+
     if(((ui32SupportBits & SUPPORTBIT_ZPIPE) == SUPPORTBIT_ZPIPE) == false || szTextLen < ZMINDATALEN) {
         PutInSendBuf(cText, szTextLen);
     } else {
@@ -2018,20 +2007,9 @@ void User::Close(bool bNoQuit/* = false*/) {
 
 	ui8State = STATE_CLOSING;
 	
-    if(pCmdActive4Search != NULL) {
-        User::DeletePrcsdUsrCmd(pCmdActive4Search);
-        pCmdActive4Search = NULL;
-    }
-
-    if(pCmdActive6Search != NULL) {
-        User::DeletePrcsdUsrCmd(pCmdActive6Search);
-        pCmdActive6Search = NULL;
-    }
-
-    if(pCmdPassiveSearch != NULL) {
-        User::DeletePrcsdUsrCmd(pCmdPassiveSearch);
-        pCmdPassiveSearch = NULL;
-    }
+    User::DeletePrcsdUsrCmd(pCmdActive4Search);
+    User::DeletePrcsdUsrCmd(pCmdActive6Search);
+    User::DeletePrcsdUsrCmd(pCmdPassiveSearch);
                         
     PrcsdUsrCmd * cur = NULL,
         * next = pCmdStrt;
@@ -2235,7 +2213,7 @@ void User::AddUserList() {
 #ifdef USE_FLYLINKDC_EXT_JSON
             // TODO ExtJSON - ZPipe
 			// ExtJSON Step reconnect - 1
-			SendCharDelayedExtJSON();
+			 SendCharDelayedExtJSON();
 #endif
     		if(clsProfileManager::mPtr->IsAllowed(this, clsProfileManager::SENDFULLMYINFOS) == false) {
                 if(clsUsers::mPtr->ui32MyInfosLen == 0) {
@@ -2982,15 +2960,19 @@ void User::RemFromSendBuf(const char * sData, const uint32_t &iLen, const uint32
 }
 //------------------------------------------------------------------------------
 
-void User::DeletePrcsdUsrCmd(PrcsdUsrCmd * pCommand) {
+void User::DeletePrcsdUsrCmd(PrcsdUsrCmd *& pCommand) {
+	if (pCommand != NULL)
+	{
 #ifdef _WIN32
-    if(HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pCommand->sCommand) == 0) {
-        AppendDebugLog("%s - [MEM] Cannot deallocate pCommand->sCommand in User::DeletePrcsdUsrCmd\n");
-    }
+		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pCommand->sCommand) == 0) {
+			AppendDebugLog("%s - [MEM] Cannot deallocate pCommand->sCommand in User::DeletePrcsdUsrCmd\n");
+		}
 #else
-    free(pCommand->sCommand);
+		free(pCommand->sCommand);
 #endif
-    delete pCommand;
+		delete pCommand;
+		pCommand = NULL; // [+] FlylinkDC++
+	}
 }
 //------------------------------------------------------------------------------
 
