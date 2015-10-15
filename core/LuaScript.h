@@ -36,7 +36,7 @@ struct ScriptBot
 	ScriptBot();
 	~ScriptBot();
 	
-	static ScriptBot * CreateScriptBot(char * sNick, const size_t &szNickLen, char * sDescription, const size_t &szDscrLen, char * sEmail, const size_t &szEmailLen, const bool bOP);
+	static ScriptBot * CreateScriptBot(char * sNick, const size_t szNickLen, char * sDescription, const size_t szDscrLen, char * sEmail, const size_t szEmailLen, const bool bOP);
 	DISALLOW_COPY_AND_ASSIGN(ScriptBot);
 };
 //------------------------------------------------------------------------------
@@ -64,9 +64,9 @@ struct ScriptTimer
 	~ScriptTimer();
 	
 #if defined(_WIN32) && !defined(_WIN_IOT)
-	static ScriptTimer * CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t &szLen, const int &iRef, lua_State * pLuaState);
+	static ScriptTimer * CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState);
 #else
-	static ScriptTimer * CreateScriptTimer(char * sFunctName, const size_t &szLen, const int &iRef, lua_State * pLuaState);
+	static ScriptTimer * CreateScriptTimer(char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState);
 #endif
 	DISALLOW_COPY_AND_ASSIGN(ScriptTimer);
 	
@@ -119,9 +119,9 @@ void ScriptOnStartup(Script * cur);
 void ScriptOnExit(Script * cur);
 
 void ScriptPushUser(lua_State * L, User * u, const bool bFullTable = false);
-void ScriptPushUserExtended(lua_State * L, User * u, const int &iTable);
+void ScriptPushUserExtended(lua_State * L, User * u, const int iTable);
 
-User * ScriptGetUser(lua_State * L, const int &iTop, const char * sFunction);
+User * ScriptGetUser(lua_State * L, const int iTop, const char * sFunction);
 
 void ScriptError(Script * cur);
 

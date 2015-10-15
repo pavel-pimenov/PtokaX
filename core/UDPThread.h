@@ -48,13 +48,13 @@ class UDPThread
 		UDPThread();
 		~UDPThread();
 		
-		bool Listen(const int &iAddressFamily);
+		bool Listen(const int iAddressFamily);
 		void Resume();
 		void Run();
 		void Close();
 		void WaitFor();
 		
-		static UDPThread * Create(const int &iAddressFamily);
+		static UDPThread * Create(const int iAddressFamily);
 		static void Destroy(UDPThread * pUDPThread);
 };
 //---------------------------------------------------------------------------

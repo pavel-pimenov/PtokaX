@@ -537,7 +537,7 @@ void clsMainWindowPageScripts::AddScriptsToList(const bool bDelete)
 }
 //------------------------------------------------------------------------------
 
-void clsMainWindowPageScripts::ScriptToList(const uint8_t &ui8ScriptId, const bool bInsert, const bool bSelected)
+void clsMainWindowPageScripts::ScriptToList(const uint8_t ui8ScriptId, const bool bInsert, const bool bSelected)
 {
 	bIgnoreItemChanged = true;
 	
@@ -869,7 +869,7 @@ void clsMainWindowPageScripts::MoveScript(uint8_t ui8ScriptId, const bool bUp)
 }
 //------------------------------------------------------------------------------
 
-void clsMainWindowPageScripts::UpdateCheck(const uint8_t &ui8ScriptId)
+void clsMainWindowPageScripts::UpdateCheck(const uint8_t ui8ScriptId)
 {
 	bIgnoreItemChanged = true;
 	

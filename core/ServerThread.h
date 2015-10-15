@@ -72,7 +72,7 @@ class ServerThread
 		
 		bool bActive, bSuspended;
 		
-		ServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber);
+		ServerThread(const int iAddrFamily, const uint16_t ui16PortNumber);
 		~ServerThread();
 		
 		void Resume();
@@ -83,11 +83,11 @@ class ServerThread
 #ifdef _WIN32
 		bool isFlooder(const SOCKET &s, const sockaddr_storage &addr);
 #else
-		bool isFlooder(const int &s, const sockaddr_storage &addr);
+		bool isFlooder(const int s, const sockaddr_storage &addr);
 #endif
 		void RemoveConFlood(AntiConFlood * cur);
 		void ResumeSck();
-		void SuspendSck(const uint32_t &iTime);
+		void SuspendSck(const uint32_t iTime);
 };
 //---------------------------------------------------------------------------
 

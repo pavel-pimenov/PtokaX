@@ -85,7 +85,7 @@ RegUser::~RegUser()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPassword, size_t szRegPassLen, uint8_t * ui8RegPassHash, const uint16_t &ui16RegProfile)
+RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPassword, size_t szRegPassLen, uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile)
 {
 	RegUser * pReg = new(std::nothrow) RegUser();
 	
@@ -257,7 +257,7 @@ clsRegManager::~clsRegManager(void)
 }
 //---------------------------------------------------------------------------
 
-bool clsRegManager::AddNew(char * sNick, char * sPasswd, const uint16_t &iProfile)
+bool clsRegManager::AddNew(char * sNick, char * sPasswd, const uint16_t iProfile)
 {
 	if (Find(sNick, strlen(sNick)) != NULL)
 	{
@@ -387,7 +387,7 @@ void clsRegManager::Add2Table(RegUser * Reg)
 }
 //---------------------------------------------------------------------------
 
-void clsRegManager::ChangeReg(RegUser * pReg, char * sNewPasswd, const uint16_t &ui16NewProfile)
+void clsRegManager::ChangeReg(RegUser * pReg, char * sNewPasswd, const uint16_t ui16NewProfile)
 {
 	if (sNewPasswd != NULL)
 	{
@@ -586,7 +586,7 @@ void clsRegManager::RemFromTable(RegUser * Reg)
 }
 //---------------------------------------------------------------------------
 
-RegUser* clsRegManager::Find(char * sNick, const size_t &szNickLen)
+RegUser* clsRegManager::Find(char * sNick, const size_t szNickLen)
 {
 	uint32_t ui32Hash = HashNick(sNick, szNickLen);
 	

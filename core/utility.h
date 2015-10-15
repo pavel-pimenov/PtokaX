@@ -39,9 +39,9 @@ int BMFind(char *text, int N, char *pat, int M);
 char * Lock2Key(char * cLock);
 
 #ifdef _WIN32
-char * WSErrorStr(const uint32_t &iError);
+char * WSErrorStr(const uint32_t iError);
 #else
-const char * ErrnoStr(const uint32_t &iError);
+const char * ErrnoStr(const uint32_t iError);
 #endif
 
 char * formatBytes(int64_t iBytes);
@@ -54,7 +54,7 @@ char * stristr2(const char *str1, const char *str2);
 
 bool isIP(char * sIP);
 
-uint32_t HashNick(const char * sNick, const size_t &szNickLen);
+uint32_t HashNick(const char * sNick, const size_t szNickLen);
 
 bool HashIP(const char * sIP, uint8_t * ui128IpHash);
 uint16_t GetIpTableIdx(const uint8_t * ui128IpHash);
@@ -62,9 +62,9 @@ uint16_t GetIpTableIdx(const uint8_t * ui128IpHash);
 int GenerateBanMessage(BanItem * pBan, const time_t &tmAccTime);
 int GenerateRangeBanMessage(RangeBanItem * pRangeBan, const time_t &tmAccTime);
 
-bool GenerateTempBanTime(const char &cMultiplyer, const uint32_t &iTime, time_t &acc_time, time_t &ban_time);
+bool GenerateTempBanTime(const char &cMultiplyer, const uint32_t iTime, time_t &acc_time, time_t &ban_time);
 
-bool HaveOnlyNumbers(char *sData, const uint16_t &ui16Len);
+bool HaveOnlyNumbers(char *sData, const uint16_t ui16Len);
 
 inline size_t Allign256(size_t n)
 {
@@ -87,8 +87,8 @@ inline size_t Allign128K(size_t n)
 	return ((n + 1) & 0xFFFE0000) + 0x20000;
 }
 
-bool CheckSprintf(const int &iRetVal, const size_t &szMax, const char * sMsg); // CheckSprintf(imsgLen, 64, "UdpDebug::New");
-bool CheckSprintf1(const int &iRetVal, const size_t &szLenVal, const size_t &szMax, const char * sMsg); // CheckSprintf1(iret, imsgLen, 64, "UdpDebug::New");
+bool CheckSprintf(const int iRetVal, const size_t szMax, const char * sMsg); // CheckSprintf(imsgLen, 64, "UdpDebug::New");
+bool CheckSprintf1(const int iRetVal, const size_t szLenVal, const size_t szMax, const char * sMsg); // CheckSprintf1(iret, imsgLen, 64, "UdpDebug::New");
 
 void AppendLog(const string & sData, const bool bScript = false);
 void AppendDebugLog(const char * sData);
@@ -123,10 +123,10 @@ bool GetMacAddress(const char * sIP, char * sMac);
 
 void CreateGlobalBuffer();
 void DeleteGlobalBuffer();
-bool CheckAndResizeGlobalBuffer(const size_t &szWantedSize);
+bool CheckAndResizeGlobalBuffer(const size_t szWantedSize);
 void ReduceGlobalBuffer();
 
-bool HashPassword(char * sPassword, const size_t &szPassLen, uint8_t * ui8PassHash);
+bool HashPassword(char * sPassword, const size_t szPassLen, uint8_t * ui8PassHash);
 //[+]FlylinkDC++
 inline uint16_t CalcHash(const uint32_t& ui32Hash)
 {

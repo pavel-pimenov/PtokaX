@@ -63,7 +63,7 @@
 #pragma comment(lib, "psapi.lib")
 #endif
 
-bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t &szCmdLen, bool bFromPM/* = false*/)
+bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmdLen, bool bFromPM/* = false*/)
 {
 	size_t dlen;
 	
@@ -4763,7 +4763,7 @@ bool clsHubCommands::NickBan(User * pUser, char * sNick, char * sReason, bool bF
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool clsHubCommands::TempBan(User * pUser, char * sCommand, const size_t &dlen, bool bFromPM, bool bFull)
+bool clsHubCommands::TempBan(User * pUser, char * sCommand, const size_t dlen, bool bFromPM, bool bFull)
 {
 	char *sCmdParts[] = { NULL, NULL, NULL };
 	uint16_t iCmdPartsLen[] = { 0, 0, 0 };
@@ -4895,7 +4895,7 @@ bool clsHubCommands::TempBan(User * pUser, char * sCommand, const size_t &dlen, 
 }
 //---------------------------------------------------------------------------
 
-bool clsHubCommands::TempBanIp(User * pUser, char * sCommand, const size_t &dlen, bool bFromPM, bool bFull)
+bool clsHubCommands::TempBanIp(User * pUser, char * sCommand, const size_t dlen, bool bFromPM, bool bFull)
 {
 	char *sCmdParts[] = { NULL, NULL, NULL };
 	uint16_t iCmdPartsLen[] = { 0, 0, 0 };
@@ -5036,7 +5036,7 @@ bool clsHubCommands::TempBanIp(User * pUser, char * sCommand, const size_t &dlen
 }
 //---------------------------------------------------------------------------
 
-bool clsHubCommands::TempNickBan(User * pUser, char * sNick, char * sTime, const size_t &szTimeLen, char * sReason, bool bFromPM, bool bNotNickBan/* = false*/)
+bool clsHubCommands::TempNickBan(User * pUser, char * sNick, char * sTime, const size_t szTimeLen, char * sReason, bool bFromPM, bool bNotNickBan/* = false*/)
 {
 	RegUser * pReg = clsRegManager::mPtr->Find(sNick, strlen(sNick));
 	
@@ -5089,7 +5089,7 @@ bool clsHubCommands::TempNickBan(User * pUser, char * sNick, char * sTime, const
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool clsHubCommands::RangeBan(User * pUser, char * sCommand, const size_t &dlen, bool bFromPM, bool bFull)
+bool clsHubCommands::RangeBan(User * pUser, char * sCommand, const size_t dlen, bool bFromPM, bool bFull)
 {
 	char *sCmdParts[] = { NULL, NULL, NULL };
 	uint16_t iCmdPartsLen[] = { 0, 0, 0 };
@@ -5186,7 +5186,7 @@ bool clsHubCommands::RangeBan(User * pUser, char * sCommand, const size_t &dlen,
 }
 //---------------------------------------------------------------------------
 
-bool clsHubCommands::RangeTempBan(User * pUser, char * sCommand, const size_t &dlen, bool bFromPM, bool bFull)
+bool clsHubCommands::RangeTempBan(User * pUser, char * sCommand, const size_t dlen, bool bFromPM, bool bFull)
 {
 	char *sCmdParts[] = { NULL, NULL, NULL, NULL };
 	uint16_t iCmdPartsLen[] = { 0, 0, 0, 0 };

@@ -30,13 +30,13 @@
 #include "Resources.h"
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-int ScaleGui(const int &iValue)
+int ScaleGui(const int iValue)
 {
 	return (int)(iValue * clsGuiSettingManager::fScaleFactor);
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-int ScaleGuiDefaultsOnly(const int &iValue)
+int ScaleGuiDefaultsOnly(const int iValue)
 {
 	if (clsGuiSettingManager::mPtr->i32Integers[iValue] == clsGuiSettingManager::mPtr->GetDefaultInteger(iValue))
 	{
@@ -49,7 +49,7 @@ int ScaleGuiDefaultsOnly(const int &iValue)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void RichEditOpenLink(const HWND &hRichEdit, const ENLINK * pEnLink)
+void RichEditOpenLink(const HWND hRichEdit, const ENLINK * pEnLink)
 {
 	TCHAR * sURL = new(std::nothrow) TCHAR[(pEnLink->chrg.cpMax - pEnLink->chrg.cpMin) + 1];
 	
@@ -71,7 +71,7 @@ void RichEditOpenLink(const HWND &hRichEdit, const ENLINK * pEnLink)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void RichEditPopupMenu(const HWND &hRichEdit, const HWND &hParent, const LPARAM &lParam)
+void RichEditPopupMenu(const HWND hRichEdit, const HWND hParent, const LPARAM &lParam)
 {
 	HMENU hMenu = ::CreatePopupMenu();
 	
@@ -118,7 +118,7 @@ void RichEditPopupMenu(const HWND &hRichEdit, const HWND &hParent, const LPARAM 
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool RichEditCheckMenuCommands(const HWND &hRichEdit, const WORD &wID)
+bool RichEditCheckMenuCommands(const HWND hRichEdit, const WORD &wID)
 {
 	switch (wID)
 	{
@@ -140,7 +140,7 @@ bool RichEditCheckMenuCommands(const HWND &hRichEdit, const WORD &wID)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void RichEditAppendText(const HWND &hRichEdit, const char * sText, const bool bWithTime/* = true*/)
+void RichEditAppendText(const HWND hRichEdit, const char * sText, const bool bWithTime/* = true*/)
 {
 	char msg[128];
 	
@@ -180,7 +180,7 @@ void RichEditAppendText(const HWND &hRichEdit, const char * sText, const bool bW
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-int ListViewGetInsertPosition(const HWND &hListView, const void * pItem, const bool bSortAscending, int (*pCompareFunc)(const void * pItem, const void * pOtherItem))
+int ListViewGetInsertPosition(const HWND hListView, const void * pItem, const bool bSortAscending, int (*pCompareFunc)(const void * pItem, const void * pOtherItem))
 {
 	int iHighLim = (int)::SendMessage(hListView, LVM_GETITEMCOUNT, 0, 0) - 1;
 	
@@ -227,7 +227,7 @@ int ListViewGetInsertPosition(const HWND &hListView, const void * pItem, const b
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void * ListViewGetItem(const HWND &hListView, const int &iPos)
+void * ListViewGetItem(const HWND hListView, const int iPos)
 {
 	LVITEM lvItem = { 0 };
 	lvItem.mask = LVIF_PARAM;
@@ -239,7 +239,7 @@ void * ListViewGetItem(const HWND &hListView, const int &iPos)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void ListViewUpdateArrow(const HWND &hListView, const bool bAscending, const int &iSortColumn)
+void ListViewUpdateArrow(const HWND hListView, const bool bAscending, const int iSortColumn)
 {
 	HWND hHeader = (HWND)::SendMessage(hListView, LVM_GETHEADER, 0, 0);
 	const int iItemCount = (int)::SendMessage(hHeader, HDM_GETITEMCOUNT, 0, 0);
@@ -266,7 +266,7 @@ void ListViewUpdateArrow(const HWND &hListView, const bool bAscending, const int
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-int ListViewGetItemPosition(const HWND &hListView, void * pItem)
+int ListViewGetItemPosition(const HWND hListView, void * pItem)
 {
 	LVFINDINFO lvFindInfo = { 0 };
 	lvFindInfo.flags = LVFI_PARAM;
@@ -276,7 +276,7 @@ int ListViewGetItemPosition(const HWND &hListView, void * pItem)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void ListViewGetMenuPos(const HWND &hListView, int &iX, int &iY)
+void ListViewGetMenuPos(const HWND hListView, int &iX, int &iY)
 {
 	// -1, -1 is menu created by key. We need few tricks to show menu on correct position ;o)
 	if (iX == -1 && iY == -1)
@@ -311,7 +311,7 @@ void ListViewGetMenuPos(const HWND &hListView, int &iX, int &iY)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void ListViewSelectFirstItem(const HWND &hListView)
+void ListViewSelectFirstItem(const HWND hListView)
 {
 	if ((int)::SendMessage(hListView, LVM_GETITEMCOUNT, 0, 0) != 0)
 	{

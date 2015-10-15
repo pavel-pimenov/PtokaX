@@ -60,11 +60,11 @@ class clsGuiSettingManager
 		clsGuiSettingManager(void);
 		~clsGuiSettingManager(void);
 		
-		static bool GetDefaultBool(const size_t &szBoolId);
-		static int32_t GetDefaultInteger(const size_t &szIntegerId);
+		static bool GetDefaultBool(const size_t szBoolId);
+		static int32_t GetDefaultInteger(const size_t szIntegerId);
 		
-		void SetBool(const size_t &szBoolId, const bool bValue); //clsGuiSettingManager::mPtr->SetBool()
-		void SetInteger(const size_t &szIntegerId, const int32_t &i32Value); //clsGuiSettingManager::mPtr->SetInteger()
+		void SetBool(const size_t szBoolId, const bool bValue); //clsGuiSettingManager::mPtr->SetBool()
+		void SetInteger(const size_t szIntegerId, const int32_t i32Value); //clsGuiSettingManager::mPtr->SetInteger()
 		
 		void Save() const;
 		

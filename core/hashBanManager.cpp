@@ -992,7 +992,7 @@ RangeBanItem* clsBanManager::FindFullRange(const uint8_t * ui128IpHash, const ti
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindNick(char * sNick, const size_t &szNickLen)
+BanItem* clsBanManager::FindNick(char * sNick, const size_t szNickLen)
 {
 	uint32_t hash = HashNick(sNick, szNickLen);
 	
@@ -1003,7 +1003,7 @@ BanItem* clsBanManager::FindNick(char * sNick, const size_t &szNickLen)
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindNick(const uint32_t &ui32Hash, const time_t &acc_time, char * sNick)
+BanItem* clsBanManager::FindNick(const uint32_t ui32Hash, const time_t &acc_time, char * sNick)
 {
 	const uint16_t ui16dx = CalcHash(ui32Hash);
 	
@@ -1153,7 +1153,7 @@ RangeBanItem* clsBanManager::FindRange(const uint8_t * ui128FromHash, const uint
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindTempNick(char * sNick, const size_t &szNickLen)
+BanItem* clsBanManager::FindTempNick(char * sNick, const size_t szNickLen)
 {
 	uint32_t hash = HashNick(sNick, szNickLen);
 	
@@ -1164,7 +1164,7 @@ BanItem* clsBanManager::FindTempNick(char * sNick, const size_t &szNickLen)
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindTempNick(const uint32_t &ui32Hash,  const time_t &acc_time, char * sNick)
+BanItem* clsBanManager::FindTempNick(const uint32_t ui32Hash,  const time_t &acc_time, char * sNick)
 {
 	const uint16_t ui16dx = CalcHash(ui32Hash);
 	
@@ -1250,7 +1250,7 @@ BanItem* clsBanManager::FindTempIP(const uint8_t * ui128IpHash, const time_t &ac
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindPermNick(char * sNick, const size_t &szNickLen)
+BanItem* clsBanManager::FindPermNick(char * sNick, const size_t szNickLen)
 {
 	uint32_t hash = HashNick(sNick, szNickLen);
 	
@@ -1258,7 +1258,7 @@ BanItem* clsBanManager::FindPermNick(char * sNick, const size_t &szNickLen)
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindPermNick(const uint32_t &ui32Hash, char * sNick)
+BanItem* clsBanManager::FindPermNick(const uint32_t ui32Hash, char * sNick)
 {
 	const uint16_t ui16dx = CalcHash(ui32Hash);
 	
@@ -3064,7 +3064,7 @@ bool clsBanManager::NickBan(User * u, char * sNick, char * sReason, char * sBy)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const uint32_t &minutes, const time_t &expiretime, const bool bFull)
+void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -3355,7 +3355,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
 }
 //---------------------------------------------------------------------------
 
-char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, const uint32_t &minutes, const time_t &expiretime, const bool bFull)
+char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -3511,7 +3511,7 @@ char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, 
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::NickTempBan(User * u, char * sNick, char * sReason, char * sBy, const uint32_t &minutes, const time_t &expiretime)
+bool clsBanManager::NickTempBan(User * u, char * sNick, char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -4066,7 +4066,7 @@ bool clsBanManager::RangeBan(char * sIpFrom, const uint8_t * ui128FromIpHash, ch
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::RangeTempBan(char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const uint32_t &minutes,
+bool clsBanManager::RangeTempBan(char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const uint32_t minutes,
                                  const time_t &expiretime, const bool bFull)
 {
 	RangeBanItem * pRangeBan = new(std::nothrow) RangeBanItem();

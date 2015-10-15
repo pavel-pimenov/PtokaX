@@ -225,19 +225,19 @@ void clsGuiSettingManager::Save() const
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool clsGuiSettingManager::GetDefaultBool(const size_t &szBoolId)
+bool clsGuiSettingManager::GetDefaultBool(const size_t szBoolId)
 {
 	return GuiSetBoolDef[szBoolId];
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-int32_t clsGuiSettingManager::GetDefaultInteger(const size_t &szIntegerId)
+int32_t clsGuiSettingManager::GetDefaultInteger(const size_t szIntegerId)
 {
 	return GuiSetIntegerDef[szIntegerId];;
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGuiSettingManager::SetBool(const size_t &szBoolId, const bool bValue)
+void clsGuiSettingManager::SetBool(const size_t szBoolId, const bool bValue)
 {
 	if (bBools[szBoolId] == bValue)
 	{
@@ -248,7 +248,7 @@ void clsGuiSettingManager::SetBool(const size_t &szBoolId, const bool bValue)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGuiSettingManager::SetInteger(const size_t &szIntegerId, const int32_t &i32Value)
+void clsGuiSettingManager::SetInteger(const size_t szIntegerId, const int32_t i32Value)
 {
 	if (i32Value < 0 || i32Integers[szIntegerId] == i32Value)
 	{

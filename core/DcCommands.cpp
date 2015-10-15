@@ -89,7 +89,7 @@ clsDcCommands::~clsDcCommands()
 //---------------------------------------------------------------------------
 
 // Process DC data form User
-void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck, const uint32_t &ui32Len)
+void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck, const uint32_t ui32Len)
 {
 #ifdef _BUILD_GUI
 	// Full raw data trace for better logging
@@ -996,7 +996,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 //---------------------------------------------------------------------------
 
 // $BotINFO pinger identification|
-void clsDcCommands::BotINFO(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::BotINFO(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if (((pUser->ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == false || ((pUser->ui32BoolBits & User::BIT_HAVE_BOTINFO) == User::BIT_HAVE_BOTINFO) == true)
 	{
@@ -1035,7 +1035,7 @@ void clsDcCommands::BotINFO(User * pUser, char * sData, const uint32_t &ui32Len)
 
 // $ConnectToMe <nickname> <ownip>:<ownlistenport>
 // $MultiConnectToMe <nick> <ownip:port> <hub[:port]>
-void clsDcCommands::ConnectToMe(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck, const bool bMulti)
+void clsDcCommands::ConnectToMe(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck, const bool bMulti)
 {
 	if ((bMulti == false && ui32Len < 23) || (bMulti == true && ui32Len < 28))
 	{
@@ -1184,7 +1184,7 @@ void clsDcCommands::ConnectToMe(User * pUser, char * sData, const uint32_t &ui32
 //---------------------------------------------------------------------------
 
 // $GetINFO <nickname> <ownnickname>
-void clsDcCommands::GetINFO(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::GetINFO(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if (((pUser->ui32SupportBits & User::SUPPORTBIT_NOGETINFO) == User::SUPPORTBIT_NOGETINFO) == true || ((pUser->ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO) == true || ((pUser->ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == true)
 	{
@@ -1212,7 +1212,7 @@ void clsDcCommands::GetINFO(User * pUser, char * sData, const uint32_t &ui32Len)
 //---------------------------------------------------------------------------
 
 // $GetNickList
-bool clsDcCommands::GetNickList(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
+bool clsDcCommands::GetNickList(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 	if (((pUser->ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == true &&
 	        ((pUser->ui32BoolBits & User::BIT_HAVE_GETNICKLIST) == User::BIT_HAVE_GETNICKLIST) == true)
@@ -1404,7 +1404,7 @@ bool clsDcCommands::GetNickList(User * pUser, char * sData, const uint32_t &ui32
 //---------------------------------------------------------------------------
 
 // $Key
-void clsDcCommands::Key(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::Key(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if (((pUser->ui32BoolBits & User::BIT_HAVE_KEY) == User::BIT_HAVE_KEY) == true)
 	{
@@ -1442,7 +1442,7 @@ void clsDcCommands::Key(User * pUser, char * sData, const uint32_t &ui32Len)
 //---------------------------------------------------------------------------
 
 // $Kick <name>
-void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if (clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::KICK) == false)
 	{
@@ -1639,7 +1639,7 @@ void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t &ui32Len)
 //---------------------------------------------------------------------------
 
 // $Search $MultiSearch
-bool clsDcCommands::SearchDeflood(User *pUser, char * sData, const uint32_t &ui32Len, const bool bCheck, const bool bMulti)
+bool clsDcCommands::SearchDeflood(User *pUser, char * sData, const uint32_t ui32Len, const bool bCheck, const bool bMulti)
 {
 	// search flood protection ... modified by PPK ;-)
 	if (bCheck == true && clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::NODEFLOODSEARCH) == false)
@@ -1973,7 +1973,7 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 #ifdef USE_FLYLINKDC_EXT_JSON
 //---------------------------------------------------------------------------
 // $ExtJSON $ALL  $ $$$$|
-bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool /* bCheck */)
+bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool /* bCheck */)
 {
 	if (ui32Len < (22u + pUser->ui8NickLen))
 	{
@@ -2016,7 +2016,7 @@ bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t &u
 //---------------------------------------------------------------------------
 
 // $ExtJSON $ALL  $ $$$$|
-bool clsDcCommands::ExtJSON(User * pUser, char * sData, const uint32_t &ui32Len)
+bool clsDcCommands::ExtJSON(User * pUser, char * sData, const uint32_t ui32Len)
 {
 
 	if (pUser->ComparExtJSON(sData, ui32Len))
@@ -2050,7 +2050,7 @@ bool clsDcCommands::ExtJSON(User * pUser, char * sData, const uint32_t &ui32Len)
 #endif
 //---------------------------------------------------------------------------
 // $MyINFO $ALL  $ $$$$|
-bool clsDcCommands::MyINFODeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
+bool clsDcCommands::MyINFODeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 	if (ui32Len < (22u + pUser->ui8NickLen))
 	{
@@ -2099,7 +2099,7 @@ bool clsDcCommands::MyINFODeflood(User * pUser, char * sData, const uint32_t &ui
 //---------------------------------------------------------------------------
 
 // $MyINFO $ALL  $ $$$$|
-bool clsDcCommands::MyINFO(User * pUser, char * sData, const uint32_t &ui32Len)
+bool clsDcCommands::MyINFO(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	// if no change, just return
 	// else store MyINFO and perform all checks again
@@ -2148,7 +2148,7 @@ bool clsDcCommands::MyINFO(User * pUser, char * sData, const uint32_t &ui32Len)
 //---------------------------------------------------------------------------
 
 // $MyPass
-void clsDcCommands::MyPass(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::MyPass(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	RegUser * pReg = clsRegManager::mPtr->Find(pUser);
 	if (pReg != NULL && (pUser->ui32BoolBits & User::BIT_WAITING_FOR_PASS) == User::BIT_WAITING_FOR_PASS)
@@ -2360,7 +2360,7 @@ void clsDcCommands::MyPass(User * pUser, char * sData, const uint32_t &ui32Len)
 //---------------------------------------------------------------------------
 
 // $OpForceMove $Who:<nickname>$Where:<iptoredirect>$Msg:<a message>
-void clsDcCommands::OpForceMove(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::OpForceMove(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if (clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::REDIRECT) == false)
 	{
@@ -2450,7 +2450,7 @@ void clsDcCommands::OpForceMove(User * pUser, char * sData, const uint32_t &ui32
 //---------------------------------------------------------------------------
 
 // $RevConnectToMe <ownnick> <nickname>
-void clsDcCommands::RevConnectToMe(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
+void clsDcCommands::RevConnectToMe(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 	if (ui32Len < 19)
 	{
@@ -2528,7 +2528,7 @@ void clsDcCommands::RevConnectToMe(User * pUser, char * sData, const uint32_t &u
 //---------------------------------------------------------------------------
 
 // $SR <nickname> - Search Respond for passive users
-void clsDcCommands::SR(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
+void clsDcCommands::SR(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 	if (ui32Len < 6u + pUser->ui8NickLen)
 	{
@@ -2618,7 +2618,7 @@ void clsDcCommands::SR(User * pUser, char * sData, const uint32_t &ui32Len, cons
 //---------------------------------------------------------------------------
 
 // $SR <nickname> - Search Respond for active users from UDP
-void clsDcCommands::SRFromUDP(User * pUser, char * sData, const size_t &szLen)
+void clsDcCommands::SRFromUDP(User * pUser, char * sData, const size_t szLen)
 {
 	if (clsScriptManager::mPtr->Arrival(pUser, sData, szLen, clsScriptManager::UDP_SR_ARRIVAL) == true ||
 	        pUser->ui8State >= User::STATE_CLOSING)
@@ -2629,7 +2629,7 @@ void clsDcCommands::SRFromUDP(User * pUser, char * sData, const size_t &szLen)
 //---------------------------------------------------------------------------
 
 // $Supports item item item... PPK $Supports UserCommand NoGetINFO NoHello UserIP2 QuickList|
-void clsDcCommands::Supports(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::Supports(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if (((pUser->ui32BoolBits & User::BIT_HAVE_SUPPORTS) == User::BIT_HAVE_SUPPORTS) == true)
 	{
@@ -2828,7 +2828,7 @@ void clsDcCommands::Supports(User * pUser, char * sData, const uint32_t &ui32Len
 //---------------------------------------------------------------------------
 
 // $To: nickname From: ownnickname $<ownnickname> <message>
-void clsDcCommands::To(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
+void clsDcCommands::To(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 	char *cTemp = strchr(sData + 5, ' ');
 	
@@ -3063,7 +3063,7 @@ void clsDcCommands::To(User * pUser, char * sData, const uint32_t &ui32Len, cons
 //---------------------------------------------------------------------------
 
 // $ValidateNick
-void clsDcCommands::ValidateNick(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::ValidateNick(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if (((pUser->ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == true)
 	{
@@ -3091,7 +3091,7 @@ void clsDcCommands::ValidateNick(User * pUser, char * sData, const uint32_t &ui3
 //---------------------------------------------------------------------------
 
 // $Version
-void clsDcCommands::Version(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::Version(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if (ui32Len < 11)
 	{
@@ -3116,7 +3116,7 @@ void clsDcCommands::Version(User * pUser, char * sData, const uint32_t &ui32Len)
 //---------------------------------------------------------------------------
 
 // Chat message
-bool clsDcCommands::ChatDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
+bool clsDcCommands::ChatDeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 #ifdef _BUILD_GUI
 	if (::SendMessage(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::BTN_SHOW_CHAT], BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -3189,7 +3189,7 @@ bool clsDcCommands::ChatDeflood(User * pUser, char * sData, const uint32_t &ui32
 //---------------------------------------------------------------------------
 
 // Chat message
-void clsDcCommands::Chat(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
+void clsDcCommands::Chat(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 	if (bCheck == true && clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::NOCHATLIMITS) == false)
 	{
@@ -3369,7 +3369,7 @@ void clsDcCommands::Chat(User * pUser, char * sData, const uint32_t &ui32Len, co
 //---------------------------------------------------------------------------
 
 // $Close nick|
-void clsDcCommands::Close(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::Close(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if (clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::CLOSE) == false)
 	{
@@ -3426,7 +3426,7 @@ void clsDcCommands::Close(User * pUser, char * sData, const uint32_t &ui32Len)
 }
 //---------------------------------------------------------------------------
 
-void clsDcCommands::Unknown(User * pUser, char * sData, const uint32_t &ui32Len, const bool bMyNick/* = false*/)
+void clsDcCommands::Unknown(User * pUser, char * sData, const uint32_t ui32Len, const bool bMyNick/* = false*/)
 {
 	iStatCmdUnknown++;
 	
@@ -3452,7 +3452,7 @@ void clsDcCommands::Unknown(User * pUser, char * sData, const uint32_t &ui32Len,
 }
 //---------------------------------------------------------------------------
 
-bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &szNickLen, const bool ValidateNick)
+bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t szNickLen, const bool ValidateNick)
 {
 	// illegal characters in nick?
 	for (uint32_t ui32i = 0; ui32i < szNickLen; ui32i++)
@@ -3703,7 +3703,7 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
 }
 // [+] FlylinkDC++
 //---------------------------------------------------------------------------
-bool clsDcCommands::ValidateUserNickFinally(bool pIsNotReg, User * pUser, const size_t &szNickLen, const bool ValidateNick)
+bool clsDcCommands::ValidateUserNickFinally(bool pIsNotReg, User * pUser, const size_t szNickLen, const bool ValidateNick)
 {
 	if (pIsNotReg)
 	{
@@ -4274,7 +4274,7 @@ void clsDcCommands::SendIPFixedMsg(User * pUser, char * sBadIP, char * sRealIP)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t &ui32Len)
+void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t ui32Len)
 {
 	if ((pUser->ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
 	{
@@ -4314,7 +4314,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t &ui32Len)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t &szLen, const bool bActive) const
+PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t szLen, const bool bActive) const
 {
 	if (cmdSearch != NULL)
 	{

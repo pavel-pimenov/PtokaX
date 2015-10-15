@@ -112,7 +112,7 @@ class clsGlobalDataQueue
 		
 		DISALLOW_COPY_AND_ASSIGN(clsGlobalDataQueue);
 		
-		static void AddDataToQueue(GlobalQueue &pQueue, char * sData, const size_t &szLen);
+		static void AddDataToQueue(GlobalQueue &pQueue, char * sData, const size_t szLen);
 	public:
 		static clsGlobalDataQueue * mPtr;
 		
@@ -170,7 +170,7 @@ class clsGlobalDataQueue
 		clsGlobalDataQueue();
 		~clsGlobalDataQueue();
 		
-		void AddQueueItem(const char * sCommand1, const size_t &szLen1, const char * sCommand2, const size_t &szLen2, const uint8_t &ui8CmdType);
+		void AddQueueItem(const char * sCommand1, const size_t szLen1, const char * sCommand2, const size_t szLen2, const uint8_t ui8CmdType);
 		void OpListStore(char * sNick);
 		void UserIPStore(User * pUser);
 		void PrepareQueueItems();
@@ -178,12 +178,12 @@ class clsGlobalDataQueue
 		void ProcessQueues(User * u);
 		void AddSearchDataToQueue(const User * pUser, uint32_t ui32QueueType, const QueueItem * pCur); // FlylinkDC++
 		void ProcessSingleItems(User * u) const;
-		void SingleItemStore(char * sData, const size_t &szDataLen, User * pFromUser, const int32_t &i32Profile, const uint8_t &ui8Type);
+		void SingleItemStore(char * sData, const size_t szDataLen, User * pFromUser, const int32_t i32Profile, const uint8_t ui8Type);
 		void SendFinalQueue();
 		void * GetLastQueueItem();
 		void * GetFirstQueueItem();
-		void * InsertBlankQueueItem(void * pAfterItem, const uint8_t &ui8CmdType);
-		void FillBlankQueueItem(char * sCommand, const size_t &szLen, void * pQueueItem);
+		void * InsertBlankQueueItem(void * pAfterItem, const uint8_t ui8CmdType);
+		void FillBlankQueueItem(char * sCommand, const size_t szLen, void * pQueueItem);
 		void StatusMessageFormat(const char * sFrom, const char * sFormatMsg, ...);
 };
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

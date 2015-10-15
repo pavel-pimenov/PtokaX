@@ -155,7 +155,7 @@ void SettingPage::RemovePipes(HWND hWnd)
 }
 //---------------------------------------------------------------------------
 
-void SettingPage::MinMaxCheck(HWND hWnd, const int &iMin, const int &iMax)
+void SettingPage::MinMaxCheck(HWND hWnd, const int iMin, const int iMax)
 {
 	char buf[6];
 	::GetWindowText(hWnd, buf, 6);
@@ -181,7 +181,7 @@ void SettingPage::MinMaxCheck(HWND hWnd, const int &iMin, const int &iMax)
 }
 //---------------------------------------------------------------------------
 
-void SettingPage::AddUpDown(HWND &hWnd, const int &iX, const int &iY, const int &iWidth, const int &iHeight, const LPARAM &lpRange, const WPARAM &wpBuddy,
+void SettingPage::AddUpDown(HWND &hWnd, const int iX, const int iY, const int iWidth, const int iHeight, const LPARAM &lpRange, const WPARAM &wpBuddy,
                             const LPARAM &lpPos)
 {
 	hWnd = ::CreateWindowEx(0, UPDOWN_CLASS, "", WS_CHILD | WS_VISIBLE | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_SETBUDDYINT, iX, iY, iWidth, iHeight, m_hWnd, NULL, clsServerManager::hInstance, NULL);
@@ -191,7 +191,7 @@ void SettingPage::AddUpDown(HWND &hWnd, const int &iX, const int &iY, const int 
 }
 //---------------------------------------------------------------------------
 
-void SettingPage::AddToolTip(const HWND &hWnd, char * sTipText) const
+void SettingPage::AddToolTip(const HWND hWnd, char * sTipText) const
 {
 	HWND hWndTooltip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, "", TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 	                                  hWnd, NULL, clsServerManager::hInstance, NULL);

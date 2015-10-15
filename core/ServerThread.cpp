@@ -41,7 +41,7 @@ ServerThread::AntiConFlood::AntiConFlood(const uint8_t * pIpHash) : ui64Time(cls
 };
 //---------------------------------------------------------------------------
 
-ServerThread::ServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber) : pAntiFloodList(NULL), threadId(0),
+ServerThread::ServerThread(const int iAddrFamily, const uint16_t ui16PortNumber) : pAntiFloodList(NULL), threadId(0),
 #ifdef _WIN32
 	server(INVALID_SOCKET),
 #else
@@ -449,7 +449,7 @@ bool ServerThread::Listen(bool bSilent/* = false*/)
 bool ServerThread::isFlooder(const SOCKET &s, const sockaddr_storage &addr)
 {
 #else
-bool ServerThread::isFlooder(const int &s, const sockaddr_storage &addr)
+bool ServerThread::isFlooder(const int s, const sockaddr_storage &addr)
 {
 #endif
 	uint8_t ui128IpHash[16];
@@ -564,7 +564,7 @@ void ServerThread::ResumeSck()
 }
 //---------------------------------------------------------------------------
 
-void ServerThread::SuspendSck(const uint32_t &iTime)
+void ServerThread::SuspendSck(const uint32_t iTime)
 {
 	if (bActive == true)
 	{

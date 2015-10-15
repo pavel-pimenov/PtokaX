@@ -31,9 +31,9 @@
 #include "DeFlood.h"
 //---------------------------------------------------------------------------
 
-bool DeFloodCheckForFlood(User * u, const uint8_t &ui8DefloodType, const int16_t &ui16Action,
+bool DeFloodCheckForFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action,
                           uint16_t &ui16Count, uint64_t &ui64LastOkTick,
-                          const int16_t &ui16DefloodCount, const uint32_t &ui32DefloodTime, char * sOtherNick/* = NULL*/)
+                          const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, char * sOtherNick/* = NULL*/)
 {
 	if (ui16Count == 0)
 	{
@@ -86,11 +86,11 @@ bool DeFloodCheckForFlood(User * u, const uint8_t &ui8DefloodType, const int16_t
 }
 //---------------------------------------------------------------------------
 
-bool DeFloodCheckForSameFlood(User * u, const uint8_t &ui8DefloodType, const int16_t &ui16Action,
+bool DeFloodCheckForSameFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action,
                               uint16_t &ui16Count, const uint64_t &ui64LastOkTick,
-                              const int16_t &ui16DefloodCount, const uint32_t &ui32DefloodTime,
-                              char * sNewData, const size_t &ui32NewDataLen,
-                              char * sOldData, const uint16_t &ui16OldDataLen, bool &bNewData, char * sOtherNick/* = NULL*/)
+                              const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime,
+                              char * sNewData, const size_t ui32NewDataLen,
+                              char * sOldData, const uint16_t ui16OldDataLen, bool &bNewData, char * sOtherNick/* = NULL*/)
 {
 	if ((uint32_t)ui16OldDataLen == ui32NewDataLen && (clsServerManager::ui64ActualTick >= ui64LastOkTick &&
 	                                                   (ui64LastOkTick + ui32DefloodTime) > clsServerManager::ui64ActualTick) &&
@@ -137,9 +137,9 @@ bool DeFloodCheckForSameFlood(User * u, const uint8_t &ui8DefloodType, const int
 }
 //---------------------------------------------------------------------------
 
-bool DeFloodCheckForDataFlood(User * u, const uint8_t &ui8DefloodType, const int16_t &ui16Action,
+bool DeFloodCheckForDataFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action,
                               uint32_t &ui32Count, uint64_t &ui64LastOkTick,
-                              const int16_t &ui16DefloodCount, const uint32_t &ui32DefloodTime)
+                              const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime)
 {
 	if ((uint16_t)(ui32Count / 1024) >= ui16DefloodCount)
 	{
@@ -174,7 +174,7 @@ bool DeFloodCheckForDataFlood(User * u, const uint8_t &ui8DefloodType, const int
 }
 //---------------------------------------------------------------------------
 
-void DeFloodDoAction(User * pUser, const uint8_t &ui8DefloodType, const int16_t &ui16Action, uint16_t &ui16Count, char * sOtherNick)
+void DeFloodDoAction(User * pUser, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, char * sOtherNick)
 {
 	switch (ui16Action)
 	{
@@ -244,7 +244,7 @@ void DeFloodDoAction(User * pUser, const uint8_t &ui8DefloodType, const int16_t 
 }
 //---------------------------------------------------------------------------
 
-bool DeFloodCheckForWarn(User * pUser, const uint8_t &ui8DefloodType, char * sOtherNick)
+bool DeFloodCheckForWarn(User * pUser, const uint8_t ui8DefloodType, char * sOtherNick)
 {
 	if (pUser->iDefloodWarnings < (uint32_t)clsSettingManager::mPtr->i16Shorts[SETSHORT_DEFLOOD_WARNING_COUNT])
 	{
@@ -468,7 +468,7 @@ void DeFloodReport(User * u, const uint8_t ui8DefloodType, char *sAction)
 }
 //---------------------------------------------------------------------------
 
-bool DeFloodCheckInterval(User * pUser, const uint8_t &ui8DefloodType, uint16_t &ui16Count, uint64_t &ui64LastOkTick, const int16_t &ui16DefloodCount, const uint32_t &ui32DefloodTime, char * sOtherNick/* = NULL*/)
+bool DeFloodCheckInterval(User * pUser, const uint8_t ui8DefloodType, uint16_t &ui16Count, uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, char * sOtherNick/* = NULL*/)
 {
 	if (ui16Count == 0)
 	{

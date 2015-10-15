@@ -28,19 +28,19 @@ class string
 		
 		size_t szDataLen;
 		
-		void stralloc(const char * sTxt, const size_t &szLen);
+		void stralloc(const char * sTxt, const size_t szLen);
 		string(const string & sStr1, const string & sStr2);
 		string(const char * sTxt, const string & sStr);
 		string(const string & sStr, const char * sTxt);
 	public:
 		string();
 		string(const char * sTxt);
-		string(const char * sTxt, const size_t &szLen);
+		string(const char * sTxt, const size_t szLen);
 		string(const string & sStr);
-		string(const uint32_t & ui32Number);
-		string(const int32_t & i32Number);
-		string(const uint64_t & ui64Number);
-		string(const int64_t & i64Number);
+		string(const uint32_t ui32Number);
+		string(const int32_t i32Number);
+		string(const uint64_t ui64Number);
+		string(const int64_t i64Number);
 		
 		~string();
 		

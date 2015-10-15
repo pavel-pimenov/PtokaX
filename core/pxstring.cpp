@@ -30,7 +30,7 @@
 static const char * sEmpty = "";
 //---------------------------------------------------------------------------
 
-void string::stralloc(const char * sTxt, const size_t &szLen)
+void string::stralloc(const char * sTxt, const size_t szLen)
 {
 	szDataLen = szLen;
 	
@@ -65,7 +65,7 @@ string::string(const char * sTxt) : sData((char *)sEmpty), szDataLen(0)
 }
 //---------------------------------------------------------------------------
 
-string::string(const char * sTxt, const size_t &szLen) : sData((char *)sEmpty), szDataLen(0)
+string::string(const char * sTxt, const size_t szLen) : sData((char *)sEmpty), szDataLen(0)
 {
 	stralloc(sTxt, szLen);
 }
@@ -77,7 +77,7 @@ string::string(const string & sStr) : sData((char *)sEmpty), szDataLen(0)
 }
 //---------------------------------------------------------------------------
 
-string::string(const uint32_t & ui32Number) : sData((char *)sEmpty), szDataLen(0)
+string::string(const uint32_t ui32Number) : sData((char *)sEmpty), szDataLen(0)
 {
 	char tmp[16];
 #ifdef _WIN32
@@ -90,7 +90,7 @@ string::string(const uint32_t & ui32Number) : sData((char *)sEmpty), szDataLen(0
 }
 //---------------------------------------------------------------------------
 
-string::string(const int32_t & i32Number) : sData((char *)sEmpty), szDataLen(0)
+string::string(const int32_t i32Number) : sData((char *)sEmpty), szDataLen(0)
 {
 	char tmp[16];
 #ifdef _WIN32
@@ -103,7 +103,7 @@ string::string(const int32_t & i32Number) : sData((char *)sEmpty), szDataLen(0)
 }
 //---------------------------------------------------------------------------
 
-string::string(const uint64_t & ui64Number) : sData((char *)sEmpty), szDataLen(0)
+string::string(const uint64_t ui64Number) : sData((char *)sEmpty), szDataLen(0)
 {
 	char tmp[32];
 #ifdef _WIN32
@@ -116,7 +116,7 @@ string::string(const uint64_t & ui64Number) : sData((char *)sEmpty), szDataLen(0
 }
 //---------------------------------------------------------------------------
 
-string::string(const int64_t & i64Number) : sData((char *)sEmpty), szDataLen(0)
+string::string(const int64_t i64Number) : sData((char *)sEmpty), szDataLen(0)
 {
 	char tmp[32];
 #ifdef _WIN32

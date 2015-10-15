@@ -30,11 +30,11 @@ class clsHubCommands
 		static bool Ban(User * pUser, char * sCommand, bool bFromPM, bool bFull);
 		static bool BanIp(User * pUser, char * sCommand, bool bFromPM, bool bFull);
 		static bool NickBan(User * pUser, char * sNick, char * sReason, bool bFromPM);
-		static bool TempBan(User * pUser, char * sCommand, const size_t &dlen, bool bFromPM, bool bFull);
-		static bool TempBanIp(User * pUser, char * sCommand, const size_t &dlen, bool bFromPM, bool bFull);
-		static bool TempNickBan(User * pUser, char * sNick, char * sTime, const size_t &szTimeLen, char * sReason, bool bFromPM, bool bNotNickBan = false);
-		static bool RangeBan(User * pUser, char * sCommand, const size_t &dlen, bool bFromPM, bool bFull);
-		static bool RangeTempBan(User * pUser, char * sCommand, const size_t &dlen, bool bFromPM, bool bFull);
+		static bool TempBan(User * pUser, char * sCommand, const size_t dlen, bool bFromPM, bool bFull);
+		static bool TempBanIp(User * pUser, char * sCommand, const size_t dlen, bool bFromPM, bool bFull);
+		static bool TempNickBan(User * pUser, char * sNick, char * sTime, const size_t szTimeLen, char * sReason, bool bFromPM, bool bNotNickBan = false);
+		static bool RangeBan(User * pUser, char * sCommand, const size_t dlen, bool bFromPM, bool bFull);
+		static bool RangeTempBan(User * pUser, char * sCommand, const size_t dlen, bool bFromPM, bool bFull);
 		static bool RangeUnban(User * pUser, char * sCommand, bool bFromPM);
 		static bool RangeUnban(User * pUser, char * sCommand, bool bFromPM, unsigned char cType);
 		
@@ -42,7 +42,7 @@ class clsHubCommands
 		static int CheckFromPm(User * pUser, const bool bFromPM);
 		static void UncountDeflood(User * pUser, const bool bFromPM);
 	public:
-		static bool DoCommand(User * pUser, char * sCommand, const size_t &szCmdLen, bool bFromPM = false);
+		static bool DoCommand(User * pUser, char * sCommand, const size_t szCmdLen, bool bFromPM = false);
 };
 //---------------------------------------------------------------------------
 

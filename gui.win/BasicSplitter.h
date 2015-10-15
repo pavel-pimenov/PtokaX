@@ -48,7 +48,7 @@ class BasicSplitter
 		static void OnLButtonUp();
 		
 		void SetSplitterPosition(int iPos, const bool bUpdate = true);
-		bool IsCursorOverSplitter(const int &iX, const int &iY) const;
+		bool IsCursorOverSplitter(const int iX, const int iY) const;
 };
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

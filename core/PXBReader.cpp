@@ -92,7 +92,7 @@ PXBReader::~PXBReader()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool PXBReader::OpenFileRead(const char * sFilename, const uint8_t &ui8SubItems)
+bool PXBReader::OpenFileRead(const char * sFilename, const uint8_t ui8SubItems)
 {
 	if (PrepareArrays(ui8SubItems) == false)
 	{
@@ -152,7 +152,7 @@ void PXBReader::ReadNextFilePart()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool PXBReader::ReadNextItem(const uint16_t * sExpectedIdentificators, const uint8_t &ui8ExpectedSubItems, const uint8_t &ui8ExtraSubItems/* = 0*/)
+bool PXBReader::ReadNextItem(const uint16_t * sExpectedIdentificators, const uint8_t ui8ExpectedSubItems, const uint8_t ui8ExtraSubItems/* = 0*/)
 {
 	if (szRemainingSize == 0)
 	{
@@ -252,7 +252,7 @@ bool PXBReader::ReadNextItem(const uint16_t * sExpectedIdentificators, const uin
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool PXBReader::OpenFileSave(const char * sFilename, const uint8_t &ui8Size)
+bool PXBReader::OpenFileSave(const char * sFilename, const uint8_t ui8Size)
 {
 	if (PrepareArrays(ui8Size) == false)
 	{
@@ -274,7 +274,7 @@ bool PXBReader::OpenFileSave(const char * sFilename, const uint8_t &ui8Size)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool PXBReader::WriteNextItem(const uint32_t &ui32Length, const uint8_t &ui8SubItems)
+bool PXBReader::WriteNextItem(const uint32_t ui32Length, const uint8_t ui8SubItems)
 {
 	uint32_t ui32ItemLength = ui32Length + 4 + (4 * ui8SubItems);
 	
@@ -337,7 +337,7 @@ void PXBReader::WriteRemaining()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool PXBReader::PrepareArrays(const uint8_t &ui8Size)
+bool PXBReader::PrepareArrays(const uint8_t ui8Size)
 {
 #ifdef _WIN32
 	pItemDatas = (void **)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, ui8Size * sizeof(void *));

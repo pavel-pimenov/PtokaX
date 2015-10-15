@@ -64,7 +64,7 @@ class clsRegisterThread
 		
 		DISALLOW_COPY_AND_ASSIGN(clsRegisterThread);
 		
-		void AddSock(char * sAddress, const size_t &szLen);
+		void AddSock(char * sAddress, const size_t szLen);
 		bool Receive(RegSocket * pSock);
 		static void Add2SendBuf(RegSocket * pSock, char * sData);
 		bool Send(RegSocket * pSock);
@@ -77,7 +77,7 @@ class clsRegisterThread
 		clsRegisterThread();
 		~clsRegisterThread();
 		
-		void Setup(char * sAddresses, const uint16_t &ui16AddrsLen);
+		void Setup(char * sAddresses, const uint16_t ui16AddrsLen);
 		void Resume();
 		void Run();
 		void Close();

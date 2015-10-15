@@ -202,7 +202,7 @@ char * Lock2Key(char * sLock)
 //---------------------------------------------------------------------------
 
 #ifdef _WIN32
-char * WSErrorStr(const uint32_t &iError)
+char * WSErrorStr(const uint32_t iError)
 {
 	static char errStrings[][64] =
 	{
@@ -279,7 +279,7 @@ char * WSErrorStr(const uint32_t &iError)
 	}
 }
 #else
-const char * ErrnoStr(const uint32_t &iError)
+const char * ErrnoStr(const uint32_t iError)
 {
 	static const char *errStrings[] =
 	{
@@ -635,7 +635,7 @@ bool isIP(char * sIP)
 }
 //---------------------------------------------------------------------------
 
-uint32_t HashNick(const char * sNick, const size_t &szNickLen)
+uint32_t HashNick(const char * sNick, const size_t szNickLen)
 {
 	uint32_t h = 5381;
 	
@@ -919,7 +919,7 @@ int GenerateRangeBanMessage(RangeBanItem * pRangeBan, const time_t &tmAccTime)
 }
 //---------------------------------------------------------------------------
 
-bool GenerateTempBanTime(const char &cMultiplyer, const uint32_t &iTime, time_t &acc_time, time_t &ban_time)
+bool GenerateTempBanTime(const char &cMultiplyer, const uint32_t iTime, time_t &acc_time, time_t &ban_time)
 {
 	time(&acc_time);
 	struct tm *tm = localtime(&acc_time);
@@ -961,7 +961,7 @@ bool GenerateTempBanTime(const char &cMultiplyer, const uint32_t &iTime, time_t 
 }
 //---------------------------------------------------------------------------
 
-bool HaveOnlyNumbers(char *sData, const uint16_t &ui16Len)
+bool HaveOnlyNumbers(char *sData, const uint16_t ui16Len)
 {
 	for (uint16_t ui16i = 0; ui16i < ui16Len; ui16i++)
 	{
@@ -972,7 +972,7 @@ bool HaveOnlyNumbers(char *sData, const uint16_t &ui16Len)
 }
 //---------------------------------------------------------------------------
 
-bool CheckSprintf(const int &iRetVal, const size_t &szMax, const char * sMsg)
+bool CheckSprintf(const int iRetVal, const size_t szMax, const char * sMsg)
 {
 	if (iRetVal > 0)
 	{
@@ -991,7 +991,7 @@ bool CheckSprintf(const int &iRetVal, const size_t &szMax, const char * sMsg)
 }
 //---------------------------------------------------------------------------
 
-bool CheckSprintf1(const int &iRetVal, const size_t &szLenVal, const size_t &szMax, const char * sMsg)
+bool CheckSprintf1(const int iRetVal, const size_t szLenVal, const size_t szMax, const char * sMsg)
 {
 	if (iRetVal > 0)
 	{
@@ -1577,7 +1577,7 @@ void DeleteGlobalBuffer()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool CheckAndResizeGlobalBuffer(const size_t &szWantedSize)
+bool CheckAndResizeGlobalBuffer(const size_t szWantedSize)
 {
 	if (clsServerManager::szGlobalBufferSize >= szWantedSize)
 	{
@@ -1637,7 +1637,7 @@ void ReduceGlobalBuffer()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool HashPassword(char * sPassword, const size_t &szPassLen, uint8_t * ui8PassHash)
+bool HashPassword(char * sPassword, const size_t szPassLen, uint8_t * ui8PassHash)
 {
 #ifndef _WITHOUT_SKEIN
 	Skein1024_Ctxt_t ctx1024;

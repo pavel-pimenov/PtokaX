@@ -172,7 +172,7 @@ void AboutDialog::DoModal(HWND hWndParent)
 	int iY = (rcParent.top + ((rcParent.bottom - rcParent.top) / 2)) - (ScaleGui(454) / 2);
 	
 	hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomAboutDialog),
-	                                                  (string(clsLanguageManager::mPtr->sTexts[LAN_ABOUT], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ABOUT]) + " PtokaX").c_str(),
+	                                                  (string(clsLanguageManager::mPtr->sTexts[LAN_ABOUT], clsLanguageManager::mPtr->ui16TextsLens[LAN_ABOUT]) + " PtokaX").c_str(),
 	                                                  WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGui(443), ScaleGui(454),
 	                                                  hWndParent, NULL, clsServerManager::hInstance, NULL);
 	                                                  

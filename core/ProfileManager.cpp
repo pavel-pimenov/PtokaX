@@ -433,7 +433,7 @@ void clsProfileManager::SaveProfiles()
 }
 //---------------------------------------------------------------------------
 
-bool clsProfileManager::IsAllowed(User * u, const uint32_t &iOption) const
+bool clsProfileManager::IsAllowed(User * u, const uint32_t iOption) const
 {
 	// profile number -1 = normal user/no profile assigned
 	if (u->i32Profile == -1)
@@ -444,7 +444,7 @@ bool clsProfileManager::IsAllowed(User * u, const uint32_t &iOption) const
 }
 //---------------------------------------------------------------------------
 
-bool clsProfileManager::IsProfileAllowed(const int32_t &iProfile, const uint32_t &iOption) const
+bool clsProfileManager::IsProfileAllowed(const int32_t iProfile, const uint32_t iOption) const
 {
 	// profile number -1 = normal user/no profile assigned
 	if (iProfile == -1)
@@ -540,7 +540,7 @@ int32_t clsProfileManager::RemoveProfileByName(char * name)
 
 //---------------------------------------------------------------------------
 
-bool clsProfileManager::RemoveProfile(const uint16_t &iProfile)
+bool clsProfileManager::RemoveProfile(const uint16_t iProfile)
 {
 	RegUser * curReg = NULL,
 	          * next = clsRegManager::mPtr->pRegListS;
@@ -693,7 +693,7 @@ ProfileItem * clsProfileManager::CreateProfile(const char * name)
 }
 //---------------------------------------------------------------------------
 
-void clsProfileManager::MoveProfileDown(const uint16_t &iProfile)
+void clsProfileManager::MoveProfileDown(const uint16_t iProfile)
 {
 	ProfileItem *first = ppProfilesTable[iProfile];
 	ProfileItem *second = ppProfilesTable[iProfile + 1];
@@ -761,7 +761,7 @@ void clsProfileManager::MoveProfileDown(const uint16_t &iProfile)
 }
 //---------------------------------------------------------------------------
 
-void clsProfileManager::MoveProfileUp(const uint16_t &iProfile)
+void clsProfileManager::MoveProfileUp(const uint16_t iProfile)
 {
 	ProfileItem *first = ppProfilesTable[iProfile];
 	ProfileItem *second = ppProfilesTable[iProfile - 1];
@@ -829,7 +829,7 @@ void clsProfileManager::MoveProfileUp(const uint16_t &iProfile)
 }
 //---------------------------------------------------------------------------
 
-void clsProfileManager::ChangeProfileName(const uint16_t &iProfile, char * sName, const size_t &szLen)
+void clsProfileManager::ChangeProfileName(const uint16_t iProfile, char * sName, const size_t szLen)
 {
 	char * sOldName = ppProfilesTable[iProfile]->sName;
 	
@@ -863,7 +863,7 @@ void clsProfileManager::ChangeProfileName(const uint16_t &iProfile, char * sName
 }
 //---------------------------------------------------------------------------
 
-void clsProfileManager::ChangeProfilePermission(const uint16_t &iProfile, const size_t &szId, const bool bValue)
+void clsProfileManager::ChangeProfilePermission(const uint16_t iProfile, const size_t szId, const bool bValue)
 {
 	ppProfilesTable[iProfile]->bPermissions[szId] = bValue;
 }

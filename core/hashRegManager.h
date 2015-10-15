@@ -49,7 +49,7 @@ struct RegUser
 	RegUser();
 	~RegUser();
 	
-	static RegUser * CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPassword, size_t szRegPassLen, uint8_t * ui8RegPassHash, const uint16_t &ui16RegProfile);
+	static RegUser * CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPassword, size_t szRegPassLen, uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile);
 	bool UpdatePassword(char * sNewPass, size_t &szNewLen);
 	DISALLOW_COPY_AND_ASSIGN(RegUser);
 };
@@ -73,16 +73,16 @@ class clsRegManager
 		clsRegManager(void);
 		~clsRegManager(void);
 		
-		bool AddNew(char * sNick, char * sPasswd, const uint16_t &iProfile);
+		bool AddNew(char * sNick, char * sPasswd, const uint16_t iProfile);
 		
 		void Add(RegUser * Reg);
 		void Add2Table(RegUser * Reg);
-		static void ChangeReg(RegUser * pReg, char * sNewPasswd, const uint16_t &ui16NewProfile);
+		static void ChangeReg(RegUser * pReg, char * sNewPasswd, const uint16_t ui16NewProfile);
 		void Delete(RegUser * pReg, const bool bFromGui = false);
 		void Rem(RegUser * Reg);
 		void RemFromTable(RegUser * Reg);
 		
-		RegUser * Find(char * sNick, const size_t &szNickLen);
+		RegUser * Find(char * sNick, const size_t szNickLen);
 		RegUser * Find(User * u);
 		RegUser * Find(uint32_t hash, char * sNick);
 		

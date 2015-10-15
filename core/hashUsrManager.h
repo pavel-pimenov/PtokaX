@@ -54,7 +54,7 @@ class clsHashManager
 		bool Add(User * pUser);
 		void Remove(User * pUser);
 		
-		User * FindUser(char * sNick, const size_t &szNickLen);
+		User * FindUser(char * sNick, const size_t szNickLen);
 		User * FindUser(User * pUser);
 		User * FindUser(const uint8_t * ui128IpHash);
 		

@@ -84,7 +84,7 @@ class clsServiceLoop
 #ifdef _WIN32
 		void AcceptSocket(const SOCKET &s, const sockaddr_storage &addr);
 #else
-		void AcceptSocket(const int &s, const sockaddr_storage &addr);
+		void AcceptSocket(const int s, const sockaddr_storage &addr);
 #endif
 		void ReceiveLoop();
 		void SendLoop();

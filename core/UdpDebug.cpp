@@ -102,7 +102,7 @@ clsUdpDebug::~clsUdpDebug()
 }
 //---------------------------------------------------------------------------
 
-void clsUdpDebug::Broadcast(const char * msg, const size_t &szMsgLen) const
+void clsUdpDebug::Broadcast(const char * msg, const size_t szMsgLen) const
 {
 	if (pDbgItemList == NULL)
 	{
@@ -194,7 +194,7 @@ void clsUdpDebug::CreateBuffer()
 }
 //---------------------------------------------------------------------------
 
-bool clsUdpDebug::New(User * pUser, const uint16_t &ui16Port)
+bool clsUdpDebug::New(User * pUser, const uint16_t ui16Port)
 {
 	UdpDbgItem * pNewDbg = new(std::nothrow) UdpDbgItem();
 	if (pNewDbg == NULL)
@@ -321,7 +321,7 @@ bool clsUdpDebug::New(User * pUser, const uint16_t &ui16Port)
 }
 //---------------------------------------------------------------------------
 
-bool clsUdpDebug::New(char * sIP, const uint16_t &ui16Port, const bool bAllData, char * sScriptName)
+bool clsUdpDebug::New(char * sIP, const uint16_t ui16Port, const bool bAllData, char * sScriptName)
 {
 	UdpDbgItem * pNewDbg = new(std::nothrow) UdpDbgItem();
 	if (pNewDbg == NULL)
@@ -568,7 +568,7 @@ bool clsUdpDebug::CheckUdpSub(User * pUser, bool bSndMess/* = false*/) const
 }
 //---------------------------------------------------------------------------
 
-void clsUdpDebug::Send(const char * sScriptName, char * sMessage, const size_t &szMsgLen) const
+void clsUdpDebug::Send(const char * sScriptName, char * sMessage, const size_t szMsgLen) const
 {
 	if (pDbgItemList == NULL)
 	{

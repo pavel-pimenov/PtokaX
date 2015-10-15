@@ -76,13 +76,13 @@ TextConverter::~TextConverter()
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #ifdef _WIN32
-bool TextConverter::CheckUtf8Validity(char * sInput, const uint8_t &ui8InputLen, char * /*sOutput*/, const uint8_t &/*ui8OutputSize*/)
+bool TextConverter::CheckUtf8Validity(char * sInput, const uint8_t ui8InputLen, char * /*sOutput*/, const uint8_t /*ui8OutputSize*/)
 {
 	if (::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, sInput, ui8InputLen, NULL, 0) == 0)
 	{
 		return false;
 #else
-bool TextConverter::CheckUtf8Validity(char * sInput, const uint8_t &ui8InputLen, char * sOutput, const uint8_t &ui8OutputSize)
+bool TextConverter::CheckUtf8Validity(char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize)
 {
 	char * sInBuf = sInput;
 	size_t szInbufLeft = ui8InputLen;
@@ -103,7 +103,7 @@ bool TextConverter::CheckUtf8Validity(char * sInput, const uint8_t &ui8InputLen,
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t &ui8InputLen, char * sOutput, const uint8_t &ui8OutputSize)
+size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize)
 {
 #ifdef _WIN32
 	if (CheckUtf8Validity(sInput, ui8InputLen, sOutput, ui8OutputSize) == true)

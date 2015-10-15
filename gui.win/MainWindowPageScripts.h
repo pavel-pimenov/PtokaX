@@ -58,8 +58,8 @@ class clsMainWindowPageScripts : public MainWindowPage, private BasicSplitter
 		void UpdateMemUsage();
 		void MoveScript(uint8_t ui8ScriptId, const bool bUp);
 		void AddScriptsToList(const bool bDelete);
-		void ScriptToList(const uint8_t &ui8ScriptId, const bool bInsert, const bool bSelected);
-		void UpdateCheck(const uint8_t &ui8ScriptId);
+		void ScriptToList(const uint8_t ui8ScriptId, const bool bInsert, const bool bSelected);
+		void UpdateCheck(const uint8_t ui8ScriptId);
 		void OpenInScriptEditor();
 	private:
 		bool bIgnoreItemChanged;

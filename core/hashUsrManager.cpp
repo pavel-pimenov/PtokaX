@@ -250,7 +250,7 @@ void clsHashManager::Remove(User * u)
 }
 //---------------------------------------------------------------------------
 
-User * clsHashManager::FindUser(char * sNick, const size_t &szNickLen)
+User * clsHashManager::FindUser(char * sNick, const size_t szNickLen)
 {
 	const uint32_t ui32Hash = HashNick(sNick, szNickLen);
 	

@@ -535,7 +535,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // First of two functions to search data in database. Nick will be probably most used.
-bool DBSQLite::SearchNick(char * sNick, const uint8_t &ui8NickLen, User * pUser, const bool bFromPM)
+bool DBSQLite::SearchNick(char * sNick, const uint8_t ui8NickLen, User * pUser, const bool bFromPM)
 {
 	if (bConnected == false)
 	{
@@ -663,7 +663,7 @@ bool DBSQLite::SearchIP(char * sIP, User * pUser, const bool bFromPM)
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Function to remove X days old records from database.
-void DBSQLite::RemoveOldRecords(const uint16_t &ui16Days)
+void DBSQLite::RemoveOldRecords(const uint16_t ui16Days)
 {
 	if (bConnected == false)
 	{

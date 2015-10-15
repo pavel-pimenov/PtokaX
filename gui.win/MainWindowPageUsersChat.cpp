@@ -728,7 +728,7 @@ void clsMainWindowPageUsersChat::DisconnectUser()
 }
 //------------------------------------------------------------------------------
 
-void OnKickOk(char * sLine, const int &iLen)
+void OnKickOk(char * sLine, const int iLen)
 {
 	User * pUser = clsMainWindowPageUsersChat::mPtr->GetUser();
 	
@@ -794,7 +794,7 @@ void clsMainWindowPageUsersChat::KickUser()
 }
 //------------------------------------------------------------------------------
 
-void OnBanOk(char * sLine, const int &iLen)
+void OnBanOk(char * sLine, const int iLen)
 {
 	User * pUser = clsMainWindowPageUsersChat::mPtr->GetUser();
 	
@@ -861,7 +861,7 @@ void clsMainWindowPageUsersChat::BanUser()
 }
 //------------------------------------------------------------------------------
 
-void OnRedirectOk(char * sLine, const int &iLen)
+void OnRedirectOk(char * sLine, const int iLen)
 {
 	User * pUser = clsMainWindowPageUsersChat::mPtr->GetUser();
 	

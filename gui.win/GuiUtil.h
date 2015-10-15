@@ -21,22 +21,22 @@
 #define GuiUtilH
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-int ScaleGui(const int &iValue);
-int ScaleGuiDefaultsOnly(const int &iValue);
+int ScaleGui(const int iValue);
+int ScaleGuiDefaultsOnly(const int iValue);
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void RichEditOpenLink(const HWND &hRichEdit, const ENLINK * pEnLink);
-void RichEditPopupMenu(const HWND &hRichEdit, const HWND &hParent, const LPARAM &lParam);
-bool RichEditCheckMenuCommands(const HWND &hRichEdit, const WORD &wID);
-void RichEditAppendText(const HWND &hRichEdit, const char * sText, const bool bWithTime = true);
+void RichEditOpenLink(const HWND hRichEdit, const ENLINK * pEnLink);
+void RichEditPopupMenu(const HWND hRichEdit, const HWND hParent, const LPARAM &lParam);
+bool RichEditCheckMenuCommands(const HWND hRichEdit, const WORD &wID);
+void RichEditAppendText(const HWND hRichEdit, const char * sText, const bool bWithTime = true);
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-int ListViewGetInsertPosition(const HWND &hListView, const void * pItem, const bool bSortAscending, int (*pCompareFunc)(const void * pItem, const void * pOtherItem));
-void * ListViewGetItem(const HWND &hListView, const int &iPos);
-void ListViewUpdateArrow(const HWND &hListView, const bool isAscending, const int &iSortColumn);
-int ListViewGetItemPosition(const HWND &hListView, void * pItem);
-void ListViewGetMenuPos(const HWND &hListView, int &iX, int &iY);
-void ListViewSelectFirstItem(const HWND &hListView);
+int ListViewGetInsertPosition(const HWND hListView, const void * pItem, const bool bSortAscending, int (*pCompareFunc)(const void * pItem, const void * pOtherItem));
+void * ListViewGetItem(const HWND hListView, const int iPos);
+void ListViewUpdateArrow(const HWND hListView, const bool isAscending, const int iSortColumn);
+int ListViewGetItemPosition(const HWND hListView, void * pItem);
+void ListViewGetMenuPos(const HWND hListView, int &iX, int &iY);
+void ListViewSelectFirstItem(const HWND hListView);
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 LRESULT CALLBACK TabsProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

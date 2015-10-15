@@ -103,7 +103,7 @@ ScriptBot::~ScriptBot()
 }
 //------------------------------------------------------------------------------
 
-ScriptBot * ScriptBot::CreateScriptBot(char * sBotNick, const size_t &szNickLen, char * sDescription, const size_t &szDscrLen, char * sEmail, const size_t &szEmlLen, const bool bOP)
+ScriptBot * ScriptBot::CreateScriptBot(char * sBotNick, const size_t szNickLen, char * sDescription, const size_t szDscrLen, char * sEmail, const size_t szEmlLen, const bool bOP)
 {
 	ScriptBot * pScriptBot = new(std::nothrow) ScriptBot();
 	
@@ -185,10 +185,10 @@ ScriptTimer::~ScriptTimer()
 //------------------------------------------------------------------------------
 
 #if defined(_WIN32) && !defined(_WIN_IOT)
-ScriptTimer * ScriptTimer::CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t &szLen, const int &iRef, lua_State * pLuaState)
+ScriptTimer * ScriptTimer::CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState)
 {
 #else
-ScriptTimer * ScriptTimer::CreateScriptTimer(char * sFunctName, const size_t &szLen, const int &iRef, lua_State * pLuaState)
+ScriptTimer * ScriptTimer::CreateScriptTimer(char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState)
 {
 #endif
 	ScriptTimer * pScriptTimer = new(std::nothrow) ScriptTimer();
@@ -798,7 +798,7 @@ void ScriptOnExit(Script * cur)
 }
 //------------------------------------------------------------------------------
 
-static bool ScriptOnError(Script * cur, char * sErrorMsg, const size_t &szMsgLen)
+static bool ScriptOnError(Script * cur, char * sErrorMsg, const size_t szMsgLen)
 {
 	lua_pushcfunction(cur->pLUA, ScriptTraceback);
 	int iTraceback = lua_gettop(cur->pLUA);
@@ -876,7 +876,7 @@ void ScriptPushUser(lua_State * L, User * u, const bool bFullTable/* = false*/)
 }
 //------------------------------------------------------------------------------
 
-void ScriptPushUserExtended(lua_State * L, User * u, const int &iTable)
+void ScriptPushUserExtended(lua_State * L, User * u, const int iTable)
 {
 	lua_pushliteral(L, "sMode");
 	if (u->sModes[0] != '\0')
@@ -1263,7 +1263,7 @@ void ScriptPushUserExtended(lua_State * L, User * u, const int &iTable)
 }
 //------------------------------------------------------------------------------
 
-User * ScriptGetUser(lua_State * L, const int &iTop, const char * sFunction)
+User * ScriptGetUser(lua_State * L, const int iTop, const char * sFunction)
 {
 	lua_pushliteral(L, "uptr");
 	lua_gettable(L, 1);

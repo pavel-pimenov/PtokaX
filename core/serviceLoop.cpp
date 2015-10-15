@@ -1303,7 +1303,7 @@ void clsServiceLoop::SendLoop()
 void clsServiceLoop::AcceptSocket(const SOCKET &s, const sockaddr_storage &addr)
 {
 #else
-void clsServiceLoop::AcceptSocket(const int &s, const sockaddr_storage &addr)
+void clsServiceLoop::AcceptSocket(const int s, const sockaddr_storage &addr)
 {
 #endif
 	AcceptedSocket * pNewSocket = new(std::nothrow) AcceptedSocket;

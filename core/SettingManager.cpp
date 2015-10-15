@@ -658,7 +658,7 @@ void clsSettingManager::Save()
 }
 //---------------------------------------------------------------------------
 
-bool clsSettingManager::GetBool(const size_t &szBoolId)
+bool clsSettingManager::GetBool(const size_t szBoolId)
 {
 	Lock l(csSetting);
 	bool bValue = bBools[szBoolId];
@@ -673,7 +673,7 @@ uint16_t clsSettingManager::GetFirstPort()
 }
 //---------------------------------------------------------------------------
 
-int16_t clsSettingManager::GetShort(const size_t &szShortId)
+int16_t clsSettingManager::GetShort(const size_t szShortId)
 {
 	Lock l(csSetting);
 	int16_t iValue = i16Shorts[szShortId];
@@ -681,7 +681,7 @@ int16_t clsSettingManager::GetShort(const size_t &szShortId)
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::GetText(const size_t &szTxtId, char * sMsg)
+void clsSettingManager::GetText(const size_t szTxtId, char * sMsg)
 {
 	Lock l(csSetting);
 	if (sTexts[szTxtId] != NULL)
@@ -691,7 +691,7 @@ void clsSettingManager::GetText(const size_t &szTxtId, char * sMsg)
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::SetBool(const size_t &szBoolId, const bool bValue)
+void clsSettingManager::SetBool(const size_t szBoolId, const bool bValue)
 {
 	if (bBools[szBoolId] == bValue)
 	{
@@ -804,7 +804,7 @@ void clsSettingManager::SetBool(const size_t &szBoolId, const bool bValue)
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::SetMOTD(char * sTxt, const size_t &szLen)
+void clsSettingManager::SetMOTD(char * sTxt, const size_t szLen)
 {
 	if (ui16MOTDLen == (uint16_t)szLen &&
 	        (sMOTD != NULL && strcmp(sMOTD, sTxt) == 0))
@@ -866,7 +866,7 @@ void clsSettingManager::SetMOTD(char * sTxt, const size_t &szLen)
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::SetShort(const size_t &szShortId, const int16_t &iValue)
+void clsSettingManager::SetShort(const size_t szShortId, const int16_t iValue)
 {
 	if (iValue < 0 || i16Shorts[szShortId] == iValue)
 	{
@@ -1117,19 +1117,19 @@ void clsSettingManager::SetShort(const size_t &szShortId, const int16_t &iValue)
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::SetText(const size_t &szTxtId, char * sTxt)
+void clsSettingManager::SetText(const size_t szTxtId, char * sTxt)
 {
 	SetText(szTxtId, sTxt, strlen(sTxt));
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt)
+void clsSettingManager::SetText(const size_t szTxtId, const char * sTxt)
 {
 	SetText(szTxtId, (char *)sTxt, strlen(sTxt));
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const size_t &szLen)
+void clsSettingManager::SetText(const size_t szTxtId, const char * sTxt, const size_t szLen)
 {
 	if (ui16TextsLens[szTxtId] == (uint16_t)szLen && (sTexts[szTxtId] != NULL && strcmp(sTexts[szTxtId], sTxt) == 0))
 	{
@@ -1490,7 +1490,7 @@ void clsSettingManager::SetText(const size_t &szTxtId, const char * sTxt, const 
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::SetText(const size_t &szTxtId, const string & sTxt)
+void clsSettingManager::SetText(const size_t szTxtId, const string & sTxt)
 {
 	SetText(szTxtId, sTxt.c_str(), sTxt.size());
 }

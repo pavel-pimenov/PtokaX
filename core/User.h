@@ -36,7 +36,7 @@ struct UserBan
 	
 	uint32_t ui32Len, ui32NickHash;
 	
-	static UserBan * CreateUserBan(char * sMess, const uint32_t &ui32MessLen, const uint32_t &ui32Hash);
+	static UserBan * CreateUserBan(char * sMess, const uint32_t ui32MessLen, const uint32_t ui32Hash);
 	
 	DISALLOW_COPY_AND_ASSIGN(UserBan);
 };
@@ -130,7 +130,7 @@ class ExtJSONInfo
 		{
 			m_iLastExtJSONSendTick = p_tick;
 		}
-		bool ComparExtJSON(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen) const
+		bool ComparExtJSON(char * sNewExtJSON, const uint16_t ui16NewExtJSONLen) const
 		{
 			if (!m_ExtJSONOriginal.empty())
 				return m_ExtJSONOriginal == std::string(sNewExtJSON, ui16NewExtJSONLen);
@@ -184,8 +184,8 @@ struct User
 	            
 #ifdef USE_FLYLINKDC_EXT_JSON
 	void SendCharDelayedExtJSON();
-	void SetExtJSONOriginal(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen);
-	bool ComparExtJSON(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen) const
+	void SetExtJSONOriginal(char * sNewExtJSON, const uint16_t ui16NewExtJSONLen);
+	bool ComparExtJSON(char * sNewExtJSON, const uint16_t ui16NewExtJSONLen) const
 	{
 		if (m_user_ext_info == NULL)
 			return true;
@@ -355,21 +355,21 @@ struct User
 	bool MakeLock();
 	bool DoRecv();
 	
-	void SendChar(const char * cText, const size_t &szTextLen);
-	void SendCharDelayed(const char * cText, const size_t &szTextLen);
+	void SendChar(const char * cText, const size_t szTextLen);
+	void SendCharDelayed(const char * cText, const size_t szTextLen);
 	void SendFormat(const char * sFrom, const bool bDelayed, const char * sFormatMsg, ...);
 	void SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const bool bDelayed, const char * sFormatMsg, ...);
 	
-	bool PutInSendBuf(const char * Text, const size_t &szTxtLen);
+	bool PutInSendBuf(const char * Text, const size_t szTxtLen);
 	bool Try2Send();
 	
 	void SetIP(char * sNewIP);
-	void SetNick(char * sNewNick, const uint8_t &ui8NewNickLen);
-	void SetMyInfoOriginal(char * sNewMyInfo, const uint16_t &ui16NewMyInfoLen);
+	void SetNick(char * sNewNick, const uint8_t ui8NewNickLen);
+	void SetMyInfoOriginal(char * sNewMyInfo, const uint16_t ui16NewMyInfoLen);
 	void SetVersion(char * sNewVer);
-	void SetLastChat(char * sNewData, const size_t &szLen);
-	void SetLastPM(char * sNewData, const size_t &szLen);
-	void SetLastSearch(char * sNewData, const size_t &szLen);
+	void SetLastChat(char * sNewData, const size_t szLen);
+	void SetLastPM(char * sNewData, const size_t szLen);
+	void SetLastSearch(char * sNewData, const size_t szLen);
 	void SetBuffer(char * sKickMsg, size_t szLen = 0);
 	void FreeBuffer();
 	
@@ -387,13 +387,13 @@ struct User
 	
 	bool ProcessRules();
 	
-	void AddPrcsdCmd(const uint8_t &ui8Type, char * sCommand, const size_t &szCommandLen, User * to, const bool bIsPm = false);
+	void AddPrcsdCmd(const uint8_t ui8Type, char * sCommand, const size_t szCommandLen, User * to, const bool bIsPm = false);
 	
 	void AddMeOrIPv4Check();
 	
 	static char * SetUserInfo(char * sOldData, uint8_t &ui8OldDataLen, char * sNewData, size_t &szNewDataLen, const char * sDataName);
 	
-	void RemFromSendBuf(const char * sData, const uint32_t &iLen, const uint32_t &iSbLen);
+	void RemFromSendBuf(const char * sData, const uint32_t iLen, const uint32_t iSbLen);
 	
 	static void DeletePrcsdUsrCmd(PrcsdUsrCmd *& pCommand); //[+]FlylinkDC++
 	

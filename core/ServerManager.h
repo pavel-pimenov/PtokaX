@@ -97,14 +97,14 @@ class clsServerManager
 		
 		static void FinalStop(const bool bDeleteServiceLoop);
 		static void ResumeAccepts();
-		static void SuspendAccepts(const uint32_t &ui32Time);
+		static void SuspendAccepts(const uint32_t ui32Time);
 		static void UpdateAutoRegState();
 		
 		static bool Start();
 		static void UpdateServers();
 		static void Stop();
 		static void FinalClose();
-		static void CreateServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber, const bool bResume = false);
+		static void CreateServerThread(const int iAddrFamily, const uint16_t ui16PortNumber, const bool bResume = false);
 		
 		static void CommandLineSetup();
 		

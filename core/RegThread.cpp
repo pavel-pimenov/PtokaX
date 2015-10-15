@@ -105,7 +105,7 @@ clsRegisterThread::~clsRegisterThread()
 }
 //---------------------------------------------------------------------------
 
-void clsRegisterThread::Setup(char * sListAddresses, const uint16_t &ui16AddrsLen)
+void clsRegisterThread::Setup(char * sListAddresses, const uint16_t ui16AddrsLen)
 {
 	// parse all addresses and create individul RegSockets
 	char *sAddresses = (char *)malloc(ui16AddrsLen + 1);
@@ -144,7 +144,7 @@ void clsRegisterThread::Setup(char * sListAddresses, const uint16_t &ui16AddrsLe
 }
 //---------------------------------------------------------------------------
 
-void clsRegisterThread::AddSock(char * sAddress, const size_t &szLen)
+void clsRegisterThread::AddSock(char * sAddress, const size_t szLen)
 {
 	RegSocket * pNewSock = new(std::nothrow) RegSocket();
 	if (pNewSock == NULL)

@@ -70,7 +70,7 @@ clsZlibUtility::~clsZlibUtility()
 }
 //---------------------------------------------------------------------------
 
-char * clsZlibUtility::CreateZPipe(const char *sInData, const size_t &szInDataSize, uint32_t &ui32OutDataLen)
+char * clsZlibUtility::CreateZPipe(const char *sInData, const size_t szInDataSize, uint32_t &ui32OutDataLen)
 {
 
 #ifdef USE_FLYLINKDC_EXT_JSON
@@ -149,7 +149,7 @@ char * clsZlibUtility::CreateZPipe(const char *sInData, const size_t &szInDataSi
 }
 //---------------------------------------------------------------------------
 
-char * clsZlibUtility::CreateZPipe(char *sInData, const size_t &szInDataSize, char *sOutData, size_t &szOutDataLen, size_t &szOutDataSize)
+char * clsZlibUtility::CreateZPipe(char *sInData, const size_t szInDataSize, char *sOutData, size_t &szOutDataLen, size_t &szOutDataSize)
 {
 	if (szInDataSize < ZMINLEN)
 		return sOutData;

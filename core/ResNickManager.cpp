@@ -251,7 +251,7 @@ clsReservedNicksManager::~clsReservedNicksManager()
 //---------------------------------------------------------------------------
 
 // Check for reserved nicks true = reserved
-bool clsReservedNicksManager::CheckReserved(const char * sNick, const uint32_t &hash) const
+bool clsReservedNicksManager::CheckReserved(const char * sNick, const uint32_t hash) const
 {
 	ReservedNick * cur = NULL,
 	               * next = pReservedNicks;

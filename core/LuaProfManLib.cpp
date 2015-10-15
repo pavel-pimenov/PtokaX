@@ -30,7 +30,7 @@
 #endif
 //---------------------------------------------------------------------------
 
-static void PushProfilePermissions(lua_State * L, const uint16_t &iProfile)
+static void PushProfilePermissions(lua_State * L, const uint16_t iProfile)
 {
 	ProfileItem *Prof = clsProfileManager::mPtr->ppProfilesTable[iProfile];
 	
@@ -265,7 +265,7 @@ static void PushProfilePermissions(lua_State * L, const uint16_t &iProfile)
 }
 //------------------------------------------------------------------------------
 
-static void PushProfile(lua_State * L, const uint16_t &iProfile)
+static void PushProfile(lua_State * L, const uint16_t iProfile)
 {
 	lua_checkstack(L, 3); // we need 3 (1 table, 2 id, 3 value) empty slots in stack, check it to be sure
 	

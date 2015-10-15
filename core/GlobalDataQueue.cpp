@@ -269,7 +269,7 @@ clsGlobalDataQueue::~clsGlobalDataQueue()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::AddQueueItem(const char * sCommand1, const size_t &szLen1, const char * sCommand2, const size_t &szLen2, const uint8_t &ui8CmdType)
+void clsGlobalDataQueue::AddQueueItem(const char * sCommand1, const size_t szLen1, const char * sCommand2, const size_t szLen2, const uint8_t ui8CmdType)
 {
 	QueueItem * pNewItem = new(std::nothrow) QueueItem;
 	if (pNewItem == NULL)
@@ -1033,7 +1033,7 @@ void clsGlobalDataQueue::ProcessSingleItems(User * u) const
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::SingleItemStore(char * sData, const size_t &szDataLen, User * pFromUser, const int32_t &i32Profile, const uint8_t &ui8Type)
+void clsGlobalDataQueue::SingleItemStore(char * sData, const size_t szDataLen, User * pFromUser, const int32_t i32Profile, const uint8_t ui8Type)
 {
 	SingleDataItem * pNewItem = new(std::nothrow) SingleDataItem;
 	if (pNewItem == NULL)
@@ -1167,7 +1167,7 @@ void clsGlobalDataQueue::SendFinalQueue()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::AddDataToQueue(GlobalQueue &pQueue, char * sData, const size_t &szLen)
+void clsGlobalDataQueue::AddDataToQueue(GlobalQueue &pQueue, char * sData, const size_t szLen)
 {
 	if (pQueue.szSize < (pQueue.szLen + szLen))
 	{
@@ -1208,7 +1208,7 @@ void * clsGlobalDataQueue::GetFirstQueueItem()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void * clsGlobalDataQueue::InsertBlankQueueItem(void * pAfterItem, const uint8_t &ui8CmdType)
+void * clsGlobalDataQueue::InsertBlankQueueItem(void * pAfterItem, const uint8_t ui8CmdType)
 {
 	QueueItem * pNewItem = new(std::nothrow) QueueItem;
 	if (pNewItem == NULL)
@@ -1270,7 +1270,7 @@ void * clsGlobalDataQueue::InsertBlankQueueItem(void * pAfterItem, const uint8_t
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::FillBlankQueueItem(char * sCommand, const size_t &szLen, void * pQueueItem)
+void clsGlobalDataQueue::FillBlankQueueItem(char * sCommand, const size_t szLen, void * pQueueItem)
 {
 #ifdef _WIN32
 	((QueueItem *)pQueueItem)->pCommand1 = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);

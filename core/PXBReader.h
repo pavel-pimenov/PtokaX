@@ -37,7 +37,7 @@ class PXBReader
 		
 		
 		void ReadNextFilePart();
-		bool PrepareArrays(const uint8_t &ui8Size);
+		bool PrepareArrays(const uint8_t ui8Size);
 	public:
 		enum enmDataTypes
 		{
@@ -59,11 +59,11 @@ class PXBReader
 		PXBReader();
 		~PXBReader();
 		
-		bool OpenFileRead(const char * sFilename, const uint8_t &ui8SubItems);
-		bool ReadNextItem(const uint16_t * sExpectedIdentificators, const uint8_t &ui8ExpectedSubItems, const uint8_t &ui8ExtraSubItems = 0);
+		bool OpenFileRead(const char * sFilename, const uint8_t ui8SubItems);
+		bool ReadNextItem(const uint16_t * sExpectedIdentificators, const uint8_t ui8ExpectedSubItems, const uint8_t ui8ExtraSubItems = 0);
 		
-		bool OpenFileSave(const char * sFilename, const uint8_t &ui8Size);
-		bool WriteNextItem(const uint32_t &ui32Length, const uint8_t &ui8SubItems);
+		bool OpenFileSave(const char * sFilename, const uint8_t ui8Size);
+		bool WriteNextItem(const uint32_t ui32Length, const uint8_t ui8SubItems);
 		void WriteRemaining();
 };
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

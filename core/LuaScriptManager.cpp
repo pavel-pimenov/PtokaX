@@ -691,7 +691,7 @@ void clsScriptManager::StopScript(Script * curScript, const bool bDisable)
 }
 //------------------------------------------------------------------------------
 
-void clsScriptManager::MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool bUp)
+void clsScriptManager::MoveScript(const uint8_t ui8ScriptPosInTbl, const bool bUp)
 {
 	if (bUp == true)
 	{
@@ -848,7 +848,7 @@ void clsScriptManager::MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool b
 }
 //------------------------------------------------------------------------------
 
-void clsScriptManager::DeleteScript(const uint8_t &ui8ScriptPosInTbl)
+void clsScriptManager::DeleteScript(const uint8_t ui8ScriptPosInTbl)
 {
 	Script * cur = ppScriptTable[ui8ScriptPosInTbl];
 	
@@ -932,7 +932,7 @@ void clsScriptManager::OnExit(bool bForce/* = false*/)
 }
 //------------------------------------------------------------------------------
 
-bool clsScriptManager::Arrival(User * u, char * sData, const size_t &szLen, const unsigned char &uiType)
+bool clsScriptManager::Arrival(User * u, char * sData, const size_t szLen, const unsigned char &uiType)
 {
 	if (clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == false)
 	{

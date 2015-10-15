@@ -1066,7 +1066,7 @@ void clsServerManager::ResumeAccepts()
 }
 //---------------------------------------------------------------------------
 
-void clsServerManager::SuspendAccepts(const uint32_t &ui32Time)
+void clsServerManager::SuspendAccepts(const uint32_t ui32Time)
 {
 	if (bServerRunning == false)
 	{
@@ -1140,7 +1140,7 @@ void clsServerManager::UpdateAutoRegState()
 }
 //---------------------------------------------------------------------------
 
-void clsServerManager::CreateServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber, const bool bResume/* = false*/)
+void clsServerManager::CreateServerThread(const int iAddrFamily, const uint16_t ui16PortNumber, const bool bResume/* = false*/)
 {
 	ServerThread * pServer = new(std::nothrow) ServerThread(iAddrFamily, ui16PortNumber);
 	if (pServer == NULL)

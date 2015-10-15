@@ -66,7 +66,7 @@ LRESULT CALLBACK clsProfilesDialog::StaticProfilesDialogProc(HWND hWnd, UINT uMs
 }
 //------------------------------------------------------------------------------
 
-void OnNewProfileOk(char * sLine, const int &/*iLen*/)
+void OnNewProfileOk(char * sLine, const int /*iLen*/)
 {
 	int32_t iRet = clsProfileManager::mPtr->AddProfile(sLine);
 	
@@ -555,7 +555,7 @@ void clsProfilesDialog::ChangePermissionChecks(const bool bCheck)
 }
 //------------------------------------------------------------------------------
 
-void OnRenameProfileOk(char * sLine, const int &iLen)
+void OnRenameProfileOk(char * sLine, const int iLen)
 {
 	int iSel = (int)::SendMessage(clsProfilesDialog::mPtr->hWndWindowItems[clsProfilesDialog::LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	
@@ -575,7 +575,7 @@ void OnRenameProfileOk(char * sLine, const int &iLen)
 }
 //---------------------------------------------------------------------------
 
-void clsProfilesDialog::RenameProfile(const int &iProfile)
+void clsProfilesDialog::RenameProfile(const int iProfile)
 {
 	LineDialog * pRenameProfileDlg = new(std::nothrow) LineDialog(&OnRenameProfileOk);
 	
@@ -586,7 +586,7 @@ void clsProfilesDialog::RenameProfile(const int &iProfile)
 }
 //------------------------------------------------------------------------------
 
-void clsProfilesDialog::RemoveProfile(const uint16_t &iProfile)
+void clsProfilesDialog::RemoveProfile(const uint16_t iProfile)
 {
 	::SendMessage(hWndWindowItems[LV_PROFILES], LVM_DELETEITEM, iProfile, 0);
 	
@@ -654,7 +654,7 @@ void clsProfilesDialog::AddProfile()
 }
 //------------------------------------------------------------------------------
 
-void clsProfilesDialog::MoveDown(const uint16_t &iProfile)
+void clsProfilesDialog::MoveDown(const uint16_t iProfile)
 {
 	HWND hWndFocus = ::GetFocus();
 	
@@ -700,7 +700,7 @@ void clsProfilesDialog::MoveDown(const uint16_t &iProfile)
 }
 //------------------------------------------------------------------------------
 
-void clsProfilesDialog::MoveUp(const uint16_t &iProfile)
+void clsProfilesDialog::MoveUp(const uint16_t iProfile)
 {
 	HWND hWndFocus = ::GetFocus();
 	

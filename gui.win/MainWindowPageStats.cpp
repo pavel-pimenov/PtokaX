@@ -261,7 +261,7 @@ char * MainWindowPageStats::GetPageName()
 }
 //------------------------------------------------------------------------------
 
-void OnRedirectAllOk(char * sLine, const int &iLen)
+void OnRedirectAllOk(char * sLine, const int iLen)
 {
 	char *sMSG = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iLen + 16);
 	if (sMSG == NULL)
@@ -311,7 +311,7 @@ void MainWindowPageStats::OnRedirectAll()
 }
 //---------------------------------------------------------------------------
 
-void OnMassMessageOk(char * sLine, const int &iLen)
+void OnMassMessageOk(char * sLine, const int iLen)
 {
 	char *sMSG = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iLen + 256);
 	if (sMSG == NULL)

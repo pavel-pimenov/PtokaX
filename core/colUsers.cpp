@@ -567,7 +567,7 @@ void clsUsers::Add2NickList(User * pUser)
 }
 //---------------------------------------------------------------------------
 
-void clsUsers::AddBot2NickList(char * sNick, const size_t &szNickLen, const bool bIsOp)
+void clsUsers::AddBot2NickList(char * sNick, const size_t szNickLen, const bool bIsOp)
 {
 	// $NickList nick$$nick2$$|
 	
@@ -725,7 +725,7 @@ void clsUsers::DelFromOpList(char * sNick)
 //---------------------------------------------------------------------------
 
 // PPK ... check global mainchat flood and add to global queue
-void clsUsers::SendChat2All(User * pUser, char * sData, const size_t &szChatLen, void * pToUser)
+void clsUsers::SendChat2All(User * pUser, char * sData, const size_t szChatLen, void * pToUser)
 {
 	clsUdpDebug::mPtr->Broadcast(sData, szChatLen);
 	

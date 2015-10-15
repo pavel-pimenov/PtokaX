@@ -60,7 +60,7 @@ static const char * sUnknownTag = "UNKNOWN TAG"; // 11
 static const char * sDefaultNick = "<unknown>"; // 9
 //---------------------------------------------------------------------------
 
-static bool UserProcessLines(User * u, const uint32_t &iStrtLen)
+static bool UserProcessLines(User * u, const uint32_t iStrtLen)
 {
 	// nothing to process?
 	if (u->pRecvBuf[0] == '\0')
@@ -580,7 +580,7 @@ UserBan::~UserBan()
 }
 //---------------------------------------------------------------------------
 
-UserBan * UserBan::CreateUserBan(char * sMess, const uint32_t &ui32MessLen, const uint32_t &ui32Hash)
+UserBan * UserBan::CreateUserBan(char * sMess, const uint32_t ui32MessLen, const uint32_t ui32Hash)
 {
 	UserBan * pUserBan = new(std::nothrow) UserBan();
 	
@@ -1278,7 +1278,7 @@ bool User::DoRecv()
 }
 //---------------------------------------------------------------------------
 
-void User::SendChar(const char * cText, const size_t &szTextLen)
+void User::SendChar(const char * cText, const size_t szTextLen)
 {
 	if (ui8State >= STATE_CLOSING || szTextLen == 0)
 		return;
@@ -1327,7 +1327,7 @@ void User::SendCharDelayedExtJSON()
 #endif // USE_FLYLINKDC_EXT_JSON
 //---------------------------------------------------------------------------
 
-void User::SendCharDelayed(const char * cText, const size_t &szTextLen)
+void User::SendCharDelayed(const char * cText, const size_t szTextLen)
 {
 	if (ui8State >= STATE_CLOSING || szTextLen == 0)
 	{
@@ -1503,7 +1503,7 @@ void User::SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const 
 }
 //---------------------------------------------------------------------------
 
-bool User::PutInSendBuf(const char * Text, const size_t &szTxtLen)
+bool User::PutInSendBuf(const char * Text, const size_t szTxtLen)
 {
 	iSendCalled++;
 	
@@ -1789,7 +1789,7 @@ void User::SetIP(char * sNewIP)
 }
 //------------------------------------------------------------------------------
 
-void User::SetNick(char * sNewNick, const uint8_t &ui8NewNickLen)
+void User::SetNick(char * sNewNick, const uint8_t ui8NewNickLen)
 {
 	if (sNick != sDefaultNick && sNick != NULL)
 	{
@@ -1826,7 +1826,7 @@ void User::SetNick(char * sNewNick, const uint8_t &ui8NewNickLen)
 }
 //------------------------------------------------------------------------------
 #ifdef USE_FLYLINKDC_EXT_JSON
-void User::SetExtJSONOriginal(char * sNewExtJSON, const uint16_t &ui16NewExtJSONLen)
+void User::SetExtJSONOriginal(char * sNewExtJSON, const uint16_t ui16NewExtJSONLen)
 {
 	if (m_user_ext_info)
 	{
@@ -1838,7 +1838,7 @@ void User::SetExtJSONOriginal(char * sNewExtJSON, const uint16_t &ui16NewExtJSON
 }
 #endif
 //------------------------------------------------------------------------------
-void User::SetMyInfoOriginal(char * sNewMyInfo, const uint16_t &ui16NewMyInfoLen)
+void User::SetMyInfoOriginal(char * sNewMyInfo, const uint16_t ui16NewMyInfoLen)
 {
 	char * sOldMyInfo = sMyInfoOriginal;
 	
@@ -1969,7 +1969,7 @@ void User::SetMyInfoOriginal(char * sNewMyInfo, const uint16_t &ui16NewMyInfoLen
 }
 //------------------------------------------------------------------------------
 
-static void UserSetMyInfoLong(User * u, char * sNewMyInfoLong, const uint16_t &ui16NewMyInfoLongLen)
+static void UserSetMyInfoLong(User * u, char * sNewMyInfoLong, const uint16_t ui16NewMyInfoLongLen)
 {
 	if (u->sMyInfoLong != NULL)
 	{
@@ -2009,7 +2009,7 @@ static void UserSetMyInfoLong(User * u, char * sNewMyInfoLong, const uint16_t &u
 }
 //------------------------------------------------------------------------------
 
-static void UserSetMyInfoShort(User * u, char * sNewMyInfoShort, const uint16_t &ui16NewMyInfoShortLen)
+static void UserSetMyInfoShort(User * u, char * sNewMyInfoShort, const uint16_t ui16NewMyInfoShortLen)
 {
 	if (u->sMyInfoShort != NULL)
 	{
@@ -2083,7 +2083,7 @@ void User::SetVersion(char * sNewVer)
 }
 //------------------------------------------------------------------------------
 
-void User::SetLastChat(char * sNewData, const size_t &szLen)
+void User::SetLastChat(char * sNewData, const size_t szLen)
 {
 #ifdef _WIN32
 	if (sLastChat != NULL)
@@ -2121,7 +2121,7 @@ void User::SetLastChat(char * sNewData, const size_t &szLen)
 }
 //------------------------------------------------------------------------------
 
-void User::SetLastPM(char * sNewData, const size_t &szLen)
+void User::SetLastPM(char * sNewData, const size_t szLen)
 {
 #ifdef _WIN32
 	if (sLastPM != NULL)
@@ -2160,7 +2160,7 @@ void User::SetLastPM(char * sNewData, const size_t &szLen)
 }
 //------------------------------------------------------------------------------
 
-void User::SetLastSearch(char * sNewData, const size_t &szLen)
+void User::SetLastSearch(char * sNewData, const size_t szLen)
 {
 #ifdef _WIN32
 	if (sLastSearch != NULL)
@@ -3323,7 +3323,7 @@ bool User::ProcessRules()
 
 //------------------------------------------------------------------------------
 
-void User::AddPrcsdCmd(const uint8_t &ui8Type, char * sCommand, const size_t &szCommandLen, User * to, const bool bIsPm/* = false*/)
+void User::AddPrcsdCmd(const uint8_t ui8Type, char * sCommand, const size_t szCommandLen, User * to, const bool bIsPm/* = false*/)
 {
 	if (ui8Type == PrcsdUsrCmd::CTM_MCTM_RCTM_SR_TO)
 	{
@@ -3543,7 +3543,7 @@ char * User::SetUserInfo(char * sOldData, uint8_t &ui8OldDataLen, char * sNewDat
 }
 //---------------------------------------------------------------------------
 
-void User::RemFromSendBuf(const char * sData, const uint32_t &iLen, const uint32_t &iSbLen)
+void User::RemFromSendBuf(const char * sData, const uint32_t iLen, const uint32_t iSbLen)
 {
 	char *match = strstr(pSendBuf + iSbLen, sData);
 	if (match != NULL)

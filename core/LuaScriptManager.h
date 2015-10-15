@@ -98,13 +98,13 @@ class clsScriptManager
 		bool StartScript(Script * curScript, const bool bEnable);
 		void StopScript(Script * curScript, const bool bDisable);
 		
-		void MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool bUp);
+		void MoveScript(const uint8_t ui8ScriptPosInTbl, const bool bUp);
 		
-		void DeleteScript(const uint8_t &ui8ScriptPosInTbl);
+		void DeleteScript(const uint8_t ui8ScriptPosInTbl);
 		
 		void OnStartup();
 		void OnExit(bool bForce = false);
-		bool Arrival(User * u, char * sData, const size_t &szLen, const unsigned char &uiType);
+		bool Arrival(User * u, char * sData, const size_t szLen, const unsigned char &uiType);
 		bool UserConnected(User * u);
 		void UserDisconnected(User * u, Script * pScript = NULL);
 		

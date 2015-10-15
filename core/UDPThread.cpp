@@ -45,7 +45,7 @@ UDPThread::UDPThread() :
 	rcvbuf[0] = '\0';
 }
 
-bool UDPThread::Listen(const int &iAddressFamily)
+bool UDPThread::Listen(const int iAddressFamily)
 {
 	sock = socket(iAddressFamily, SOCK_DGRAM, IPPROTO_UDP);
 	
@@ -230,7 +230,7 @@ void UDPThread::WaitFor()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UDPThread * UDPThread::Create(const int &iAddressFamily)
+UDPThread * UDPThread::Create(const int iAddressFamily)
 {
 	UDPThread * pUDPThread = new(std::nothrow) UDPThread();
 	if (pUDPThread == NULL)
