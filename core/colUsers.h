@@ -91,9 +91,9 @@ class clsUsers
 		void AddUser(User * pUser);
 		void RemUser(User * pUser);
 		void Add2NickList(User * pUser);
-		void AddBot2NickList(char * sNick, const size_t &szNickLen, const bool &bIsOp);
+		void AddBot2NickList(char * sNick, const size_t &szNickLen, const bool bIsOp);
 		void Add2OpList(User * pUser);
-		void DelFromNickList(char * sNick, const bool &bIsOp);
+		void DelFromNickList(char * sNick, const bool bIsOp);
 		void DelFromOpList(char * sNick);
 		void SendChat2All(User * pUser, char * sData, const size_t &szChatLen, void * pToUser);
 		void Add2MyInfos(User * pUser);

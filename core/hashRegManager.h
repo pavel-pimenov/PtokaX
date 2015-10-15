@@ -78,7 +78,7 @@ class clsRegManager
 		void Add(RegUser * Reg);
 		void Add2Table(RegUser * Reg);
 		static void ChangeReg(RegUser * pReg, char * sNewPasswd, const uint16_t &ui16NewProfile);
-		void Delete(RegUser * pReg, const bool &bFromGui = false);
+		void Delete(RegUser * pReg, const bool bFromGui = false);
 		void Rem(RegUser * Reg);
 		void RemFromTable(RegUser * Reg);
 		
@@ -87,7 +87,7 @@ class clsRegManager
 		RegUser * Find(uint32_t hash, char * sNick);
 		
 		void Load(void);
-		void Save(const bool &bSaveOnChange = false, const bool &bSaveOnTime = false);
+		void Save(const bool bSaveOnChange = false, const bool bSaveOnTime = false);
 		
 		void HashPasswords();
 		

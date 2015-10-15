@@ -644,7 +644,7 @@ static int GetUpTime(lua_State * L)
 }
 //------------------------------------------------------------------------------
 
-static int GetOnlineByOpStatus(lua_State * L, const bool &bOperator)
+static int GetOnlineByOpStatus(lua_State * L, const bool bOperator)
 {
 	bool bFullTable = false;
 	

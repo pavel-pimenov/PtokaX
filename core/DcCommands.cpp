@@ -89,7 +89,7 @@ clsDcCommands::~clsDcCommands()
 //---------------------------------------------------------------------------
 
 // Process DC data form User
-void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool &bCheck, const uint32_t &ui32Len)
+void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck, const uint32_t &ui32Len)
 {
 #ifdef _BUILD_GUI
 	// Full raw data trace for better logging
@@ -1035,7 +1035,7 @@ void clsDcCommands::BotINFO(User * pUser, char * sData, const uint32_t &ui32Len)
 
 // $ConnectToMe <nickname> <ownip>:<ownlistenport>
 // $MultiConnectToMe <nick> <ownip:port> <hub[:port]>
-void clsDcCommands::ConnectToMe(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck, const bool &bMulti)
+void clsDcCommands::ConnectToMe(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck, const bool bMulti)
 {
 	if ((bMulti == false && ui32Len < 23) || (bMulti == true && ui32Len < 28))
 	{
@@ -1212,7 +1212,7 @@ void clsDcCommands::GetINFO(User * pUser, char * sData, const uint32_t &ui32Len)
 //---------------------------------------------------------------------------
 
 // $GetNickList
-bool clsDcCommands::GetNickList(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck)
+bool clsDcCommands::GetNickList(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
 {
 	if (((pUser->ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == true &&
 	        ((pUser->ui32BoolBits & User::BIT_HAVE_GETNICKLIST) == User::BIT_HAVE_GETNICKLIST) == true)
@@ -1639,7 +1639,7 @@ void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t &ui32Len)
 //---------------------------------------------------------------------------
 
 // $Search $MultiSearch
-bool clsDcCommands::SearchDeflood(User *pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck, const bool &bMulti)
+bool clsDcCommands::SearchDeflood(User *pUser, char * sData, const uint32_t &ui32Len, const bool bCheck, const bool bMulti)
 {
 	// search flood protection ... modified by PPK ;-)
 	if (bCheck == true && clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::NODEFLOODSEARCH) == false)
@@ -1689,7 +1689,7 @@ bool clsDcCommands::SearchDeflood(User *pUser, char * sData, const uint32_t &ui3
 //---------------------------------------------------------------------------
 
 // $Search $MultiSearch
-void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bool &bCheck, const bool &bMulti)
+void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bool bCheck, const bool bMulti)
 {
 	uint32_t iAfterCmd;
 	if (bMulti == false)
@@ -1973,7 +1973,7 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 #ifdef USE_FLYLINKDC_EXT_JSON
 //---------------------------------------------------------------------------
 // $ExtJSON $ALL  $ $$$$|
-bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool& /* bCheck */)
+bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool /* bCheck */)
 {
 	if (ui32Len < (22u + pUser->ui8NickLen))
 	{
@@ -2050,7 +2050,7 @@ bool clsDcCommands::ExtJSON(User * pUser, char * sData, const uint32_t &ui32Len)
 #endif
 //---------------------------------------------------------------------------
 // $MyINFO $ALL  $ $$$$|
-bool clsDcCommands::MyINFODeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck)
+bool clsDcCommands::MyINFODeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
 {
 	if (ui32Len < (22u + pUser->ui8NickLen))
 	{
@@ -2450,7 +2450,7 @@ void clsDcCommands::OpForceMove(User * pUser, char * sData, const uint32_t &ui32
 //---------------------------------------------------------------------------
 
 // $RevConnectToMe <ownnick> <nickname>
-void clsDcCommands::RevConnectToMe(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck)
+void clsDcCommands::RevConnectToMe(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
 {
 	if (ui32Len < 19)
 	{
@@ -2528,7 +2528,7 @@ void clsDcCommands::RevConnectToMe(User * pUser, char * sData, const uint32_t &u
 //---------------------------------------------------------------------------
 
 // $SR <nickname> - Search Respond for passive users
-void clsDcCommands::SR(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck)
+void clsDcCommands::SR(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
 {
 	if (ui32Len < 6u + pUser->ui8NickLen)
 	{
@@ -2828,7 +2828,7 @@ void clsDcCommands::Supports(User * pUser, char * sData, const uint32_t &ui32Len
 //---------------------------------------------------------------------------
 
 // $To: nickname From: ownnickname $<ownnickname> <message>
-void clsDcCommands::To(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck)
+void clsDcCommands::To(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
 {
 	char *cTemp = strchr(sData + 5, ' ');
 	
@@ -3116,7 +3116,7 @@ void clsDcCommands::Version(User * pUser, char * sData, const uint32_t &ui32Len)
 //---------------------------------------------------------------------------
 
 // Chat message
-bool clsDcCommands::ChatDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck)
+bool clsDcCommands::ChatDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
 {
 #ifdef _BUILD_GUI
 	if (::SendMessage(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::BTN_SHOW_CHAT], BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -3189,7 +3189,7 @@ bool clsDcCommands::ChatDeflood(User * pUser, char * sData, const uint32_t &ui32
 //---------------------------------------------------------------------------
 
 // Chat message
-void clsDcCommands::Chat(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck)
+void clsDcCommands::Chat(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck)
 {
 	if (bCheck == true && clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::NOCHATLIMITS) == false)
 	{
@@ -3426,7 +3426,7 @@ void clsDcCommands::Close(User * pUser, char * sData, const uint32_t &ui32Len)
 }
 //---------------------------------------------------------------------------
 
-void clsDcCommands::Unknown(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bMyNick/* = false*/)
+void clsDcCommands::Unknown(User * pUser, char * sData, const uint32_t &ui32Len, const bool bMyNick/* = false*/)
 {
 	iStatCmdUnknown++;
 	
@@ -3452,7 +3452,7 @@ void clsDcCommands::Unknown(User * pUser, char * sData, const uint32_t &ui32Len,
 }
 //---------------------------------------------------------------------------
 
-bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &szNickLen, const bool &ValidateNick)
+bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &szNickLen, const bool ValidateNick)
 {
 	// illegal characters in nick?
 	for (uint32_t ui32i = 0; ui32i < szNickLen; ui32i++)
@@ -3656,7 +3656,7 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t &s
 #endif
 				OtherUser->ui32BoolBits |= User::BIT_ERROR;
 				
-				clsUdpDebug::mPtr->BroadcastFormat("[SYS] Detected clone of yourself, byebye! Nick %s (%s) - user closed. Please close the second DC++ client!", OtherUser->sNick, OtherUser->sIP);
+				clsUdpDebug::mPtr->BroadcastFormat("[SYS] Detected clone of yourself, byebye! Nick %s (%s) - user closed. Please close the second DC++ client! ", OtherUser->sNick, OtherUser->sIP);
 				
 				OtherUser->Close();
 				return false;
@@ -3724,8 +3724,8 @@ bool clsDcCommands::ValidateUserNickFinally(bool pIsNotReg, User * pUser, const 
 		{
 			pUser->SendChar(clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_REG_ONLY_MSG], clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_REG_ONLY_MSG]);
 			
-//			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Hub for reg only %s (%s) - user closed.", pUser->sNick, pUser->sIP);
-
+			//          clsUdpDebug::mPtr->BroadcastFormat("[SYS] Hub for reg only %s (%s) - user closed.", pUser->sNick, pUser->sIP);
+			
 			pUser->Close();
 			return false;
 		}
@@ -4194,13 +4194,13 @@ bool clsDcCommands::GetPort(char * sData, uint16_t &ui16Port, uint8_t &ui8AfterP
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsDcCommands::SendIncorrectPortMsg(User * pUser, const bool &bCTM)
+void clsDcCommands::SendIncorrectPortMsg(User * pUser, const bool bCTM)
 {
 	pUser->SendFormat("clsDcCommands::SendIncorrectPortMsg", true, "<%s> %s!|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], bCTM == true ? clsLanguageManager::mPtr->sTexts[LAN_YOUR_CLIENT_SEND_INCORRECT_PORT_IN_CTM] : clsLanguageManager::mPtr->sTexts[LAN_YOUR_CLIENT_SEND_INCORRECT_PORT_IN_SEARCH]);
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsDcCommands::SendIncorrectIPMsg(User * pUser, char * sBadIP, const bool &bCTM)
+void clsDcCommands::SendIncorrectIPMsg(User * pUser, char * sBadIP, const bool bCTM)
 {
 	int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "<%s> %s ", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOUR_CLIENT_SEND_INCORRECT_IP]);
 	if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "SendIncorrectIPMsg1") == false)
@@ -4314,7 +4314,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t &ui32Len)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t &szLen, const bool &bActive) const
+PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t &szLen, const bool bActive) const
 {
 	if (cmdSearch != NULL)
 	{

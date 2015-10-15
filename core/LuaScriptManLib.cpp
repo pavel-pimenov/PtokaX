@@ -132,7 +132,7 @@ static int GetScripts(lua_State * L)
 }
 //------------------------------------------------------------------------------
 
-static int Move(lua_State * L, const bool &bUp)
+static int Move(lua_State * L, const bool bUp)
 {
 	if (lua_gettop(L) != 1)
 	{

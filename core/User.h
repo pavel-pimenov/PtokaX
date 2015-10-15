@@ -357,8 +357,8 @@ struct User
 	
 	void SendChar(const char * cText, const size_t &szTextLen);
 	void SendCharDelayed(const char * cText, const size_t &szTextLen);
-	void SendFormat(const char * sFrom, const bool &bDelayed, const char * sFormatMsg, ...);
-	void SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const bool &bDelayed, const char * sFormatMsg, ...);
+	void SendFormat(const char * sFrom, const bool bDelayed, const char * sFormatMsg, ...);
+	void SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const bool bDelayed, const char * sFormatMsg, ...);
 	
 	bool PutInSendBuf(const char * Text, const size_t &szTxtLen);
 	bool Try2Send();
@@ -387,7 +387,7 @@ struct User
 	
 	bool ProcessRules();
 	
-	void AddPrcsdCmd(const uint8_t &ui8Type, char * sCommand, const size_t &szCommandLen, User * to, const bool &bIsPm = false);
+	void AddPrcsdCmd(const uint8_t &ui8Type, char * sCommand, const size_t &szCommandLen, User * to, const bool bIsPm = false);
 	
 	void AddMeOrIPv4Check();
 	

@@ -691,7 +691,7 @@ void clsSettingManager::GetText(const size_t &szTxtId, char * sMsg)
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::SetBool(const size_t &szBoolId, const bool &bValue)
+void clsSettingManager::SetBool(const size_t &szBoolId, const bool bValue)
 {
 	if (bBools[szBoolId] == bValue)
 	{
@@ -2779,7 +2779,7 @@ void clsSettingManager::UpdateLanguage()
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::UpdateBot(const bool &bNickChanged/* = true*/)
+void clsSettingManager::UpdateBot(const bool bNickChanged/* = true*/)
 {
 	if (bUpdateLocked == true)
 	{
@@ -2875,7 +2875,7 @@ void clsSettingManager::UpdateBot(const bool &bNickChanged/* = true*/)
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::DisableBot(const bool &bNickChanged/* = true*/, const bool &bRemoveMyINFO/* = true*/)
+void clsSettingManager::DisableBot(const bool bNickChanged/* = true*/, const bool bRemoveMyINFO/* = true*/)
 {
 	if (bUpdateLocked == true || clsServerManager::bServerRunning == false)
 	{
@@ -2922,7 +2922,7 @@ void clsSettingManager::DisableBot(const bool &bNickChanged/* = true*/, const bo
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::UpdateOpChat(const bool &bNickChanged/* = true*/)
+void clsSettingManager::UpdateOpChat(const bool bNickChanged/* = true*/)
 {
 	if (bUpdateLocked == true)
 	{
@@ -3073,7 +3073,7 @@ void clsSettingManager::UpdateOpChat(const bool &bNickChanged/* = true*/)
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::DisableOpChat(const bool &bNickChanged/* = true*/)
+void clsSettingManager::DisableOpChat(const bool bNickChanged/* = true*/)
 {
 	if (bUpdateLocked == true || clsServerManager::pServersS == NULL || bBotsSameNick == true)
 	{

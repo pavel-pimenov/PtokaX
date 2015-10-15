@@ -121,7 +121,7 @@ void BasicSplitter::SetSplitterRect(const LPRECT &lpRect)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void BasicSplitter::SetSplitterPosition(int iPos, const bool &bUpdate/* = true*/)
+void BasicSplitter::SetSplitterPosition(int iPos, const bool bUpdate/* = true*/)
 {
 	if (iPos < 100)
 	{

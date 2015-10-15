@@ -48,35 +48,35 @@ class clsDcCommands
 		DISALLOW_COPY_AND_ASSIGN(clsDcCommands);
 		
 		void BotINFO(User * pUser, char * sData, const uint32_t &ui32Len);
-		void ConnectToMe(User * pUser, char * sData, const uint32_t &ui32LenLen, const bool &bCheck, const bool &bMulti);
+		void ConnectToMe(User * pUser, char * sData, const uint32_t &ui32LenLen, const bool bCheck, const bool bMulti);
 		void GetINFO(User * pUser, char * sData, const uint32_t &ui32Len);
-		bool GetNickList(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck);
+		bool GetNickList(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck);
 		void Key(User * pUser, char * sData, const uint32_t &ui32Len);
 		void Kick(User * pUser, char * sData, const uint32_t &ui32Len);
-		static bool SearchDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck, const bool &bMulti);
-		void Search(User * pUser, char * sData, uint32_t ui32Len, const bool &bCheck, const bool &bMulti);
-		bool MyINFODeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck);
+		static bool SearchDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck, const bool bMulti);
+		void Search(User * pUser, char * sData, uint32_t ui32Len, const bool bCheck, const bool bMulti);
+		bool MyINFODeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck);
 		static bool MyINFO(User * pUser, char * sData, const uint32_t &ui32Len);
 #ifdef USE_FLYLINKDC_EXT_JSON
-		bool ExtJSONDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck);
+		bool ExtJSONDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck);
 		static bool ExtJSON(User * pUser, char * sData, const uint32_t &ui32Len);
 #endif
 		void MyPass(User * pUser, char * sData, const uint32_t &ui32Len);
 		void OpForceMove(User * pUser, char * sData, const uint32_t &ui32Len);
-		void RevConnectToMe(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck);
-		void SR(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck);
+		void RevConnectToMe(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck);
+		void SR(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck);
 		void Supports(User * pUser, char * sData, const uint32_t &ui32Len);
-		void To(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck);
+		void To(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck);
 		void ValidateNick(User * pUser, char * sData, const uint32_t &ui32Len);
 		void Version(User * pUser, char * sData, const uint32_t &ui32Len);
-		static bool ChatDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck);
-		void Chat(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bCheck);
+		static bool ChatDeflood(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck);
+		void Chat(User * pUser, char * sData, const uint32_t &ui32Len, const bool bCheck);
 		void Close(User * pUser, char * sData, const uint32_t &ui32Len);
 		
-		void Unknown(User * pUser, char * sData, const uint32_t &ui32Len, const bool &bMyNick = false);
+		void Unknown(User * pUser, char * sData, const uint32_t &ui32Len, const bool bMyNick = false);
 		void MyNick(User * pUser, char * sData, const uint32_t &ui32Len);
 		
-		bool ValidateUserNick(User * pUser, char * sNick, const size_t &szNickLen, const bool &ValidateNick);
+		bool ValidateUserNick(User * pUser, char * sNick, const size_t &szNickLen, const bool ValidateNick);
 		bool ValidateUserNickFinally(bool pIsNotReg, User * pUser, const size_t &szNickLen, const bool ValidateNick); // [+] FlylinkDC++
 		
 		PassBf * Find(const uint8_t * ui128IpHash);
@@ -84,18 +84,18 @@ class clsDcCommands
 		
 		static bool CheckIPPort(const User * pUser, char * sIP, bool &bWrongPort, uint16_t &ui16Port, uint8_t &ui8AfterPortLen, char cPortEnd);
 		static bool GetPort(char * sData, uint16_t &ui16Port, uint8_t &ui8AfterPortLen, char cPortEnd);
-		void SendIncorrectPortMsg(User * pUser, const bool &bCTM);
-		void SendIncorrectIPMsg(User * pUser, char * sBadIP, const bool &bCTM);
+		void SendIncorrectPortMsg(User * pUser, const bool bCTM);
+		void SendIncorrectIPMsg(User * pUser, char * sBadIP, const bool bCTM);
 		static void SendIPFixedMsg(User * pUser, char * sBadIP, char * sRealIP);
 		
-		PrcsdUsrCmd * AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t &szLen, const bool &bActive) const;
+		PrcsdUsrCmd * AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t &szLen, const bool bActive) const;
 	public:
 		static clsDcCommands * mPtr;
 		
 		clsDcCommands();
 		~clsDcCommands();
 		
-		void PreProcessData(User * pUser, char * sData, const bool &bCheck, const uint32_t &ui32Len);
+		void PreProcessData(User * pUser, char * sData, const bool bCheck, const uint32_t &ui32Len);
 		void ProcessCmds(User * pUser);
 		
 		static void SRFromUDP(User * pUser, char * sData, const size_t &szLen);

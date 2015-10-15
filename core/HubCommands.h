@@ -38,9 +38,9 @@ class clsHubCommands
 		static bool RangeUnban(User * pUser, char * sCommand, bool bFromPM);
 		static bool RangeUnban(User * pUser, char * sCommand, bool bFromPM, unsigned char cType);
 		
-		static void SendNoPermission(User * pUser, const bool &bFromPM);
-		static int CheckFromPm(User * pUser, const bool &bFromPM);
-		static void UncountDeflood(User * pUser, const bool &bFromPM);
+		static void SendNoPermission(User * pUser, const bool bFromPM);
+		static int CheckFromPm(User * pUser, const bool bFromPM);
+		static void UncountDeflood(User * pUser, const bool bFromPM);
 	public:
 		static bool DoCommand(User * pUser, char * sCommand, const size_t &szCmdLen, bool bFromPM = false);
 };

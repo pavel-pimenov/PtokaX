@@ -473,10 +473,10 @@ void clsRegManager::ChangeReg(RegUser * pReg, char * sNewPasswd, const uint16_t 
 //---------------------------------------------------------------------------
 
 #ifdef _BUILD_GUI
-void clsRegManager::Delete(RegUser * pReg, const bool &bFromGui/* = false*/)
+void clsRegManager::Delete(RegUser * pReg, const bool bFromGui/* = false*/)
 {
 #else
-void clsRegManager::Delete(RegUser * pReg, const bool &/*bFromGui = false*/)
+void clsRegManager::Delete(RegUser * pReg, const bool /*bFromGui = false*/)
 {
 #endif
 	if (clsServerManager::bServerRunning == true)
@@ -889,7 +889,7 @@ void clsRegManager::LoadXML()
 }
 //---------------------------------------------------------------------------
 
-void clsRegManager::Save(const bool &bSaveOnChange/* = false*/, const bool &bSaveOnTime/* = false*/)
+void clsRegManager::Save(const bool bSaveOnChange/* = false*/, const bool bSaveOnTime/* = false*/)
 {
 	if (bSaveOnTime == true && ui8SaveCalls == 0)
 	{

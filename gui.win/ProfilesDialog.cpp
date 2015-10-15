@@ -524,7 +524,7 @@ void clsProfilesDialog::OnProfileChanged(const LPNMLISTVIEW &pListView)
 }
 //------------------------------------------------------------------------------
 
-void clsProfilesDialog::ChangePermissionChecks(const bool &bCheck)
+void clsProfilesDialog::ChangePermissionChecks(const bool bCheck)
 {
 	int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	

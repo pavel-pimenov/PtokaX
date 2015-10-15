@@ -257,10 +257,10 @@ void clsScriptManager::Start()
 //------------------------------------------------------------------------------
 
 #ifdef _BUILD_GUI
-bool clsScriptManager::AddScript(char * sName, const bool &bEnabled, const bool &bNew)
+bool clsScriptManager::AddScript(char * sName, const bool bEnabled, const bool bNew)
 {
 #else
-bool clsScriptManager::AddScript(char * sName, const bool &bEnabled, const bool &/*bNew*/)
+bool clsScriptManager::AddScript(char * sName, const bool bEnabled, const bool /*bNew*/)
 {
 #endif
 	if (ui8ScriptCount == 254)
@@ -560,7 +560,7 @@ uint8_t clsScriptManager::FindScriptIdx(char * sName)
 }
 //------------------------------------------------------------------------------
 
-bool clsScriptManager::StartScript(Script * curScript, const bool &bEnable)
+bool clsScriptManager::StartScript(Script * curScript, const bool bEnable)
 {
 	uint8_t ui8dx = 255;
 	for (uint8_t ui8i = 0; ui8i < ui8ScriptCount; ui8i++)
@@ -662,7 +662,7 @@ bool clsScriptManager::StartScript(Script * curScript, const bool &bEnable)
 }
 //------------------------------------------------------------------------------
 
-void clsScriptManager::StopScript(Script * curScript, const bool &bDisable)
+void clsScriptManager::StopScript(Script * curScript, const bool bDisable)
 {
 	if (bDisable == true)
 	{
@@ -691,7 +691,7 @@ void clsScriptManager::StopScript(Script * curScript, const bool &bDisable)
 }
 //------------------------------------------------------------------------------
 
-void clsScriptManager::MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool &bUp)
+void clsScriptManager::MoveScript(const uint8_t &ui8ScriptPosInTbl, const bool bUp)
 {
 	if (bUp == true)
 	{

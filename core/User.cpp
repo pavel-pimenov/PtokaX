@@ -1384,7 +1384,7 @@ void User::SendTextDelayed(const string &sText)
 	}
 }
 
-void User::SendFormat(const char * sFrom, const bool &bDelayed, const char * sFormatMsg, ...)
+void User::SendFormat(const char * sFrom, const bool bDelayed, const char * sFormatMsg, ...)
 {
 	if (ui8State >= STATE_CLOSING)
 	{
@@ -1436,7 +1436,7 @@ void User::SendFormat(const char * sFrom, const bool &bDelayed, const char * sFo
 }
 //---------------------------------------------------------------------------
 
-void User::SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const bool &bDelayed, const char * sFormatMsg, ...)
+void User::SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const bool bDelayed, const char * sFormatMsg, ...)
 {
 	if (ui8State >= STATE_CLOSING)
 	{
@@ -3323,7 +3323,7 @@ bool User::ProcessRules()
 
 //------------------------------------------------------------------------------
 
-void User::AddPrcsdCmd(const uint8_t &ui8Type, char * sCommand, const size_t &szCommandLen, User * to, const bool &bIsPm/* = false*/)
+void User::AddPrcsdCmd(const uint8_t &ui8Type, char * sCommand, const size_t &szCommandLen, User * to, const bool bIsPm/* = false*/)
 {
 	if (ui8Type == PrcsdUsrCmd::CTM_MCTM_RCTM_SR_TO)
 	{

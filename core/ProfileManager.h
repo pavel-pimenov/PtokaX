@@ -124,7 +124,7 @@ class clsProfileManager
 		void MoveProfileDown(const uint16_t &iProfile);
 		void MoveProfileUp(const uint16_t &iProfile);
 		void ChangeProfileName(const uint16_t &iProfile, char * sName, const size_t &szLen);
-		void ChangeProfilePermission(const uint16_t &iProfile, const size_t &szId, const bool &bValue);
+		void ChangeProfilePermission(const uint16_t &iProfile, const size_t &szId, const bool bValue);
 		void SaveProfiles();
 		bool RemoveProfile(const uint16_t &iProfile);
 		

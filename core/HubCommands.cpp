@@ -5404,13 +5404,13 @@ bool clsHubCommands::RangeUnban(User * pUser, char * sCommand, bool bFromPM)
 }
 //---------------------------------------------------------------------------
 
-void clsHubCommands::SendNoPermission(User * pUser, const bool &bFromPM)
+void clsHubCommands::SendNoPermission(User * pUser, const bool bFromPM)
 {
 	pUser->SendFormatCheckPM("clsHubCommands::SendNoPermission", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s!|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_NOT_ALWD_TO_USE_THIS_CMD]);
 }
 //---------------------------------------------------------------------------
 
-int clsHubCommands::CheckFromPm(User * pUser, const bool &bFromPM)
+int clsHubCommands::CheckFromPm(User * pUser, const bool bFromPM)
 {
 	if (bFromPM == false)
 	{
@@ -5427,7 +5427,7 @@ int clsHubCommands::CheckFromPm(User * pUser, const bool &bFromPM)
 }
 //---------------------------------------------------------------------------
 
-void clsHubCommands::UncountDeflood(User * pUser, const bool &bFromPM)
+void clsHubCommands::UncountDeflood(User * pUser, const bool bFromPM)
 {
 	if (bFromPM == false)
 	{

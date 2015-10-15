@@ -1010,7 +1010,7 @@ bool CheckSprintf1(const int &iRetVal, const size_t &szLenVal, const size_t &szM
 }
 //---------------------------------------------------------------------------
 
-void AppendLog(const string & sData, const bool &bScript/* == false*/)
+void AppendLog(const string & sData, const bool bScript/* == false*/)
 {
 	FILE * fw;
 	

@@ -59,7 +59,7 @@ class clsProfilesDialog
 		void AddAllProfiles();
 		void OnContextMenu(HWND hWindow, LPARAM lParam);
 		void OnProfileChanged(const LPNMLISTVIEW &pListView);
-		void ChangePermissionChecks(const bool &bCheck);
+		void ChangePermissionChecks(const bool bCheck);
 		void RenameProfile(const int &iProfile);
 		void UpdateUpDown();
 		void OnPermissionChanged(const LPNMLISTVIEW &pListView);

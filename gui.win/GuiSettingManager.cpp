@@ -237,7 +237,7 @@ int32_t clsGuiSettingManager::GetDefaultInteger(const size_t &szIntegerId)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGuiSettingManager::SetBool(const size_t &szBoolId, const bool &bValue)
+void clsGuiSettingManager::SetBool(const size_t &szBoolId, const bool bValue)
 {
 	if (bBools[szBoolId] == bValue)
 	{

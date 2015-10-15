@@ -863,7 +863,7 @@ void clsProfileManager::ChangeProfileName(const uint16_t &iProfile, char * sName
 }
 //---------------------------------------------------------------------------
 
-void clsProfileManager::ChangeProfilePermission(const uint16_t &iProfile, const size_t &szId, const bool &bValue)
+void clsProfileManager::ChangeProfilePermission(const uint16_t &iProfile, const size_t &szId, const bool bValue)
 {
 	ppProfilesTable[iProfile]->bPermissions[szId] = bValue;
 }

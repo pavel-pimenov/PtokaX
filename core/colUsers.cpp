@@ -567,7 +567,7 @@ void clsUsers::Add2NickList(User * pUser)
 }
 //---------------------------------------------------------------------------
 
-void clsUsers::AddBot2NickList(char * sNick, const size_t &szNickLen, const bool &bIsOp)
+void clsUsers::AddBot2NickList(char * sNick, const size_t &szNickLen, const bool bIsOp)
 {
 	// $NickList nick$$nick2$$|
 	
@@ -669,7 +669,7 @@ void clsUsers::Add2OpList(User * pUser)
 }
 //---------------------------------------------------------------------------
 
-void clsUsers::DelFromNickList(char * sNick, const bool &bIsOp)
+void clsUsers::DelFromNickList(char * sNick, const bool bIsOp)
 {
 	int iRet = sprintf(clsServerManager::pGlobalBuffer, "$%s$", sNick);
 	if (CheckSprintf(iRet, clsServerManager::szGlobalBufferSize, "clsUsers::DelFromNickList") == false)

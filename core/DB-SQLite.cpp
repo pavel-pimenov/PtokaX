@@ -535,7 +535,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // First of two functions to search data in database. Nick will be probably most used.
-bool DBSQLite::SearchNick(char * sNick, const uint8_t &ui8NickLen, User * pUser, const bool &bFromPM)
+bool DBSQLite::SearchNick(char * sNick, const uint8_t &ui8NickLen, User * pUser, const bool bFromPM)
 {
 	if (bConnected == false)
 	{
@@ -602,7 +602,7 @@ bool DBSQLite::SearchNick(char * sNick, const uint8_t &ui8NickLen, User * pUser,
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Second of two fnctions to search data in database. Now using IP.
-bool DBSQLite::SearchIP(char * sIP, User * pUser, const bool &bFromPM)
+bool DBSQLite::SearchIP(char * sIP, User * pUser, const bool bFromPM)
 {
 	if (bConnected == false)
 	{

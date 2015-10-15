@@ -340,10 +340,10 @@ bool clsBanManager::Add2IpTable(BanItem *Ban)
 //---------------------------------------------------------------------------
 
 #ifdef _BUILD_GUI
-void clsBanManager::Rem(BanItem * Ban, const bool &bFromGui/* = false*/)
+void clsBanManager::Rem(BanItem * Ban, const bool bFromGui/* = false*/)
 {
 #else
-void clsBanManager::Rem(BanItem * Ban, const bool &/*bFromGui = false*/)
+void clsBanManager::Rem(BanItem * Ban, const bool /*bFromGui = false*/)
 {
 #endif
 	RemFromTable(Ban);
@@ -661,10 +661,10 @@ void clsBanManager::AddRange(RangeBanItem *RangeBan)
 //---------------------------------------------------------------------------
 
 #ifdef _BUILD_GUI
-void clsBanManager::RemRange(RangeBanItem *RangeBan, const bool &bFromGui/* = false*/)
+void clsBanManager::RemRange(RangeBanItem *RangeBan, const bool bFromGui/* = false*/)
 {
 #else
-void clsBanManager::RemRange(RangeBanItem *RangeBan, const bool &/*bFromGui = false*/)
+void clsBanManager::RemRange(RangeBanItem *RangeBan, const bool /*bFromGui = false*/)
 {
 #endif
 	if (RangeBan->pPrev == NULL)
@@ -2509,7 +2509,7 @@ void clsBanManager::ClearPermRange(void)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool &bFull)
+void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -2735,7 +2735,7 @@ void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool &
 }
 //---------------------------------------------------------------------------
 
-char clsBanManager::BanIp(User * u, char * sIp, char * sReason, char * sBy, const bool &bFull)
+char clsBanManager::BanIp(User * u, char * sIp, char * sReason, char * sBy, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -3064,7 +3064,7 @@ bool clsBanManager::NickBan(User * u, char * sNick, char * sReason, char * sBy)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const uint32_t &minutes, const time_t &expiretime, const bool &bFull)
+void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const uint32_t &minutes, const time_t &expiretime, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -3355,7 +3355,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
 }
 //---------------------------------------------------------------------------
 
-char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, const uint32_t &minutes, const time_t &expiretime, const bool &bFull)
+char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, const uint32_t &minutes, const time_t &expiretime, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -3949,7 +3949,7 @@ void clsBanManager::RemoveTempAllIP(const uint8_t * ui128IpHash)
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::RangeBan(char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const bool &bFull)
+bool clsBanManager::RangeBan(char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const bool bFull)
 {
 	RangeBanItem * pRangeBan = new(std::nothrow) RangeBanItem();
 	if (pRangeBan == NULL)
@@ -4067,7 +4067,7 @@ bool clsBanManager::RangeBan(char * sIpFrom, const uint8_t * ui128FromIpHash, ch
 //---------------------------------------------------------------------------
 
 bool clsBanManager::RangeTempBan(char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const uint32_t &minutes,
-                                 const time_t &expiretime, const bool &bFull)
+                                 const time_t &expiretime, const bool bFull)
 {
 	RangeBanItem * pRangeBan = new(std::nothrow) RangeBanItem();
 	if (pRangeBan == NULL)

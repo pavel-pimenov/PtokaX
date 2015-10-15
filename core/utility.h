@@ -90,7 +90,7 @@ inline size_t Allign128K(size_t n)
 bool CheckSprintf(const int &iRetVal, const size_t &szMax, const char * sMsg); // CheckSprintf(imsgLen, 64, "UdpDebug::New");
 bool CheckSprintf1(const int &iRetVal, const size_t &szLenVal, const size_t &szMax, const char * sMsg); // CheckSprintf1(iret, imsgLen, 64, "UdpDebug::New");
 
-void AppendLog(const string & sData, const bool &bScript = false);
+void AppendLog(const string & sData, const bool bScript = false);
 void AppendDebugLog(const char * sData);
 void AppendDebugLogFormat(const char * sFormatMsg, ...);
 

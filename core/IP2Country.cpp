@@ -603,7 +603,7 @@ clsIpP2Country::~clsIpP2Country()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool &bCountryName)
+const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool bCountryName)
 {
 	bool bIPv4 = false;
 	uint32_t ui32IpHash = 0;
@@ -730,7 +730,7 @@ uint8_t clsIpP2Country::Find(const uint8_t * ui128IpHash)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const char * clsIpP2Country::GetCountry(const uint8_t &ui8dx, const bool &bCountryName)
+const char * clsIpP2Country::GetCountry(const uint8_t &ui8dx, const bool bCountryName)
 {
 	if (bCountryName == false)
 	{

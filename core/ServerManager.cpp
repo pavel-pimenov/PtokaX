@@ -755,7 +755,7 @@ void clsServerManager::Stop()
 }
 //---------------------------------------------------------------------------
 
-void clsServerManager::FinalStop(const bool &bDeleteServiceLoop)
+void clsServerManager::FinalStop(const bool bDeleteServiceLoop)
 {
 	if (bDeleteServiceLoop == true)
 	{
@@ -1140,7 +1140,7 @@ void clsServerManager::UpdateAutoRegState()
 }
 //---------------------------------------------------------------------------
 
-void clsServerManager::CreateServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber, const bool &bResume/* = false*/)
+void clsServerManager::CreateServerThread(const int &iAddrFamily, const uint16_t &ui16PortNumber, const bool bResume/* = false*/)
 {
 	ServerThread * pServer = new(std::nothrow) ServerThread(iAddrFamily, ui16PortNumber);
 	if (pServer == NULL)
@@ -1225,7 +1225,7 @@ void clsServerManager::CommandLineSetup()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool clsServerManager::ResolveHubAddress(const bool &bSilent/* = false*/)
+bool clsServerManager::ResolveHubAddress(const bool bSilent/* = false*/)
 {
 	if (clsSettingManager::mPtr->bBools[SETBOOL_RESOLVE_TO_IP] == true)
 	{

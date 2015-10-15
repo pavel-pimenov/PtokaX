@@ -515,7 +515,7 @@ void clsMainWindowPageScripts::RefreshScripts()
 }
 //------------------------------------------------------------------------------
 
-void clsMainWindowPageScripts::AddScriptsToList(const bool &bDelete)
+void clsMainWindowPageScripts::AddScriptsToList(const bool bDelete)
 {
 	::SendMessage(hWndPageItems[LV_SCRIPTS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 	
@@ -537,7 +537,7 @@ void clsMainWindowPageScripts::AddScriptsToList(const bool &bDelete)
 }
 //------------------------------------------------------------------------------
 
-void clsMainWindowPageScripts::ScriptToList(const uint8_t &ui8ScriptId, const bool &bInsert, const bool &bSelected)
+void clsMainWindowPageScripts::ScriptToList(const uint8_t &ui8ScriptId, const bool bInsert, const bool bSelected)
 {
 	bIgnoreItemChanged = true;
 	
@@ -842,7 +842,7 @@ void clsMainWindowPageScripts::DeleteScript()
 }
 //------------------------------------------------------------------------------
 
-void clsMainWindowPageScripts::MoveScript(uint8_t ui8ScriptId, const bool &bUp)
+void clsMainWindowPageScripts::MoveScript(uint8_t ui8ScriptId, const bool bUp)
 {
 	int iSel = (int)::SendMessage(hWndPageItems[LV_SCRIPTS], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	

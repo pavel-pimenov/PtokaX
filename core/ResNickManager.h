@@ -57,8 +57,8 @@ class clsReservedNicksManager
 		~clsReservedNicksManager();
 		
 		bool CheckReserved(const char * sNick, const uint32_t &hash) const;
-		void AddReservedNick(const char * sNick, const bool &bFromScript = false);
-		void DelReservedNick(char * sNick, const bool &bFromScript = false);
+		void AddReservedNick(const char * sNick, const bool bFromScript = false);
+		void DelReservedNick(char * sNick, const bool bFromScript = false);
 };
 //---------------------------------------------------------------------------
 

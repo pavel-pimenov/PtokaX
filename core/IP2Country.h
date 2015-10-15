@@ -40,10 +40,10 @@ class clsIpP2Country
 		clsIpP2Country();
 		~clsIpP2Country();
 		
-		const char * Find(const uint8_t * ui128IpHash, const bool &bCountryName);
+		const char * Find(const uint8_t * ui128IpHash, const bool bCountryName);
 		uint8_t Find(const uint8_t * ui128IpHash);
 		
-		static const char * GetCountry(const uint8_t &ui8dx, const bool &bCountryName);
+		static const char * GetCountry(const uint8_t &ui8dx, const bool bCountryName);
 		
 		void Reload();
 };

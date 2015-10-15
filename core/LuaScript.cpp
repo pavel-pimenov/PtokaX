@@ -103,7 +103,7 @@ ScriptBot::~ScriptBot()
 }
 //------------------------------------------------------------------------------
 
-ScriptBot * ScriptBot::CreateScriptBot(char * sBotNick, const size_t &szNickLen, char * sDescription, const size_t &szDscrLen, char * sEmail, const size_t &szEmlLen, const bool &bOP)
+ScriptBot * ScriptBot::CreateScriptBot(char * sBotNick, const size_t &szNickLen, char * sDescription, const size_t &szDscrLen, char * sEmail, const size_t &szEmlLen, const bool bOP)
 {
 	ScriptBot * pScriptBot = new(std::nothrow) ScriptBot();
 	
@@ -271,7 +271,7 @@ Script::~Script()
 }
 //------------------------------------------------------------------------------
 
-Script * Script::CreateScript(char * Name, const bool &enabled)
+Script * Script::CreateScript(char * Name, const bool enabled)
 {
 	Script * pScript = new(std::nothrow) Script();
 	
@@ -846,7 +846,7 @@ static bool ScriptOnError(Script * cur, char * sErrorMsg, const size_t &szMsgLen
 }
 //------------------------------------------------------------------------------
 
-void ScriptPushUser(lua_State * L, User * u, const bool &bFullTable/* = false*/)
+void ScriptPushUser(lua_State * L, User * u, const bool bFullTable/* = false*/)
 {
 	lua_checkstack(L, 3); // we need 3 (1 table, 2 id, 3 value) empty slots in stack, check it to be sure
 	

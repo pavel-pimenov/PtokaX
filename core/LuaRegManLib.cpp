@@ -140,7 +140,7 @@ static int GetRegsByProfile(lua_State * L)
 }
 //------------------------------------------------------------------------------
 
-static int GetRegsByOpStatus(lua_State * L, const bool &bOperator)
+static int GetRegsByOpStatus(lua_State * L, const bool bOperator)
 {
 	if (lua_gettop(L) != 0)
 	{

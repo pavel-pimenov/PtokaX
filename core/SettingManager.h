@@ -99,7 +99,7 @@ class clsSettingManager
 		int16_t GetShort(const size_t &szShortId);
 		void GetText(const size_t &szTxtId, char * sMsg);
 		
-		void SetBool(const size_t &szBoolId, const bool &bValue); //SettingManager->SetBool()
+		void SetBool(const size_t &szBoolId, const bool bValue); //SettingManager->SetBool()
 		void SetMOTD(char * sTxt, const size_t &szLen);
 		void SetShort(const size_t &szShortId, const int16_t &iValue);
 		void SetText(const size_t &szTxtId, char * sTxt);
@@ -107,10 +107,10 @@ class clsSettingManager
 		void SetText(const size_t &szTxtId, const char * sTxt, const size_t &szLen);
 		void SetText(const size_t &szTxtId, const string & sTxt);
 		
-		void UpdateBot(const bool &bNickChanged = true);
-		void DisableBot(const bool &bNickChanged = true, const bool &bRemoveMyINFO = true);
-		void UpdateOpChat(const bool &bNickChanged = true);
-		void DisableOpChat(const bool &bNickChanged = true);
+		void UpdateBot(const bool bNickChanged = true);
+		void DisableBot(const bool bNickChanged = true, const bool bRemoveMyINFO = true);
+		void UpdateOpChat(const bool bNickChanged = true);
+		void DisableOpChat(const bool bNickChanged = true);
 		
 		void Save();
 		void UpdateAll();
