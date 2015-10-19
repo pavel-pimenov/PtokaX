@@ -173,7 +173,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			BOOL bHotTrackEnabled = FALSE;
 			::SystemParametersInfo(SPI_GETHOTTRACKING, 0, &bHotTrackEnabled, 0);
 			
-			if (bHotTrackEnabled == TRUE)
+			if (bHotTrackEnabled != FALSE)
 			{
 				dwTabsStyle |= TCS_HOTTRACK;
 			}

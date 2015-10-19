@@ -525,16 +525,6 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 								return;
 							}
 							
-							// Am I sending MyINFO of someone other ?
-							// OR i try to fuck up hub with some chars after my nick ??? ... PPK
-							if ((sData[14 + pUser->ui8NickLen] != ' ') || (memcmp(pUser->sNick, sData + 14, pUser->ui8NickLen) != 0))
-							{
-								clsUdpDebug::mPtr->BroadcastFormat("[SYS] Nick spoofing in ExtJSON from %s (%s) - user closed. (%s)", pUser->sNick, pUser->sIP, sData);
-								
-								pUser->Close();
-								return;
-							}
-							
 							if (ExtJSON(pUser, sData, ui32Len) == true)
 							{
 								pUser->ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
@@ -1973,7 +1963,7 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 #ifdef USE_FLYLINKDC_EXT_JSON
 //---------------------------------------------------------------------------
 // $ExtJSON $ALL  $ $$$$|
-bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool /* bCheck */)
+bool clsDcCommands::ExtJSONDeflood(User * pUser, const char * sData, const uint32_t ui32Len, const bool /* bCheck */)
 {
 	if (ui32Len < (22u + pUser->ui8NickLen))
 	{
@@ -2016,7 +2006,7 @@ bool clsDcCommands::ExtJSONDeflood(User * pUser, char * sData, const uint32_t ui
 //---------------------------------------------------------------------------
 
 // $ExtJSON $ALL  $ $$$$|
-bool clsDcCommands::ExtJSON(User * pUser, char * sData, const uint32_t ui32Len)
+bool clsDcCommands::ExtJSON(User * pUser, const char * sData, const uint32_t ui32Len)
 {
 
 	if (pUser->ComparExtJSON(sData, ui32Len))

@@ -1826,7 +1826,7 @@ void User::SetNick(char * sNewNick, const uint8_t ui8NewNickLen)
 }
 //------------------------------------------------------------------------------
 #ifdef USE_FLYLINKDC_EXT_JSON
-void User::SetExtJSONOriginal(char * sNewExtJSON, const uint16_t ui16NewExtJSONLen)
+void User::SetExtJSONOriginal(const char * sNewExtJSON, const uint16_t ui16NewExtJSONLen)
 {
 	if (m_user_ext_info)
 	{

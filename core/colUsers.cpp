@@ -833,7 +833,7 @@ void clsUsers::Add2MyInfos(User * pUser)
 }
 //---------------------------------------------------------------------------
 #ifdef USE_FLYLINKDC_EXT_JSON
-void clsUsers::Add2ExtJSON(User * pUser)
+void clsUsers::Add2ExtJSON(const User * pUser)
 {
 	if (pUser->m_user_ext_info)
 	{
@@ -848,7 +848,7 @@ void clsUsers::Add2ExtJSON(User * pUser)
 	}
 }
 //---------------------------------------------------------------------------
-void clsUsers::DelFromExtJSONInfos(User * pUser)
+void clsUsers::DelFromExtJSONInfos(const User * pUser)
 {
 	if (pUser->m_user_ext_info)
 	{

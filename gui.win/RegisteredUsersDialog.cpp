@@ -369,6 +369,7 @@ void clsRegisteredUsersDialog::AddReg(const RegUser * pReg)
 	if (i != -1)
 	{
 		char sHexaHash[129];
+		sHexaHash[0] = 0;
 		
 		lvItem.mask = LVIF_TEXT;
 		lvItem.iItem = i;

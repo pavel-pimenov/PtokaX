@@ -130,7 +130,7 @@ class ExtJSONInfo
 		{
 			m_iLastExtJSONSendTick = p_tick;
 		}
-		bool ComparExtJSON(char * sNewExtJSON, const uint16_t ui16NewExtJSONLen) const
+		bool ComparExtJSON(const char * sNewExtJSON, const uint16_t ui16NewExtJSONLen) const
 		{
 			if (!m_ExtJSONOriginal.empty())
 				return m_ExtJSONOriginal == std::string(sNewExtJSON, ui16NewExtJSONLen);
@@ -184,8 +184,8 @@ struct User
 	            
 #ifdef USE_FLYLINKDC_EXT_JSON
 	void SendCharDelayedExtJSON();
-	void SetExtJSONOriginal(char * sNewExtJSON, const uint16_t ui16NewExtJSONLen);
-	bool ComparExtJSON(char * sNewExtJSON, const uint16_t ui16NewExtJSONLen) const
+	void SetExtJSONOriginal(const char * sNewExtJSON, const uint16_t ui16NewExtJSONLen);
+	bool ComparExtJSON(const char * sNewExtJSON, const uint16_t ui16NewExtJSONLen) const
 	{
 		if (m_user_ext_info == NULL)
 			return true;

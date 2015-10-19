@@ -428,6 +428,7 @@ void clsRangeBansDialog::AddRangeBan(const RangeBanItem * pRangeBan)
 	if ((pRangeBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP)
 	{
 		char msg[256];
+		msg[0] = 0;
 		struct tm * tm = localtime(&pRangeBan->tTempBanExpire);
 		strftime(msg, 256, "%c", tm);
 		

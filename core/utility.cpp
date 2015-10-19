@@ -699,7 +699,7 @@ uint16_t GetIpTableIdx(const uint8_t * ui128IpHash)
 	h += 1;
 	
 	uint16_t ui16Idx = 0;
-	memcpy(&ui16Idx, &h, 2);
+	memcpy(&ui16Idx, &h, sizeof(uint16_t));
 	
 	return ui16Idx;
 }

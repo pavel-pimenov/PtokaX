@@ -460,6 +460,7 @@ void clsBansDialog::AddBan(const BanItem * pBan)
 	if ((pBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP)
 	{
 		char msg[256];
+		msg[0] = 0;
 		struct tm *tm = localtime(&pBan->tTempBanExpire);
 		strftime(msg, 256, "%c", tm);
 		

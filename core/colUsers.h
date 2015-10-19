@@ -99,8 +99,8 @@ class clsUsers
 		void Add2MyInfos(User * pUser);
 		void DelFromMyInfos(User * pUser);
 #ifdef USE_FLYLINKDC_EXT_JSON
-		void Add2ExtJSON(User * pUser);
-		void DelFromExtJSONInfos(User * pUser);
+		void Add2ExtJSON(const User * pUser);
+		void DelFromExtJSONInfos(const User * pUser);
 #endif
 		void Add2MyInfosTag(User * pUser);
 		void DelFromMyInfosTag(User * pUser);

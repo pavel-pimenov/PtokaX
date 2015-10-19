@@ -58,8 +58,8 @@ class clsDcCommands
 		bool MyINFODeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck);
 		static bool MyINFO(User * pUser, char * sData, const uint32_t ui32Len);
 #ifdef USE_FLYLINKDC_EXT_JSON
-		bool ExtJSONDeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck);
-		static bool ExtJSON(User * pUser, char * sData, const uint32_t ui32Len);
+		bool ExtJSONDeflood(User * pUser, const char * sData, const uint32_t ui32Len, const bool bCheck);
+		static bool ExtJSON(User * pUser, const char * sData, const uint32_t ui32Len);
 #endif
 		void MyPass(User * pUser, char * sData, const uint32_t ui32Len);
 		void OpForceMove(User * pUser, char * sData, const uint32_t ui32Len);

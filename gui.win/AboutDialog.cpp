@@ -199,8 +199,10 @@ void AboutDialog::DoModal(HWND hWndParent)
 	                                                    (LUA_RELEASE " / PostgreSQL " string(PQlibVersion())).c_str()
 #elif _WITH_MYSQL
 	                                                    LUA_RELEASE " / MySQL " MYSQL_SERVER_VERSION
+#else
+														LUA_RELEASE " / without SQL DB "
 #endif
-	                                                    , WS_CHILD | WS_VISIBLE | SS_CENTER, 73, ScaleGui(39), ScaleGui(290), ScaleGui(25),
+	                                                    ,WS_CHILD | WS_VISIBLE | SS_CENTER, 73, ScaleGui(39), ScaleGui(290), ScaleGui(25),
 	                                                    hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
 	::SendMessage(hWndWindowItems[LBL_LUA_VERSION], WM_SETFONT, (WPARAM)hBigFont, MAKELPARAM(TRUE, 0));
 	

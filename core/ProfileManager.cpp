@@ -327,8 +327,8 @@ clsProfileManager::clsProfileManager() : ppProfilesTable(NULL), ui16ProfileCount
 		for (uint8_t ui8i = 0; ui8i < 4; ui8i++)
 		{
 			ProfileItem * pNewProfile = CreateProfile(sProfileNames[ui8i]);
-			
-			for (uint8_t ui8j = 0; ui8j < strlen(sProfilePermisions[ui8i]); ui8j++)
+			const size_t l_len_profile = strlen(sProfilePermisions[ui8i]);
+			for (uint8_t ui8j = 0; ui8j < l_len_profile; ui8j++)
 			{
 				if (sProfilePermisions[ui8i][ui8j] == '1')
 				{
