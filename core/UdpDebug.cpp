@@ -136,6 +136,23 @@ void clsUdpDebug::Broadcast(const char * msg, const size_t szMsgLen) const
 void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 {
 	
+	if (pDbgItemList == NULL)
+	{
+		return;
+	}
+	else
+	{
+#ifndef _WIN32
+		std::string l_str;
+		l_str.resize(65535);
+		va_list vlArgs;
+		va_start(vlArgs, sFormatMsg);
+		int iRet = vsprintf(&l_str[0], sFormatMsg, vlArgs);
+		va_end(vlArgs);
+		syslog(LOG_NOTICE, "%s", l_str.c_str());
+		return;
+#endif
+	}
 	va_list vlArgs;
 	va_start(vlArgs, sFormatMsg);
 	
@@ -147,14 +164,6 @@ void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 	{
 		AppendDebugLogFormat("[ERR] vsprintf wrong value %d in clsUdpDebug::Broadcast\n", iRet);
 		
-		return;
-	}
-#ifndef _WIN32
-	const std::string l_str(sDebugHead,iRet);
-	syslog(LOG_NOTICE, "%s", l_str.c_str());
-#endif
-	if (pDbgItemList == NULL)
-	{
 		return;
 	}
 	
