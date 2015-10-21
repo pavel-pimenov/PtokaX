@@ -136,9 +136,8 @@ void clsUdpDebug::Broadcast(const char * msg, const size_t szMsgLen) const
 void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 {
 	
-	if (pDbgItemList == NULL)
-	{
 #ifndef _WIN32
+	{
 		std::string l_str;
 		l_str.resize(65535);
 		va_list vlArgs;
@@ -147,7 +146,11 @@ void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 		va_end(vlArgs);
 		printf("%s\r",l_str.c_str());
 		syslog(LOG_NOTICE, "%s", l_str.c_str());
+	}
 #endif
+
+	if (pDbgItemList == NULL)
+	{
 		return;
 	}
 	va_list vlArgs;
