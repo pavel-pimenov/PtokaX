@@ -360,12 +360,12 @@ class CSyslogInit()
 	}
 };
 #endif
-#ifndef _WIN32
-static CSyslogInit g_syslog;
-#endif;
 
 int __cdecl main(int argc, char* argv[])
 {
+#ifndef _WIN32
+	CSyslogInit g_syslog;
+#endif;
 
 #ifndef _WIN_IOT
 	::SetDllDirectory("");
