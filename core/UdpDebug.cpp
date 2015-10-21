@@ -30,6 +30,8 @@
 //---------------------------------------------------------------------------
 #ifdef _WIN32
 #pragma hdrstop
+#else
+#include <syslog.h>
 #endif
 //---------------------------------------------------------------------------
 clsUdpDebug * clsUdpDebug::mPtr = NULL;
@@ -132,10 +134,6 @@ void clsUdpDebug::Broadcast(const char * msg, const size_t szMsgLen) const
 
 void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 {
-	if (pDbgItemList == NULL)
-	{
-		return;
-	}
 	
 	va_list vlArgs;
 	va_start(vlArgs, sFormatMsg);
@@ -148,6 +146,13 @@ void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 	{
 		AppendDebugLogFormat("[ERR] vsprintf wrong value %d in clsUdpDebug::Broadcast\n", iRet);
 		
+		return;
+	}
+#ifndef _WIN32
+	syslog(LOG_NOTICE, "%s", l_log_buf);
+#endif
+	if (pDbgItemList == NULL)
+	{
 		return;
 	}
 	

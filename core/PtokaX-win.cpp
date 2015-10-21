@@ -340,6 +340,24 @@ static void WINAPI StartService(DWORD /*argc*/, char* argv[])
 	SetServiceStatus(ssh, &ss);
 }
 //---------------------------------------------------------------------------
+#ifndef _WIN32
+class CSyslogInit()
+{
+	CSyslogInit()
+	{
+		openlog("ptokax", 0, LOG_USER);
+		syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ start!");
+	}
+	~CSyslogInit()
+	{
+		syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ stop!");
+		closelog();
+	}
+};
+#endif
+#ifndef _WIN32
+static CSyslogInit g_syslog;
+#endif;
 
 int __cdecl main(int argc, char* argv[])
 {
@@ -559,7 +577,6 @@ int __cdecl main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 	}
-	
 	return EXIT_SUCCESS;
 }
 //---------------------------------------------------------------------------
