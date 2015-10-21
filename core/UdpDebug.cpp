@@ -149,7 +149,7 @@ void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 		return;
 	}
 #ifndef _WIN32
-	syslog(LOG_NOTICE, "%s", l_log_buf);
+	syslog(LOG_NOTICE, "%s", sDebugHead);
 #endif
 	if (pDbgItemList == NULL)
 	{

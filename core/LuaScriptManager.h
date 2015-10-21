@@ -49,7 +49,7 @@ class clsScriptManager
 		
 		uint8_t ui8ScriptCount, ui8BotsCount;
 		
-		bool bMoved;
+		volatile bool bMoved;
 		
 		enum LuaArrivals
 		{
