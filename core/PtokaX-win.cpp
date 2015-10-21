@@ -34,6 +34,11 @@
 #include "ExceptionHandling.h"
 #endif
 #include "LuaScript.h"
+
+#ifndef _WIN32
+#include <syslog.h>
+#endif
+
 #ifndef _DEBUG
 #include "DbgHelp.h"
 #include "../doctor-dump/CrashRpt.h"
@@ -361,6 +366,7 @@ static CSyslogInit g_syslog;
 
 int __cdecl main(int argc, char* argv[])
 {
+
 #ifndef _WIN_IOT
 	::SetDllDirectory("");
 #endif
