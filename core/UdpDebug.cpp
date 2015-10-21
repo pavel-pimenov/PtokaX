@@ -31,6 +31,7 @@
 #ifdef _WIN32
 #pragma hdrstop
 #else
+#include <string>
 #include <syslog.h>
 #endif
 //---------------------------------------------------------------------------
@@ -149,7 +150,8 @@ void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 		return;
 	}
 #ifndef _WIN32
-	syslog(LOG_NOTICE, "%s", sDebugHead);
+	const std::string l_str(sDebugHead,iRet);
+	syslog(LOG_NOTICE, "%s", l_str.c_str());
 #endif
 	if (pDbgItemList == NULL)
 	{
