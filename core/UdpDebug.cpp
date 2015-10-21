@@ -110,7 +110,7 @@ void clsUdpDebug::Broadcast(const char * msg, const size_t szMsgLen) const
 #ifndef _WIN32
 	{
 		std::string l_str(msg,szMsgLen);
-		printf("%s\r", l_str.c_str());
+		//printf("%s\r", l_str.c_str());
 		syslog(LOG_NOTICE, "%s", l_str.c_str());
 	}
 #endif
@@ -152,7 +152,7 @@ void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 		va_start(vlArgs, sFormatMsg);
 		int iRet = vsprintf(&l_str[0], sFormatMsg, vlArgs);
 		va_end(vlArgs);
-		printf("%s\r",l_str.c_str());
+		//printf("%s\r",l_str.c_str());
 		syslog(LOG_NOTICE, "%s", l_str.c_str());
 	}
 #endif
