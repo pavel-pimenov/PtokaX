@@ -50,7 +50,6 @@ static const int MAX_ALPHABET_SIZE = 255;
 void AppendSyslog(const char* sType,const char * sData)
 {
 #ifndef _WIN32
-	std::string l_str(msg, szMsgLen);
 	syslog(LOG_NOTICE, "[%s] %s", sType, sData);
 #endif
 }
