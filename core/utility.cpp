@@ -1103,7 +1103,7 @@ void AppendDebugLogFormat(const char * sFormatMsg, ...)
 		va_start(vlArgs, sFormatMsg);
 		int iRet = vsprintf(&l_str[0], sFormatMsg, vlArgs);
 		va_end(vlArgs);
-		syslog(LOG_NOTICE, "%s", l_str.c_str());
+		syslog(LOG_NOTICE, "[AppendDebugLogFormat] %s", l_str.c_str());
 	}
 #endif
 
