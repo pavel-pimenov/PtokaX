@@ -47,6 +47,14 @@ static const int MAX_ALPHABET_SIZE = 255;
 */
 //---------------------------------------------------------------------------
 
+void AppendSyslog(const char* sType,const char * sData)
+{
+#ifndef _WIN32
+	std::string l_str(msg, szMsgLen);
+	syslog(LOG_NOTICE, "[%s] %s", sType, sData);
+#endif
+}
+
 #ifdef _WIN32
 void Cout(const string &msg)
 {
@@ -1013,7 +1021,7 @@ bool CheckSprintf1(const int iRetVal, const size_t szLenVal, const size_t szMax,
 void AppendLog(const string & sData, const bool bScript/* == false*/)
 {
 	FILE * fw;
-	
+	AppendSyslog("AppendLog", sData.c_str()); // [+]FlylinkDC++
 	if (bScript == false)
 	{
 #ifdef _WIN32
@@ -1056,6 +1064,9 @@ void AppendLog(const string & sData, const bool bScript/* == false*/)
 
 void AppendDebugLog(const char * sData)
 {
+	
+	AppendSyslog("AppendDebugLog", sData); // [+]FlylinkDC++
+
 #ifdef _WIN32
 	FILE * fw = fopen((clsServerManager::sPath + "\\logs\\debug.log").c_str(), "a");
 #else
@@ -1084,6 +1095,18 @@ void AppendDebugLog(const char * sData)
 
 void AppendDebugLogFormat(const char * sFormatMsg, ...)
 {
+#ifndef _WIN32 // [+]FlylinkDC++
+	{
+		std::string l_str;
+		l_str.resize(65535);
+		va_list vlArgs;
+		va_start(vlArgs, sFormatMsg);
+		int iRet = vsprintf(&l_str[0], sFormatMsg, vlArgs);
+		va_end(vlArgs);
+		syslog(LOG_NOTICE, "%s", l_str.c_str());
+	}
+#endif
+
 #ifdef _WIN32
 	FILE * fw = fopen((clsServerManager::sPath + "\\logs\\debug.log").c_str(), "a");
 #else
