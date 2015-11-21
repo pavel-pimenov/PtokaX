@@ -174,6 +174,7 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <LargeAddressAware>true</LargeAddressAware>
       <TerminalServerAware>false</TerminalServerAware>
+      <Profile>true</Profile>
     </Link>
     <Manifest>
       <AssemblyIdentity>PtokaX,version=0.5.2.1,processorArchitecture=amd64,type=win32</AssemblyIdentity>
@@ -367,6 +368,7 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <LargeAddressAware>false</LargeAddressAware>
       <TerminalServerAware>false</TerminalServerAware>
+      <Profile>true</Profile>
     </Link>
     <Manifest>
       <AssemblyIdentity>PtokaX,version=0.5.2.1,processorArchitecture=x86,type=win32</AssemblyIdentity>
