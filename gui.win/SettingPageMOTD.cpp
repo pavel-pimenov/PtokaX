@@ -66,7 +66,7 @@ LRESULT SettingPageMOTD::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam
 			{
 				int iLen = ::GetWindowTextLength((HWND)lParam);
 				
-				char * buf = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iLen + 1);
+				char * buf = (char *)malloc(iLen + 1);
 				
 				if (buf == NULL)
 				{
@@ -99,10 +99,7 @@ LRESULT SettingPageMOTD::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam
 					::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
 				}
 				
-				if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)buf) == 0)
-				{
-					AppendDebugLog("%s - [MEM] Cannot deallocate buf in SettingPageMOTD::PageMOTDProc\n");
-				}
+				free(buf);
 				
 				return 0;
 			}
@@ -134,7 +131,7 @@ void SettingPageMOTD::Save()
 	
 	int iAllocLen = ::GetWindowTextLength(hWndPageItems[EDT_MOTD]);
 	
-	char * buf = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iAllocLen + 1);
+	char * buf = (char *)malloc(iAllocLen + 1);
 	
 	if (buf == NULL)
 	{
@@ -152,10 +149,7 @@ void SettingPageMOTD::Save()
 	
 	clsSettingManager::mPtr->SetMOTD(buf, iLen);
 	
-	if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)buf) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate buf in SettingPageMOTD::Save\n");
-	}
+	free(buf);
 	
 	clsSettingManager::mPtr->SetBool(SETBOOL_MOTD_AS_PM, bMOTDAsPM);
 	

@@ -39,11 +39,7 @@ clsLanguageManager::clsLanguageManager(void)
 	for (size_t szi = 0; szi < LANG_IDS_END; szi++)
 	{
 		size_t szTextLen = strlen(LangStr[szi]);
-#ifdef _WIN32
-		sTexts[szi] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szTextLen + 1);
-#else
 		sTexts[szi] = (char *)malloc(szTextLen + 1);
-#endif
 		if (sTexts[szi] == NULL)
 		{
 			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes in clsLanguageManager::clsLanguageManager\n", (uint64_t)(szTextLen + 1));
@@ -61,14 +57,7 @@ clsLanguageManager::~clsLanguageManager(void)
 {
 	for (size_t szi = 0; szi < LANG_IDS_END; szi++)
 	{
-#ifdef _WIN32
-		if (sTexts[szi] != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sTexts[szi]) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sTexts[szi] in clsLanguageManager::~clsLanguageManager\n");
-		}
-#else
 		free(sTexts[szi]);
-#endif
 	}
 }
 //---------------------------------------------------------------------------
@@ -82,11 +71,7 @@ void clsLanguageManager::Load()
 			char * sOldText = sTexts[szi];
 			
 			size_t szTextLen = strlen(LangStr[szi]);
-#ifdef _WIN32
-			sTexts[szi] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldText, szTextLen + 1);
-#else
 			sTexts[szi] = (char *)realloc(sOldText, szTextLen + 1);
-#endif
 			if (sTexts[szi] == NULL)
 			{
 				sTexts[szi] = sOldText;
@@ -148,11 +133,7 @@ void clsLanguageManager::Load()
 							if (strcmp(LangXmlStr[szi], sName) == 0)
 							{
 								char * sOldText = sTexts[szi];
-#ifdef _WIN32
-								sTexts[szi] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldText, szLen + 1);
-#else
 								sTexts[szi] = (char *)realloc(sOldText, szLen + 1);
-#endif
 								if (sTexts[szi] == NULL)
 								{
 									sTexts[szi] = sOldText;

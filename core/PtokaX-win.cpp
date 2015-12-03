@@ -348,16 +348,16 @@ static void WINAPI StartService(DWORD /*argc*/, char* argv[])
 #ifndef _WIN32
 class CSyslogInit()
 {
-	CSyslogInit()
-	{
-		openlog("ptokax", 0, LOG_USER);
-		syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ start!");
-	}
-	~CSyslogInit()
-	{
-		syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ stop!");
-		closelog();
-	}
+		CSyslogInit()
+		{
+			openlog("ptokax", 0, LOG_USER);
+			syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ start!");
+		}
+		~CSyslogInit()
+		{
+			syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ stop!");
+			closelog();
+		}
 };
 #endif
 
@@ -366,7 +366,7 @@ int __cdecl main(int argc, char* argv[])
 #ifndef _WIN32
 	CSyslogInit g_syslog;
 #endif;
-
+	
 #ifndef _WIN_IOT
 	::SetDllDirectory("");
 #endif
@@ -561,7 +561,7 @@ int __cdecl main(int argc, char* argv[])
 		else
 		{
 			printf("%s running...\n", g_sPtokaXTitle);
-			printf("Fork: https://github.com/pavel-pimenov/PtokaX\n", g_sPtokaXTitle);
+			printf("Fork: https://github.com/pavel-pimenov/PtokaX\n");
 		}
 		
 		MainLoop();

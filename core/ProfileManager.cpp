@@ -117,14 +117,7 @@ ProfileItem::ProfileItem() : sName(NULL)
 
 ProfileItem::~ProfileItem()
 {
-#ifdef _WIN32
-	if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sName) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate sName in ProfileItem::~ProfileItem\n");
-	}
-#else
 	free(sName);
-#endif
 }
 //---------------------------------------------------------------------------
 void clsProfileManager::Load()
@@ -356,14 +349,7 @@ clsProfileManager::~clsProfileManager()
 		delete ppProfilesTable[ui16i];
 	}
 	
-#ifdef _WIN32
-	if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ppProfilesTable) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate ProfilesTable in clsProfileManager::~clsProfileManager\n");
-	}
-#else
 	free(ppProfilesTable);
-#endif
 	ppProfilesTable = NULL;
 }
 //---------------------------------------------------------------------------
@@ -604,11 +590,7 @@ bool clsProfileManager::RemoveProfile(const uint16_t iProfile)
 	}
 	
 	ProfileItem ** pOldTable = ppProfilesTable;
-#ifdef _WIN32
-	ppProfilesTable = (ProfileItem **)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pOldTable, ui16ProfileCount * sizeof(ProfileItem *));
-#else
 	ppProfilesTable = (ProfileItem **)realloc(pOldTable, ui16ProfileCount * sizeof(ProfileItem *));
-#endif
 	if (ppProfilesTable == NULL)
 	{
 		ppProfilesTable = pOldTable;
@@ -635,25 +617,10 @@ bool clsProfileManager::RemoveProfile(const uint16_t iProfile)
 ProfileItem * clsProfileManager::CreateProfile(const char * name)
 {
 	ProfileItem ** pOldTable = ppProfilesTable;
-#ifdef _WIN32
-	if (ppProfilesTable == NULL)
-	{
-		ppProfilesTable = (ProfileItem **)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (ui16ProfileCount + 1) * sizeof(ProfileItem *));
-	}
-	else
-	{
-		ppProfilesTable = (ProfileItem **)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pOldTable, (ui16ProfileCount + 1) * sizeof(ProfileItem *));
-	}
-#else
 	ppProfilesTable = (ProfileItem **)realloc(pOldTable, (ui16ProfileCount + 1) * sizeof(ProfileItem *));
-#endif
 	if (ppProfilesTable == NULL)
 	{
-#ifdef _WIN32
-		HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pOldTable);
-#else
 		free(pOldTable);
-#endif
 		AppendDebugLog("%s - [MEM] Cannot (re)allocate ProfilesTable in clsProfileManager::CreateProfile\n");
 		exit(EXIT_FAILURE);
 	}
@@ -666,11 +633,7 @@ ProfileItem * clsProfileManager::CreateProfile(const char * name)
 	}
 	
 	size_t szLen = strlen(name);
-#ifdef _WIN32
-	pNewProfile->sName = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-#else
 	pNewProfile->sName = (char *)malloc(szLen + 1);
-#endif
 	if (pNewProfile->sName == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes in clsProfileManager::CreateProfile for pNewProfile->sName\n", (uint64_t)szLen);
@@ -833,11 +796,7 @@ void clsProfileManager::ChangeProfileName(const uint16_t iProfile, char * sName,
 {
 	char * sOldName = ppProfilesTable[iProfile]->sName;
 	
-#ifdef _WIN32
-	ppProfilesTable[iProfile]->sName = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldName, szLen + 1);
-#else
 	ppProfilesTable[iProfile]->sName = (char *)realloc(sOldName, szLen + 1);
-#endif
 	if (ppProfilesTable[iProfile]->sName == NULL)
 	{
 		ppProfilesTable[iProfile]->sName = sOldName;

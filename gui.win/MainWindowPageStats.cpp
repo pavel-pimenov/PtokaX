@@ -263,7 +263,7 @@ char * MainWindowPageStats::GetPageName()
 
 void OnRedirectAllOk(char * sLine, const int iLen)
 {
-	char *sMSG = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iLen + 16);
+	char *sMSG = (char *)malloc(iLen + 16);
 	if (sMSG == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sMSG in OnRedirectAllOk\n", iLen + 16);
@@ -289,10 +289,7 @@ void OnRedirectAllOk(char * sLine, const int iLen)
 		pCur->Close(true);
 	}
 	
-	if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMSG) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate sMSG in OnRedirectAllOk\n");
-	}
+	free(sMSG);
 }
 //---------------------------------------------------------------------------
 
@@ -313,7 +310,7 @@ void MainWindowPageStats::OnRedirectAll()
 
 void OnMassMessageOk(char * sLine, const int iLen)
 {
-	char *sMSG = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iLen + 256);
+	char *sMSG = (char *)malloc(iLen + 256);
 	if (sMSG == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for sMSG in OnMassMessageOk\n", iLen + 256);
@@ -329,10 +326,7 @@ void OnMassMessageOk(char * sLine, const int iLen)
 	
 	clsGlobalDataQueue::mPtr->SingleItemStore(sMSG, imsgLen, NULL, 0, clsGlobalDataQueue::SI_PM2ALL);
 	
-	if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMSG) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate sMSG in OnMassMessageOk\n");
-	}
+	free(sMSG);
 }
 
 //---------------------------------------------------------------------------

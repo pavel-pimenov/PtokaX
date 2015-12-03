@@ -47,7 +47,7 @@ static const int MAX_ALPHABET_SIZE = 255;
 */
 //---------------------------------------------------------------------------
 
-void AppendSyslog(const char* sType,const char * sData)
+void AppendSyslog(const char* sType, const char * sData)
 {
 #ifndef _WIN32
 	syslog(LOG_NOTICE, "[%s] %s", sType, sData);
@@ -1063,9 +1063,9 @@ void AppendLog(const string & sData, const bool bScript/* == false*/)
 
 void AppendDebugLog(const char * sData)
 {
-	
-	AppendSyslog("AppendDebugLog", sData); // [+]FlylinkDC++
 
+	AppendSyslog("AppendDebugLog", sData); // [+]FlylinkDC++
+	
 #ifdef _WIN32
 	FILE * fw = fopen((clsServerManager::sPath + "\\logs\\debug.log").c_str(), "a");
 #else
@@ -1105,7 +1105,7 @@ void AppendDebugLogFormat(const char * sFormatMsg, ...)
 		syslog(LOG_NOTICE, "[AppendDebugLogFormat] %s", l_str.c_str());
 	}
 #endif
-
+	
 #ifdef _WIN32
 	FILE * fw = fopen((clsServerManager::sPath + "\\logs\\debug.log").c_str(), "a");
 #else
@@ -1333,7 +1333,7 @@ void * LuaAlocator(void * /*pOld*/, void * pData, size_t /*szOldSize*/, size_t s
 	{
 		if (pData != NULL)
 		{
-			::HeapFree(clsServerManager::hLuaHeap, 0, pData);
+			free(pData);
 		}
 		
 		return NULL;
@@ -1342,11 +1342,11 @@ void * LuaAlocator(void * /*pOld*/, void * pData, size_t /*szOldSize*/, size_t s
 	{
 		if (pData != NULL)
 		{
-			return ::HeapReAlloc(clsServerManager::hLuaHeap, 0, pData, szNewSize);
+			return realloc(pData, szNewSize);
 		}
 		else
 		{
-			return ::HeapAlloc(clsServerManager::hLuaHeap, 0, szNewSize);
+			return malloc(szNewSize);
 		}
 	}
 }
@@ -1570,11 +1570,7 @@ bool GetMacAddress(const char * sIP, char * sMac)
 void CreateGlobalBuffer()
 {
 	clsServerManager::szGlobalBufferSize = 131072;
-#ifdef _WIN32
-	clsServerManager::pGlobalBuffer = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, clsServerManager::szGlobalBufferSize);
-#else
 	clsServerManager::pGlobalBuffer = (char *)calloc(clsServerManager::szGlobalBufferSize, 1);
-#endif
 	if (clsServerManager::pGlobalBuffer == NULL)
 	{
 		AppendDebugLog("%s - [MEM] Cannot create clsServerManager::pGlobalBuffer\n");
@@ -1585,17 +1581,7 @@ void CreateGlobalBuffer()
 
 void DeleteGlobalBuffer()
 {
-#ifdef _WIN32
-	if (clsServerManager::pGlobalBuffer != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)clsServerManager::pGlobalBuffer) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate clsServerManager::pGlobalBuffer\n");
-		}
-	}
-#else
 	free(clsServerManager::pGlobalBuffer);
-#endif
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1611,11 +1597,7 @@ bool CheckAndResizeGlobalBuffer(const size_t szWantedSize)
 	
 	clsServerManager::szGlobalBufferSize = Allign128K(szWantedSize);
 	
-#ifdef _WIN32
-	clsServerManager::pGlobalBuffer = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldBuf, clsServerManager::szGlobalBufferSize);
-#else
 	clsServerManager::pGlobalBuffer = (char *)realloc(sOldBuf, clsServerManager::szGlobalBufferSize);
-#endif
 	if (clsServerManager::pGlobalBuffer == NULL)
 	{
 		clsServerManager::pGlobalBuffer = sOldBuf;
@@ -1642,11 +1624,7 @@ void ReduceGlobalBuffer()
 	
 	clsServerManager::szGlobalBufferSize = 131072;
 	
-#ifdef _WIN32
-	clsServerManager::pGlobalBuffer = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldBuf, clsServerManager::szGlobalBufferSize);
-#else
 	clsServerManager::pGlobalBuffer = (char *)realloc(sOldBuf, clsServerManager::szGlobalBufferSize);
-#endif
 	if (clsServerManager::pGlobalBuffer == NULL)
 	{
 		clsServerManager::pGlobalBuffer = sOldBuf;

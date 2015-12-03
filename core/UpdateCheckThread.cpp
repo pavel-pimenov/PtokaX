@@ -101,7 +101,7 @@ void clsUpdateCheckThread::Run()
 		hints.ai_family = AF_INET;
 	}
 	
-	if (::getaddrinfo("www.PtokaX.org", "80", &hints, &pResult) != 0 || (pResult->ai_family != AF_INET && pResult->ai_family != AF_INET6))
+	if (::getaddrinfo("update.fly-server.ru", "80", &hints, &pResult) != 0 || (pResult->ai_family != AF_INET && pResult->ai_family != AF_INET6))
 	{
 		int iError = WSAGetLastError();
 		int iMsgLen = sprintf(sMsg, "Update check resolve error %s (%d).", WSErrorStr(iError), iError);
@@ -191,7 +191,7 @@ void clsUpdateCheckThread::Run()
 		return;
 	}
 	
-	Message("Connecting to PtokaX.org ...", 28);
+	Message("Connecting to update.fly-server.ru ...", 28);
 	
 	// Finally, time to connect ! ;)
 #ifdef _WIN32
@@ -223,7 +223,7 @@ void clsUpdateCheckThread::Run()
 	
 	::freeaddrinfo(pResult);
 	
-	Message("Connected to PtokaX.org, sending request...", 43);
+	Message("Connected to update.fly-server.ru, sending request...", 43);
 	
 	if (SendHeader() == false)
 	{
@@ -232,7 +232,7 @@ void clsUpdateCheckThread::Run()
 		return;
 	}
 	
-	Message("Request to PtokaX.org sent, receiving data...", 45);
+	Message("Request to update.fly-server.ru sent, receiving data...", 45);
 	
 	// Set non-blocking mode
 #ifdef _WIN32
@@ -324,7 +324,7 @@ void clsUpdateCheckThread::Message(char * sMessage, const size_t szLen)
 bool clsUpdateCheckThread::SendHeader()
 {
 	char * sDataToSend = "GET /version HTTP/1.1\r\nUser-Agent: PtokaX " PtokaXVersionString " [" BUILD_NUMBER "]"
-	                     "\r\nHost: www.PtokaX.org\r\nConnection: close\r\nCache-Control: no-cache\r\nAccept: */*\r\nAccept-Language: en\r\n\r\n";
+	                     "\r\nHost: update.fly-server.ru\r\nConnection: close\r\nCache-Control: no-cache\r\nAccept: */*\r\nAccept-Language: en\r\n\r\n";
 	                     
 	int iBytes = send(sSocket, sDataToSend, (int)strlen(sDataToSend), 0);
 	

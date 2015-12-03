@@ -39,14 +39,7 @@ clsReservedNicksManager::ReservedNick::ReservedNick() : pPrev(NULL), pNext(NULL)
 
 clsReservedNicksManager::ReservedNick::~ReservedNick()
 {
-#ifdef _WIN32
-	if (sNick != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsReservedNicksManager::ReservedNick::~ReservedNick\n");
-	}
-#else
 	free(sNick);
-#endif
 }
 //---------------------------------------------------------------------------
 
@@ -62,11 +55,7 @@ clsReservedNicksManager::ReservedNick * clsReservedNicksManager::ReservedNick::C
 	}
 	
 	size_t szNickLen = strlen(sNewNick);
-#ifdef _WIN32
-	pReservedNick->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNickLen + 1);
-#else
 	pReservedNick->sNick = (char *)malloc(szNickLen + 1);
-#endif
 	if (pReservedNick->sNick == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes in ReservedNick::CreateReservedNick\n", (uint64_t)(szNickLen + 1));

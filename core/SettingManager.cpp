@@ -106,14 +106,7 @@ clsSettingManager::~clsSettingManager(void)
 	
 	if (sMOTD != NULL)
 	{
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMOTD) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::~clsSettingManager\n");
-		}
-#else
 		free(sMOTD);
-#endif
 		sMOTD = NULL;
 		ui16MOTDLen = 0;
 	}
@@ -125,14 +118,7 @@ clsSettingManager::~clsSettingManager(void)
 			continue;
 		}
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sTexts[szi]) == 0)
-		{
-			AppendDebugLogFormat("[MEM] Cannot deallocate sTexts[%" PRIu64 "] in clsSettingManager::~clsSettingManager\n", (uint64_t)szi);
-		}
-#else
 		free(sTexts[szi]);
-#endif
 	}
 	
 	for (size_t szi = 0; szi < SETPRETXT_IDS_END; szi++)
@@ -142,14 +128,7 @@ clsSettingManager::~clsSettingManager(void)
 			continue;
 		}
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[szi]) == 0)
-		{
-			AppendDebugLogFormat("[MEM] Cannot deallocate sPreTexts[%" PRIu64 "] in clsSettingManager::~clsSettingManager\n", (uint64_t)szi);
-		}
-#else
 		free(sPreTexts[szi]);
-#endif
 	}
 	
 }
@@ -157,11 +136,7 @@ clsSettingManager::~clsSettingManager(void)
 
 void clsSettingManager::CreateDefaultMOTD()
 {
-#ifdef _WIN32
-	sMOTD = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, 18);
-#else
 	sMOTD = (char *)malloc(18);
-#endif
 	if (sMOTD == NULL)
 	{
 		AppendDebugLog("%s - [MEM] Cannot allocate 18 bytes for sMOTD in clsSettingManager::CreateDefaultMOTD\n");
@@ -177,14 +152,7 @@ void clsSettingManager::LoadMOTD()
 {
 	if (sMOTD != NULL)
 	{
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMOTD) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::LoadMOTD\n");
-		}
-#else
 		free(sMOTD);
-#endif
 		sMOTD = NULL;
 		ui16MOTDLen = 0;
 	}
@@ -204,11 +172,7 @@ void clsSettingManager::LoadMOTD()
 			ui16MOTDLen = (uint16_t)(ulflen < 65024 ? ulflen : 65024);
 			
 			// allocate memory for sMOTD
-#ifdef _WIN32
-			sMOTD = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui16MOTDLen + 1);
-#else
 			sMOTD = (char *)malloc(ui16MOTDLen + 1);
-#endif
 			if (sMOTD == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sMOTD in clsSettingManager::LoadMOTD\n", ui16MOTDLen + 1);
@@ -222,14 +186,7 @@ void clsSettingManager::LoadMOTD()
 			}
 			else
 			{
-#ifdef _WIN32
-				if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMOTD) == 0)
-				{
-					AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::LoadMOTD\n");
-				}
-#else
 				free(sMOTD);
-#endif
 				sMOTD = NULL;
 				ui16MOTDLen = 0;
 				
@@ -816,14 +773,7 @@ void clsSettingManager::SetMOTD(char * sTxt, const size_t szLen)
 	{
 		if (sMOTD != NULL)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMOTD) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate sMOTD in clsSettingManager::SetMOTD\n");
-			}
-#else
 			free(sMOTD);
-#endif
 			sMOTD = NULL;
 			ui16MOTDLen = 0;
 		}
@@ -836,18 +786,7 @@ void clsSettingManager::SetMOTD(char * sTxt, const size_t szLen)
 		ui16MOTDLen = (uint16_t)(szLen < 65024 ? szLen : 65024);
 		
 		// (re)allocate memory for sMOTD
-#ifdef _WIN32
-		if (sMOTD == NULL)
-		{
-			sMOTD = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui16MOTDLen + 1);
-		}
-		else
-		{
-			sMOTD = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldMOTD, ui16MOTDLen + 1);
-		}
-#else
 		sMOTD = (char *)realloc(sOldMOTD, ui16MOTDLen + 1);
-#endif
 		if (sMOTD == NULL)
 		{
 			sMOTD = sOldMOTD;
@@ -1305,14 +1244,7 @@ void clsSettingManager::SetText(const size_t szTxtId, const char * sTxt, const s
 		{
 			if (sTexts[szTxtId] != NULL)
 			{
-#ifdef _WIN32
-				if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sTexts[szTxtId]) == 0)
-				{
-					AppendDebugLogFormat("[MEM] Cannot deallocate sTexts[%" PRIu64 "] in clsSettingManager::SetText\n", (uint64_t)(szTxtId));
-				}
-#else
 				free(sTexts[szTxtId]);
-#endif
 				sTexts[szTxtId] = NULL;
 				ui16TextsLens[szTxtId] = 0;
 			}
@@ -1320,18 +1252,7 @@ void clsSettingManager::SetText(const size_t szTxtId, const char * sTxt, const s
 		else
 		{
 			char * sOldText = sTexts[szTxtId];
-#ifdef _WIN32
-			if (sTexts[szTxtId] == NULL)
-			{
-				sTexts[szTxtId] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-			}
-			else
-			{
-				sTexts[szTxtId] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldText, szLen + 1);
-			}
-#else
 			sTexts[szTxtId] = (char *)realloc(sOldText, szLen + 1);
-#endif
 			if (sTexts[szTxtId] == NULL)
 			{
 				sTexts[szTxtId] = sOldText;
@@ -1532,18 +1453,7 @@ void clsSettingManager::UpdateHubSec()
 	{
 		char * sOldHubSec = sPreTexts[SETPRETXT_HUB_SEC];
 		
-#ifdef _WIN32
-		if (sPreTexts[SETPRETXT_HUB_SEC] == NULL || sPreTexts[SETPRETXT_HUB_SEC] == sHubSec)
-		{
-			sPreTexts[SETPRETXT_HUB_SEC] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui16TextsLens[SETTXT_BOT_NICK] + 1);
-		}
-		else
-		{
-			sPreTexts[SETPRETXT_HUB_SEC] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldHubSec, ui16TextsLens[SETTXT_BOT_NICK] + 1);
-		}
-#else
 		sPreTexts[SETPRETXT_HUB_SEC] = (char *)realloc(sOldHubSec == sHubSec ? NULL : sOldHubSec, ui16TextsLens[SETTXT_BOT_NICK] + 1);
-#endif
 		if (sPreTexts[SETPRETXT_HUB_SEC] == NULL)
 		{
 			sPreTexts[SETPRETXT_HUB_SEC] = sOldHubSec;
@@ -1561,14 +1471,7 @@ void clsSettingManager::UpdateHubSec()
 	{
 		if (sPreTexts[SETPRETXT_HUB_SEC] != sHubSec)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_HUB_SEC]) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateHubSec\n");
-			}
-#else
 			free(sPreTexts[SETPRETXT_HUB_SEC]);
-#endif
 		}
 		
 		sPreTexts[SETPRETXT_HUB_SEC] = (char *)sHubSec;
@@ -1588,14 +1491,7 @@ void clsSettingManager::UpdateMOTD()
 	{
 		if (sPreTexts[SETPRETXT_MOTD] != NULL)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_MOTD]) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateMOTD\n");
-			}
-#else
 			free(sPreTexts[SETPRETXT_MOTD]);
-#endif
 			sPreTexts[SETPRETXT_MOTD] = NULL;
 			ui16PreTextsLens[SETPRETXT_MOTD] = 0;
 		}
@@ -1607,18 +1503,7 @@ void clsSettingManager::UpdateMOTD()
 	
 	char * sOldMotd = sPreTexts[SETPRETXT_MOTD];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_MOTD] == NULL)
-	{
-		sPreTexts[SETPRETXT_MOTD] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_MOTD] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldMotd, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_MOTD] = (char *)realloc(sOldMotd, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_MOTD] == NULL)
 	{
 		sPreTexts[SETPRETXT_MOTD] = sOldMotd;
@@ -1664,18 +1549,7 @@ void clsSettingManager::UpdateHubNameWelcome()
 	
 	char * sOldWelcome = sPreTexts[SETPRETXT_HUB_NAME_WLCM];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_HUB_NAME_WLCM] == NULL)
-	{
-		sPreTexts[SETPRETXT_HUB_NAME_WLCM] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_HUB_NAME_WLCM] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldWelcome, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_HUB_NAME_WLCM] = (char *)realloc(sOldWelcome, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_HUB_NAME_WLCM] == NULL)
 	{
 		sPreTexts[SETPRETXT_HUB_NAME_WLCM] = sOldWelcome;
@@ -1721,18 +1595,7 @@ void clsSettingManager::UpdateHubName()
 	
 	char * sOldHubName = sPreTexts[SETPRETXT_HUB_NAME];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_HUB_NAME] == NULL)
-	{
-		sPreTexts[SETPRETXT_HUB_NAME] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_HUB_NAME] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldHubName, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_HUB_NAME] = (char *)realloc(sOldHubName, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_HUB_NAME] == NULL)
 	{
 		sPreTexts[SETPRETXT_HUB_NAME] = sOldHubName;
@@ -1778,14 +1641,7 @@ void clsSettingManager::UpdateRedirectAddress()
 	{
 		if (sPreTexts[SETPRETXT_REDIRECT_ADDRESS] != NULL)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_REDIRECT_ADDRESS]) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateRedirectAddress\n");
-			}
-#else
 			free(sPreTexts[SETPRETXT_REDIRECT_ADDRESS]);
-#endif
 			sPreTexts[SETPRETXT_REDIRECT_ADDRESS] = NULL;
 			ui16PreTextsLens[SETPRETXT_REDIRECT_ADDRESS] = 0;
 		}
@@ -1797,18 +1653,7 @@ void clsSettingManager::UpdateRedirectAddress()
 	
 	char * sOldRedirAddr = sPreTexts[SETPRETXT_REDIRECT_ADDRESS];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_REDIRECT_ADDRESS] == NULL)
-	{
-		sPreTexts[SETPRETXT_REDIRECT_ADDRESS] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededLen);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_REDIRECT_ADDRESS] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldRedirAddr, szNeededLen);
-	}
-#else
 	sPreTexts[SETPRETXT_REDIRECT_ADDRESS] = (char *)realloc(sOldRedirAddr, szNeededLen);
-#endif
 	if (sPreTexts[SETPRETXT_REDIRECT_ADDRESS] == NULL)
 	{
 		sPreTexts[SETPRETXT_REDIRECT_ADDRESS] = sOldRedirAddr;
@@ -1850,18 +1695,7 @@ void clsSettingManager::UpdateRegOnlyMessage()
 	
 	char * sOldRegOnlyMsg = sPreTexts[SETPRETXT_REG_ONLY_MSG];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_REG_ONLY_MSG] == NULL)
-	{
-		sPreTexts[SETPRETXT_REG_ONLY_MSG] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_REG_ONLY_MSG] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldRegOnlyMsg, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_REG_ONLY_MSG] = (char *)realloc(sOldRegOnlyMsg, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_REG_ONLY_MSG] == NULL)
 	{
 		sPreTexts[SETPRETXT_REG_ONLY_MSG] = sOldRegOnlyMsg;
@@ -1986,18 +1820,7 @@ void clsSettingManager::UpdateShareLimitMessage()
 	
 	char * sOldShareLimitMsg = sPreTexts[SETPRETXT_SHARE_LIMIT_MSG];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_SHARE_LIMIT_MSG] == NULL)
-	{
-		sPreTexts[SETPRETXT_SHARE_LIMIT_MSG] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iMsgLen + 1);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_SHARE_LIMIT_MSG] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldShareLimitMsg, iMsgLen + 1);
-	}
-#else
 	sPreTexts[SETPRETXT_SHARE_LIMIT_MSG] = (char *)realloc(sOldShareLimitMsg, iMsgLen + 1);
-#endif
 	if (sPreTexts[SETPRETXT_SHARE_LIMIT_MSG] == NULL)
 	{
 		sPreTexts[SETPRETXT_SHARE_LIMIT_MSG] = sOldShareLimitMsg;
@@ -2090,18 +1913,7 @@ void clsSettingManager::UpdateSlotsLimitMessage()
 	
 	char * sOldSlotsLimitMsg = sPreTexts[SETPRETXT_SLOTS_LIMIT_MSG];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_SLOTS_LIMIT_MSG] == NULL)
-	{
-		sPreTexts[SETPRETXT_SLOTS_LIMIT_MSG] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iMsgLen + 1);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_SLOTS_LIMIT_MSG] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldSlotsLimitMsg, iMsgLen + 1);
-	}
-#else
 	sPreTexts[SETPRETXT_SLOTS_LIMIT_MSG] = (char *)realloc(sOldSlotsLimitMsg, iMsgLen + 1);
-#endif
 	if (sPreTexts[SETPRETXT_SLOTS_LIMIT_MSG] == NULL)
 	{
 		sPreTexts[SETPRETXT_SLOTS_LIMIT_MSG] = sOldSlotsLimitMsg;
@@ -2188,18 +2000,7 @@ void clsSettingManager::UpdateHubSlotRatioMessage()
 	
 	char * sOldHubSlotLimitMsg = sPreTexts[SETPRETXT_HUB_SLOT_RATIO_MSG];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_HUB_SLOT_RATIO_MSG] == NULL)
-	{
-		sPreTexts[SETPRETXT_HUB_SLOT_RATIO_MSG] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iMsgLen + 1);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_HUB_SLOT_RATIO_MSG] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldHubSlotLimitMsg, iMsgLen + 1);
-	}
-#else
 	sPreTexts[SETPRETXT_HUB_SLOT_RATIO_MSG] = (char *)realloc(sOldHubSlotLimitMsg, iMsgLen + 1);
-#endif
 	if (sPreTexts[SETPRETXT_HUB_SLOT_RATIO_MSG] == NULL)
 	{
 		sPreTexts[SETPRETXT_HUB_SLOT_RATIO_MSG] = sOldHubSlotLimitMsg;
@@ -2284,18 +2085,7 @@ void clsSettingManager::UpdateMaxHubsLimitMessage()
 	
 	char * sOldHubLimitMsg = sPreTexts[SETPRETXT_MAX_HUBS_LIMIT_MSG];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_MAX_HUBS_LIMIT_MSG] == NULL)
-	{
-		sPreTexts[SETPRETXT_MAX_HUBS_LIMIT_MSG] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iMsgLen + 1);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_MAX_HUBS_LIMIT_MSG] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldHubLimitMsg, iMsgLen + 1);
-	}
-#else
 	sPreTexts[SETPRETXT_MAX_HUBS_LIMIT_MSG] = (char *)realloc(sOldHubLimitMsg, iMsgLen + 1);
-#endif
 	if (sPreTexts[SETPRETXT_MAX_HUBS_LIMIT_MSG] == NULL)
 	{
 		sPreTexts[SETPRETXT_MAX_HUBS_LIMIT_MSG] = sOldHubLimitMsg;
@@ -2322,14 +2112,7 @@ void clsSettingManager::UpdateNoTagMessage()
 	{
 		if (sPreTexts[SETPRETXT_NO_TAG_MSG] != NULL)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_NO_TAG_MSG]) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateNoTagMessage\n");
-			}
-#else
 			free(sPreTexts[SETPRETXT_NO_TAG_MSG]);
-#endif
 			sPreTexts[SETPRETXT_NO_TAG_MSG] = NULL;
 			ui16PreTextsLens[SETPRETXT_NO_TAG_MSG] = 0;
 		}
@@ -2353,18 +2136,7 @@ void clsSettingManager::UpdateNoTagMessage()
 	
 	char * sOldNoTagMsg = sPreTexts[SETPRETXT_NO_TAG_MSG];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_NO_TAG_MSG] == NULL)
-	{
-		sPreTexts[SETPRETXT_NO_TAG_MSG] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_NO_TAG_MSG] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldNoTagMsg, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_NO_TAG_MSG] = (char *)realloc(sOldNoTagMsg, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_NO_TAG_MSG] == NULL)
 	{
 		sPreTexts[SETPRETXT_NO_TAG_MSG] = sOldNoTagMsg;
@@ -2424,14 +2196,7 @@ void clsSettingManager::UpdateTempBanRedirAddress()
 	{
 		if (sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] != NULL)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS]) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateTempBanRedirAddress\n");
-			}
-#else
 			free(sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS]);
-#endif
 			sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] = NULL;
 			ui16PreTextsLens[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] = 0;
 		}
@@ -2441,18 +2206,7 @@ void clsSettingManager::UpdateTempBanRedirAddress()
 	
 	char * sOldTempBanRedirMsg = sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] == NULL)
-	{
-		sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldTempBanRedirMsg, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] = (char *)realloc(sOldTempBanRedirMsg, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] == NULL)
 	{
 		sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] = sOldTempBanRedirMsg;
@@ -2504,14 +2258,7 @@ void clsSettingManager::UpdatePermBanRedirAddress()
 	{
 		if (sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] != NULL)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS]) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdatePermBanRedirAddress\n");
-			}
-#else
 			free(sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS]);
-#endif
 			sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] = NULL;
 			ui16PreTextsLens[SETPRETXT_PERM_BAN_REDIR_ADDRESS] = 0;
 		}
@@ -2521,18 +2268,7 @@ void clsSettingManager::UpdatePermBanRedirAddress()
 	
 	char * sOldPermBanRedirMsg = sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] == NULL)
-	{
-		sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldPermBanRedirMsg, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] = (char *)realloc(sOldPermBanRedirMsg, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] == NULL)
 	{
 		sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] = sOldPermBanRedirMsg;
@@ -2640,18 +2376,7 @@ void clsSettingManager::UpdateNickLimitMessage()
 	
 	char * sOldNickLimitMsg = sPreTexts[SETPRETXT_NICK_LIMIT_MSG];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_NICK_LIMIT_MSG] == NULL)
-	{
-		sPreTexts[SETPRETXT_NICK_LIMIT_MSG] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iMsgLen + 1);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_NICK_LIMIT_MSG] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldNickLimitMsg, iMsgLen + 1);
-	}
-#else
 	sPreTexts[SETPRETXT_NICK_LIMIT_MSG] = (char *)realloc(sOldNickLimitMsg, iMsgLen + 1);
-#endif
 	if (sPreTexts[SETPRETXT_NICK_LIMIT_MSG] == NULL)
 	{
 		sPreTexts[SETPRETXT_NICK_LIMIT_MSG] = sOldNickLimitMsg;
@@ -2790,14 +2515,7 @@ void clsSettingManager::UpdateBot(const bool bNickChanged/* = true*/)
 	{
 		if (sPreTexts[SETPRETXT_HUB_BOT_MYINFO] != NULL)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_HUB_BOT_MYINFO]) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateBot\n");
-			}
-#else
 			free(sPreTexts[SETPRETXT_HUB_BOT_MYINFO]);
-#endif
 			sPreTexts[SETPRETXT_HUB_BOT_MYINFO] = NULL;
 			ui16PreTextsLens[SETPRETXT_HUB_BOT_MYINFO] = 0;
 		}
@@ -2809,18 +2527,7 @@ void clsSettingManager::UpdateBot(const bool bNickChanged/* = true*/)
 	
 	char * sOldHubBotMyinfoMsg = sPreTexts[SETPRETXT_HUB_BOT_MYINFO];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_HUB_BOT_MYINFO] == NULL)
-	{
-		sPreTexts[SETPRETXT_HUB_BOT_MYINFO] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_HUB_BOT_MYINFO] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldHubBotMyinfoMsg, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_HUB_BOT_MYINFO] = (char *)realloc(sOldHubBotMyinfoMsg, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_HUB_BOT_MYINFO] == NULL)
 	{
 		sPreTexts[SETPRETXT_HUB_BOT_MYINFO] = sOldHubBotMyinfoMsg;
@@ -2933,28 +2640,14 @@ void clsSettingManager::UpdateOpChat(const bool bNickChanged/* = true*/)
 	{
 		if (sPreTexts[SETPRETXT_OP_CHAT_HELLO] != NULL)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_OP_CHAT_HELLO]) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateOpChat\n");
-			}
-#else
 			free(sPreTexts[SETPRETXT_OP_CHAT_HELLO]);
-#endif
 			sPreTexts[SETPRETXT_OP_CHAT_HELLO] = NULL;
 			ui16PreTextsLens[SETPRETXT_OP_CHAT_HELLO] = 0;
 		}
 		
 		if (sPreTexts[SETPRETXT_OP_CHAT_MYINFO] != NULL)
 		{
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPreTexts[SETPRETXT_OP_CHAT_MYINFO]) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate memory in clsSettingManager::UpdateOpChat1\n");
-			}
-#else
 			free(sPreTexts[SETPRETXT_OP_CHAT_MYINFO]);
-#endif
 			sPreTexts[SETPRETXT_OP_CHAT_MYINFO] = NULL;
 			ui16PreTextsLens[SETPRETXT_OP_CHAT_MYINFO] = 0;
 		}
@@ -2966,18 +2659,7 @@ void clsSettingManager::UpdateOpChat(const bool bNickChanged/* = true*/)
 	
 	char * sOldOpChatHelloMsg = sPreTexts[SETPRETXT_OP_CHAT_HELLO];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_OP_CHAT_HELLO] == NULL)
-	{
-		sPreTexts[SETPRETXT_OP_CHAT_HELLO] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_OP_CHAT_HELLO] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldOpChatHelloMsg, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_OP_CHAT_HELLO] = (char *)realloc(sOldOpChatHelloMsg, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_OP_CHAT_HELLO] == NULL)
 	{
 		sPreTexts[SETPRETXT_OP_CHAT_HELLO] = sOldOpChatHelloMsg;
@@ -3000,18 +2682,7 @@ void clsSettingManager::UpdateOpChat(const bool bNickChanged/* = true*/)
 	
 	char * sOldOpChatMyInfoMsg = sPreTexts[SETPRETXT_OP_CHAT_MYINFO];
 	
-#ifdef _WIN32
-	if (sPreTexts[SETPRETXT_OP_CHAT_MYINFO] == NULL)
-	{
-		sPreTexts[SETPRETXT_OP_CHAT_MYINFO] = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededMem);
-	}
-	else
-	{
-		sPreTexts[SETPRETXT_OP_CHAT_MYINFO] = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldOpChatMyInfoMsg, szNeededMem);
-	}
-#else
 	sPreTexts[SETPRETXT_OP_CHAT_MYINFO] = (char *)realloc(sOldOpChatMyInfoMsg, szNeededMem);
-#endif
 	if (sPreTexts[SETPRETXT_OP_CHAT_MYINFO] == NULL)
 	{
 		sPreTexts[SETPRETXT_OP_CHAT_MYINFO] = sOldOpChatMyInfoMsg;

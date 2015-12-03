@@ -59,4 +59,4 @@ if [ -n `locale -a|grep -i ru_RU.cp1251` ]; then
 else
 echo 'ERROR: run $sudolocaledef -c -i ru_RU -f CP1251 ru_RU.CP1251'
 fi
-valgrind --leak-check=full --leak-resolution=med --log-file=valgrind-log-file.log --time-stamp=yes ./PtokaX
+# valgrind --leak-check=full --leak-resolution=med --log-file=valgrind-log-file.log --time-stamp=yes ./PtokaX

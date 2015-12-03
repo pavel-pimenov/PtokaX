@@ -568,14 +568,7 @@ UserBan::UserBan() : sMessage(NULL), ui32Len(0), ui32NickHash(0)
 
 UserBan::~UserBan()
 {
-#ifdef _WIN32
-	if (sMessage != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMessage) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate sMessage in UserBan::~UserBan\n");
-	}
-#else
 	free(sMessage);
-#endif
 	sMessage = NULL;
 }
 //---------------------------------------------------------------------------
@@ -591,11 +584,7 @@ UserBan * UserBan::CreateUserBan(char * sMess, const uint32_t ui32MessLen, const
 		return NULL;
 	}
 	
-#ifdef _WIN32
-	pUserBan->sMessage = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui32MessLen + 1);
-#else
 	pUserBan->sMessage = (char *)malloc(ui32MessLen + 1);
-#endif
 	if (pUserBan->sMessage == NULL)
 	{
 		AppendDebugLogFormat("[MEM] UserBan::CreateUserBan cannot allocate %u bytes for sMessage\n", ui32MessLen + 1);
@@ -624,17 +613,7 @@ LoginLogout::~LoginLogout()
 {
 	delete pBan;
 	
-#ifdef _WIN32
-	if (pBuffer != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pBuffer) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate pBuffer in LoginLogout::~LoginLogout\n");
-		}
-	}
-#else
 	free(pBuffer);
-#endif
 }
 //---------------------------------------------------------------------------
 
@@ -691,209 +670,23 @@ User::User() : ui64SharedSize(0), ui64ChangedSharedSizeShort(0), ui64ChangedShar
 
 User::~User()
 {
-#ifdef _WIN32
-	if (pRecvBuf != NULL)
-	{
-		if (HeapFree(clsServerManager::hRecvHeap, HEAP_NO_SERIALIZE, (void *)pRecvBuf) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate pRecvBuf in User::~User\n");
-		}
-	}
-#else
 	free(pRecvBuf);
-#endif
-	
-#ifdef _WIN32
-	if (pSendBuf != NULL)
-	{
-		if (HeapFree(clsServerManager::hSendHeap, HEAP_NO_SERIALIZE, (void *)pSendBuf) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate pSendBuf in User::~User\n");
-		}
-	}
-#else
 	free(pSendBuf);
-#endif
-	
-#ifdef _WIN32
-	if (sLastChat != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sLastChat) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sLastChat in User::~User\n");
-		}
-	}
-#else
 	free(sLastChat);
-#endif
-	
-#ifdef _WIN32
-	if (sLastPM != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sLastPM) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sLastPM in User::~User\n");
-		}
-	}
-#else
 	free(sLastPM);
-#endif
-	
-#ifdef _WIN32
-	if (sLastSearch != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sLastSearch) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sLastSearch in User::~User\n");
-		}
-	}
-#else
 	free(sLastSearch);
-#endif
-	
-#ifdef _WIN32
-	if (sMyInfoShort != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMyInfoShort) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sMyInfoShort in User::~User\n");
-		}
-	}
-#else
 	free(sMyInfoShort);
-#endif
-	
-#ifdef _WIN32
-	if (sMyInfoLong != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMyInfoLong) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sMyInfoLong in User::~User\n");
-		}
-	}
-#else
 	free(sMyInfoLong);
-#endif
-	
-#ifdef _WIN32
-	if (sMyInfoOriginal != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMyInfoOriginal) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sMyInfoOriginal in User::~User\n");
-		}
-	}
-#else
 	free(sMyInfoOriginal);
-#endif
-	
-#ifdef _WIN32
-	if (sVersion != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sVersion) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sVersion in User::~User\n");
-		}
-	}
-#else
 	free(sVersion);
-#endif
-	
-#ifdef _WIN32
-	if (sChangedDescriptionShort != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sChangedDescriptionShort) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sChangedDescriptionShort in User::~User\n");
-		}
-	}
-#else
 	free(sChangedDescriptionShort);
-#endif
-	
-#ifdef _WIN32
-	if (sChangedDescriptionLong != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sChangedDescriptionLong) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sChangedDescriptionLong in User::~User\n");
-		}
-	}
-#else
 	free(sChangedDescriptionLong);
-#endif
-	
-#ifdef _WIN32
-	if (sChangedTagShort != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sChangedTagShort) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sChangedTagShort in User::~User\n");
-		}
-	}
-#else
 	free(sChangedTagShort);
-#endif
-	
-#ifdef _WIN32
-	if (sChangedTagLong != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sChangedTagLong) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sChangedTagLong in User::~User\n");
-		}
-	}
-#else
 	free(sChangedTagLong);
-#endif
-	
-#ifdef _WIN32
-	if (sChangedConnectionShort != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sChangedConnectionShort) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sChangedConnectionShort in User::~User\n");
-		}
-	}
-#else
 	free(sChangedConnectionShort);
-#endif
-	
-#ifdef _WIN32
-	if (sChangedConnectionLong != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sChangedConnectionLong) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sChangedConnectionLong in User::~User\n");
-		}
-	}
-#else
 	free(sChangedConnectionLong);
-#endif
-	
-#ifdef _WIN32
-	if (sChangedEmailShort != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sChangedEmailShort) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sChangedEmailShort in User::~User\n");
-		}
-	}
-#else
 	free(sChangedEmailShort);
-#endif
-	
-#ifdef _WIN32
-	if (sChangedEmailLong != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sChangedEmailLong) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sChangedEmailLong in User::~User\n");
-		}
-	}
-#else
 	free(sChangedEmailLong);
-#endif
 	
 	if (((ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == true)
 		clsDcCommands::mPtr->iStatZPipe--;
@@ -909,14 +702,7 @@ User::~User()
 	
 	if (sNick != sDefaultNick)
 	{
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sNick in User::~User\n");
-		}
-#else
 		free(sNick);
-#endif
 	}
 	
 	delete pLogInOut;
@@ -933,14 +719,7 @@ User::~User()
 		cur = next;
 		next = cur->pNext;
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sCommand) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate cur->sCommand in User::~User\n");
-		}
-#else
 		free(cur->sCommand);
-#endif
 		cur->sCommand = NULL;
 		
 		delete cur;
@@ -957,24 +736,10 @@ User::~User()
 		curto = nextto;
 		nextto = curto->pNext;
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)curto->sCommand) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate curto->sCommand in User::~User\n");
-		}
-#else
 		free(curto->sCommand);
-#endif
 		curto->sCommand = NULL;
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)curto->sToNick) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate curto->ToNick in User::~User\n");
-		}
-#else
 		free(curto->sToNick);
-#endif
 		curto->sToNick = NULL;
 		
 		delete curto;
@@ -1023,18 +788,7 @@ bool User::MakeLock()
 	size_t szAllignLen = Allign1024(ui32SendBufDataLen + szLockLen);
 	
 	char * pOldBuf = pSendBuf;
-#ifdef _WIN32
-	if (pSendBuf == NULL)
-	{
-		pSendBuf = (char *)HeapAlloc(clsServerManager::hSendHeap, HEAP_NO_SERIALIZE, szAllignLen);
-	}
-	else
-	{
-		pSendBuf = (char *)HeapReAlloc(clsServerManager::hSendHeap, HEAP_NO_SERIALIZE, (void *)pOldBuf, szAllignLen);
-	}
-#else
 	pSendBuf = (char *)realloc(pOldBuf, szAllignLen);
-#endif
 	if (pSendBuf == NULL)
 	{
 		pSendBuf = pOldBuf;
@@ -1063,11 +817,7 @@ bool User::MakeLock()
 	
 //	Memo(string(pSendBuf, ui32SendBufDataLen));
 
-#ifdef _WIN32
-	pLogInOut->pBuffer = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, 64);
-#else
 	pLogInOut->pBuffer = (char *)malloc(64);
-#endif
 	if (pLogInOut->pBuffer == NULL)
 	{
 		AppendDebugLog("%s - [MEM] Cannot allocate 64 bytes for pBuffer in User::MakeLock\n");
@@ -1187,18 +937,7 @@ bool User::DoRecv()
 	{
 		char * pOldBuf = pRecvBuf;
 		
-#ifdef _WIN32
-		if (pRecvBuf == NULL)
-		{
-			pRecvBuf = (char *)HeapAlloc(clsServerManager::hRecvHeap, HEAP_NO_SERIALIZE, szAllignLen);
-		}
-		else
-		{
-			pRecvBuf = (char *)HeapReAlloc(clsServerManager::hRecvHeap, HEAP_NO_SERIALIZE, (void *)pOldBuf, szAllignLen);
-		}
-#else
 		pRecvBuf = (char *)realloc(pOldBuf, szAllignLen);
-#endif
 		if (pRecvBuf == NULL)
 		{
 			pRecvBuf = pOldBuf;
@@ -1603,11 +1342,7 @@ bool User::PutInSendBuf(const char * Text, const size_t szTxtLen)
 					size_t szAllignTxtLen = Allign1024(szTxtLen + ui32SendBufDataLen);
 					
 					char * pOldBuf = pSendBuf;
-#ifdef _WIN32
-					pSendBuf = (char *)HeapReAlloc(clsServerManager::hSendHeap, HEAP_NO_SERIALIZE, (void *)pOldBuf, szAllignTxtLen);
-#else
 					pSendBuf = (char *)realloc(pOldBuf, szAllignTxtLen);
-#endif
 					if (pSendBuf == NULL)
 					{
 						pSendBuf = pOldBuf;
@@ -1646,18 +1381,7 @@ bool User::PutInSendBuf(const char * Text, const size_t szTxtLen)
 		uint32_t offset = (pSendBuf == NULL ? 0 : (uint32_t)(pSendBufHead - pSendBuf));
 		
 		char * pOldBuf = pSendBuf;
-#ifdef _WIN32
-		if (pSendBuf == NULL)
-		{
-			pSendBuf = (char *)HeapAlloc(clsServerManager::hSendHeap, HEAP_NO_SERIALIZE, szAllignLen);
-		}
-		else
-		{
-			pSendBuf = (char *)HeapReAlloc(clsServerManager::hSendHeap, HEAP_NO_SERIALIZE, (void *)pOldBuf, szAllignLen);
-		}
-#else
 		pSendBuf = (char *)realloc(pOldBuf, szAllignLen);
-#endif
 		if (pSendBuf == NULL)
 		{
 			pSendBuf = pOldBuf;
@@ -1756,14 +1480,7 @@ bool User::Try2Send()
 		{
 			if (pSendBuf != NULL)
 			{
-#ifdef _WIN32
-				if (HeapFree(clsServerManager::hSendHeap, HEAP_NO_SERIALIZE, (void *)pSendBuf) == 0)
-				{
-					AppendDebugLog("%s - [MEM] Cannot deallocate pSendBuf in User::Try2Send\n");
-				}
-#else
 				free(pSendBuf);
-#endif
 				pSendBuf = NULL;
 				pSendBufHead = pSendBuf;
 				ui32SendBufLen = 0;
@@ -1793,22 +1510,11 @@ void User::SetNick(char * sNewNick, const uint8_t ui8NewNickLen)
 {
 	if (sNick != sDefaultNick && sNick != NULL)
 	{
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sNick in User::SetNick\n");
-		}
-#else
 		free(sNick);
-#endif
 		sNick = NULL;
 	}
 	
-#ifdef _WIN32
-	sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui8NewNickLen + 1);
-#else
 	sNick = (char *)malloc(ui8NewNickLen + 1);
-#endif
 	if (sNick == NULL)
 	{
 		sNick = (char *)sDefaultNick;
@@ -1879,11 +1585,7 @@ void User::SetMyInfoOriginal(char * sNewMyInfo, const uint16_t ui16NewMyInfoLen)
 		sMyInfoOriginal = NULL;
 	}
 	
-#ifdef _WIN32
-	sMyInfoOriginal = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui16NewMyInfoLen + 1);
-#else
 	sMyInfoOriginal = (char *)malloc(ui16NewMyInfoLen + 1);
-#endif
 	if (sMyInfoOriginal == NULL)
 	{
 		ui32BoolBits |= BIT_ERROR;
@@ -1946,14 +1648,7 @@ void User::SetMyInfoOriginal(char * sNewMyInfo, const uint16_t ui16NewMyInfoLen)
 	
 	if (sOldMyInfo != NULL)
 	{
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldMyInfo) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sOldMyInfo in UserSetMyInfoOriginal\n");
-		}
-#else
 		free(sOldMyInfo);
-#endif
 	}
 	
 	if (((ui32InfoBits & INFOBIT_SHARE_SHORT_PERM) == INFOBIT_SHARE_SHORT_PERM) == false)
@@ -1978,22 +1673,11 @@ static void UserSetMyInfoLong(User * u, char * sNewMyInfoLong, const uint16_t ui
 			clsUsers::mPtr->DelFromMyInfosTag(u);
 		}
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)u->sMyInfoLong) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate u->sMyInfoLong in UserSetMyInfoLong\n");
-		}
-#else
 		free(u->sMyInfoLong);
-#endif
 		u->sMyInfoLong = NULL;
 	}
 	
-#ifdef _WIN32
-	u->sMyInfoLong = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui16NewMyInfoLongLen + 1);
-#else
 	u->sMyInfoLong = (char *)malloc(ui16NewMyInfoLongLen + 1);
-#endif
 	if (u->sMyInfoLong == NULL)
 	{
 		u->ui32BoolBits |= User::BIT_ERROR;
@@ -2018,22 +1702,11 @@ static void UserSetMyInfoShort(User * u, char * sNewMyInfoShort, const uint16_t 
 			clsUsers::mPtr->DelFromMyInfos(u);
 		}
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)u->sMyInfoShort) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate u->sMyInfoShort in UserSetMyInfoShort\n");
-		}
-#else
 		free(u->sMyInfoShort);
-#endif
 		u->sMyInfoShort = NULL;
 	}
 	
-#ifdef _WIN32
-	u->sMyInfoShort = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui16NewMyInfoShortLen + 1);
-#else
 	u->sMyInfoShort = (char *)malloc(ui16NewMyInfoShortLen + 1);
-#endif
 	if (u->sMyInfoShort == NULL)
 	{
 		u->ui32BoolBits |= User::BIT_ERROR;
@@ -2051,24 +1724,10 @@ static void UserSetMyInfoShort(User * u, char * sNewMyInfoShort, const uint16_t 
 
 void User::SetVersion(char * sNewVer)
 {
-#ifdef _WIN32
-	if (sVersion)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sVersion) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sVersion in User::SetVersion\n");
-		}
-	}
-#else
 	free(sVersion);
-#endif
 	
 	size_t szLen = strlen(sNewVer);
-#ifdef _WIN32
-	sVersion = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-#else
 	sVersion = (char *)malloc(szLen + 1);
-#endif
 	if (sVersion == NULL)
 	{
 		ui32BoolBits |= BIT_ERROR;
@@ -2085,23 +1744,9 @@ void User::SetVersion(char * sNewVer)
 
 void User::SetLastChat(char * sNewData, const size_t szLen)
 {
-#ifdef _WIN32
-	if (sLastChat != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sLastChat) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sLastChat in User::SetLastChat\n");
-		}
-	}
-#else
 	free(sLastChat);
-#endif
 	
-#ifdef _WIN32
-	sLastChat = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-#else
 	sLastChat = (char *)malloc(szLen + 1);
-#endif
 	if (sLastChat == NULL)
 	{
 		ui32BoolBits |= BIT_ERROR;
@@ -2123,23 +1768,9 @@ void User::SetLastChat(char * sNewData, const size_t szLen)
 
 void User::SetLastPM(char * sNewData, const size_t szLen)
 {
-#ifdef _WIN32
-	if (sLastPM != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sLastPM) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sLastPM in User::SetLastPM\n");
-		}
-	}
-#else
 	free(sLastPM);
-#endif
 	
-#ifdef _WIN32
-	sLastPM = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-#else
 	sLastPM = (char *)malloc(szLen + 1);
-#endif
 	if (sLastPM == NULL)
 	{
 		ui32BoolBits |= BIT_ERROR;
@@ -2162,23 +1793,9 @@ void User::SetLastPM(char * sNewData, const size_t szLen)
 
 void User::SetLastSearch(char * sNewData, const size_t szLen)
 {
-#ifdef _WIN32
-	if (sLastSearch != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sLastSearch) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sLastSearch in User::SetLastSearch\n");
-		}
-	}
-#else
 	free(sLastSearch);
-#endif
-	
-#ifdef _WIN32
-	sLastSearch = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-#else
+
 	sLastSearch = (char *)malloc(szLen + 1);
-#endif
 	if (sLastSearch == NULL)
 	{
 		ui32BoolBits |= BIT_ERROR;
@@ -2220,18 +1837,7 @@ void User::SetBuffer(char * sKickMsg, size_t szLen/* = 0*/)
 	
 	if (szLen < 512)
 	{
-#ifdef _WIN32
-		if (pLogInOut->pBuffer == NULL)
-		{
-			pLogInOut->pBuffer = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-		}
-		else
-		{
-			pLogInOut->pBuffer = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, pOldBuf, szLen + 1);
-		}
-#else
 		pLogInOut->pBuffer = (char *)realloc(pOldBuf, szLen + 1);
-#endif
 		if (pLogInOut->pBuffer == NULL)
 		{
 			ui32BoolBits |= BIT_ERROR;
@@ -2246,18 +1852,7 @@ void User::SetBuffer(char * sKickMsg, size_t szLen/* = 0*/)
 	}
 	else
 	{
-#ifdef _WIN32
-		if (pLogInOut->pBuffer == NULL)
-		{
-			pLogInOut->pBuffer = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, 512);
-		}
-		else
-		{
-			pLogInOut->pBuffer = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, pOldBuf, 512);
-		}
-#else
 		pLogInOut->pBuffer = (char *)realloc(pOldBuf, 512);
-#endif
 		if (pLogInOut->pBuffer == NULL)
 		{
 			ui32BoolBits |= BIT_ERROR;
@@ -2280,14 +1875,7 @@ void User::FreeBuffer()
 {
 	if (pLogInOut->pBuffer != NULL)
 	{
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pLogInOut->pBuffer) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate pLogInOut->pBuffer in User::FreeBuffer\n");
-		}
-#else
 		free(pLogInOut->pBuffer);
-#endif
 		pLogInOut->pBuffer = NULL;
 	}
 }
@@ -2370,14 +1958,7 @@ void User::Close(bool bNoQuit/* = false*/)
 		cur = next;
 		next = cur->pNext;
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sCommand) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate cur->sCommand in User::Close\n");
-		}
-#else
 		free(cur->sCommand);
-#endif
 		cur->sCommand = NULL;
 		
 		delete cur;
@@ -2394,24 +1975,10 @@ void User::Close(bool bNoQuit/* = false*/)
 		curto = nextto;
 		nextto = curto->pNext;
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)curto->sCommand) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate curto->sCommand in User::Close\n");
-		}
-#else
 		free(curto->sCommand);
-#endif
 		curto->sCommand = NULL;
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)curto->sToNick) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate curto->ToNick in User::Close\n");
-		}
-#else
 		free(curto->sToNick);
-#endif
 		curto->sToNick = NULL;
 		
 		delete curto;
@@ -2540,11 +2107,7 @@ void User::AddUserList()
 				if (clsUsers::mPtr->ui32NickListSize < clsUsers::mPtr->ui32NickListLen + iLen)
 				{
 					char * pOldBuf = clsUsers::mPtr->pNickList;
-#ifdef _WIN32
-					clsUsers::mPtr->pNickList = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pOldBuf, clsUsers::mPtr->ui32NickListSize + NICKLISTSIZE + 1);
-#else
 					clsUsers::mPtr->pNickList = (char *)realloc(pOldBuf, clsUsers::mPtr->ui32NickListSize + NICKLISTSIZE + 1);
-#endif
 					if (clsUsers::mPtr->pNickList == NULL)
 					{
 						clsUsers::mPtr->pNickList = pOldBuf;
@@ -2774,11 +2337,7 @@ void User::AddUserList()
 			if (clsUsers::mPtr->ui32OpListSize < clsUsers::mPtr->ui32OpListLen + iLen)
 			{
 				char * pOldBuf = clsUsers::mPtr->pOpList;
-#ifdef _WIN32
-				clsUsers::mPtr->pOpList = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pOldBuf, clsUsers::mPtr->ui32OpListSize + OPLISTSIZE + 1);
-#else
 				clsUsers::mPtr->pOpList = (char *)realloc(pOldBuf, clsUsers::mPtr->ui32OpListSize + OPLISTSIZE + 1);
-#endif
 				if (clsUsers::mPtr->pOpList == NULL)
 				{
 					clsUsers::mPtr->pOpList = pOldBuf;
@@ -2855,12 +2414,7 @@ bool User::GenerateMyInfoLong()   // true == changed
 		
 		if (((ui32InfoBits & INFOBIT_DESCRIPTION_LONG_PERM) == INFOBIT_DESCRIPTION_LONG_PERM) == false)
 		{
-			if (sChangedDescriptionLong != NULL)
-			{
-				User::FreeInfo(sChangedDescriptionLong, "sChangedDescriptionLong");
-				sChangedDescriptionLong = NULL;
-			}
-			ui8ChangedDescriptionLongLen = 0;
+			User::FreeInfo(sChangedDescriptionLong, ui8ChangedDescriptionLongLen);
 		}
 	}
 	else if (sDescription != NULL)
@@ -2880,12 +2434,7 @@ bool User::GenerateMyInfoLong()   // true == changed
 		
 		if (((ui32InfoBits & INFOBIT_TAG_LONG_PERM) == INFOBIT_TAG_LONG_PERM) == false)
 		{
-			if (sChangedTagLong != NULL)
-			{
-				User::FreeInfo(sChangedTagLong, "sChangedTagLong");
-				sChangedTagLong = NULL;
-			}
-			ui8ChangedTagLongLen = 0;
+			User::FreeInfo(sChangedTagLong, ui8ChangedTagLongLen);
 		}
 	}
 	else if (sTag != NULL)
@@ -2908,12 +2457,7 @@ bool User::GenerateMyInfoLong()   // true == changed
 		
 		if (((ui32InfoBits & INFOBIT_CONNECTION_LONG_PERM) == INFOBIT_CONNECTION_LONG_PERM) == false)
 		{
-			if (sChangedConnectionLong != NULL)
-			{
-				User::FreeInfo(sChangedConnectionLong, "sChangedConnectionLong");
-				sChangedConnectionLong = NULL;
-			}
-			ui8ChangedConnectionLongLen = 0;
+			User::FreeInfo(sChangedConnectionLong, ui8ChangedConnectionLongLen);
 		}
 	}
 	else if (sConnection != NULL)
@@ -2965,12 +2509,7 @@ bool User::GenerateMyInfoLong()   // true == changed
 		
 		if (((ui32InfoBits & INFOBIT_EMAIL_LONG_PERM) == INFOBIT_EMAIL_LONG_PERM) == false)
 		{
-			if (sChangedEmailLong != NULL)
-			{
-				User::FreeInfo(sChangedEmailLong, "sChangedEmailLong");
-				sChangedEmailLong = NULL;
-			}
-			ui8ChangedEmailLongLen = 0;
+			User::FreeInfo(sChangedEmailLong, ui8ChangedEmailLongLen);
 		}
 	}
 	else if (sEmail != NULL)
@@ -3054,12 +2593,7 @@ bool User::GenerateMyInfoShort()   // true == changed
 		
 		if (((ui32InfoBits & INFOBIT_DESCRIPTION_SHORT_PERM) == INFOBIT_DESCRIPTION_SHORT_PERM) == false)
 		{
-			if (sChangedDescriptionShort != NULL)
-			{
-				User::FreeInfo(sChangedDescriptionShort, "sChangedDescriptionShort");
-				sChangedDescriptionShort = NULL;
-			}
-			ui8ChangedDescriptionShortLen = 0;
+			User::FreeInfo(sChangedDescriptionShort, ui8ChangedDescriptionShortLen);
 		}
 	}
 	else if (clsSettingManager::mPtr->bBools[SETBOOL_STRIP_DESCRIPTION] == false && sDescription != NULL)
@@ -3079,12 +2613,7 @@ bool User::GenerateMyInfoShort()   // true == changed
 		
 		if (((ui32InfoBits & INFOBIT_TAG_SHORT_PERM) == INFOBIT_TAG_SHORT_PERM) == false)
 		{
-			if (sChangedTagShort != NULL)
-			{
-				User::FreeInfo(sChangedTagShort, "sChangedTagShort");
-				sChangedTagShort = NULL;
-			}
-			ui8ChangedTagShortLen = 0;
+			User::FreeInfo(sChangedTagShort, ui8ChangedTagShortLen);
 		}
 	}
 	else if (clsSettingManager::mPtr->bBools[SETBOOL_STRIP_TAG] == false && sTag != NULL)
@@ -3120,12 +2649,7 @@ bool User::GenerateMyInfoShort()   // true == changed
 		
 		if (((ui32InfoBits & INFOBIT_CONNECTION_SHORT_PERM) == INFOBIT_CONNECTION_SHORT_PERM) == false)
 		{
-			if (sChangedConnectionShort != NULL)
-			{
-				User::FreeInfo(sChangedConnectionShort, "sChangedConnectionShort");
-				sChangedConnectionShort = NULL;
-			}
-			ui8ChangedConnectionShortLen = 0;
+			User::FreeInfo(sChangedConnectionShort, ui8ChangedConnectionShortLen);
 		}
 	}
 	else if (clsSettingManager::mPtr->bBools[SETBOOL_STRIP_CONNECTION] == false && sConnection != NULL)
@@ -3177,12 +2701,7 @@ bool User::GenerateMyInfoShort()   // true == changed
 		
 		if (((ui32InfoBits & INFOBIT_EMAIL_SHORT_PERM) == INFOBIT_EMAIL_SHORT_PERM) == false)
 		{
-			if (sChangedEmailShort != NULL)
-			{
-				User::FreeInfo(sChangedEmailShort, "sChangedEmailShort");
-				sChangedEmailShort = NULL;
-			}
-			ui8ChangedEmailShortLen = 0;
+			User::FreeInfo(sChangedEmailShort, ui8ChangedEmailShortLen);
 		}
 	}
 	else if (clsSettingManager::mPtr->bBools[SETBOOL_STRIP_EMAIL] == false && sEmail != NULL)
@@ -3218,24 +2737,6 @@ bool User::GenerateMyInfoShort()   // true == changed
 	return true;
 }
 //---------------------------------------------------------------------------
-
-#ifdef _WIN32
-void User::FreeInfo(char * sInfo, const char * sName)
-{
-	if (sInfo != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sInfo) == 0)
-		{
-			AppendDebugLogFormat("[MEM] Cannot deallocate %s in User::FreeInfo\n", sName);
-		}
-	}
-#else
-void User::FreeInfo(char * sInfo, const char */* sName*/)
-{
-	free(sInfo);
-#endif
-}
-//------------------------------------------------------------------------------
 
 void User::HasSuspiciousTag()
 {
@@ -3338,11 +2839,7 @@ void User::AddPrcsdCmd(const uint8_t ui8Type, char * sCommand, const size_t szCo
 			if (cur->pTo == to)
 			{
 				char * pOldBuf = cur->sCommand;
-#ifdef _WIN32
-				cur->sCommand = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pOldBuf, cur->ui32Len + szCommandLen + 1);
-#else
 				cur->sCommand = (char *)realloc(pOldBuf, cur->ui32Len + szCommandLen + 1);
-#endif
 				if (cur->sCommand == NULL)
 				{
 					cur->sCommand = pOldBuf;
@@ -3372,11 +2869,7 @@ void User::AddPrcsdCmd(const uint8_t ui8Type, char * sCommand, const size_t szCo
 			return;
 		}
 		
-#ifdef _WIN32
-		pNewToCmd->sCommand = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szCommandLen + 1);
-#else
 		pNewToCmd->sCommand = (char *)malloc(szCommandLen + 1);
-#endif
 		if (pNewToCmd->sCommand == NULL)
 		{
 			ui32BoolBits |= BIT_ERROR;
@@ -3397,11 +2890,7 @@ void User::AddPrcsdCmd(const uint8_t ui8Type, char * sCommand, const size_t szCo
 		pNewToCmd->ui32Loops = 0;
 		pNewToCmd->pTo = to;
 		
-#ifdef _WIN32
-		pNewToCmd->sToNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, to->ui8NickLen + 1);
-#else
 		pNewToCmd->sToNick = (char *)malloc(to->ui8NickLen + 1);
-#endif
 		if (pNewToCmd->sToNick == NULL)
 		{
 			ui32BoolBits |= BIT_ERROR;
@@ -3409,14 +2898,7 @@ void User::AddPrcsdCmd(const uint8_t ui8Type, char * sCommand, const size_t szCo
 			
 			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu8 " bytes for ToNick in User::AddPrcsdCmd\n", to->ui8NickLen + 1);
 			
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pNewToCmd->sCommand) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate pNewToCmd->sCommand in User::AddPrcsdCmd\n");
-			}
-#else
 			free(pNewToCmd->sCommand);
-#endif
 			
 			delete pNewToCmd;
 			
@@ -3454,11 +2936,7 @@ void User::AddPrcsdCmd(const uint8_t ui8Type, char * sCommand, const size_t szCo
 		return;
 	}
 	
-#ifdef _WIN32
-	pNewcmd->sCommand = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szCommandLen + 1);
-#else
 	pNewcmd->sCommand = (char *)malloc(szCommandLen + 1);
-#endif
 	if (pNewcmd->sCommand == NULL)
 	{
 		ui32BoolBits |= BIT_ERROR;
@@ -3508,22 +2986,13 @@ void User::AddMeOrIPv4Check()
 }
 //---------------------------------------------------------------------------
 
-char * User::SetUserInfo(char * sOldData, uint8_t &ui8OldDataLen, char * sNewData, size_t &sz8NewDataLen, const char * sDataName)
+char * User::SetUserInfo(char* sOldData, uint8_t &ui8OldDataLen, char * sNewData, size_t &sz8NewDataLen, const char * sDataName)
 {
-	if (sOldData != NULL)
-	{
-		User::FreeInfo(sOldData, sDataName);
-		sOldData = NULL;
-		ui8OldDataLen = 0;
-	}
+	User::FreeInfo(sOldData, ui8OldDataLen);
 	
 	if (sz8NewDataLen > 0)
 	{
-#ifdef _WIN32
-		sOldData = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, sz8NewDataLen + 1);
-#else
 		sOldData = (char *)malloc(sz8NewDataLen + 1);
-#endif
 		if (sOldData == NULL)
 		{
 			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes in User::SetUserInfo\n", (uint64_t)(sz8NewDataLen + 1));
@@ -3559,14 +3028,7 @@ void User::DeletePrcsdUsrCmd(PrcsdUsrCmd *& pCommand)
 {
 	if (pCommand != NULL)
 	{
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pCommand->sCommand) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate pCommand->sCommand in User::DeletePrcsdUsrCmd\n");
-		}
-#else
 		free(pCommand->sCommand);
-#endif
 		delete pCommand;
 		pCommand = NULL; // [+] FlylinkDC++
 	}

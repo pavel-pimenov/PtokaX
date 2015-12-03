@@ -55,41 +55,9 @@ BanItem::BanItem(void) : tTempBanExpire(0), sNick(NULL), sReason(NULL), sBy(NULL
 
 BanItem::~BanItem(void)
 {
-#ifdef _WIN32
-	if (sNick != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sNick in BanItem::~BanItem\n");
-		}
-	}
-#else
 	free(sNick);
-#endif
-	
-#ifdef _WIN32
-	if (sReason != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sReason) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sReason in BanItem::~BanItem\n");
-		}
-	}
-#else
 	free(sReason);
-#endif
-	
-#ifdef _WIN32
-	if (sBy != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sBy) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sBy in BanItem::~BanItem\n");
-		}
-	}
-#else
 	free(sBy);
-#endif
 }
 //---------------------------------------------------------------------------
 
@@ -105,29 +73,8 @@ RangeBanItem::RangeBanItem(void) : tTempBanExpire(0), sReason(NULL), sBy(NULL), 
 
 RangeBanItem::~RangeBanItem(void)
 {
-#ifdef _WIN32
-	if (sReason != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sReason) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sReason in RangeBanItem::~RangeBanItem\n");
-		}
-	}
-#else
 	free(sReason);
-#endif
-	
-#ifdef _WIN32
-	if (sBy != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sBy) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sBy in RangeBanItem::~RangeBanItem\n");
-		}
-	}
-#else
 	free(sBy);
-#endif
 }
 //---------------------------------------------------------------------------
 
@@ -1407,11 +1354,7 @@ void clsBanManager::Load()
 				
 				exit(EXIT_FAILURE);
 			}
-#ifdef _WIN32
-			pBan->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, pxbBans.ui16ItemLengths[1] + 1);
-#else
 			pBan->sNick = (char *)malloc(pxbBans.ui16ItemLengths[1] + 1);
-#endif
 			if (pBan->sNick == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sNick in clsBanManager::Load\n", pxbBans.ui16ItemLengths[1] + 1);
@@ -1478,11 +1421,7 @@ void clsBanManager::Load()
 				pxbBans.ui16ItemLengths[6] = 511;
 			}
 			
-#ifdef _WIN32
-			pBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, pxbBans.ui16ItemLengths[6] + 1);
-#else
 			pBan->sReason = (char *)malloc(pxbBans.ui16ItemLengths[6] + 1);
-#endif
 			if (pBan->sReason == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sReason in clsBanManager::Load\n", pxbBans.ui16ItemLengths[6] + 1);
@@ -1502,11 +1441,7 @@ void clsBanManager::Load()
 				pxbBans.ui16ItemLengths[7] = 64;
 			}
 			
-#ifdef _WIN32
-			pBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, pxbBans.ui16ItemLengths[7] + 1);
-#else
 			pBan->sBy = (char *)malloc(pxbBans.ui16ItemLengths[7] + 1);
-#endif
 			if (pBan->sBy == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sBy in clsBanManager::Load\n", pxbBans.ui16ItemLengths[7] + 1);
@@ -1678,11 +1613,7 @@ void clsBanManager::Load()
 				pxbRangeBans.ui16ItemLengths[4] = 511;
 			}
 			
-#ifdef _WIN32
-			pRangeBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, pxbRangeBans.ui16ItemLengths[4] + 1);
-#else
 			pRangeBan->sReason = (char *)malloc(pxbRangeBans.ui16ItemLengths[4] + 1);
-#endif
 			if (pRangeBan->sReason == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sReason2 in clsBanManager::Load\n", pxbRangeBans.ui16ItemLengths[4] + 1);
@@ -1702,11 +1633,7 @@ void clsBanManager::Load()
 				pxbRangeBans.ui16ItemLengths[5] = 64;
 			}
 			
-#ifdef _WIN32
-			pRangeBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, pxbRangeBans.ui16ItemLengths[5] + 1);
-#else
 			pRangeBan->sBy = (char *)malloc(pxbRangeBans.ui16ItemLengths[5] + 1);
-#endif
 			if (pRangeBan->sBy == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sBy2 in clsBanManager::Load\n", pxbRangeBans.ui16ItemLengths[5] + 1);
@@ -1898,11 +1825,7 @@ void clsBanManager::LoadXML()
 						if (nick != NULL)
 						{
 							size_t szNickLen = strlen(nick);
-#ifdef _WIN32
-							Ban->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNickLen + 1);
-#else
 							Ban->sNick = (char *)malloc(szNickLen + 1);
-#endif
 							if (Ban->sNick == NULL)
 							{
 								AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsBanManager::LoadXML\n", (uint64_t)(szNickLen + 1));
@@ -1930,11 +1853,7 @@ void clsBanManager::LoadXML()
 						{
 							szReasonLen = 255;
 						}
-#ifdef _WIN32
-						Ban->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen + 1);
-#else
 						Ban->sReason = (char *)malloc(szReasonLen + 1);
-#endif
 						if (Ban->sReason == NULL)
 						{
 							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::LoadXML\n", (uint64_t)(szReasonLen + 1));
@@ -1953,11 +1872,7 @@ void clsBanManager::LoadXML()
 						{
 							szByLen = 63;
 						}
-#ifdef _WIN32
-						Ban->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 						Ban->sBy = (char *)malloc(szByLen + 1);
-#endif
 						if (Ban->sBy == NULL)
 						{
 							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy1 in clsBanManager::LoadXML\n", (uint64_t)(szByLen + 1));
@@ -2103,11 +2018,7 @@ void clsBanManager::LoadXML()
 						{
 							szReasonLen = 255;
 						}
-#ifdef _WIN32
-						RangeBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen + 1);
-#else
 						RangeBan->sReason = (char *)malloc(szReasonLen + 1);
-#endif
 						if (RangeBan->sReason == NULL)
 						{
 							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason3 in clsBanManager::LoadXML\n", (uint64_t)(szReasonLen + 1));
@@ -2125,11 +2036,7 @@ void clsBanManager::LoadXML()
 						{
 							szByLen = 63;
 						}
-#ifdef _WIN32
-						RangeBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 						RangeBan->sBy = (char *)malloc(szByLen + 1);
-#endif
 						if (RangeBan->sBy == NULL)
 						{
 							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy3 in clsBanManager::LoadXML\n", (uint64_t)(szByLen + 1));
@@ -2535,11 +2442,7 @@ void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool b
 	// PPK ... check for <unknown> nick -> bad ban from script
 	if (u->sNick[0] != '<')
 	{
-#ifdef _WIN32
-		pBan->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, u->ui8NickLen + 1);
-#else
 		pBan->sNick = (char *)malloc(u->ui8NickLen + 1);
-#endif
 		if (pBan->sNick == NULL)
 		{
 			delete pBan;
@@ -2672,11 +2575,7 @@ void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool b
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-#ifdef _WIN32
-		pBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen > 511 ? 512 : szReasonLen + 1);
-#else
 		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-#endif
 		if (pBan->sReason == NULL)
 		{
 			delete pBan;
@@ -2708,11 +2607,7 @@ void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool b
 		{
 			szByLen = 63;
 		}
-#ifdef _WIN32
-		pBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 		pBan->sBy = (char *)malloc(szByLen + 1);
-#endif
 		if (pBan->sBy == NULL)
 		{
 			delete pBan;
@@ -2818,11 +2713,7 @@ char clsBanManager::BanIp(User * u, char * sIp, char * sReason, char * sBy, cons
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-#ifdef _WIN32
-		pBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen > 511 ? 512 : szReasonLen + 1);
-#else
 		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-#endif
 		if (pBan->sReason == NULL)
 		{
 			delete pBan;
@@ -2854,11 +2745,7 @@ char clsBanManager::BanIp(User * u, char * sIp, char * sReason, char * sBy, cons
 		{
 			szByLen = 63;
 		}
-#ifdef _WIN32
-		pBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 		pBan->sBy = (char *)malloc(szByLen + 1);
-#endif
 		if (pBan->sBy == NULL)
 		{
 			delete pBan;
@@ -2913,11 +2800,7 @@ bool clsBanManager::NickBan(User * u, char * sNick, char * sReason, char * sBy)
 		}
 		
 		size_t szNickLen = strlen(sNick);
-#ifdef _WIN32
-		pBan->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNickLen + 1);
-#else
 		pBan->sNick = (char *)malloc(szNickLen + 1);
-#endif
 		if (pBan->sNick == NULL)
 		{
 			delete pBan;
@@ -2941,11 +2824,7 @@ bool clsBanManager::NickBan(User * u, char * sNick, char * sReason, char * sBy)
 			return false;
 		}
 		
-#ifdef _WIN32
-		pBan->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, u->ui8NickLen + 1);
-#else
 		pBan->sNick = (char *)malloc(u->ui8NickLen + 1);
-#endif
 		if (pBan->sNick == NULL)
 		{
 			delete pBan;
@@ -2999,11 +2878,7 @@ bool clsBanManager::NickBan(User * u, char * sNick, char * sReason, char * sBy)
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-#ifdef _WIN32
-		pBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen > 511 ? 512 : szReasonLen + 1);
-#else
 		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-#endif
 		if (pBan->sReason == NULL)
 		{
 			delete pBan;
@@ -3035,11 +2910,7 @@ bool clsBanManager::NickBan(User * u, char * sNick, char * sReason, char * sBy)
 		{
 			szByLen = 63;
 		}
-#ifdef _WIN32
-		pBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 		pBan->sBy = (char *)malloc(szByLen + 1);
-#endif
 		if (pBan->sBy == NULL)
 		{
 			delete pBan;
@@ -3107,11 +2978,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
 	if (u->sNick[0] != '<')
 	{
 		size_t szNickLen = strlen(u->sNick);
-#ifdef _WIN32
-		pBan->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNickLen + 1);
-#else
 		pBan->sNick = (char *)malloc(szNickLen + 1);
-#endif
 		if (pBan->sNick == NULL)
 		{
 			delete pBan;
@@ -3292,11 +3159,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-#ifdef _WIN32
-		pBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen > 511 ? 512 : szReasonLen + 1);
-#else
 		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-#endif
 		if (pBan->sReason == NULL)
 		{
 			delete pBan;
@@ -3328,11 +3191,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
 		{
 			szByLen = 63;
 		}
-#ifdef _WIN32
-		pBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 		pBan->sBy = (char *)malloc(szByLen + 1);
-#endif
 		if (pBan->sBy == NULL)
 		{
 			delete pBan;
@@ -3446,11 +3305,7 @@ char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, 
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-#ifdef _WIN32
-		pBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen > 511 ? 512 : szReasonLen + 1);
-#else
 		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-#endif
 		if (pBan->sReason == NULL)
 		{
 			delete pBan;
@@ -3482,11 +3337,7 @@ char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, 
 		{
 			szByLen = 63;
 		}
-#ifdef _WIN32
-		pBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 		pBan->sBy = (char *)malloc(szByLen + 1);
-#endif
 		if (pBan->sBy == NULL)
 		{
 			delete pBan;
@@ -3541,11 +3392,7 @@ bool clsBanManager::NickTempBan(User * u, char * sNick, char * sReason, char * s
 		}
 		
 		size_t szNickLen = strlen(sNick);
-#ifdef _WIN32
-		pBan->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNickLen + 1);
-#else
 		pBan->sNick = (char *)malloc(szNickLen + 1);
-#endif
 		if (pBan->sNick == NULL)
 		{
 			delete pBan;
@@ -3568,11 +3415,7 @@ bool clsBanManager::NickTempBan(User * u, char * sNick, char * sReason, char * s
 			return false;
 		}
 		
-#ifdef _WIN32
-		pBan->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, u->ui8NickLen + 1);
-#else
 		pBan->sNick = (char *)malloc(u->ui8NickLen + 1);
-#endif
 		if (pBan->sNick == NULL)
 		{
 			delete pBan;
@@ -3650,11 +3493,7 @@ bool clsBanManager::NickTempBan(User * u, char * sNick, char * sReason, char * s
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-#ifdef _WIN32
-		pBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen > 511 ? 512 : szReasonLen + 1);
-#else
 		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-#endif
 		if (pBan->sReason == NULL)
 		{
 			delete pBan;
@@ -3686,11 +3525,7 @@ bool clsBanManager::NickTempBan(User * u, char * sNick, char * sReason, char * s
 		{
 			szByLen = 63;
 		}
-#ifdef _WIN32
-		pBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 		pBan->sBy = (char *)malloc(szByLen + 1);
-#endif
 		if (pBan->sBy == NULL)
 		{
 			delete pBan;
@@ -4006,11 +3841,7 @@ bool clsBanManager::RangeBan(char * sIpFrom, const uint8_t * ui128FromIpHash, ch
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-#ifdef _WIN32
-		pRangeBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen > 511 ? 512 : szReasonLen + 1);
-#else
 		pRangeBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-#endif
 		if (pRangeBan->sReason == NULL)
 		{
 			delete pRangeBan;
@@ -4042,11 +3873,7 @@ bool clsBanManager::RangeBan(char * sIpFrom, const uint8_t * ui128FromIpHash, ch
 		{
 			szByLen = 63;
 		}
-#ifdef _WIN32
-		pRangeBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 		pRangeBan->sBy = (char *)malloc(szByLen + 1);
-#endif
 		if (pRangeBan->sBy == NULL)
 		{
 			delete pRangeBan;
@@ -4148,11 +3975,7 @@ bool clsBanManager::RangeTempBan(char * sIpFrom, const uint8_t * ui128FromIpHash
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-#ifdef _WIN32
-		pRangeBan->sReason = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szReasonLen > 511 ? 512 : szReasonLen + 1);
-#else
 		pRangeBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-#endif
 		if (pRangeBan->sReason == NULL)
 		{
 			delete pRangeBan;
@@ -4184,11 +4007,7 @@ bool clsBanManager::RangeTempBan(char * sIpFrom, const uint8_t * ui128FromIpHash
 		{
 			szByLen = 63;
 		}
-#ifdef _WIN32
-		pRangeBan->sBy = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szByLen + 1);
-#else
 		pRangeBan->sBy = (char *)malloc(szByLen + 1);
-#endif
 		if (pRangeBan->sBy == NULL)
 		{
 			delete pRangeBan;

@@ -52,17 +52,7 @@ clsUdpDebug::UdpDbgItem::UdpDbgItem() : pPrev(NULL), pNext(NULL), sNick(NULL),
 
 clsUdpDebug::UdpDbgItem::~UdpDbgItem()
 {
-#ifdef _WIN32
-	if (sNick != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sNick in clsUdpDebug::UdpDbgItem::~UdpDbgItem\n");
-		}
-	}
-#else
 	free(sNick);
-#endif
 	
 #ifdef _WIN32
 	closesocket(s);
@@ -80,17 +70,7 @@ clsUdpDebug::clsUdpDebug() : sDebugBuffer(NULL), sDebugHead(NULL), pDbgItemList(
 
 clsUdpDebug::~clsUdpDebug()
 {
-#ifdef _WIN32
-	if (sDebugBuffer != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sDebugBuffer) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sDebugBuffer in clsUdpDebug::~clsUdpDebug\n");
-		}
-	}
-#else
 	free(sDebugBuffer);
-#endif
 	
 	UdpDbgItem * cur = NULL,
 	             * next = pDbgItemList;
@@ -109,12 +89,12 @@ void clsUdpDebug::Broadcast(const char * msg, const size_t szMsgLen) const
 {
 #ifndef _WIN32
 	{
-		std::string l_str(msg,szMsgLen);
+		std::string l_str(msg, szMsgLen);
 		//printf("%s\r", l_str.c_str());
 		syslog(LOG_NOTICE, "%s", l_str.c_str());
 	}
 #endif
-
+	
 	if (pDbgItemList == NULL)
 	{
 		return;
@@ -143,7 +123,7 @@ void clsUdpDebug::Broadcast(const char * msg, const size_t szMsgLen) const
 
 void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 {
-	
+
 #ifndef _WIN32
 	{
 		std::string l_str;
@@ -156,7 +136,7 @@ void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 		syslog(LOG_NOTICE, "%s", l_str.c_str());
 	}
 #endif
-
+	
 	if (pDbgItemList == NULL)
 	{
 		return;
@@ -202,11 +182,7 @@ void clsUdpDebug::CreateBuffer()
 		return;
 	}
 	
-#ifdef _WIN32
-	sDebugBuffer = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, 4 + 256 + 65535);
-#else
 	sDebugBuffer = (char *)malloc(4 + 256 + 65535);
-#endif
 	if (sDebugBuffer == NULL)
 	{
 		AppendDebugLog("%s - [MEM] Cannot allocate 4+256+65535 bytes for sDebugBuffer in clsUdpDebug::CreateBuffer\n");
@@ -228,11 +204,7 @@ bool clsUdpDebug::New(User * pUser, const uint16_t ui16Port)
 	}
 	
 	// initialize dbg item
-#ifdef _WIN32
-	pNewDbg->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, pUser->ui8NickLen + 1);
-#else
 	pNewDbg->sNick = (char *)malloc(pUser->ui8NickLen + 1);
-#endif
 	if (pNewDbg->sNick == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu8 " bytes for sNick in clsUdpDebug::New\n", pUser->ui8NickLen + 1);
@@ -356,11 +328,7 @@ bool clsUdpDebug::New(char * sIP, const uint16_t ui16Port, const bool bAllData, 
 	
 	// initialize dbg item
 	size_t szNameLen = strlen(sScriptName);
-#ifdef _WIN32
-	pNewDbg->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNameLen + 1);
-#else
 	pNewDbg->sNick = (char *)malloc(szNameLen + 1);
-#endif
 	if (pNewDbg->sNick == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsUdpDebug::New\n", (uint64_t)(szNameLen + 1));
@@ -466,17 +434,7 @@ bool clsUdpDebug::New(char * sIP, const uint16_t ui16Port, const bool bAllData, 
 
 void clsUdpDebug::DeleteBuffer()
 {
-#ifdef _WIN32
-	if (sDebugBuffer != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sDebugBuffer) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sDebugBuffer in clsUdpDebug::DeleteBuffer\n");
-		}
-	}
-#else
 	free(sDebugBuffer);
-#endif
 	sDebugBuffer = NULL;
 	sDebugHead = NULL;
 }

@@ -485,7 +485,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					return 0;
 				}
 				case IDC_HOMEPAGE:
-					::ShellExecute(NULL, NULL, "http://www.PtokaX.org", NULL, NULL, SW_SHOWNORMAL);
+					::ShellExecute(NULL, NULL, "https://github.com/pavel-pimenov/PtokaX", NULL, NULL, SW_SHOWNORMAL);
 					return 0;
 				case IDC_FORUM:
 					::ShellExecute(NULL, NULL, "http://forum.PtokaX.org/", NULL, NULL, SW_SHOWNORMAL);

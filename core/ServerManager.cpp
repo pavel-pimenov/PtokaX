@@ -75,7 +75,7 @@ UINT_PTR clsServerManager::sectimer = 0;
 UINT_PTR clsServerManager::regtimer = 0;
 #endif
 
-HANDLE clsServerManager::hConsole = NULL, clsServerManager::hLuaHeap = NULL, clsServerManager::hPtokaXHeap = NULL, clsServerManager::hRecvHeap = NULL, clsServerManager::hSendHeap = NULL;
+HANDLE clsServerManager::hConsole = NULL;
 string clsServerManager::sLuaPath, clsServerManager::sOS;
 #endif
 
@@ -225,8 +225,6 @@ void clsServerManager::Initialize()
 	
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
-	
-	hPtokaXHeap = HeapCreate(HEAP_NO_SERIALIZE, 0x100000, 0);
 	
 	if (DirExist((clsServerManager::sPath + "\\cfg").c_str()) == false)
 	{
@@ -837,11 +835,6 @@ void clsServerManager::FinalStop(const bool bDeleteServiceLoop)
 	
 	clsUdpDebug::mPtr->Cleanup();
 	
-#ifdef _WIN32
-	HeapCompact(GetProcessHeap(), 0);
-	HeapCompact(hPtokaXHeap, 0);
-#endif
-	
 	bServerRunning = false;
 	
 	if (bIsRestart == true)
@@ -929,7 +922,6 @@ void clsServerManager::FinalClose()
 	DeleteGlobalBuffer();
 	
 #ifdef _WIN32
-	HeapDestroy(hPtokaXHeap);
 	
 	WSACleanup();
 	

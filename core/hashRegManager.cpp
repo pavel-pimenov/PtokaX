@@ -51,36 +51,15 @@ RegUser::RegUser() : tLastBadPass(0), sNick(NULL), pPrev(NULL), pNext(NULL), pHa
 
 RegUser::~RegUser()
 {
-#ifdef _WIN32
-	if (sNick != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate sNick in RegUser::~RegUser\n");
-	}
-#else
 	free(sNick);
-#endif
 	
 	if (bPassHash == true)
 	{
-#ifdef _WIN32
-		if (ui8PassHash != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ui8PassHash) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate ui8PassHash in RegUser::~RegUser\n");
-		}
-#else
 		free(ui8PassHash);
-#endif
 	}
 	else
 	{
-#ifdef _WIN32
-		if (sPass != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sPass) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sPass in RegUser::~RegUser\n");
-		}
-#else
 		free(sPass);
-#endif
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -96,11 +75,7 @@ RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPa
 		return NULL;
 	}
 	
-#ifdef _WIN32
-	pReg->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szRegNickLen + 1);
-#else
 	pReg->sNick = (char *)malloc(szRegNickLen + 1);
-#endif
 	if (pReg->sNick == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in RegUser::RegUser\n", (uint64_t)(szRegNickLen + 1));
@@ -113,11 +88,7 @@ RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPa
 	
 	if (ui8RegPassHash != NULL)
 	{
-#ifdef _WIN32
-		pReg->ui8PassHash = (uint8_t *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, 64);
-#else
 		pReg->ui8PassHash = (uint8_t *)malloc(64);
-#endif
 		if (pReg->ui8PassHash == NULL)
 		{
 			AppendDebugLog("%s - [MEM] Cannot allocate 64 bytes for ui8PassHash in RegUser::RegUser\n");
@@ -130,11 +101,7 @@ RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPa
 	}
 	else
 	{
-#ifdef _WIN32
-		pReg->sPass = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szRegPassLen + 1);
-#else
 		pReg->sPass = (char *)malloc(szRegPassLen + 1);
-#endif
 		if (pReg->sPass == NULL)
 		{
 			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sPass in RegUser::RegUser\n", (uint64_t)(szRegPassLen + 1));
@@ -160,11 +127,7 @@ bool RegUser::UpdatePassword(char * sNewPass, size_t &szNewLen)
 		if (bPassHash == true)
 		{
 			void * sOldBuf = ui8PassHash;
-#ifdef _WIN32
-			sPass = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldBuf, szNewLen + 1);
-#else
 			sPass = (char *)realloc(sOldBuf, szNewLen + 1);
-#endif
 			if (sPass == NULL)
 			{
 				ui8PassHash = (uint8_t *)sOldBuf;
@@ -181,11 +144,7 @@ bool RegUser::UpdatePassword(char * sNewPass, size_t &szNewLen)
 		else if (strcmp(sPass, sNewPass) != 0)
 		{
 			char * sOldPass = sPass;
-#ifdef _WIN32
-			sPass = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldPass, szNewLen + 1);
-#else
 			sPass = (char *)realloc(sOldPass, szNewLen + 1);
-#endif
 			if (sPass == NULL)
 			{
 				sPass = sOldPass;
@@ -207,11 +166,7 @@ bool RegUser::UpdatePassword(char * sNewPass, size_t &szNewLen)
 		else
 		{
 			char * sOldPass = sPass;
-#ifdef _WIN32
-			ui8PassHash = (uint8_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldPass, 64);
-#else
 			ui8PassHash = (uint8_t *)realloc(sOldPass, 64);
-#endif
 			if (ui8PassHash == NULL)
 			{
 				sPass = sOldPass;
@@ -1004,11 +959,7 @@ void clsRegManager::HashPasswords()
 		if (pCurReg->bPassHash == false)
 		{
 			sOldPass = pCurReg->sPass;
-#ifdef _WIN32
-			pCurReg->ui8PassHash = (uint8_t *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, 64);
-#else
 			pCurReg->ui8PassHash = (uint8_t *)malloc(64);
-#endif
 			if (pCurReg->ui8PassHash == NULL)
 			{
 				pCurReg->sPass = sOldPass;
@@ -1023,26 +974,11 @@ void clsRegManager::HashPasswords()
 			if (HashPassword(sOldPass, szPassLen, pCurReg->ui8PassHash) == true)
 			{
 				pCurReg->bPassHash = true;
-				
-#ifdef _WIN32
-				if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sOldPass) == 0)
-				{
-					AppendDebugLog("%s - [MEM] Cannot deallocate sOldPass in clsRegManager::HashPasswords\n");
-				}
-#else
 				free(sOldPass);
-#endif
 			}
 			else
 			{
-#ifdef _WIN32
-				if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pCurReg->ui8PassHash) == 0)
-				{
-					AppendDebugLog("%s - [MEM] Cannot deallocate pCurReg->ui8PassHash in clsRegManager::HashPasswords\n");
-				}
-#else
 				free(pCurReg->ui8PassHash);
-#endif
 				
 				pCurReg->sPass = sOldPass;
 			}

@@ -69,6 +69,7 @@ clsServiceLoop::AcceptedSocket::AcceptedSocket() : pNext(NULL),
 	s(-1)
 #endif
 {
+	memset(&addr, 0, sizeof(addr));
 	// ...
 };
 //---------------------------------------------------------------------------
@@ -577,37 +578,6 @@ void clsServiceLoop::ReceiveLoop()
 		if (clsServerManager::ui64Mins == 0 || clsServerManager::ui64Mins == 15 || clsServerManager::ui64Mins == 30 || clsServerManager::ui64Mins == 45)
 		{
 			clsRegManager::mPtr->Save(false, true);
-#ifdef _WIN32
-			if (HeapValidate(GetProcessHeap(), 0, 0) == 0)
-			{
-				AppendDebugLog("%s - [ERR] Process memory heap corrupted\n");
-			}
-			HeapCompact(GetProcessHeap(), 0);
-			
-			if (HeapValidate(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, 0) == 0)
-			{
-				AppendDebugLog("%s - [ERR] PtokaX memory heap corrupted\n");
-			}
-			HeapCompact(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE);
-			
-			if (HeapValidate(clsServerManager::hRecvHeap, HEAP_NO_SERIALIZE, 0) == 0)
-			{
-				AppendDebugLog("%s - [ERR] Recv memory heap corrupted\n");
-			}
-			HeapCompact(clsServerManager::hRecvHeap, HEAP_NO_SERIALIZE);
-			
-			if (HeapValidate(clsServerManager::hSendHeap, HEAP_NO_SERIALIZE, 0) == 0)
-			{
-				AppendDebugLog("%s - [ERR] Send memory heap corrupted\n");
-			}
-			HeapCompact(clsServerManager::hSendHeap, HEAP_NO_SERIALIZE);
-			
-			if (HeapValidate(clsServerManager::hLuaHeap, 0, 0) == 0)
-			{
-				AppendDebugLog("%s - [ERR] Lua memory heap corrupted\n");
-			}
-			HeapCompact(clsServerManager::hLuaHeap, 0);
-#endif
 		}
 		
 		ui64LstUptmTck = clsServerManager::ui64ActualTick;
@@ -767,18 +737,7 @@ void clsServiceLoop::ReceiveLoop()
 					size_t szNeededLen = curUser->ui32SendBufDataLen - iBeforeLuaLen;
 					
 					void * sOldBuf = curUser->pLogInOut->pBuffer;
-#ifdef _WIN32
-					if (curUser->pLogInOut->pBuffer == NULL)
-					{
-						curUser->pLogInOut->pBuffer = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNeededLen + 1);
-					}
-					else
-					{
-						curUser->pLogInOut->pBuffer = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, sOldBuf, szNeededLen + 1);
-					}
-#else
 					curUser->pLogInOut->pBuffer = (char *)realloc(sOldBuf, szNeededLen + 1);
-#endif
 					if (curUser->pLogInOut->pBuffer == NULL)
 					{
 						curUser->ui32BoolBits |= User::BIT_ERROR;
@@ -927,24 +886,10 @@ void clsServiceLoop::ReceiveLoop()
 												curUser->SendFormat("clsServiceLoop::ReceiveLoop->User::STATE_ADDED2", true, "$To: %s From: %s $<%s> %s %u %s %s %s!|", curUser->sNick, cur->sToNick, clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_SORRY_LAST],
 												                    cur->ui32PmCount, clsLanguageManager::mPtr->sTexts[LAN_MSGS_NOT_SENT], cur->sToNick, clsLanguageManager::mPtr->sTexts[LAN_EXC_MSG_LIMIT]);
 											}
-#ifdef _WIN32
-											if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sCommand) == 0)
-											{
-												AppendDebugLog("%s - [MEM] Cannot deallocate cur->sCommand in clsServiceLoop::ReceiveLoop\n");
-											}
-#else
 											free(cur->sCommand);
-#endif
 											cur->sCommand = NULL;
 											
-#ifdef _WIN32
-											if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sToNick) == 0)
-											{
-												AppendDebugLog("%s - [MEM] Cannot deallocate cur->ToNick in clsServiceLoop::ReceiveLoop\n");
-											}
-#else
 											free(cur->sToNick);
-#endif
 											cur->sToNick = NULL;
 											
 											delete cur;
@@ -974,24 +919,10 @@ void clsServiceLoop::ReceiveLoop()
 							continue;
 						}
 						
-#ifdef _WIN32
-						if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sCommand) == 0)
-						{
-							AppendDebugLog("%s - [MEM] Cannot deallocate cur->sCommand1 in clsServiceLoop::ReceiveLoop\n");
-						}
-#else
 						free(cur->sCommand);
-#endif
 						cur->sCommand = NULL;
 						
-#ifdef _WIN32
-						if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sToNick) == 0)
-						{
-							AppendDebugLog("%s - [MEM] Cannot deallocate cur->ToNick1 in clsServiceLoop::ReceiveLoop\n");
-						}
-#else
 						free(cur->sToNick);
-#endif
 						cur->sToNick = NULL;
 						
 						delete cur;
@@ -1055,14 +986,7 @@ void clsServiceLoop::ReceiveLoop()
 					if (curUser->sLastChat != NULL && curUser->ui16LastChatLines < 2 &&
 					        (curUser->ui64SameChatsTick + clsSettingManager::mPtr->i16Shorts[SETSHORT_SAME_MAIN_CHAT_TIME]) < clsServerManager::ui64ActualTick)
 					{
-#ifdef _WIN32
-						if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)curUser->sLastChat) == 0)
-						{
-							AppendDebugLog("%s - [MEM] Cannot deallocate curUser->sLastChat in clsServiceLoop::ReceiveLoop\n");
-						}
-#else
 						free(curUser->sLastChat);
-#endif
 						curUser->sLastChat = NULL;
 						curUser->ui16LastChatLen = 0;
 						curUser->ui16SameMultiChats = 0;
@@ -1072,14 +996,7 @@ void clsServiceLoop::ReceiveLoop()
 					if (curUser->sLastPM != NULL && curUser->ui16LastPmLines < 2 &&
 					        (curUser->ui64SamePMsTick + clsSettingManager::mPtr->i16Shorts[SETSHORT_SAME_PM_TIME]) < clsServerManager::ui64ActualTick)
 					{
-#ifdef _WIN32
-						if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)curUser->sLastPM) == 0)
-						{
-							AppendDebugLog("%s - [MEM] Cannot deallocate curUser->sLastPM in clsServiceLoop::ReceiveLoop\n");
-						}
-#else
 						free(curUser->sLastPM);
-#endif
 						curUser->sLastPM = NULL;
 						curUser->ui16LastPMLen = 0;
 						curUser->ui16SameMultiPms = 0;
@@ -1088,14 +1005,7 @@ void clsServiceLoop::ReceiveLoop()
 					
 					if (curUser->sLastSearch != NULL && (curUser->ui64SameSearchsTick + clsSettingManager::mPtr->i16Shorts[SETSHORT_SAME_SEARCH_TIME]) < clsServerManager::ui64ActualTick)
 					{
-#ifdef _WIN32
-						if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)curUser->sLastSearch) == 0)
-						{
-							AppendDebugLog("%s - [MEM] Cannot deallocate curUser->sLastSearch in clsServiceLoop::ReceiveLoop\n");
-						}
-#else
 						free(curUser->sLastSearch);
-#endif
 						curUser->sLastSearch = NULL;
 						curUser->ui16LastSearchLen = 0;
 					}

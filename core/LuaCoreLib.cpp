@@ -2859,75 +2859,35 @@ static int SetUserInfo(lua_State * L)
 		switch (ui32DataToChange)
 		{
 			case 0:
-				if (pUser->sChangedDescriptionShort != NULL)
-				{
-					User::FreeInfo(pUser->sChangedDescriptionShort, sMyInfoPartsNames[ui32DataToChange]);
-					pUser->sChangedDescriptionShort = NULL;
-					pUser->ui8ChangedDescriptionShortLen = 0;
-				}
+				User::FreeInfo(pUser->sChangedDescriptionShort, pUser->ui8ChangedDescriptionShortLen);
 				pUser->ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_SHORT_PERM;
 				break;
 			case 1:
-				if (pUser->sChangedDescriptionLong != NULL)
-				{
-					User::FreeInfo(pUser->sChangedDescriptionLong, sMyInfoPartsNames[ui32DataToChange]);
-					pUser->sChangedDescriptionLong = NULL;
-					pUser->ui8ChangedDescriptionLongLen = 0;
-				}
+				User::FreeInfo(pUser->sChangedDescriptionLong, pUser->ui8ChangedDescriptionLongLen);
 				pUser->ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_LONG_PERM;
 				break;
 			case 2:
-				if (pUser->sChangedTagShort != NULL)
-				{
-					User::FreeInfo(pUser->sChangedTagShort, sMyInfoPartsNames[ui32DataToChange]);
-					pUser->sChangedTagShort = NULL;
-					pUser->ui8ChangedTagShortLen = 0;
-				}
+				User::FreeInfo(pUser->sChangedTagShort, pUser->ui8ChangedTagShortLen);
 				pUser->ui32InfoBits &= ~User::INFOBIT_TAG_SHORT_PERM;
 				break;
 			case 3:
-				if (pUser->sChangedTagLong != NULL)
-				{
-					User::FreeInfo(pUser->sChangedTagLong, sMyInfoPartsNames[ui32DataToChange]);
-					pUser->sChangedTagLong = NULL;
-					pUser->ui8ChangedTagLongLen = 0;
-				}
+				User::FreeInfo(pUser->sChangedTagLong, pUser->ui8ChangedTagLongLen);
 				pUser->ui32InfoBits &= ~User::INFOBIT_TAG_LONG_PERM;
 				break;
 			case 4:
-				if (pUser->sChangedConnectionShort != NULL)
-				{
-					User::FreeInfo(pUser->sChangedConnectionShort, sMyInfoPartsNames[ui32DataToChange]);
-					pUser->sChangedConnectionShort = NULL;
-					pUser->ui8ChangedConnectionShortLen = 0;
-				}
+				User::FreeInfo(pUser->sChangedConnectionShort, pUser->ui8ChangedConnectionShortLen);
 				pUser->ui32InfoBits &= ~User::INFOBIT_CONNECTION_SHORT_PERM;
 				break;
 			case 5:
-				if (pUser->sChangedConnectionLong != NULL)
-				{
-					User::FreeInfo(pUser->sChangedConnectionLong, sMyInfoPartsNames[ui32DataToChange]);
-					pUser->sChangedConnectionLong = NULL;
-					pUser->ui8ChangedConnectionLongLen = 0;
-				}
+				User::FreeInfo(pUser->sChangedConnectionLong, pUser->ui8ChangedConnectionLongLen);
 				pUser->ui32InfoBits &= ~User::INFOBIT_CONNECTION_LONG_PERM;
 				break;
 			case 6:
-				if (pUser->sChangedEmailShort != NULL)
-				{
-					User::FreeInfo(pUser->sChangedEmailShort, sMyInfoPartsNames[ui32DataToChange]);
-					pUser->sChangedEmailShort = NULL;
-					pUser->ui8ChangedEmailShortLen = 0;
-				}
+				User::FreeInfo(pUser->sChangedEmailShort, pUser->ui8ChangedEmailShortLen);
 				pUser->ui32InfoBits &= ~User::INFOBIT_EMAIL_SHORT_PERM;
 				break;
 			case 7:
-				if (pUser->sChangedEmailLong != NULL)
-				{
-					User::FreeInfo(pUser->sChangedEmailLong, sMyInfoPartsNames[ui32DataToChange]);
-					pUser->sChangedEmailLong = NULL;
-					pUser->ui8ChangedEmailLongLen = 0;
-				}
+				User::FreeInfo(pUser->sChangedEmailLong, pUser->ui8ChangedEmailLongLen);
 				pUser->ui32InfoBits &= ~User::INFOBIT_EMAIL_LONG_PERM;
 				break;
 			case 8:

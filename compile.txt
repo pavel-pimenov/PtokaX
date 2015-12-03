@@ -1,26 +1,55 @@
 #[+]FlylinkDC++
 # dpkg-reconfigure tzdata
-# sudo apt-get install liblua5.1-dev zlib1g-dev libtinyxml-dev lua-filesystem lua-iconv lua-sql-sqlite3 lua-svn libsqlite3-dev valgrind cmake denyhosts
+# sudo apt-get install liblua5.1-dev zlib1g-dev libtinyxml-dev lua-filesystem lua-iconv lua-sql-sqlite3 lua-svn libsqlite3-dev valgrind cmake denyhosts build-essential sqlite3
+
 # localedef -c -i ru_RU -f CP1251 ru_RU.CP1251
 # /etc/security# cat limits.conf
 #   dc soft nofile 40480
 #   dc hard nofile 40480
 # Add swap - https://www.digitalocean.com/community/tutorials/how-to-add-swap-on-ubuntu-14-04
 # sudo apt-get install ntp conntrack lighttpd munin htop mc vnstat nload git subversion webalizer
+#  ------ lighttpd -------
+# /usr/sbin/lighty-enable-mod status
+# /usr/sbin/lighty-enable-mod accesslog
+#  ------ webalizer ------
+# /etc/webalizer# diff webalizer.conf webalizer.conf.sample
+#  LogFile /var/log/lighttpd/access.log.1
+#  OutputDir /var/www/webalizer
+#  HostName dc.fly-server.ru
+#  Geo* - yes
+# sudo apt-get install software-properties-common
+#$ sudo add-apt-repository ppa:maxmind/ppa
+#$ sudo apt-get update
+#$ sudo apt-get install geoipupdate
+# -----------------------
 # ln -s /usr/share/munin/plugins/fw_conntrack fw_conntrack
 # ln -s /var/cache/munin/www /var/www/munin
 # modprobe nf_conntrack_ipv4
-# add nf_conntrack_ipv4 -> /etc/modules
+# nf_conntrack_ipv4 -> /etc/modules
 # adduser xxx
 # adduser yyy
 # adduser zzz
 # /etc/ssh# cat sshd_config | grep Allow
 # AllowUsers xxx yyy zzzz
+
+# adduser xxx sudo
+# adduser yyy sudo
+# adduser xxx sudo
+
 # scp -C -r -P 22 dc@dc.fly-server.ru:/home/dc/src/PtokaX /home/dc/src/PtokaX
 # or
 # tar czfP /home/dc/src/backup-PtokaX.tar.gz /home/dc/src/PtokaX
 # scp -C -r -P 22 dc@dc.fly-server.ru:/home/dc/src/backup-PtokaX.tar.gz /home/dc/src/
 # tar -xzvf backup.tar.gz
+#
+# wordpress add
+# 1. Disable XML-RPC Pingback
+# 2. Stealth Login Page 
+# https://wordpress.org/plugins/stealth-login-page/ 
+#
+# apt-get install iptables-persistent
+#
+
 
  
 

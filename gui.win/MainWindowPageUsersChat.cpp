@@ -199,7 +199,7 @@ LRESULT clsMainWindowPageUsersChat::MainWindowPageProc(UINT uMsg, WPARAM wParam,
 					{
 						int iLen = ::GetWindowTextLength((HWND)lParam);
 						
-						char * buf = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iLen + 1);
+						char * buf = (char *)malloc(iLen + 1);
 						
 						if (buf == NULL)
 						{
@@ -232,10 +232,7 @@ LRESULT clsMainWindowPageUsersChat::MainWindowPageProc(UINT uMsg, WPARAM wParam,
 							::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
 						}
 						
-						if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)buf) == 0)
-						{
-							AppendDebugLog("%s - [MEM] Cannot deallocate buf in clsMainWindowPageUsersChat::MainWindowPageProc\n");
-						}
+						free(buf);
 						
 						return 0;
 					}
@@ -494,7 +491,7 @@ bool clsMainWindowPageUsersChat::OnEditEnter()
 		return false;
 	}
 	
-	char * buf = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iAllocLen + 4 + clsSettingManager::mPtr->ui16TextsLens[SETTXT_ADMIN_NICK]);
+	char * buf = (char *)malloc(iAllocLen + 4 + clsSettingManager::mPtr->ui16TextsLens[SETTXT_ADMIN_NICK]);
 	
 	if (buf == NULL)
 	{
@@ -515,10 +512,7 @@ bool clsMainWindowPageUsersChat::OnEditEnter()
 	
 	RichEditAppendText(hWndPageItems[REDT_CHAT], buf);
 	
-	if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)buf) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate buf in clsMainWindowPageUsersChat::OnEditEnter\n");
-	}
+	free(buf);
 	
 	::SetWindowText(hWndPageItems[EDT_CHAT], "");
 	

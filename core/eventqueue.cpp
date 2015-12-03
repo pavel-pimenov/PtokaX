@@ -66,17 +66,7 @@ clsEventQueue::~clsEventQueue()
 		cur = next;
 		next = cur->pNext;
 		
-#ifdef _WIN32
-		if (cur->sMsg != NULL)
-		{
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sMsg) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate cur->sMsg in clsEventQueue::~clsEventQueue\n");
-			}
-		}
-#else
 		free(cur->sMsg);
-#endif
 		
 		delete cur;
 	}
@@ -126,11 +116,7 @@ void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg)
 	if (sMsg != NULL)
 	{
 		size_t szLen = strlen(sMsg);
-#ifdef _WIN32
-		pNewEvent->sMsg = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-#else
 		pNewEvent->sMsg = (char *)malloc(szLen + 1);
-#endif
 		if (pNewEvent->sMsg == NULL)
 		{
 			delete pNewEvent;
@@ -308,17 +294,7 @@ void clsEventQueue::ProcessEvents()
 				break;
 		}
 		
-#ifdef _WIN32
-		if (cur->sMsg != NULL)
-		{
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sMsg) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate cur->sMsg in clsEventQueue::ProcessEvents\n");
-			}
-		}
-#else
 		free(cur->sMsg);
-#endif
 		
 		delete cur;
 	}

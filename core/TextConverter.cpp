@@ -124,7 +124,7 @@ size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t ui8InputL
 	wchar_t * wcTemp =  wcTempBuf;
 	if (iMtoWRegLen > 2048)
 	{
-		wcTemp = (wchar_t *)::HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, iMtoWRegLen * sizeof(wchar_t));
+		wcTemp = (wchar_t *)malloc(iMtoWRegLen * sizeof(wchar_t));
 		if (wcTemp == NULL)
 		{
 			sOutput[0] = '\0';
@@ -136,7 +136,7 @@ size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t ui8InputL
 	{
 		if (wcTemp != wcTempBuf)
 		{
-			::HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)wcTemp);
+			free(wcTemp);
 		}
 		
 		sOutput[0] = '\0';
@@ -148,7 +148,7 @@ size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t ui8InputL
 	{
 		if (wcTemp != wcTempBuf)
 		{
-			::HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)wcTemp);
+			free(wcTemp);
 		}
 		sOutput[0] = '\0';
 		return 0;
@@ -167,7 +167,7 @@ size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t ui8InputL
 		{
 			if (wcTemp != wcTempBuf)
 			{
-				::HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)wcTemp);
+				free(wcTemp);
 			}
 			
 			sOutput[0] = '\0';
@@ -179,7 +179,7 @@ size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t ui8InputL
 	{
 		if (wcTemp != wcTempBuf)
 		{
-			::HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)wcTemp);
+			free(wcTemp);
 		}
 		
 		sOutput[0] = '\0';
@@ -188,7 +188,7 @@ size_t TextConverter::CheckUtf8AndConvert(char * sInput, const uint8_t ui8InputL
 	
 	if (wcTemp != wcTempBuf)
 	{
-		::HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)wcTemp);
+		free(wcTemp);
 	}
 	
 	sOutput[iWtoMRegLen] = '\0';

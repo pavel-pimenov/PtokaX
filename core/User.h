@@ -381,8 +381,16 @@ struct User
 	bool GenerateMyInfoLong();
 	bool GenerateMyInfoShort();
 	
-	static void FreeInfo(char * sInfo, const char * sName);
-	
+	inline static void FreeInfo(char *& sInfo, uint8_t& p_len)
+	{
+		if (sInfo)
+		{
+			free(sInfo);
+			sInfo = NULL; // [+] FlylinkDC++
+		}
+		p_len = 0;
+	}
+
 	void HasSuspiciousTag();
 	
 	bool ProcessRules();

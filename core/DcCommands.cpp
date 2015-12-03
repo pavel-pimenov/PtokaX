@@ -1507,24 +1507,10 @@ void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t ui32Len)
 						prev->pNext = cur->pNext;
 					}
 					
-#ifdef _WIN32
-					if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sCommand) == 0)
-					{
-						AppendDebugLog("%s - [MEM] Cannot deallocate cur->sCommand in clsDcCommands::Kick\n");
-					}
-#else
 					free(cur->sCommand);
-#endif
 					cur->sCommand = NULL;
 					
-#ifdef _WIN32
-					if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sToNick) == 0)
-					{
-						AppendDebugLog("%s - [MEM] Cannot deallocate cur->ToNick in clsDcCommands::Kick\n");
-					}
-#else
 					free(cur->sToNick);
-#endif
 					cur->sToNick = NULL;
 					
 					delete cur;
@@ -3703,6 +3689,7 @@ bool clsDcCommands::ValidateUserNickFinally(bool pIsNotReg, User * pUser, const 
 		if ((clsSettingManager::mPtr->i16Shorts[SETSHORT_MIN_NICK_LEN] != 0 && szNickLen < (uint32_t)clsSettingManager::mPtr->i16Shorts[SETSHORT_MIN_NICK_LEN]) ||
 		        (clsSettingManager::mPtr->i16Shorts[SETSHORT_MAX_NICK_LEN] != 0 && szNickLen > (uint32_t)clsSettingManager::mPtr->i16Shorts[SETSHORT_MAX_NICK_LEN]))
 		{
+			// TODO pUser->SendFormat("clsDcCommands::ValidateUserNickFinally", false, "$ValidateDenide %s|", pUser->sNick); // [+] FlylinkDC++
 			pUser->SendChar(clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_NICK_LIMIT_MSG], clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_NICK_LIMIT_MSG]);
 			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad nick length (%d) from %s (%s) - user closed.", (int)szNickLen, pUser->sNick, pUser->sIP);
 			
@@ -3961,14 +3948,7 @@ void clsDcCommands::ProcessCmds(User * pUser)
 			}
 		}
 		
-#ifdef _WIN32
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)cur->sCommand) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate cur->sCommand in clsDcCommands::ProcessCmds\n");
-		}
-#else
 		free(cur->sCommand);
-#endif
 		cur->sCommand = NULL;
 		
 		delete cur;
@@ -4309,11 +4289,7 @@ PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, ch
 	if (cmdSearch != NULL)
 	{
 		char * pOldBuf = cmdSearch->sCommand;
-#ifdef _WIN32
-		cmdSearch->sCommand = (char *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)pOldBuf, cmdSearch->ui32Len + szLen + 1);
-#else
 		cmdSearch->sCommand = (char *)realloc(pOldBuf, cmdSearch->ui32Len + szLen + 1);
-#endif
 		if (cmdSearch->sCommand == NULL)
 		{
 			cmdSearch->sCommand = pOldBuf;
@@ -4349,11 +4325,7 @@ PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, ch
 			return cmdSearch;
 		}
 		
-#ifdef _WIN32
-		cmdSearch->sCommand = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-#else
 		cmdSearch->sCommand = (char *)malloc(szLen + 1);
-#endif
 		if (cmdSearch->sCommand == NULL)
 		{
 			delete cmdSearch;

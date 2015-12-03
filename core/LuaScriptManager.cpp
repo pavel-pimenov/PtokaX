@@ -108,10 +108,7 @@ void clsScriptManager::LoadXML()
 
 clsScriptManager::clsScriptManager() : pRunningScriptE(NULL), pRunningScriptS(NULL), ppScriptTable(NULL), pActualUser(NULL), pTimerListS(NULL), pTimerListE(NULL), ui8ScriptCount(0), ui8BotsCount(0), bMoved(false)
 {
-#ifdef _WIN32
-	clsServerManager::hLuaHeap = ::HeapCreate(HEAP_NO_SERIALIZE, 0x80000, 0);
-#endif
-	
+
 #ifdef _WIN32
 	if (FileExist((clsServerManager::sPath + "\\cfg\\Scripts.pxt").c_str()) == false)
 	{
@@ -201,14 +198,7 @@ clsScriptManager::~clsScriptManager()
 		delete ppScriptTable[ui8i];
 	}
 	
-#ifdef _WIN32
-	if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ppScriptTable) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate ScriptTable in clsScriptManager::~clsScriptManager\n");
-	}
-#else
 	free(ppScriptTable);
-#endif
 	
 	ppScriptTable = NULL;
 	
@@ -218,9 +208,6 @@ clsScriptManager::~clsScriptManager()
 	
 	ui8BotsCount = 0;
 	
-#ifdef _WIN32
-	::HeapDestroy(clsServerManager::hLuaHeap);
-#endif
 }
 //------------------------------------------------------------------------------
 
@@ -269,18 +256,7 @@ bool clsScriptManager::AddScript(char * sName, const bool bEnabled, const bool /
 	}
 	
 	Script ** oldbuf = ppScriptTable;
-#ifdef _WIN32
-	if (ppScriptTable == NULL)
-	{
-		ppScriptTable = (Script **)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, (ui8ScriptCount + 1) * sizeof(Script *));
-	}
-	else
-	{
-		ppScriptTable = (Script **)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, (ui8ScriptCount + 1) * sizeof(Script *));
-	}
-#else
 	ppScriptTable = (Script **)realloc(oldbuf, (ui8ScriptCount + 1) * sizeof(Script *));
-#endif
 	if (ppScriptTable == NULL)
 	{
 		ppScriptTable = oldbuf;

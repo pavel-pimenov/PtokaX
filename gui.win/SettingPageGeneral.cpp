@@ -242,7 +242,7 @@ void SettingPageGeneral::Save()
 	{
 		uint32_t ui32Len = (uint32_t)::SendMessage(hWndPageItems[CB_LANGUAGE], CB_GETLBTEXTLEN, ui32CurSel, 0);
 		
-		char * sTempBuf = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui32Len + 1);
+		char * sTempBuf = (char *)malloc(ui32Len + 1);
 		
 		if (sTempBuf == NULL)
 		{
@@ -261,10 +261,7 @@ void SettingPageGeneral::Save()
 		
 		clsSettingManager::mPtr->SetText(SETTXT_LANGUAGE, sTempBuf, ui32Len);
 		
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sTempBuf) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sTempBuf in SettingPageGeneral::Save\n");
-		}
+		free(sTempBuf);
 	}
 	
 	LRESULT lResult = ::SendMessage(hWndPageItems[UD_MAX_USERS], UDM_GETPOS, 0, 0);
@@ -493,7 +490,7 @@ bool SettingPageGeneral::CreateSettingPage(HWND hOwner)
 			uint32_t ui32Len = (uint32_t)::SendMessage(hWndPageItems[CB_LANGUAGE], CB_GETLBTEXTLEN, ui32i, 0);
 			if (ui32Len == (int32_t)clsSettingManager::mPtr->ui16TextsLens[SETTXT_LANGUAGE])
 			{
-				char * buf = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, ui32Len + 1);
+				char * buf = (char *)malloc(ui32Len + 1);
 				
 				if (buf == NULL)
 				{
@@ -506,18 +503,12 @@ bool SettingPageGeneral::CreateSettingPage(HWND hOwner)
 				{
 					::SendMessage(hWndPageItems[CB_LANGUAGE], CB_SETCURSEL, ui32i, 0);
 					
-					if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)buf) == 0)
-					{
-						AppendDebugLog("%s - [MEM] Cannot deallocate buf in SettingPageGeneral::CreateSettingPage\n");
-					}
+					free(buf);
 					
 					break;
 				}
 				
-				if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)buf) == 0)
-				{
-					AppendDebugLog("%s - [MEM] Cannot deallocate buf in SettingPageGeneral::CreateSettingPage\n");
-				}
+				free(buf);
 			}
 		}
 	}

@@ -81,23 +81,8 @@ ScriptBot::ScriptBot() : pPrev(NULL), pNext(NULL), sNick(NULL), sMyINFO(NULL), b
 
 ScriptBot::~ScriptBot()
 {
-#ifdef _WIN32
-	if (sNick != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sNick) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate sNick in ScriptBot::~ScriptBot\n");
-	}
-#else
 	free(sNick);
-#endif
-	
-#ifdef _WIN32
-	if (sMyINFO != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMyINFO) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate sMyINFO in ScriptBot::~ScriptBot\n");
-	}
-#else
 	free(sMyINFO);
-#endif
 	
 	clsScriptManager::mPtr->ui8BotsCount--;
 }
@@ -114,11 +99,7 @@ ScriptBot * ScriptBot::CreateScriptBot(char * sBotNick, const size_t szNickLen, 
 		return NULL;
 	}
 	
-#ifdef _WIN32
-	pScriptBot->sNick = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNickLen + 1);
-#else
 	pScriptBot->sNick = (char *)malloc(szNickLen + 1);
-#endif
 	if (pScriptBot->sNick == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pScriptBot->sNick in ScriptBot::CreateScriptBot\n", (uint64_t)(szNickLen + 1));
@@ -133,11 +114,7 @@ ScriptBot * ScriptBot::CreateScriptBot(char * sBotNick, const size_t szNickLen, 
 	
 	size_t szWantLen = 24 + szNickLen + szDscrLen + szEmlLen;
 	
-#ifdef _WIN32
-	pScriptBot->sMyINFO = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szWantLen);
-#else
 	pScriptBot->sMyINFO = (char *)malloc(szWantLen);
-#endif
 	if (pScriptBot->sMyINFO == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pScriptBot->sMyINFO in ScriptBot::CreateScriptBot\n", (uint64_t)szWantLen);
@@ -168,18 +145,9 @@ ScriptTimer::ScriptTimer() :
 
 ScriptTimer::~ScriptTimer()
 {
-#ifdef _WIN32
-	if (sFunctionName != NULL && sFunctionName != sDefaultTimerFunc)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sFunctionName) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sFunctionName in ScriptTimer::~ScriptTimer\n");
-		}
-#else
 	if (sFunctionName != sDefaultTimerFunc)
 	{
 		free(sFunctionName);
-#endif
 	}
 }
 //------------------------------------------------------------------------------
@@ -206,11 +174,7 @@ ScriptTimer * ScriptTimer::CreateScriptTimer(char * sFunctName, const size_t szL
 	{
 		if (sFunctName != sDefaultTimerFunc)
 		{
-#ifdef _WIN32
-			pScriptTimer->sFunctionName = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szLen + 1);
-#else
 			pScriptTimer->sFunctionName = (char *)malloc(szLen + 1);
-#endif
 			if (pScriptTimer->sFunctionName == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pScriptTimer->sFunctionName in ScriptTimer::CreateScriptTimer\n", (uint64_t)(szLen + 1));
@@ -260,14 +224,7 @@ Script::~Script()
 		lua_close(pLUA);
 	}
 	
-#ifdef _WIN32
-	if (sName != NULL && HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sName) == 0)
-	{
-		AppendDebugLog("%s - [MEM] Cannot deallocate sName in Script::~Script\n");
-	}
-#else
 	free(sName);
-#endif
 }
 //------------------------------------------------------------------------------
 
@@ -285,13 +242,11 @@ Script * Script::CreateScript(char * Name, const bool enabled)
 #ifdef _WIN32
 	string ExtractedFilename(ExtractFileName(Name));
 	size_t szNameLen = ExtractedFilename.size();
-	
-	pScript->sName = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szNameLen + 1);
 #else
 	size_t szNameLen = strlen(Name);
 	
-	pScript->sName = (char *)malloc(szNameLen + 1);
 #endif
+	pScript->sName = (char *)malloc(szNameLen + 1);
 	if (pScript->sName == NULL)
 	{
 		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes in Script::CreateScript\n", (uint64_t)szNameLen + 1);

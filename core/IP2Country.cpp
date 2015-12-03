@@ -102,11 +102,7 @@ void clsIpP2Country::LoadIPv4()
 		
 		if (ui32RangeFrom == NULL)
 		{
-#ifdef _WIN32
-			ui32RangeFrom = (uint32_t *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, ui32Size * sizeof(uint32_t));
-#else
 			ui32RangeFrom = (uint32_t *)calloc(ui32Size, sizeof(uint32_t));
-#endif
 			
 			if (ui32RangeFrom == NULL)
 			{
@@ -119,11 +115,7 @@ void clsIpP2Country::LoadIPv4()
 		
 		if (ui32RangeTo == NULL)
 		{
-#ifdef _WIN32
-			ui32RangeTo = (uint32_t *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, ui32Size * sizeof(uint32_t));
-#else
 			ui32RangeTo = (uint32_t *)calloc(ui32Size, sizeof(uint32_t));
-#endif
 			
 			if (ui32RangeTo == NULL)
 			{
@@ -136,11 +128,7 @@ void clsIpP2Country::LoadIPv4()
 		
 		if (ui8RangeCI == NULL)
 		{
-#ifdef _WIN32
-			ui8RangeCI = (uint8_t *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, ui32Size * sizeof(uint8_t));
-#else
 			ui8RangeCI = (uint8_t *)calloc(ui32Size, sizeof(uint8_t));
-#endif
 			
 			if (ui8RangeCI == NULL)
 			{
@@ -165,11 +153,7 @@ void clsIpP2Country::LoadIPv4()
 		{
 			ui32Size += 512;
 			void * oldbuf = ui32RangeFrom;
-#ifdef _WIN32
-			ui32RangeFrom = (uint32_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32Size * sizeof(uint32_t));
-#else
 			ui32RangeFrom = (uint32_t *)realloc(oldbuf, ui32Size * sizeof(uint32_t));
-#endif
 			if (ui32RangeFrom == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui32RangeFrom\n", ui32Size);
@@ -179,11 +163,7 @@ void clsIpP2Country::LoadIPv4()
 			}
 			
 			oldbuf = ui32RangeTo;
-#ifdef _WIN32
-			ui32RangeTo = (uint32_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32Size * sizeof(uint32_t));
-#else
 			ui32RangeTo = (uint32_t *)realloc(oldbuf, ui32Size * sizeof(uint32_t));
-#endif
 			if (ui32RangeTo == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui32RangeTo\n", ui32Size);
@@ -193,11 +173,7 @@ void clsIpP2Country::LoadIPv4()
 			}
 			
 			oldbuf = ui8RangeCI;
-#ifdef _WIN32
-			ui8RangeCI = (uint8_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32Size * sizeof(uint8_t));
-#else
 			ui8RangeCI = (uint8_t *)realloc(oldbuf, ui32Size * sizeof(uint8_t));
-#endif
 			if (ui8RangeCI == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui8RangeCI\n", ui32Size);
@@ -255,11 +231,7 @@ void clsIpP2Country::LoadIPv4()
 		ui32Size = ui32Count;
 		
 		void * oldbuf = ui32RangeFrom;
-#ifdef _WIN32
-		ui32RangeFrom = (uint32_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32Size * sizeof(uint32_t));
-#else
 		ui32RangeFrom = (uint32_t *)realloc(oldbuf, ui32Size * sizeof(uint32_t));
-#endif
 		if (ui32RangeFrom == NULL)
 		{
 			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui32RangeFrom\n", ui32Size);
@@ -267,11 +239,7 @@ void clsIpP2Country::LoadIPv4()
 		}
 		
 		oldbuf = ui32RangeTo;
-#ifdef _WIN32
-		ui32RangeTo = (uint32_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32Size * sizeof(uint32_t));
-#else
 		ui32RangeTo = (uint32_t *)realloc(oldbuf, ui32Size * sizeof(uint32_t));
-#endif
 		if (ui32RangeTo == NULL)
 		{
 			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui32RangeTo\n", ui32Size);
@@ -279,11 +247,7 @@ void clsIpP2Country::LoadIPv4()
 		}
 		
 		oldbuf = ui8RangeCI;
-#ifdef _WIN32
-		ui8RangeCI = (uint8_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32Size * sizeof(uint8_t));
-#else
 		ui8RangeCI = (uint8_t *)realloc(oldbuf, ui32Size * sizeof(uint8_t));
-#endif
 		if (ui8RangeCI == NULL)
 		{
 			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui8RangeCI\n", ui32Size);
@@ -317,11 +281,7 @@ void clsIpP2Country::LoadIPv6()
 		
 		if (ui128IPv6RangeFrom == NULL)
 		{
-#ifdef _WIN32
-			ui128IPv6RangeFrom = (uint8_t *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#else
 			ui128IPv6RangeFrom = (uint8_t *)calloc(ui32IPv6Size, sizeof(uint8_t) * 16);
-#endif
 			
 			if (ui128IPv6RangeFrom == NULL)
 			{
@@ -334,11 +294,7 @@ void clsIpP2Country::LoadIPv6()
 		
 		if (ui128IPv6RangeTo == NULL)
 		{
-#ifdef _WIN32
-			ui128IPv6RangeTo = (uint8_t *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#else
 			ui128IPv6RangeTo = (uint8_t *)calloc(ui32IPv6Size, sizeof(uint8_t) * 16);
-#endif
 			
 			if (ui128IPv6RangeTo == NULL)
 			{
@@ -351,11 +307,7 @@ void clsIpP2Country::LoadIPv6()
 		
 		if (ui8IPv6RangeCI == NULL)
 		{
-#ifdef _WIN32
-			ui8IPv6RangeCI = (uint8_t *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE | HEAP_ZERO_MEMORY, ui32IPv6Size * sizeof(uint8_t));
-#else
 			ui8IPv6RangeCI = (uint8_t *)calloc(ui32IPv6Size, sizeof(uint8_t));
-#endif
 			
 			if (ui8IPv6RangeCI == NULL)
 			{
@@ -380,11 +332,7 @@ void clsIpP2Country::LoadIPv6()
 		{
 			ui32IPv6Size += 512;
 			void * oldbuf = ui128IPv6RangeFrom;
-#ifdef _WIN32
-			ui128IPv6RangeFrom = (uint8_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#else
 			ui128IPv6RangeFrom = (uint8_t *)realloc(oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#endif
 			if (ui128IPv6RangeFrom == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui128IPv6RangeFrom\n", ui32IPv6Size);
@@ -394,11 +342,7 @@ void clsIpP2Country::LoadIPv6()
 			}
 			
 			oldbuf = ui128IPv6RangeTo;
-#ifdef _WIN32
-			ui128IPv6RangeTo = (uint8_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#else
 			ui128IPv6RangeTo = (uint8_t *)realloc(oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#endif
 			if (ui128IPv6RangeTo == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui128IPv6RangeTo\n", ui32IPv6Size);
@@ -408,11 +352,7 @@ void clsIpP2Country::LoadIPv6()
 			}
 			
 			oldbuf = ui8IPv6RangeCI;
-#ifdef _WIN32
-			ui8IPv6RangeCI = (uint8_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32IPv6Size * sizeof(uint8_t));
-#else
 			ui8IPv6RangeCI = (uint8_t *)realloc(oldbuf, ui32IPv6Size * sizeof(uint8_t));
-#endif
 			if (ui8IPv6RangeCI == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui8IPv6RangeCI\n", ui32IPv6Size);
@@ -482,11 +422,7 @@ void clsIpP2Country::LoadIPv6()
 		ui32IPv6Size = ui32IPv6Count;
 		
 		void * oldbuf = ui128IPv6RangeFrom;
-#ifdef _WIN32
-		ui128IPv6RangeFrom = (uint8_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#else
 		ui128IPv6RangeFrom = (uint8_t *)realloc(oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#endif
 		if (ui128IPv6RangeFrom == NULL)
 		{
 			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui128IPv6RangeFrom\n", ui32IPv6Size);
@@ -494,11 +430,7 @@ void clsIpP2Country::LoadIPv6()
 		}
 		
 		oldbuf = ui128IPv6RangeTo;
-#ifdef _WIN32
-		ui128IPv6RangeTo = (uint8_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#else
 		ui128IPv6RangeTo = (uint8_t *)realloc(oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
-#endif
 		if (ui128IPv6RangeTo == NULL)
 		{
 			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui128IPv6RangeTo\n", ui32IPv6Size);
@@ -506,11 +438,7 @@ void clsIpP2Country::LoadIPv6()
 		}
 		
 		oldbuf = ui8IPv6RangeCI;
-#ifdef _WIN32
-		ui8IPv6RangeCI = (uint8_t *)HeapReAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)oldbuf, ui32IPv6Size * sizeof(uint8_t));
-#else
 		ui8IPv6RangeCI = (uint8_t *)realloc(oldbuf, ui32IPv6Size * sizeof(uint8_t));
-#endif
 		if (ui8IPv6RangeCI == NULL)
 		{
 			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui8IPv6RangeCI\n", ui32IPv6Size);
@@ -529,77 +457,13 @@ clsIpP2Country::clsIpP2Country() : ui32RangeFrom(NULL), ui32RangeTo(NULL), ui8Ra
 
 clsIpP2Country::~clsIpP2Country()
 {
-#ifdef _WIN32
-	if (ui32RangeFrom != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ui32RangeFrom) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate clsIpP2Country::ui32RangeFrom in clsIpP2Country::~clsIpP2Country\n");
-		}
-	}
-#else
 	free(ui32RangeFrom);
-#endif
 	
-#ifdef _WIN32
-	if (ui32RangeTo != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ui32RangeTo) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate clsIpP2Country::ui32RangeTo in clsIpP2Country::~clsIpP2Country\n");
-		}
-	}
-#else
 	free(ui32RangeTo);
-#endif
-	
-#ifdef _WIN32
-	if (ui8RangeCI != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ui8RangeCI) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate clsIpP2Country::ui8RangeCI in clsIpP2Country::~clsIpP2Country\n");
-		}
-	}
-#else
 	free(ui8RangeCI);
-#endif
-	
-#ifdef _WIN32
-	if (ui128IPv6RangeFrom != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ui128IPv6RangeFrom) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate clsIpP2Country::ui128IPv6RangeFrom in clsIpP2Country::~clsIpP2Country\n");
-		}
-	}
-#else
 	free(ui128IPv6RangeFrom);
-#endif
-	
-#ifdef _WIN32
-	if (ui128IPv6RangeTo != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ui128IPv6RangeTo) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate clsIpP2Country::ui128IPv6RangeTo in clsIpP2Country::~clsIpP2Country\n");
-		}
-	}
-#else
 	free(ui128IPv6RangeTo);
-#endif
-	
-#ifdef _WIN32
-	if (ui8IPv6RangeCI != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)ui8IPv6RangeCI) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate clsIpP2Country::ui8IPv6RangeCI in clsIpP2Country::~clsIpP2Country\n");
-		}
-	}
-#else
 	free(ui8IPv6RangeCI);
-#endif
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

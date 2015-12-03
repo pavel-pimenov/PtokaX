@@ -41,7 +41,7 @@ class clsServerManager
 		static uint64_t ui64Mins, ui64Hours, ui64Days;
 		
 #ifdef _WIN32
-		static HANDLE hConsole, hLuaHeap, hPtokaXHeap, hRecvHeap, hSendHeap;
+		static HANDLE hConsole;
 #endif
 		
 #ifdef __MACH__

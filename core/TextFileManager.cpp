@@ -41,29 +41,8 @@ clsTextFilesManager::TextFile::TextFile() : pPrev(NULL), pNext(NULL), sCommand(N
 
 clsTextFilesManager::TextFile::~TextFile()
 {
-#ifdef _WIN32
-	if (sCommand != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sCommand) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sCommand in clsTextFilesManager::TextFile::~TextFile\n");
-		}
-	}
-#else
 	free(sCommand);
-#endif
-	
-#ifdef _WIN32
-	if (sText != NULL)
-	{
-		if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sText) == 0)
-		{
-			AppendDebugLog("%s - [MEM] Cannot deallocate sText in clsTextFilesManager::TextFile::~TextFile\n");
-		}
-	}
-#else
 	free(sText);
-#endif
 }
 //---------------------------------------------------------------------------
 
@@ -114,11 +93,7 @@ bool clsTextFilesManager::ProcessTextFilesCmd(User * u, char * cmd, bool fromPM/
 				szChatLen = 4 + szHubSecLen + strlen(cur->sText);
 			}
 			
-#ifdef _WIN32
-			char * sMSG = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, szChatLen);
-#else
 			char * sMSG = (char *)malloc(szChatLen);
-#endif
 			if (sMSG == NULL)
 			{
 				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sMsg in clsTextFilesManager::ProcessTextFilesCmd\n", (uint64_t)szChatLen);
@@ -146,15 +121,7 @@ bool clsTextFilesManager::ProcessTextFilesCmd(User * u, char * cmd, bool fromPM/
 			}
 			
 			u->SendCharDelayed(sMSG, szChatLen - 1);
-			
-#ifdef _WIN32
-			if (HeapFree(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, (void *)sMSG) == 0)
-			{
-				AppendDebugLog("%s - [MEM] Cannot deallocate sMSG in clsTextFilesManager::ProcessTextFilesCmd\n");
-			}
-#else
 			free(sMSG);
-#endif
 			
 			return true;
 		}
@@ -212,7 +179,7 @@ void clsTextFilesManager::RefreshTextFiles()
 						return;
 					}
 					
-					pNewTxtFile->sText = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, textfile.size + 2);
+					pNewTxtFile->sText = (char *)malloc(textfile.size + 2);
 					
 					if (pNewTxtFile->sText == NULL)
 					{
@@ -231,7 +198,7 @@ void clsTextFilesManager::RefreshTextFiles()
 					pNewTxtFile->sText[size] = '|';
 					pNewTxtFile->sText[size + 1] = '\0';
 					
-					pNewTxtFile->sCommand = (char *)HeapAlloc(clsServerManager::hPtokaXHeap, HEAP_NO_SERIALIZE, strlen(textfile.name) - 3);
+					pNewTxtFile->sCommand = (char *)malloc(strlen(textfile.name) - 3);
 					if (pNewTxtFile->sCommand == NULL)
 					{
 						AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sCommand in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(strlen(textfile.name) - 3));
