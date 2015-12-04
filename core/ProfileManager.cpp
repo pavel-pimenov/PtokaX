@@ -349,8 +349,7 @@ clsProfileManager::~clsProfileManager()
 		delete ppProfilesTable[ui16i];
 	}
 	
-	free(ppProfilesTable);
-	ppProfilesTable = NULL;
+	safe_free(ppProfilesTable);
 }
 //---------------------------------------------------------------------------
 

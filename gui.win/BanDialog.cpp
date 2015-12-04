@@ -793,9 +793,7 @@ bool clsBanDialog::OnAccept()
 				clsBanManager::mPtr->RemFromNickTable(pBanToChange);
 			}
 			
-			free(pBanToChange->sNick);
-			
-			pBanToChange->sNick = NULL;
+			safe_free(pBanToChange->sNick);
 			
 			pBanToChange->ui32NickHash = 0;
 			
@@ -811,8 +809,8 @@ bool clsBanDialog::OnAccept()
 			
 			if (pBanToChange->sNick != NULL)
 			{
-				free(pBanToChange->sNick);
-				pBanToChange->sNick = NULL;
+				safe_free(pBanToChange->sNick);
+
 			}
 			
 			pBanToChange->sNick = sNick;
@@ -881,8 +879,7 @@ bool clsBanDialog::OnAccept()
 			{
 				if (pBanToChange->sReason != NULL)
 				{
-					free(pBanToChange->sReason);
-					pBanToChange->sReason = NULL;
+					safe_free(pBanToChange->sReason);
 				}
 				
 				pBanToChange->sReason = sReason;
@@ -890,8 +887,7 @@ bool clsBanDialog::OnAccept()
 		}
 		else if (pBanToChange->sReason != NULL)
 		{
-			free(pBanToChange->sReason);
-			pBanToChange->sReason = NULL;
+			safe_free(pBanToChange->sReason);
 		}
 		
 		if (sReason != NULL && (pBanToChange->sReason != sReason))
@@ -921,8 +917,7 @@ bool clsBanDialog::OnAccept()
 			{
 				if (pBanToChange->sBy != NULL)
 				{
-					free(pBanToChange->sBy);
-					pBanToChange->sBy = NULL;
+					safe_free(pBanToChange->sBy);
 				}
 				
 				pBanToChange->sBy = sBy;
@@ -930,8 +925,7 @@ bool clsBanDialog::OnAccept()
 		}
 		else if (pBanToChange->sBy != NULL)
 		{
-			free(pBanToChange->sBy);
-			pBanToChange->sBy = NULL;
+			safe_free(pBanToChange->sBy);
 		}
 		
 		if (sBy != NULL && (pBanToChange->sBy != sBy))

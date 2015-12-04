@@ -457,8 +457,7 @@ clsIpP2Country::clsIpP2Country() : ui32RangeFrom(NULL), ui32RangeTo(NULL), ui8Ra
 
 clsIpP2Country::~clsIpP2Country()
 {
-	free(ui32RangeFrom);
-	
+	free(ui32RangeFrom);	
 	free(ui32RangeTo);
 	free(ui8RangeCI);
 	free(ui128IPv6RangeFrom);

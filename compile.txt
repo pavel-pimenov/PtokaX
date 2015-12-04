@@ -50,6 +50,11 @@
 # apt-get install iptables-persistent
 #
 
+# webdav
+#
+# ln -s /mnt/webdav/home/install /var/www/custom
+# ln -s /mnt/webdav/home/install /var/www/install/custom
+# ln -s /mnt/webdav/home/src-bin-pdb/flylinkdc-r5xx /var/www/install/r5xx/src-bin
 
  
 

@@ -568,8 +568,7 @@ UserBan::UserBan() : sMessage(NULL), ui32Len(0), ui32NickHash(0)
 
 UserBan::~UserBan()
 {
-	free(sMessage);
-	sMessage = NULL;
+	safe_free(sMessage);
 }
 //---------------------------------------------------------------------------
 
@@ -719,8 +718,7 @@ User::~User()
 		cur = next;
 		next = cur->pNext;
 		
-		free(cur->sCommand);
-		cur->sCommand = NULL;
+		safe_free(cur->sCommand);
 		
 		delete cur;
 	}
@@ -736,11 +734,8 @@ User::~User()
 		curto = nextto;
 		nextto = curto->pNext;
 		
-		free(curto->sCommand);
-		curto->sCommand = NULL;
-		
-		free(curto->sToNick);
-		curto->sToNick = NULL;
+		safe_free(curto->sCommand);
+		safe_free(curto->sToNick);
 		
 		delete curto;
 	}
@@ -1480,8 +1475,7 @@ bool User::Try2Send()
 		{
 			if (pSendBuf != NULL)
 			{
-				free(pSendBuf);
-				pSendBuf = NULL;
+				safe_free(pSendBuf);
 				pSendBufHead = pSendBuf;
 				ui32SendBufLen = 0;
 				ui32SendBufDataLen = 0;
@@ -1510,8 +1504,7 @@ void User::SetNick(char * sNewNick, const uint8_t ui8NewNickLen)
 {
 	if (sNick != sDefaultNick && sNick != NULL)
 	{
-		free(sNick);
-		sNick = NULL;
+		safe_free(sNick);
 	}
 	
 	sNick = (char *)malloc(ui8NewNickLen + 1);
@@ -1673,8 +1666,8 @@ static void UserSetMyInfoLong(User * u, char * sNewMyInfoLong, const uint16_t ui
 			clsUsers::mPtr->DelFromMyInfosTag(u);
 		}
 		
-		free(u->sMyInfoLong);
-		u->sMyInfoLong = NULL;
+		safe_free(u->sMyInfoLong);
+
 	}
 	
 	u->sMyInfoLong = (char *)malloc(ui16NewMyInfoLongLen + 1);
@@ -1702,8 +1695,7 @@ static void UserSetMyInfoShort(User * u, char * sNewMyInfoShort, const uint16_t 
 			clsUsers::mPtr->DelFromMyInfos(u);
 		}
 		
-		free(u->sMyInfoShort);
-		u->sMyInfoShort = NULL;
+		safe_free(u->sMyInfoShort);		
 	}
 	
 	u->sMyInfoShort = (char *)malloc(ui16NewMyInfoShortLen + 1);
@@ -1875,8 +1867,7 @@ void User::FreeBuffer()
 {
 	if (pLogInOut->pBuffer != NULL)
 	{
-		free(pLogInOut->pBuffer);
-		pLogInOut->pBuffer = NULL;
+		safe_free(pLogInOut->pBuffer);
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1958,8 +1949,7 @@ void User::Close(bool bNoQuit/* = false*/)
 		cur = next;
 		next = cur->pNext;
 		
-		free(cur->sCommand);
-		cur->sCommand = NULL;
+		safe_free(cur->sCommand);
 		
 		delete cur;
 	}
@@ -1975,11 +1965,9 @@ void User::Close(bool bNoQuit/* = false*/)
 		curto = nextto;
 		nextto = curto->pNext;
 		
-		free(curto->sCommand);
-		curto->sCommand = NULL;
+		safe_free(curto->sCommand);
 		
-		free(curto->sToNick);
-		curto->sToNick = NULL;
+		safe_free(curto->sToNick);		
 		
 		delete curto;
 	}

@@ -1507,11 +1507,8 @@ void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t ui32Len)
 						prev->pNext = cur->pNext;
 					}
 					
-					free(cur->sCommand);
-					cur->sCommand = NULL;
-					
-					free(cur->sToNick);
-					cur->sToNick = NULL;
+					safe_free(cur->sCommand);
+					safe_free(cur->sToNick);
 					
 					delete cur;
 					break;
@@ -3948,8 +3945,7 @@ void clsDcCommands::ProcessCmds(User * pUser)
 			}
 		}
 		
-		free(cur->sCommand);
-		cur->sCommand = NULL;
+		safe_free(cur->sCommand);
 		
 		delete cur;
 	}

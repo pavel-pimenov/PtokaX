@@ -886,12 +886,8 @@ void clsServiceLoop::ReceiveLoop()
 												curUser->SendFormat("clsServiceLoop::ReceiveLoop->User::STATE_ADDED2", true, "$To: %s From: %s $<%s> %s %u %s %s %s!|", curUser->sNick, cur->sToNick, clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_SORRY_LAST],
 												                    cur->ui32PmCount, clsLanguageManager::mPtr->sTexts[LAN_MSGS_NOT_SENT], cur->sToNick, clsLanguageManager::mPtr->sTexts[LAN_EXC_MSG_LIMIT]);
 											}
-											free(cur->sCommand);
-											cur->sCommand = NULL;
-											
-											free(cur->sToNick);
-											cur->sToNick = NULL;
-											
+											safe_free(cur->sCommand);
+											safe_free(cur->sToNick);
 											delete cur;
 											
 											continue;
@@ -919,11 +915,8 @@ void clsServiceLoop::ReceiveLoop()
 							continue;
 						}
 						
-						free(cur->sCommand);
-						cur->sCommand = NULL;
-						
-						free(cur->sToNick);
-						cur->sToNick = NULL;
+						safe_free(cur->sCommand);
+						safe_free(cur->sToNick);
 						
 						delete cur;
 					}
@@ -986,8 +979,7 @@ void clsServiceLoop::ReceiveLoop()
 					if (curUser->sLastChat != NULL && curUser->ui16LastChatLines < 2 &&
 					        (curUser->ui64SameChatsTick + clsSettingManager::mPtr->i16Shorts[SETSHORT_SAME_MAIN_CHAT_TIME]) < clsServerManager::ui64ActualTick)
 					{
-						free(curUser->sLastChat);
-						curUser->sLastChat = NULL;
+						safe_free(curUser->sLastChat);
 						curUser->ui16LastChatLen = 0;
 						curUser->ui16SameMultiChats = 0;
 						curUser->ui16LastChatLines = 0;
@@ -996,8 +988,7 @@ void clsServiceLoop::ReceiveLoop()
 					if (curUser->sLastPM != NULL && curUser->ui16LastPmLines < 2 &&
 					        (curUser->ui64SamePMsTick + clsSettingManager::mPtr->i16Shorts[SETSHORT_SAME_PM_TIME]) < clsServerManager::ui64ActualTick)
 					{
-						free(curUser->sLastPM);
-						curUser->sLastPM = NULL;
+						safe_free(curUser->sLastPM);
 						curUser->ui16LastPMLen = 0;
 						curUser->ui16SameMultiPms = 0;
 						curUser->ui16LastPmLines = 0;
@@ -1005,8 +996,7 @@ void clsServiceLoop::ReceiveLoop()
 					
 					if (curUser->sLastSearch != NULL && (curUser->ui64SameSearchsTick + clsSettingManager::mPtr->i16Shorts[SETSHORT_SAME_SEARCH_TIME]) < clsServerManager::ui64ActualTick)
 					{
-						free(curUser->sLastSearch);
-						curUser->sLastSearch = NULL;
+						safe_free(curUser->sLastSearch);
 						curUser->ui16LastSearchLen = 0;
 					}
 				}

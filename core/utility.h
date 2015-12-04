@@ -143,5 +143,39 @@ uint64_t be64toh(const uint64_t & ui64Value);
 bool WantAgain();
 bool IsPrivateIP(const char * sIP);
 //---------------------------------------------------------------------------
+template <class T> inline void safe_free(T* & p)
+{
+	if (p)
+	{
+		free(p);
+		p = NULL;
+	}
+}
+//[+]FlylinkDC++
+template <class T> inline void safe_delete(T* & p)
+{
+	if (p)
+	{
+#ifdef  _DEBUG
+		// TODO boost::checked_delete(p);
+#else
+		delete p;
+#endif
+		p = NULL;
+	}
+}
+template <class T> inline void safe_delete_array(T* & p)
+{
+	if (p)
+	{
+#ifdef  _DEBUG
+		// TODO boost::checked_array_delete(p);
+#else
+		delete[] p;
+#endif
+		p = NULL;
+	}
+}
+
 
 #endif

@@ -533,8 +533,7 @@ bool clsRangeBanDialog::OnAccept()
 			{
 				if (pRangeBanToChange->sReason != NULL)
 				{
-					free(pRangeBanToChange->sReason);
-					pRangeBanToChange->sReason = NULL;
+					safe_free(pRangeBanToChange->sReason);
 				}
 				
 				pRangeBanToChange->sReason = sReason;
@@ -542,7 +541,7 @@ bool clsRangeBanDialog::OnAccept()
 		}
 		else if (pRangeBanToChange->sReason != NULL)
 		{
-			free(pRangeBanToChange->sReason);
+			safe_free(pRangeBanToChange->sReason);
 			
 			pRangeBanToChange->sReason = NULL;
 		}
@@ -574,8 +573,7 @@ bool clsRangeBanDialog::OnAccept()
 			{
 				if (pRangeBanToChange->sBy != NULL)
 				{
-					free(pRangeBanToChange->sBy);
-					pRangeBanToChange->sBy = NULL;
+					safe_free(pRangeBanToChange->sBy);
 				}
 				
 				pRangeBanToChange->sBy = sBy;
@@ -583,8 +581,7 @@ bool clsRangeBanDialog::OnAccept()
 		}
 		else if (pRangeBanToChange->sBy != NULL)
 		{
-			free(pRangeBanToChange->sBy);
-			pRangeBanToChange->sBy = NULL;
+			safe_free(pRangeBanToChange->sBy);
 		}
 		
 		if (sBy != NULL && (pRangeBanToChange->sBy != sBy))

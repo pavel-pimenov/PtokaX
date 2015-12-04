@@ -1581,7 +1581,7 @@ void CreateGlobalBuffer()
 
 void DeleteGlobalBuffer()
 {
-	free(clsServerManager::pGlobalBuffer);
+	safe_free(clsServerManager::pGlobalBuffer);
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

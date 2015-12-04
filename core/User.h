@@ -386,7 +386,7 @@ struct User
 		if (sInfo)
 		{
 			free(sInfo);
-			sInfo = NULL; // [+] FlylinkDC++
+			sInfo = NULL;
 		}
 		p_len = 0;
 	}

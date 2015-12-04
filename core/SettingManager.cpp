@@ -106,8 +106,7 @@ clsSettingManager::~clsSettingManager(void)
 	
 	if (sMOTD != NULL)
 	{
-		free(sMOTD);
-		sMOTD = NULL;
+		safe_free(sMOTD);
 		ui16MOTDLen = 0;
 	}
 	
@@ -152,8 +151,7 @@ void clsSettingManager::LoadMOTD()
 {
 	if (sMOTD != NULL)
 	{
-		free(sMOTD);
-		sMOTD = NULL;
+		safe_free(sMOTD);
 		ui16MOTDLen = 0;
 	}
 	
@@ -186,8 +184,7 @@ void clsSettingManager::LoadMOTD()
 			}
 			else
 			{
-				free(sMOTD);
-				sMOTD = NULL;
+				safe_free(sMOTD);
 				ui16MOTDLen = 0;
 				
 				// motd loading failed ? create default one...
@@ -773,8 +770,7 @@ void clsSettingManager::SetMOTD(char * sTxt, const size_t szLen)
 	{
 		if (sMOTD != NULL)
 		{
-			free(sMOTD);
-			sMOTD = NULL;
+			safe_free(sMOTD);
 			ui16MOTDLen = 0;
 		}
 	}
@@ -1244,8 +1240,7 @@ void clsSettingManager::SetText(const size_t szTxtId, const char * sTxt, const s
 		{
 			if (sTexts[szTxtId] != NULL)
 			{
-				free(sTexts[szTxtId]);
-				sTexts[szTxtId] = NULL;
+				safe_free(sTexts[szTxtId]);
 				ui16TextsLens[szTxtId] = 0;
 			}
 		}
@@ -1491,8 +1486,7 @@ void clsSettingManager::UpdateMOTD()
 	{
 		if (sPreTexts[SETPRETXT_MOTD] != NULL)
 		{
-			free(sPreTexts[SETPRETXT_MOTD]);
-			sPreTexts[SETPRETXT_MOTD] = NULL;
+			safe_free(sPreTexts[SETPRETXT_MOTD]);
 			ui16PreTextsLens[SETPRETXT_MOTD] = 0;
 		}
 		
@@ -1641,8 +1635,7 @@ void clsSettingManager::UpdateRedirectAddress()
 	{
 		if (sPreTexts[SETPRETXT_REDIRECT_ADDRESS] != NULL)
 		{
-			free(sPreTexts[SETPRETXT_REDIRECT_ADDRESS]);
-			sPreTexts[SETPRETXT_REDIRECT_ADDRESS] = NULL;
+			safe_free(sPreTexts[SETPRETXT_REDIRECT_ADDRESS]);
 			ui16PreTextsLens[SETPRETXT_REDIRECT_ADDRESS] = 0;
 		}
 		
@@ -2112,8 +2105,7 @@ void clsSettingManager::UpdateNoTagMessage()
 	{
 		if (sPreTexts[SETPRETXT_NO_TAG_MSG] != NULL)
 		{
-			free(sPreTexts[SETPRETXT_NO_TAG_MSG]);
-			sPreTexts[SETPRETXT_NO_TAG_MSG] = NULL;
+			safe_free(sPreTexts[SETPRETXT_NO_TAG_MSG]);
 			ui16PreTextsLens[SETPRETXT_NO_TAG_MSG] = 0;
 		}
 		
@@ -2196,8 +2188,7 @@ void clsSettingManager::UpdateTempBanRedirAddress()
 	{
 		if (sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] != NULL)
 		{
-			free(sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS]);
-			sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] = NULL;
+			safe_free(sPreTexts[SETPRETXT_TEMP_BAN_REDIR_ADDRESS]);
 			ui16PreTextsLens[SETPRETXT_TEMP_BAN_REDIR_ADDRESS] = 0;
 		}
 		
@@ -2258,8 +2249,7 @@ void clsSettingManager::UpdatePermBanRedirAddress()
 	{
 		if (sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] != NULL)
 		{
-			free(sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS]);
-			sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS] = NULL;
+			safe_free(sPreTexts[SETPRETXT_PERM_BAN_REDIR_ADDRESS]);
 			ui16PreTextsLens[SETPRETXT_PERM_BAN_REDIR_ADDRESS] = 0;
 		}
 		
@@ -2515,8 +2505,7 @@ void clsSettingManager::UpdateBot(const bool bNickChanged/* = true*/)
 	{
 		if (sPreTexts[SETPRETXT_HUB_BOT_MYINFO] != NULL)
 		{
-			free(sPreTexts[SETPRETXT_HUB_BOT_MYINFO]);
-			sPreTexts[SETPRETXT_HUB_BOT_MYINFO] = NULL;
+			safe_free(sPreTexts[SETPRETXT_HUB_BOT_MYINFO]);
 			ui16PreTextsLens[SETPRETXT_HUB_BOT_MYINFO] = 0;
 		}
 		
@@ -2640,15 +2629,13 @@ void clsSettingManager::UpdateOpChat(const bool bNickChanged/* = true*/)
 	{
 		if (sPreTexts[SETPRETXT_OP_CHAT_HELLO] != NULL)
 		{
-			free(sPreTexts[SETPRETXT_OP_CHAT_HELLO]);
-			sPreTexts[SETPRETXT_OP_CHAT_HELLO] = NULL;
+			safe_free(sPreTexts[SETPRETXT_OP_CHAT_HELLO]);
 			ui16PreTextsLens[SETPRETXT_OP_CHAT_HELLO] = 0;
 		}
 		
 		if (sPreTexts[SETPRETXT_OP_CHAT_MYINFO] != NULL)
 		{
-			free(sPreTexts[SETPRETXT_OP_CHAT_MYINFO]);
-			sPreTexts[SETPRETXT_OP_CHAT_MYINFO] = NULL;
+			safe_free(sPreTexts[SETPRETXT_OP_CHAT_MYINFO]);
 			ui16PreTextsLens[SETPRETXT_OP_CHAT_MYINFO] = 0;
 		}
 		

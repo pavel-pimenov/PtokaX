@@ -434,8 +434,7 @@ bool clsUdpDebug::New(char * sIP, const uint16_t ui16Port, const bool bAllData, 
 
 void clsUdpDebug::DeleteBuffer()
 {
-	free(sDebugBuffer);
-	sDebugBuffer = NULL;
+	safe_free(sDebugBuffer);
 	sDebugHead = NULL;
 }
 //---------------------------------------------------------------------------

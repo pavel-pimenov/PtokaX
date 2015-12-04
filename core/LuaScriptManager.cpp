@@ -198,9 +198,7 @@ clsScriptManager::~clsScriptManager()
 		delete ppScriptTable[ui8i];
 	}
 	
-	free(ppScriptTable);
-	
-	ppScriptTable = NULL;
+	safe_free(ppScriptTable);
 	
 	ui8ScriptCount = 0;
 	
