@@ -43,11 +43,9 @@ class clsUsers
 			
 			RecTime * pPrev, * pNext;
 			
-			char * sNick;
-			
-			uint32_t ui32NickHash;
-			
-			uint8_t ui128IpHash[16];
+			std::string m_sNick;
+			uint32_t m_ui32NickHash;
+			uint8_t m_ui128IpHash[16];
 			
 			explicit RecTime(const uint8_t * pIpHash);
 			

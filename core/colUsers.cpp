@@ -41,9 +41,9 @@ static const uint32_t IPLISTSIZE = 1024 * 64;
 clsUsers * clsUsers::mPtr = NULL;
 //---------------------------------------------------------------------------
 
-clsUsers::RecTime::RecTime(const uint8_t * pIpHash) : ui64DisConnTick(0), pPrev(NULL), pNext(NULL), sNick(NULL), ui32NickHash(0)
+clsUsers::RecTime::RecTime(const uint8_t * pIpHash) : ui64DisConnTick(0), pPrev(NULL), pNext(NULL), m_ui32NickHash(0)
 {
-	memcpy(ui128IpHash, pIpHash, 16);
+	memcpy(m_ui128IpHash, pIpHash, 16);
 };
 //---------------------------------------------------------------------------
 
@@ -175,9 +175,7 @@ clsUsers::~clsUsers()
 	{
 		cur = next;
 		next = cur->pNext;
-		
-		free(cur->sNick);
-		
+	
 		delete cur;
 	}
 	
@@ -895,21 +893,12 @@ void clsUsers::Add2RecTimes(User * pUser)
 		return;
 	}
 	
-	pNewRecTime->sNick = (char *)malloc(pUser->ui8NickLen + 1);
-	if (pNewRecTime->sNick == NULL)
+	if (pUser->sNick)
 	{
-		delete pNewRecTime;
-		
-		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu8 " bytes in clsUsers::Add2RecTimes\n", pUser->ui8NickLen + 1);
-		
-		return;
+		pNewRecTime->m_sNick = pUser->sNick;
 	}
-	
-	memcpy(pNewRecTime->sNick, pUser->sNick, pUser->ui8NickLen);
-	pNewRecTime->sNick[pUser->ui8NickLen] = '\0';
-	
 	pNewRecTime->ui64DisConnTick = clsServerManager::ui64ActualTick - (tmAccTime - pUser->tLoginTime);
-	pNewRecTime->ui32NickHash = pUser->ui32NickHash;
+	pNewRecTime->m_ui32NickHash = pUser->ui32NickHash;
 	
 	pNewRecTime->pNext = pRecTimeList;
 	
@@ -935,8 +924,6 @@ bool clsUsers::CheckRecTime(User * pUser)
 		// check expires...
 		if (pCur->ui64DisConnTick + clsSettingManager::mPtr->i16Shorts[SETSHORT_MIN_RECONN_TIME] <= clsServerManager::ui64ActualTick)
 		{
-			free(pCur->sNick);
-			
 			if (pCur->pPrev == NULL)
 			{
 				if (pCur->pNext == NULL)
@@ -963,7 +950,7 @@ bool clsUsers::CheckRecTime(User * pUser)
 			continue;
 		}
 		
-		if (pCur->ui32NickHash == pUser->ui32NickHash && memcmp(pCur->ui128IpHash, pUser->ui128IpHash, 16) == 0 && strcasecmp(pCur->sNick, pUser->sNick) == 0)
+		if (pCur->m_ui32NickHash == pUser->ui32NickHash && memcmp(pCur->m_ui128IpHash, pUser->ui128IpHash, 16) == 0 && strcasecmp(pCur->m_sNick.c_str(), pUser->sNick) == 0)
 		{
 			pUser->SendFormat("clsUsers::CheckRecTime", false, "<%s> %s %" PRIu64 " %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_PLEASE_WAIT],
 			                  (pCur->ui64DisConnTick + clsSettingManager::mPtr->i16Shorts[SETSHORT_MIN_RECONN_TIME]) - clsServerManager::ui64ActualTick, clsLanguageManager::mPtr->sTexts[LAN_SECONDS_BEFORE_RECONN]);
