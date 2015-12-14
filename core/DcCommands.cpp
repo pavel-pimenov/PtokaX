@@ -2591,7 +2591,7 @@ void clsDcCommands::SR(User * pUser, char * sData, const uint32_t ui32Len, const
 //---------------------------------------------------------------------------
 
 // $SR <nickname> - Search Respond for active users from UDP
-void clsDcCommands::SRFromUDP(User * pUser, char * sData, const size_t szLen)
+void clsDcCommands::SRFromUDP(User * pUser, const char * sData, const size_t szLen)
 {
 	if (clsScriptManager::mPtr->Arrival(pUser, sData, szLen, clsScriptManager::UDP_SR_ARRIVAL) == true ||
 	        pUser->ui8State >= User::STATE_CLOSING)
@@ -3240,28 +3240,28 @@ void clsDcCommands::Chat(User * pUser, char * sData, const uint32_t ui32Len, con
 		return;
 	}
 	
-	User * pToUser = NULL;
+	void * pQueueItem = NULL;
 	void * pQueueItem2 = clsGlobalDataQueue::mPtr->GetLastQueueItem();
 	
 	if (pQueueItem1 != pQueueItem2)
 	{
 		if (pQueueItem1 == NULL)
 		{
-			pToUser = (User *)clsGlobalDataQueue::mPtr->InsertBlankQueueItem(clsGlobalDataQueue::mPtr->GetFirstQueueItem(), clsGlobalDataQueue::CMD_CHAT);
+			pQueueItem = clsGlobalDataQueue::mPtr->InsertBlankQueueItem(clsGlobalDataQueue::mPtr->GetFirstQueueItem(), clsGlobalDataQueue::CMD_CHAT);
 		}
 		else
 		{
-			pToUser = (User *)clsGlobalDataQueue::mPtr->InsertBlankQueueItem(pQueueItem1, clsGlobalDataQueue::CMD_CHAT);
+			pQueueItem = clsGlobalDataQueue::mPtr->InsertBlankQueueItem(pQueueItem1, clsGlobalDataQueue::CMD_CHAT);
 		}
 		
-		if (pToUser != NULL)
+		if (pQueueItem != NULL)
 		{
 			pUser->ui32BoolBits |= User::BIT_CHAT_INSERT;
 		}
 	}
 	else if ((pUser->ui32BoolBits & User::BIT_CHAT_INSERT) == User::BIT_CHAT_INSERT)
 	{
-		pToUser = (User *)clsGlobalDataQueue::mPtr->InsertBlankQueueItem(pQueueItem1, clsGlobalDataQueue::CMD_CHAT);
+		pQueueItem = clsGlobalDataQueue::mPtr->InsertBlankQueueItem(pQueueItem1, clsGlobalDataQueue::CMD_CHAT);
 	}
 	
 	// PPK ... filtering kick messages
@@ -3337,7 +3337,7 @@ void clsDcCommands::Chat(User * pUser, char * sData, const uint32_t ui32Len, con
 		}
 	}
 	
-	pUser->AddPrcsdCmd(PrcsdUsrCmd::CHAT, sData, ui32Len, pToUser);
+	pUser->AddPrcsdCmd(PrcsdUsrCmd::CHAT, sData, ui32Len, reinterpret_cast<User *>(pQueueItem));
 }
 //---------------------------------------------------------------------------
 
@@ -3463,7 +3463,7 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t sz
 	// check for reserved nicks
 	if (clsReservedNicksManager::mPtr->CheckReserved(pUser->sNick, pUser->ui32NickHash) == true)
 	{
-		pUser->SendFormat("clsDcCommands::ValidateUserNick3", false, "<%s> %s. %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_THE_NICK_IS_RESERVED_FOR_SOMEONE_OTHER], clsLanguageManager::mPtr->sTexts[LAN_CHANGE_YOUR_NICK_AND_GET_BACK_AGAIN]);
+		pUser->SendFormat("clsDcCommands::ValidateUserNick3", false, "<%s> %s. %s.|$ValidateDenide %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_THE_NICK_IS_RESERVED_FOR_SOMEONE_OTHER], clsLanguageManager::mPtr->sTexts[LAN_CHANGE_YOUR_NICK_AND_GET_BACK_AGAIN], sNick);
 		
 //		clsUdpDebug::mPtr->BroadcastFormat("[SYS] Reserved nick (%s) from %s (%s) - user closed.", Nick, pUser->sNick, pUser->sIP);
 
@@ -4280,7 +4280,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t ui32Len)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t szLen, const bool bActive) const
+PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t szLen, const bool bActive)
 {
 	if (cmdSearch != NULL)
 	{

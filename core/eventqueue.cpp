@@ -45,10 +45,14 @@
 clsEventQueue * clsEventQueue::mPtr = NULL;
 //---------------------------------------------------------------------------
 
-clsEventQueue::event::event() : pPrev(NULL), pNext(NULL), sMsg(NULL), ui8Id(0)
+clsEventQueue::event::event(const char* p_message) : pPrev(NULL), pNext(NULL), ui8Id(0)
 {
 	memset(&ui128IpHash, 0, 16);
-};
+	if (p_message)
+	{
+		sMsg = p_message;
+	}
+}
 //---------------------------------------------------------------------------
 
 clsEventQueue::clsEventQueue() : pNormalE(NULL), pThreadE(NULL), pNormalS(NULL), pThreadS(NULL)
@@ -66,8 +70,6 @@ clsEventQueue::~clsEventQueue()
 		cur = next;
 		next = cur->pNext;
 		
-		free(cur->sMsg);
-		
 		delete cur;
 	}
 	
@@ -77,16 +79,13 @@ clsEventQueue::~clsEventQueue()
 	{
 		cur = next;
 		next = cur->pNext;
-		
-		free(cur->sMsg);
-		
 		delete cur;
 	}
 	
 }
 //---------------------------------------------------------------------------
 
-void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg)
+void clsEventQueue::AddNormal(uint8_t ui8Id, const char * sMsg)
 {
 	if (ui8Id != EVENT_RSTSCRIPT && ui8Id != EVENT_STOPSCRIPT)
 	{
@@ -105,33 +104,12 @@ void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg)
 		}
 	}
 	
-	event * pNewEvent = new(std::nothrow) event;
+	event * pNewEvent = new(std::nothrow) event(sMsg);
 	
 	if (pNewEvent == NULL)
 	{
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewEvent in clsEventQueue::AddNormal\n");
 		return;
-	}
-	
-	if (sMsg != NULL)
-	{
-		size_t szLen = strlen(sMsg);
-		pNewEvent->sMsg = (char *)malloc(szLen + 1);
-		if (pNewEvent->sMsg == NULL)
-		{
-			delete pNewEvent;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pNewEvent->sMsg in clsEventQueue::AddNormal\n", (uint64_t)(szLen + 1));
-			
-			return;
-		}
-		
-		memcpy(pNewEvent->sMsg, sMsg, szLen);
-		pNewEvent->sMsg[szLen] = '\0';
-	}
-	else
-	{
-		pNewEvent->sMsg = NULL;
 	}
 	
 	pNewEvent->ui8Id = ui8Id;
@@ -152,35 +130,14 @@ void clsEventQueue::AddNormal(uint8_t ui8Id, char * sMsg)
 }
 //---------------------------------------------------------------------------
 
-void clsEventQueue::AddThread(uint8_t ui8Id, char * sMsg, const sockaddr_storage * sas/* = NULL*/)
+void clsEventQueue::AddThread(uint8_t ui8Id, const char * sMsg, const sockaddr_storage * sas/* = NULL*/)
 {
-	event * pNewEvent = new(std::nothrow) event;
+	event * pNewEvent = new(std::nothrow) event(sMsg);
 	
 	if (pNewEvent == NULL)
 	{
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewEvent in clsEventQueue::AddThread\n");
 		return;
-	}
-	
-	if (sMsg != NULL)
-	{
-		size_t szLen = strlen(sMsg);
-		pNewEvent->sMsg = (char *)malloc(szLen + 1);
-		if (pNewEvent->sMsg == NULL)
-		{
-			delete pNewEvent;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pNewEvent->sMsg in clsEventQueue::AddThread\n", (uint64_t)(szLen + 1));
-			
-			return;
-		}
-		
-		memcpy(pNewEvent->sMsg, sMsg, szLen);
-		pNewEvent->sMsg[szLen] = '\0';
-	}
-	else
-	{
-		pNewEvent->sMsg = NULL;
 	}
 	
 	pNewEvent->ui8Id = ui8Id;
@@ -293,9 +250,6 @@ void clsEventQueue::ProcessEvents()
 			default:
 				break;
 		}
-		
-		free(cur->sMsg);
-		
 		delete cur;
 	}
 	
@@ -317,70 +271,68 @@ void clsEventQueue::ProcessEvents()
 		{
 			case EVENT_REGSOCK_MSG:
 			{
-				size_t szLen = strlen(cur->sMsg);
-				clsUdpDebug::mPtr->Broadcast(cur->sMsg, szLen);
+				clsUdpDebug::mPtr->Broadcast(cur->sMsg);
 				break;
 			}
 			case EVENT_SRVTHREAD_MSG:
 			{
-				size_t szLen = strlen(cur->sMsg);
-				clsUdpDebug::mPtr->Broadcast(cur->sMsg, szLen);
+				clsUdpDebug::mPtr->Broadcast(cur->sMsg);
 				break;
 			}
 			case EVENT_UDP_SR:
 			{
-				size_t szMsgLen = strlen(cur->sMsg);
+				const size_t szMsgLen = cur->sMsg.length();
 				clsServerManager::ui64BytesRead += (uint64_t)szMsgLen;
-				
-				char *temp = strchr(cur->sMsg + 4, ' ');
-				if (temp == NULL)
+				if (szMsgLen > 4)
 				{
-					break;;
-				}
-				
-				size_t szLen = (temp - cur->sMsg) - 4;
-				if (szLen > 64 || szLen == 0)
-				{
-					break;
-				}
-				
-				// terminate nick, needed for strcasecmp in clsHashManager
-				temp[0] = '\0';
-				
-				User *u = clsHashManager::mPtr->FindUser(cur->sMsg + 4, szLen);
-				if (u == NULL)
-				{
-					break;
-				}
-				
-				// add back space after nick...
-				temp[0] = ' ';
-				
-				if (memcmp(cur->ui128IpHash, u->ui128IpHash, 16) != 0)
-				{
-					break;
-				}
-				
-#ifdef _BUILD_GUI
-				if (::SendMessage(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED)
-				{
-					char msg[128];
-					int imsglen = sprintf(msg, "UDP > %s (%s) > ", u->sNick, u->sIP);
-					if (CheckSprintf(imsglen, 128, "clsEventQueue::ProcessEvents") == true)
+					char *temp = (char *)strchr(cur->sMsg.c_str() + 4, ' ');
+					if (temp == NULL)
 					{
-						RichEditAppendText(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::REDT_CHAT], (string(msg, imsglen) + cur->sMsg).c_str());
+						break;;
 					}
-				}
+					
+					size_t szLen = (temp - cur->sMsg.c_str()) - 4;
+					if (szLen > 64 || szLen == 0)
+					{
+						break;
+					}
+					
+					// terminate nick, needed for strcasecmp in clsHashManager
+					temp[0] = '\0';
+					
+					User *u = clsHashManager::mPtr->FindUser(cur->sMsg.c_str() + 4, szLen);
+					if (u == NULL)
+					{
+						break;
+					}
+					
+					// add back space after nick...
+					temp[0] = ' ';
+					
+					if (memcmp(cur->ui128IpHash, u->ui128IpHash, 16) != 0)
+					{
+						break;
+					}
+					
+#ifdef _BUILD_GUI
+					if (::SendMessage(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED)
+					{
+						char msg[128];
+						int imsglen = sprintf(msg, "UDP > %s (%s) > ", u->sNick, u->sIP);
+						if (CheckSprintf(imsglen, 128, "clsEventQueue::ProcessEvents") == true)
+						{
+							RichEditAppendText(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::REDT_CHAT], (string(msg, imsglen) + cur->sMsg.c_str()).c_str());
+						}
+					}
 #endif
-				
-				clsDcCommands::mPtr->SRFromUDP(u, cur->sMsg, szMsgLen);
+					
+					clsDcCommands::mPtr->SRFromUDP(u, cur->sMsg.c_str(), szMsgLen);
+				}
 				break;
 			}
 			default:
 				break;
 		}
-		
-		free(cur->sMsg);
 		
 		delete cur;
 	}

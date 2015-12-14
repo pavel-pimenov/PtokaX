@@ -31,13 +31,11 @@ class clsGlobalDataQueue
 		{
 			QueueItem * pNext;
 			
-			char * pCommand1, * pCommand2;
-			
-			size_t szLen1, szLen2;
+			std::string pCommand[2];
 			
 			uint8_t ui8CommandType;
 			
-			QueueItem() : pNext(NULL), pCommand1(NULL), pCommand2(NULL), szLen1(0), szLen2(0), ui8CommandType(0) { };
+			QueueItem() : pNext(NULL), ui8CommandType(0) { };
 			
 			DISALLOW_COPY_AND_ASSIGN(QueueItem);
 		};
@@ -112,7 +110,8 @@ class clsGlobalDataQueue
 		
 		DISALLOW_COPY_AND_ASSIGN(clsGlobalDataQueue);
 		
-		static void AddDataToQueue(GlobalQueue &pQueue, char * sData, const size_t szLen);
+		static void AddDataToQueue(GlobalQueue &pQueue, const char * sData, const size_t szLen);
+		static void AddDataToQueue(GlobalQueue &pQueue, const std::string& sData);
 	public:
 		static clsGlobalDataQueue * mPtr;
 		
@@ -183,7 +182,7 @@ class clsGlobalDataQueue
 		void * GetLastQueueItem();
 		void * GetFirstQueueItem();
 		void * InsertBlankQueueItem(void * pAfterItem, const uint8_t ui8CmdType);
-		void FillBlankQueueItem(char * sCommand, const size_t szLen, void * pQueueItem);
+		static void FillBlankQueueItem(const char * sCommand, const size_t szLen, void * pQueueItem);
 		void StatusMessageFormat(const char * sFrom, const char * sFormatMsg, ...);
 };
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

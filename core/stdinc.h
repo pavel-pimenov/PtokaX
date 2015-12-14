@@ -86,7 +86,7 @@
 #endif
 #include <tinyxml.h>
 #ifdef _WIN32
-#define PSAPI_VERSION 1
+#define PSAPI_VERSION 1 // [+]FlylinkDC++
 #include <psapi.h>
 #include <io.h>
 #include <Iphlpapi.h>
@@ -112,7 +112,7 @@
 #include "pxstring.h"
 //---------------------------------------------------------------------------
 #define PtokaXVersionString "0.5.2.1"
-#define BUILD_NUMBER "529"
+#define BUILD_NUMBER "531"
 #ifdef USE_FLYLINKDC_EXT_JSON
 const char g_sPtokaXTitle[] = "PtokaX DC Hub for FlylinkDC++ " PtokaXVersionString
 #else

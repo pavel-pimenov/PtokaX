@@ -66,6 +66,13 @@ class clsUdpDebug
 		clsUdpDebug();
 		~clsUdpDebug();
 		
+		void Broadcast(const std::string& p_msg) const
+		{
+			if (!p_msg.empty())
+			{
+				Broadcast(p_msg.c_str(), p_msg.size());
+			}
+		}
 		void Broadcast(const char * msg, const size_t szLen) const;
 		void BroadcastFormat(const char * sFormatMsg, ...) const;
 		bool New(User * pUser, const uint16_t ui16Port);

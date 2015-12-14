@@ -61,7 +61,7 @@ class clsServiceLoop
 		
 		DISALLOW_COPY_AND_ASSIGN(clsServiceLoop);
 		
-		void AcceptUser(AcceptedSocket * AccptSocket);
+		static void AcceptUser(AcceptedSocket * AccptSocket);
 	protected:
 	public:
 		double dLoggedUsers, dActualSrvLoopLogins;

@@ -247,7 +247,7 @@ void clsServerManager::Initialize()
 	
 	clsServerManager::sLuaPath = clsServerManager::sPath + "/";
 	
-	char * sTempLuaPath = clsServerManager::sLuaPath.c_str();
+	char * sTempLuaPath = (char *)clsServerManager::sLuaPath.c_str();
 	for (size_t szi = 0; szi < clsServerManager::sPath.size(); szi++)
 	{
 		if (sTempLuaPath[szi] == '\\')

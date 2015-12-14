@@ -44,8 +44,8 @@ enum DefloodTypes
 //---------------------------------------------------------------------------
 
 bool DeFloodCheckForFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, char * sOtherNick = NULL);
-bool DeFloodCheckForSameFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, const uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, char * sNewData, const size_t ui32NewDataLen, char * sOldData, const uint16_t ui16OldDataLen,
-                              bool &bNewData, char * sOtherNick = NULL);
+bool DeFloodCheckForSameFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, const uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, char * sNewData, 
+	const size_t ui32NewDataLen, const char * sOldData, const uint16_t ui16OldDataLen, bool &bNewData, char * sOtherNick = NULL);
 bool DeFloodCheckForDataFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action, uint32_t &ui16Count, uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime);
 void DeFloodDoAction(User * pUser, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, char * sOtherNick);
 bool DeFloodCheckForWarn(User * pUser, const uint8_t ui8DefloodType, char * sOtherNick);

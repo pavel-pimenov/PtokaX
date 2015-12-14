@@ -22,7 +22,12 @@
 #$ sudo apt-get update
 #$ sudo apt-get install geoipupdate
 # -----------------------
-# ln -s /usr/share/munin/plugins/fw_conntrack fw_conntrack
+# ln -s /usr/share/munin/plugins/fw_conntrack /etc/munin/plugins/fw_conntrack
+
+# ln -s /usr/share/munin/plugins/apache_accesses /etc/munin/plugins/apache_accesses
+# ln -s /usr/share/munin/plugins/apache_processes /etc/munin/plugins/apache_processes  
+# ln -s /usr/share/munin/plugins/apache_volume /etc/munin/plugins/apache_volume
+#
 # ln -s /var/cache/munin/www /var/www/munin
 # modprobe nf_conntrack_ipv4
 # nf_conntrack_ipv4 -> /etc/modules
@@ -53,11 +58,18 @@
 # webdav
 #
 # ln -s /mnt/webdav/home/install /var/www/custom
+# mkdir /var/www/install
 # ln -s /mnt/webdav/home/install /var/www/install/custom
+# mkdir /var/www/install/r5xx
+# mkdir /var/www/install/r4xx
+# mkdir /var/www/install/strongdc-sqlite
 # ln -s /mnt/webdav/home/src-bin-pdb/flylinkdc-r5xx /var/www/install/r5xx/src-bin
+# ln -s /mnt/webdav/home/src-bin-pdb/flylinkdc-r4xx /var/www/install/r4xx/src-bin
+# ln -s /mnt/webdav/home/src-bin-pdb/strongdc-sqlite /var/www/install/strongdc-sqlite/src-bin
+
 
  
-
+ 
 To compile PtokaX on Unix operating system is needed to have installed: GNU make, GCC or Clang compiler, Lua, zlib.
 Optionaly for database support is required: PostgreSQL or SQLite or MySQL or MariaDB.
 On most Unixes are these things available as packages.

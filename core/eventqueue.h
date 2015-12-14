@@ -29,12 +29,12 @@ class clsEventQueue
 		{
 			event * pPrev, * pNext;
 			
-			char * sMsg;
+			std::string sMsg;
 			
 			uint8_t ui128IpHash[16];
 			uint8_t ui8Id;
 			
-			event();
+			event(const char* p_message);
 			
 			DISALLOW_COPY_AND_ASSIGN(event);
 		};
@@ -64,8 +64,8 @@ class clsEventQueue
 		clsEventQueue();
 		~clsEventQueue();
 		
-		void AddNormal(uint8_t ui8Id, char * sMsg);
-		void AddThread(uint8_t ui8Id, char * sMsg, const sockaddr_storage * sas = NULL);
+		void AddNormal(uint8_t ui8Id, const char * sMsg);
+		void AddThread(uint8_t ui8Id, const char * sMsg, const sockaddr_storage * sas = NULL);
 		void ProcessEvents();
 };
 //---------------------------------------------------------------------------

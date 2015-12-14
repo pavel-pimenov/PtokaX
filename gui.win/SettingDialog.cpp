@@ -314,7 +314,7 @@ LRESULT clsSettingDialog::SettingDialogProc(UINT uMsg, WPARAM wParam, LPARAM lPa
 								break;
 							}
 							
-							SettingPage * curSetPage = (SettingPage *)tvItem.lParam;
+							SettingPage * curSetPage = reinterpret_cast<SettingPage *>(tvItem.lParam);
 							
 							curSetPage->FocusLastItem();
 							
@@ -488,7 +488,7 @@ void clsSettingDialog::OnSelChanged()
 		return;
 	}
 	
-	SettingPage * curSetPage = (SettingPage *)tvItem.lParam;
+	SettingPage * curSetPage = reinterpret_cast<SettingPage *>(tvItem.lParam);
 	
 	if (curSetPage->bCreated == false)
 	{

@@ -181,7 +181,7 @@ LRESULT clsRangeBansDialog::RangeBansDialogProc(UINT uMsg, WPARAM wParam, LPARAM
 						break;
 					}
 					
-					RangeBanItem * pRangeBan = (RangeBanItem *)ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], ((LPNMITEMACTIVATE)lParam)->iItem);
+					RangeBanItem * pRangeBan = reinterpret_cast<RangeBanItem *>(ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], ((LPNMITEMACTIVATE)lParam)->iItem));
 					
 					clsRangeBanDialog * pRangeBanDialog = new(std::nothrow) clsRangeBanDialog();
 					
@@ -408,7 +408,7 @@ void clsRangeBansDialog::AddRangeBan(const RangeBanItem * pRangeBan)
 		sTxt += clsLanguageManager::mPtr->sTexts[LAN_FULL_BANNED];
 		sTxt += ")";
 	}
-	lvItem.pszText = sTxt.c_str();
+	lvItem.pszText = (char*) sTxt.c_str();
 	lvItem.lParam = (LPARAM)pRangeBan;
 	
 	int i = (int)::SendMessage(hWndWindowItems[LV_RANGE_BANS], LVM_INSERTITEM, 0, (LPARAM)&lvItem);
@@ -447,8 +447,8 @@ void clsRangeBansDialog::AddRangeBan(const RangeBanItem * pRangeBan)
 
 int clsRangeBansDialog::CompareRangeBans(const void * pItem, const void * pOtherItem)
 {
-	RangeBanItem * pFirstRangeBan = (RangeBanItem *)pItem;
-	RangeBanItem * pSecondRangeBan = (RangeBanItem *)pOtherItem;
+	const RangeBanItem * pFirstRangeBan = reinterpret_cast<const RangeBanItem *>(pItem);
+	const RangeBanItem * pSecondRangeBan = reinterpret_cast<const RangeBanItem *>(pOtherItem);
 	
 	switch (clsRangeBansDialog::mPtr->iSortColumn)
 	{
@@ -526,7 +526,7 @@ void clsRangeBansDialog::RemoveRangeBans()
 	
 	while ((iSel = (int)::SendMessage(hWndWindowItems[LV_RANGE_BANS], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED)) != -1)
 	{
-		RangeBanItem * pRangeBan = (RangeBanItem *)ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], iSel);
+		RangeBanItem *pRangeBan = reinterpret_cast<RangeBanItem *>(ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], iSel));
 		
 		clsBanManager::mPtr->RemRange(pRangeBan, true);
 		
@@ -699,7 +699,7 @@ void clsRangeBansDialog::ChangeRangeBan()
 		return;
 	}
 	
-	RangeBanItem * pRangeBan = (RangeBanItem *)ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], iSel);
+	RangeBanItem * pRangeBan = reinterpret_cast<RangeBanItem *>(ListViewGetItem(hWndWindowItems[LV_RANGE_BANS], iSel));
 	
 	clsRangeBanDialog * pRangeBanDialog = new(std::nothrow) clsRangeBanDialog();
 	

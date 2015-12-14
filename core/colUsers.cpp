@@ -175,7 +175,7 @@ clsUsers::~clsUsers()
 	{
 		cur = next;
 		next = cur->pNext;
-	
+		
 		delete cur;
 	}
 	
@@ -542,7 +542,7 @@ void clsUsers::DelFromOpList(char * sNick)
 //---------------------------------------------------------------------------
 
 // PPK ... check global mainchat flood and add to global queue
-void clsUsers::SendChat2All(User * pUser, char * sData, const size_t szChatLen, void * pToUser)
+void clsUsers::SendChat2All(User * pUser, char * sData, const size_t szChatLen, void * pQueueItem)
 {
 	clsUdpDebug::mPtr->Broadcast(sData, szChatLen);
 	
@@ -605,16 +605,17 @@ void clsUsers::SendChat2All(User * pUser, char * sData, const size_t szChatLen, 
 		}
 	}
 	
-	if (pToUser == NULL)
+	if (pQueueItem == NULL)
 	{
 		clsGlobalDataQueue::mPtr->AddQueueItem(sData, szChatLen, NULL, 0, clsGlobalDataQueue::CMD_CHAT);
 	}
 	else
 	{
-		clsGlobalDataQueue::mPtr->FillBlankQueueItem(sData, szChatLen, pToUser);
+		clsGlobalDataQueue::mPtr->FillBlankQueueItem(sData, szChatLen, pQueueItem);
 	}
 }
 //---------------------------------------------------------------------------
+
 void clsUsers::Add2MyInfos(User * pUser)
 {
 	if (ui32MyInfosSize < ui32MyInfosLen + pUser->ui16MyInfoShortLen)

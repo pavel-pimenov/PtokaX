@@ -2651,7 +2651,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 				
 				if (pBan->sBy != NULL)
 				{
-					iRet = sprintf(clsServerManager::pGlobalBuffer + iMsgLen, " %s: %s|", clsLanguageManager::mPtr->sTexts[LAN_BANNED_BY], pBan->sBy);
+					iRet = sprintf(clsServerManager::pGlobalBuffer + iMsgLen, " %s: %s", clsLanguageManager::mPtr->sTexts[LAN_BANNED_BY], pBan->sBy);
 					iMsgLen += iRet;
 					if (CheckSprintf1(iRet, iMsgLen, clsServerManager::szGlobalBufferSize, "clsHubCommands::DoCommand268") == false)
 					{

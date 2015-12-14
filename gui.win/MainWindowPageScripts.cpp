@@ -490,7 +490,7 @@ void clsMainWindowPageScripts::OnContextMenu(HWND hWindow, LPARAM lParam)
 }
 //------------------------------------------------------------------------------
 
-void clsMainWindowPageScripts::OpenScriptEditor(char * sScript/* = NULL*/)
+void clsMainWindowPageScripts::OpenScriptEditor(const char * sScript/* = NULL*/)
 {
 	ScriptEditorDialog * pScriptEditorDialog = new(std::nothrow) ScriptEditorDialog();
 	
@@ -667,7 +667,7 @@ void clsMainWindowPageScripts::UpdateMemUsage()
 		lvItem.iItem = ui8i;
 		
 		string sMemUsage(lua_gc(clsScriptManager::mPtr->ppScriptTable[ui8i]->pLUA, LUA_GCCOUNT, 0));
-		lvItem.pszText = sMemUsage.c_str();
+		lvItem.pszText = (char*) sMemUsage.c_str();
 		
 		::SendMessage(hWndPageItems[LV_SCRIPTS], LVM_SETITEM, 0, (LPARAM)&lvItem);
 	}

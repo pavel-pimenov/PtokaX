@@ -89,7 +89,7 @@ class clsRegManager
 		void Load(void);
 		void Save(const bool bSaveOnChange = false, const bool bSaveOnTime = false);
 		
-		void HashPasswords();
+		void HashPasswords() const;
 		
 		void AddRegCmdLine();
 };

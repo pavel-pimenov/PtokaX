@@ -1493,14 +1493,14 @@ bool User::Try2Send()
 }
 //---------------------------------------------------------------------------
 
-void User::SetIP(char * sNewIP)
+void User::SetIP(const char * sNewIP)
 {
 	strcpy(sIP, sNewIP);
 	ui8IpLen = (uint8_t)strlen(sIP);
 }
 //------------------------------------------------------------------------------
 
-void User::SetNick(char * sNewNick, const uint8_t ui8NewNickLen)
+void User::SetNick(const char * sNewNick, const uint8_t ui8NewNickLen)
 {
 	if (sNick != sDefaultNick && sNick != NULL)
 	{
@@ -1537,7 +1537,7 @@ void User::SetExtJSONOriginal(const char * sNewExtJSON, const uint16_t ui16NewEx
 }
 #endif
 //------------------------------------------------------------------------------
-void User::SetMyInfoOriginal(char * sNewMyInfo, const uint16_t ui16NewMyInfoLen)
+void User::SetMyInfoOriginal(const char * sNewMyInfo, const uint16_t ui16NewMyInfoLen)
 {
 	char * sOldMyInfo = sMyInfoOriginal;
 	
@@ -1667,7 +1667,7 @@ static void UserSetMyInfoLong(User * u, char * sNewMyInfoLong, const uint16_t ui
 		}
 		
 		safe_free(u->sMyInfoLong);
-
+		
 	}
 	
 	u->sMyInfoLong = (char *)malloc(ui16NewMyInfoLongLen + 1);
@@ -1695,7 +1695,7 @@ static void UserSetMyInfoShort(User * u, char * sNewMyInfoShort, const uint16_t 
 			clsUsers::mPtr->DelFromMyInfos(u);
 		}
 		
-		safe_free(u->sMyInfoShort);		
+		safe_free(u->sMyInfoShort);
 	}
 	
 	u->sMyInfoShort = (char *)malloc(ui16NewMyInfoShortLen + 1);
@@ -1714,7 +1714,7 @@ static void UserSetMyInfoShort(User * u, char * sNewMyInfoShort, const uint16_t 
 }
 //------------------------------------------------------------------------------
 
-void User::SetVersion(char * sNewVer)
+void User::SetVersion(const char * sNewVer)
 {
 	free(sVersion);
 	
@@ -1734,7 +1734,7 @@ void User::SetVersion(char * sNewVer)
 }
 //------------------------------------------------------------------------------
 
-void User::SetLastChat(char * sNewData, const size_t szLen)
+void User::SetLastChat(const char * sNewData, const size_t szLen)
 {
 	free(sLastChat);
 	
@@ -1758,7 +1758,7 @@ void User::SetLastChat(char * sNewData, const size_t szLen)
 }
 //------------------------------------------------------------------------------
 
-void User::SetLastPM(char * sNewData, const size_t szLen)
+void User::SetLastPM(const char * sNewData, const size_t szLen)
 {
 	free(sLastPM);
 	
@@ -1783,10 +1783,10 @@ void User::SetLastPM(char * sNewData, const size_t szLen)
 }
 //------------------------------------------------------------------------------
 
-void User::SetLastSearch(char * sNewData, const size_t szLen)
+void User::SetLastSearch(const char * sNewData, const size_t szLen)
 {
 	free(sLastSearch);
-
+	
 	sLastSearch = (char *)malloc(szLen + 1);
 	if (sLastSearch == NULL)
 	{
@@ -1805,7 +1805,7 @@ void User::SetLastSearch(char * sNewData, const size_t szLen)
 }
 //------------------------------------------------------------------------------
 
-void User::SetBuffer(char * sKickMsg, size_t szLen/* = 0*/)
+void User::SetBuffer(const char * sKickMsg, size_t szLen /* = 0*/)
 {
 	if (szLen == 0)
 	{
@@ -1967,7 +1967,7 @@ void User::Close(bool bNoQuit/* = false*/)
 		
 		safe_free(curto->sCommand);
 		
-		safe_free(curto->sToNick);		
+		safe_free(curto->sToNick);
 		
 		delete curto;
 	}
@@ -2812,7 +2812,7 @@ bool User::ProcessRules()
 
 //------------------------------------------------------------------------------
 
-void User::AddPrcsdCmd(const uint8_t ui8Type, char * sCommand, const size_t szCommandLen, User * to, const bool bIsPm/* = false*/)
+void User::AddPrcsdCmd(const uint8_t ui8Type, const char * sCommand, const size_t szCommandLen, User * to, const bool bIsPm/* = false*/)
 {
 	if (ui8Type == PrcsdUsrCmd::CTM_MCTM_RCTM_SR_TO)
 	{
@@ -2974,7 +2974,7 @@ void User::AddMeOrIPv4Check()
 }
 //---------------------------------------------------------------------------
 
-char * User::SetUserInfo(char* sOldData, uint8_t &ui8OldDataLen, char * sNewData, size_t &sz8NewDataLen, const char * sDataName)
+char * User::SetUserInfo(char* sOldData, uint8_t &ui8OldDataLen, const char * sNewData, size_t &sz8NewDataLen, const char * sDataName)
 {
 	User::FreeInfo(sOldData, ui8OldDataLen);
 	

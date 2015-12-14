@@ -125,7 +125,7 @@ LRESULT clsMainWindowPageUsersChat::MainWindowPageProc(UINT uMsg, WPARAM wParam,
 					return 0;
 				}
 				
-				User * curUser = (User *)lvItem.lParam;
+				User * curUser = reinterpret_cast<User *>(lvItem.lParam);
 				
 				if (::SendMessage(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_UNCHECKED)
 				{
@@ -669,7 +669,7 @@ User * clsMainWindowPageUsersChat::GetUser()
 		return NULL;
 	}
 	
-	User * curUser = (User *)lvItem.lParam;
+	User * curUser = reinterpret_cast<User *>(lvItem.lParam);
 	
 	if (::SendMessage(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_UNCHECKED)
 	{

@@ -258,7 +258,7 @@ void ScriptEditorDialog::DoModal(HWND hWndParent)
 }
 //------------------------------------------------------------------------------
 
-void ScriptEditorDialog::LoadScript(char * sScript)
+void ScriptEditorDialog::LoadScript(const char * sScript)
 {
 	FILE * pFile = fopen(sScript, "rb");
 	

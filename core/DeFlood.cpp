@@ -90,7 +90,7 @@ bool DeFloodCheckForSameFlood(User * u, const uint8_t ui8DefloodType, const int1
                               uint16_t &ui16Count, const uint64_t &ui64LastOkTick,
                               const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime,
                               char * sNewData, const size_t ui32NewDataLen,
-                              char * sOldData, const uint16_t ui16OldDataLen, bool &bNewData, char * sOtherNick/* = NULL*/)
+                              const char * sOldData, const uint16_t ui16OldDataLen, bool &bNewData, char * sOtherNick/* = NULL*/)
 {
 	if ((uint32_t)ui16OldDataLen == ui32NewDataLen && (clsServerManager::ui64ActualTick >= ui64LastOkTick &&
 	                                                   (ui64LastOkTick + ui32DefloodTime) > clsServerManager::ui64ActualTick) &&

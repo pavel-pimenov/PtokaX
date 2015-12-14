@@ -486,7 +486,7 @@ void clsScriptManager::Restart()
 }
 //------------------------------------------------------------------------------
 
-Script * clsScriptManager::FindScript(char * sName)
+Script * clsScriptManager::FindScript(const char * sName)
 {
 	for (uint8_t ui8i = 0; ui8i < ui8ScriptCount; ui8i++)
 	{
@@ -500,7 +500,7 @@ Script * clsScriptManager::FindScript(char * sName)
 }
 //------------------------------------------------------------------------------
 
-Script * clsScriptManager::FindScript(lua_State * L)
+Script * clsScriptManager::FindScript(const lua_State * L)
 {
 	Script * cur = NULL,
 	         * next = pRunningScriptS;
@@ -520,7 +520,7 @@ Script * clsScriptManager::FindScript(lua_State * L)
 }
 //------------------------------------------------------------------------------
 
-uint8_t clsScriptManager::FindScriptIdx(char * sName)
+uint8_t clsScriptManager::FindScriptIdx(const char * sName)
 {
 	for (uint8_t ui8i = 0; ui8i < ui8ScriptCount; ui8i++)
 	{
@@ -906,7 +906,7 @@ void clsScriptManager::OnExit(bool bForce/* = false*/)
 }
 //------------------------------------------------------------------------------
 
-bool clsScriptManager::Arrival(User * u, char * sData, const size_t szLen, const unsigned char &uiType)
+bool clsScriptManager::Arrival(User * u, const char * sData, const size_t szLen, const unsigned char &uiType)
 {
 	if (clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == false)
 	{

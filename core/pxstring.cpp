@@ -218,7 +218,7 @@ size_t string::size() const
 }
 //---------------------------------------------------------------------------
 
-char * string::c_str() const
+const char * string::c_str() const
 {
 	return sData;
 }

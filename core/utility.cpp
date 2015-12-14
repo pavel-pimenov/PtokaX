@@ -1192,10 +1192,10 @@ void Memo(const string &/*sMessage*/)
 #endif
 //---------------------------------------------------------------------------
 
-bool FileExist(char * sPath)
+bool FileExist(const char * sPath)
 {
 #ifdef _WIN32
-	DWORD code = GetFileAttributes(sPath);
+	const DWORD code = GetFileAttributes(sPath);
 	if (code != INVALID_FILE_ATTRIBUTES && code != FILE_ATTRIBUTE_DIRECTORY)
 	{
 #else
@@ -1210,10 +1210,10 @@ bool FileExist(char * sPath)
 }
 //---------------------------------------------------------------------------
 
-bool DirExist(char * sPath)
+bool DirExist(const char * sPath)
 {
 #ifdef _WIN32
-	DWORD code = GetFileAttributes(sPath);
+	const DWORD code = GetFileAttributes(sPath);
 	if (code == FILE_ATTRIBUTE_DIRECTORY)
 	{
 #else
@@ -1637,14 +1637,14 @@ void ReduceGlobalBuffer()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool HashPassword(char * sPassword, const size_t szPassLen, uint8_t * ui8PassHash)
+bool HashPassword(const char * sPassword, const size_t szPassLen, uint8_t * ui8PassHash)
 {
 #ifndef _WITHOUT_SKEIN
 	Skein1024_Ctxt_t ctx1024;
 	
 	if (Skein1024_Init(&ctx1024, 512) == SKEIN_SUCCESS)
 	{
-		if (Skein1024_Update(&ctx1024, (u08b_t *)sPassword, szPassLen) == SKEIN_SUCCESS)
+		if (Skein1024_Update(&ctx1024, (const u08b_t *)sPassword, szPassLen) == SKEIN_SUCCESS)
 		{
 			if (Skein1024_Final(&ctx1024, ui8PassHash) == SKEIN_SUCCESS)
 			{

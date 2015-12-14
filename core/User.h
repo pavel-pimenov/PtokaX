@@ -120,7 +120,10 @@ class ExtJSONInfo
 		}
 		ExtJSONInfo(const char* p_info) : m_iLastExtJSONSendTick(0)
 		{
-			m_ExtJSON = p_info;
+			if(p_info)		
+           	{
+				 m_ExtJSON = p_info;
+			}
 		}
 		uint64_t   getLastExtJSONSendTick() const
 		{
@@ -363,14 +366,14 @@ struct User
 	bool PutInSendBuf(const char * Text, const size_t szTxtLen);
 	bool Try2Send();
 	
-	void SetIP(char * sNewIP);
-	void SetNick(char * sNewNick, const uint8_t ui8NewNickLen);
-	void SetMyInfoOriginal(char * sNewMyInfo, const uint16_t ui16NewMyInfoLen);
-	void SetVersion(char * sNewVer);
-	void SetLastChat(char * sNewData, const size_t szLen);
-	void SetLastPM(char * sNewData, const size_t szLen);
-	void SetLastSearch(char * sNewData, const size_t szLen);
-	void SetBuffer(char * sKickMsg, size_t szLen = 0);
+	void SetIP(const char * sNewIP);
+	void SetNick(const char * sNewNick, const uint8_t ui8NewNickLen);
+	void SetMyInfoOriginal(const char * sNewMyInfo, const uint16_t ui16NewMyInfoLen);
+	void SetVersion(const char * sNewVer);
+	void SetLastChat(const char * sNewData, const size_t szLen);
+	void SetLastPM(const char * sNewData, const size_t szLen);
+	void SetLastSearch(const char * sNewData, const size_t szLen);
+	void SetBuffer(const char * sKickMsg, size_t szLen = 0);
 	void FreeBuffer();
 	
 	void Close(bool bNoQuit = false);
@@ -390,16 +393,16 @@ struct User
 		}
 		p_len = 0;
 	}
-
+	
 	void HasSuspiciousTag();
 	
 	bool ProcessRules();
 	
-	void AddPrcsdCmd(const uint8_t ui8Type, char * sCommand, const size_t szCommandLen, User * to, const bool bIsPm = false);
+	void AddPrcsdCmd(const uint8_t ui8Type, const char * sCommand, const size_t szCommandLen, User * to, const bool bIsPm = false);
 	
 	void AddMeOrIPv4Check();
 	
-	static char * SetUserInfo(char * sOldData, uint8_t &ui8OldDataLen, char * sNewData, size_t &szNewDataLen, const char * sDataName);
+	static char * SetUserInfo(char * sOldData, uint8_t &ui8OldDataLen, const char * sNewData, size_t &szNewDataLen, const char * sDataName);
 	
 	void RemFromSendBuf(const char * sData, const uint32_t iLen, const uint32_t iSbLen);
 	

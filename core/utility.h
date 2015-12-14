@@ -68,23 +68,23 @@ bool HaveOnlyNumbers(char *sData, const uint16_t ui16Len);
 
 inline size_t Allign256(size_t n)
 {
-	return ((n + 1) & 0xFFFFFF00) + 0x100;
+	return (n + 1);
 }
 inline size_t Allign512(size_t n)
 {
-	return ((n + 1) & 0xFFFFFE00) + 0x200;
+	return (n + 1);
 }
 inline size_t Allign1024(size_t n)
 {
-	return ((n + 1) & 0xFFFFFC00) + 0x400;
+	return (n + 1);
 }
 inline size_t Allign16K(size_t n)
 {
-	return ((n + 1) & 0xFFFFC000) + 0x4000;
+	return (n + 1);
 }
 inline size_t Allign128K(size_t n)
 {
-	return ((n + 1) & 0xFFFE0000) + 0x20000;
+	return (n + 1);
 }
 
 bool CheckSprintf(const int iRetVal, const size_t szMax, const char * sMsg); // CheckSprintf(imsgLen, 64, "UdpDebug::New");
@@ -104,8 +104,8 @@ void Memo(const string & sMessage);
 char * ExtractFileName(char * sPath);
 #endif
 
-bool FileExist(char * sPath);
-bool DirExist(char * sPath);
+bool FileExist(const char * sPath);
+bool DirExist(const char * sPath);
 
 #ifdef _WIN32
 void SetupOsVersion();
@@ -126,7 +126,7 @@ void DeleteGlobalBuffer();
 bool CheckAndResizeGlobalBuffer(const size_t szWantedSize);
 void ReduceGlobalBuffer();
 
-bool HashPassword(char * sPassword, const size_t szPassLen, uint8_t * ui8PassHash);
+bool HashPassword(const char * sPassword, const size_t szPassLen, uint8_t * ui8PassHash);
 //[+]FlylinkDC++
 inline uint16_t CalcHash(const uint32_t& ui32Hash)
 {

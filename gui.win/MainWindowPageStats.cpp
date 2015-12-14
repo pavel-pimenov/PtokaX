@@ -273,6 +273,7 @@ void OnRedirectAllOk(char * sLine, const int iLen)
 	int imsgLen = sprintf(sMSG, "$ForceMove %s|", sLine);
 	if (CheckSprintf(imsgLen, iLen + 16, "OnRedirectAllOk") == false)
 	{
+		free(sMSG);
 		return;
 	}
 	
@@ -321,6 +322,7 @@ void OnMassMessageOk(char * sLine, const int iLen)
 	                      clsSettingManager::mPtr->bBools[SETBOOL_REG_BOT] == false ? clsSettingManager::mPtr->sTexts[SETTXT_ADMIN_NICK] : clsSettingManager::mPtr->sTexts[SETTXT_BOT_NICK], sLine);
 	if (CheckSprintf(imsgLen, iLen + 256, "OnMassMessageOk") == false)
 	{
+		free(sMSG);
 		return;
 	}
 	

@@ -45,7 +45,7 @@ class string
 		~string();
 		
 		size_t size() const;
-		char * c_str() const;
+		const char * c_str() const;
 		void clear();
 		
 		string operator+(const char * sTxt) const;

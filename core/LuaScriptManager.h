@@ -88,10 +88,13 @@ class clsScriptManager
 		void CheckForNewScripts();
 		
 		void Restart();
-		
-		Script * FindScript(char * sName);
-		Script * FindScript(lua_State * L);
-		uint8_t FindScriptIdx(char * sName);
+		Script * FindScript(const std::string& sName)
+		{
+			return FindScript(sName.c_str());
+		}
+		Script * FindScript(const char * sName);
+		Script * FindScript(const lua_State * L);
+		uint8_t FindScriptIdx(const char * sName);
 		
 		bool AddScript(char * sName, const bool bEnabled, const bool bNew);
 		
@@ -104,7 +107,7 @@ class clsScriptManager
 		
 		void OnStartup();
 		void OnExit(bool bForce = false);
-		bool Arrival(User * u, char * sData, const size_t szLen, const unsigned char &uiType);
+		bool Arrival(User * u, const char * sData, const size_t szLen, const unsigned char &uiType);
 		bool UserConnected(User * u);
 		void UserDisconnected(User * u, Script * pScript = NULL);
 		

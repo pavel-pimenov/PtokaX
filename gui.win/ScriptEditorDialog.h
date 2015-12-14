@@ -41,7 +41,7 @@ class ScriptEditorDialog
 		static LRESULT CALLBACK StaticScriptEditorDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		
 		void DoModal(HWND hWndParent);
-		void LoadScript(char * sScript);
+		void LoadScript(const char * sScript);
 	private:
 		string sScriptPath;
 		

@@ -132,9 +132,6 @@ clsGlobalDataQueue::~clsGlobalDataQueue()
 		{
 			pCur = pNext;
 			pNext = pCur->pNext;
-			
-			free(pCur->pCommand1);
-			free(pCur->pCommand2);
 			delete pCur;
 		}
 	}
@@ -148,9 +145,6 @@ clsGlobalDataQueue::~clsGlobalDataQueue()
 		{
 			pCur = pNext;
 			pNext = pCur->pNext;
-			
-			free(pCur->pCommand1);
-			free(pCur->pCommand2);
 			delete pCur;
 		}
 	}
@@ -172,43 +166,13 @@ void clsGlobalDataQueue::AddQueueItem(const char * sCommand1, const size_t szLen
 		return;
 	}
 	
-	pNewItem->pCommand1 = (char *)malloc(szLen1 + 1);
-	if (pNewItem->pCommand1 == NULL)
+	if (sCommand1 && szLen1)
 	{
-		delete pNewItem;
-		
-		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pNewItem->pCommand1 in clsGlobalDataQueue::AddQueueItem\n", (uint64_t)(szLen1 + 1));
-		
-		return;
+		pNewItem->pCommand[0] = sCommand1;
 	}
-	
-	memcpy(pNewItem->pCommand1, sCommand1, szLen1);
-	pNewItem->pCommand1[szLen1] = '\0';
-	
-	pNewItem->szLen1 = szLen1;
-	
-	if (sCommand2 != NULL)
+	if (sCommand2 != NULL && szLen2)
 	{
-		pNewItem->pCommand2 = (char *)malloc(szLen2 + 1);
-		if (pNewItem->pCommand2 == NULL)
-		{
-			free(pNewItem->pCommand1);
-			delete pNewItem;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pNewItem->pCommand2 in clsGlobalDataQueue::AddQueueItem\n", (uint64_t)(szLen2 + 1));
-			
-			return;
-		}
-		
-		memcpy(pNewItem->pCommand2, sCommand2, szLen2);
-		pNewItem->pCommand2[szLen2] = '\0';
-		
-		pNewItem->szLen2 = szLen2;
-	}
-	else
-	{
-		pNewItem->pCommand2 = NULL;
-		pNewItem->szLen2 = 0;
+		pNewItem->pCommand[1] = sCommand2;
 	}
 	
 	pNewItem->ui8CommandType = ui8CmdType;
@@ -365,8 +329,6 @@ void clsGlobalDataQueue::ClearQueues()
 			pCur = pNext;
 			pNext = pCur->pNext;
 			
-			free(pCur->pCommand1);
-			free(pCur->pCommand2);
 			delete pCur;
 		}
 	}
@@ -395,7 +357,7 @@ void clsGlobalDataQueue::AddSearchDataToQueue(const User * pUser, uint32_t ui32Q
 {
 	if (pUser->ui64SharedSize)
 	{
-		AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+		AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -508,15 +470,15 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 					case CMD_HELLO:
 						if ((ui16QueueBits & BIT_HELLO) == BIT_HELLO)
 						{
-							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
 						}
 						break;
 					case CMD_EXTJSON:
-						if (pCur->pCommand1 != NULL)
+						if (!pCur->pCommand[0].empty())
 						{
 							if (((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON) == User::SUPPORTBIT_EXTJSON) == true)
 							{
-								AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+								AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
 							}
 #ifdef _DEBUG
 							else
@@ -530,23 +492,17 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 					case CMD_MYINFO:
 						if ((ui16QueueBits & BIT_LONG_MYINFO) == BIT_LONG_MYINFO)
 						{
-							if (pCur->pCommand2 != NULL)
-							{
-								AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand2, pCur->szLen2);
-							}
+							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[1]);
 							break;
 						}
 						
-						if (pCur->pCommand1 != NULL)
-						{
-							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
-						}
+						AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
 						
 						break;
 					case CMD_OPS:
 						if ((ui16QueueBits & BIT_OPERATOR) == BIT_OPERATOR)
 						{
-							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
 						}
 						break;
 					case CMD_ACTIVE_SEARCH_V6:
@@ -610,15 +566,12 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 						}
 						break;
 					case CMD_CHAT:
-						if (pCur->pCommand1 != NULL)
-						{
-							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
-						}
+						AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
 						break;
 					case CMD_HUBNAME:
 					case CMD_QUIT:
 					case CMD_LUA:
-						AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand1, pCur->szLen1);
+						AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
 						break;
 					default:
 						break; // should not happen ;)
@@ -948,7 +901,7 @@ void clsGlobalDataQueue::SendFinalQueue()
 				case CMD_OPS:
 				case CMD_CHAT:
 				case CMD_LUA:
-					AddDataToQueue(GlobalQueues[0], pCur->pCommand1, pCur->szLen1);
+					AddDataToQueue(GlobalQueues[0], pCur->pCommand[0]);
 					break;
 				default:
 					break;
@@ -971,7 +924,7 @@ void clsGlobalDataQueue::SendFinalQueue()
 				case CMD_OPS:
 				case CMD_CHAT:
 				case CMD_LUA:
-					AddDataToQueue(GlobalQueues[0], pCur->pCommand1, pCur->szLen1);
+					AddDataToQueue(GlobalQueues[0], pCur->pCommand[0]);
 					break;
 				default:
 					break;
@@ -1006,8 +959,15 @@ void clsGlobalDataQueue::SendFinalQueue()
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-void clsGlobalDataQueue::AddDataToQueue(GlobalQueue &pQueue, char * sData, const size_t szLen)
+void clsGlobalDataQueue::AddDataToQueue(GlobalQueue &pQueue, const std::string& sData)
+{
+	if (!sData.empty())
+	{
+		AddDataToQueue(pQueue, sData.c_str(), sData.size());
+	}
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+void clsGlobalDataQueue::AddDataToQueue(GlobalQueue &pQueue, const char * sData, const size_t szLen)
 {
 	if (pQueue.szSize < (pQueue.szLen + szLen))
 	{
@@ -1052,12 +1012,6 @@ void * clsGlobalDataQueue::InsertBlankQueueItem(void * pAfterItem, const uint8_t
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in clsGlobalDataQueue::InsertBlankQueueItem\n");
 		return NULL;
 	}
-	
-	pNewItem->pCommand1 = NULL;
-	pNewItem->szLen1 = 0;
-	
-	pNewItem->pCommand2 = NULL;
-	pNewItem->szLen2 = 0;
 	
 	pNewItem->ui8CommandType = ui8CmdType;
 	
@@ -1106,20 +1060,16 @@ void * clsGlobalDataQueue::InsertBlankQueueItem(void * pAfterItem, const uint8_t
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::FillBlankQueueItem(char * sCommand, const size_t szLen, void * pQueueItem)
+void clsGlobalDataQueue::FillBlankQueueItem(const char * sCommand, const size_t szLen, void * pQueueItem)
 {
-	((QueueItem *)pQueueItem)->pCommand1 = (char *)malloc(szLen + 1);
-	if (((QueueItem *)pQueueItem)->pCommand1 == NULL)
+	if (szLen)
 	{
-		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for pNewItem->pCommand1 in clsGlobalDataQueue::FillBlankQueueItem\n", (uint64_t)(szLen + 1));
-		
-		return;
+		reinterpret_cast<QueueItem *>(pQueueItem)->pCommand[0] = sCommand;
 	}
-	
-	memcpy(((QueueItem *)pQueueItem)->pCommand1, sCommand, szLen);
-	((QueueItem *)pQueueItem)->pCommand1[szLen] = '\0';
-	
-	((QueueItem *)pQueueItem)->szLen1 = szLen;
+	else
+	{
+		reinterpret_cast<QueueItem *>(pQueueItem)->pCommand[0].clear();
+	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
