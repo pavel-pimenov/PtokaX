@@ -87,7 +87,7 @@ class clsDcCommands
 		static bool GetPort(char * sData, uint16_t &ui16Port, uint8_t &ui8AfterPortLen, char cPortEnd);
 		static void SendIncorrectPortMsg(User * pUser, const bool bCTM);
 		static void SendIncorrectIPMsg(User * pUser, char * sBadIP, const bool bCTM);
-		static void SendIPFixedMsg(User * pUser, char * sBadIP, char * sRealIP);
+		static void SendIPFixedMsg(User * pUser, const char * sBadIP, const char * sRealIP);
 		
 		static PrcsdUsrCmd * AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t szLen, const bool bActive);
 	public:

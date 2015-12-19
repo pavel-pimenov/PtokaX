@@ -744,8 +744,7 @@ User::~User()
 	pCmdToUserStrt = NULL;
 	pCmdToUserEnd = NULL;
 #ifdef USE_FLYLINKDC_EXT_JSON
-	delete m_user_ext_info;
-	m_user_ext_info = NULL;
+	safe_delete(m_user_ext_info);
 #endif
 }
 //---------------------------------------------------------------------------
@@ -1050,7 +1049,7 @@ void User::SendChar(const char * cText, const size_t szTextLen)
 #ifdef USE_FLYLINKDC_EXT_JSON
 void User::SendCharDelayedExtJSON()
 {
-	if (((ui32SupportBits & SUPPORTBIT_EXTJSON) == SUPPORTBIT_EXTJSON) == true)
+	if (((ui32SupportBits & SUPPORTBIT_EXTJSON2) == SUPPORTBIT_EXTJSON2) == true)
 	{
 		if (!clsUsers::mPtr->m_AllExtJSON.empty())
 		{
@@ -1243,7 +1242,7 @@ bool User::PutInSendBuf(const char * Text, const size_t szTxtLen)
 	
 	size_t szAllignLen = 0;
 #ifdef _DEBUG
-	if (strstr(Text, "$ExtJSON $ALL") != NULL)
+	if (strstr(Text, "$ExtJSON ") != NULL)
 	{
 		int a = 0;
 		a++;
@@ -1422,7 +1421,7 @@ bool User::Try2Send()
 		return false;
 	}
 #ifdef _DEBUG
-	if (strstr(pSendBufHead, "$ExtJSON $ALL") != NULL)
+	if (strstr(pSendBufHead, "$ExtJSON ") != NULL)
 	{
 		int a = 0;
 		a++;
@@ -1865,10 +1864,7 @@ void User::SetBuffer(const char * sKickMsg, size_t szLen /* = 0*/)
 
 void User::FreeBuffer()
 {
-	if (pLogInOut->pBuffer != NULL)
-	{
 		safe_free(pLogInOut->pBuffer);
-	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -2613,7 +2609,7 @@ bool User::GenerateMyInfoShort()   // true == changed
 	// Add mode to myinfo if is enabled
 	if (clsSettingManager::mPtr->bBools[SETBOOL_MODE_TO_MYINFO] == true && sModes[0] != 0)
 	{
-		int iRet = sprintf(clsServerManager::pGlobalBuffer + iLen, "$%c$", sModes[0]);
+		const int iRet = sprintf(clsServerManager::pGlobalBuffer + iLen, "$%c$", sModes[0]);
 		iLen += iRet;
 		if (CheckSprintf1(iRet, iLen, clsServerManager::szGlobalBufferSize, "GenerateMyInfoShort1") == false)
 		{

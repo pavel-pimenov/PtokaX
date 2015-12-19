@@ -181,7 +181,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 						break;
 #ifdef USE_FLYLINKDC_EXT_JSON
 					case 'E':
-						if (memcmp(sData + 1, "xtJSON $ALL ", 12) == 0)
+						if (memcmp(sData + 1, "xtJSON ", 7) == 0)
 						{
 							iStatCmdExtJSON++;
 						}
@@ -189,7 +189,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 #endif // USE_FLYLINKDC_EXT_JSON
 						
 					case 'M':
-						if (memcmp(sData + 2, "yINFO $ALL ", 11) == 0)
+						if (memcmp(sData + 2, "yINFO ", 6) == 0)
 						{
 							iStatCmdMyInfo++;
 							if (((pUser->ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false)
@@ -282,7 +282,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 						break;
 #ifdef USE_FLYLINKDC_EXT_JSON
 					case 'E':
-						if (memcmp(sData + 1, "xtJSON $ALL ", 12) == 0)
+						if (memcmp(sData + 1, "xtJSON ", 7) == 0)
 						{
 							iStatCmdExtJSON++;
 						}
@@ -372,7 +372,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 					return;
 				}
 #ifdef USE_FLYLINKDC_EXT_JSON
-				else if (memcmp(sData + 1, "ExtJSON $ALL ", 13) == 0)
+				else if (memcmp(sData + 1, "ExtJSON ", 8) == 0)
 				{
 					iStatCmdExtJSON++;
 				}
@@ -401,7 +401,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 						break;
 #ifdef USE_FLYLINKDC_EXT_JSON
 					case 'E':
-						if (memcmp(sData + 2, "xtJSON $ALL ", 12) == 0)
+						if (memcmp(sData + 2, "xtJSON ", 7) == 0)
 						{
 							iStatCmdExtJSON++; // ExtJSON Step 1 First Login
 							if (ExtJSONDeflood(pUser, sData, ui32Len, bCheck) == false)
@@ -517,7 +517,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 						break;
 #ifdef USE_FLYLINKDC_EXT_JSON
 					case 'E':
-						if (memcmp(sData + 2, "xtJSON $ALL ", 12) == 0)
+						if (memcmp(sData + 2, "xtJSON ", 7) == 0)
 						{
 							iStatCmdExtJSON++; // ExtJSON Step 3 - Change ExtJSON
 							if (ExtJSONDeflood(pUser, sData, ui32Len, bCheck) == false)
@@ -593,8 +593,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 									{
 										pUser->SendFormat("clsDcCommands::PreProcessData::MyPass->RegUser1", true, "<%s> %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_ERR_NO_PROFILE_GIVEN_NAME_EXIST]);
 										
-										delete pUser->pLogInOut;
-										pUser->pLogInOut = NULL;
+										safe_delete(pUser->pLogInOut);
 										
 										return;
 									}
@@ -603,8 +602,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 									{
 										pUser->SendFormat("clsDcCommands::PreProcessData::MyPass->RegUser2", true, "<%s> %s!|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_MAX_ALWD_PASS_LEN_64_CHARS]);
 										
-										delete pUser->pLogInOut;
-										pUser->pLogInOut = NULL;
+										safe_delete(pUser->pLogInOut);
 										
 										return;
 									}
@@ -620,8 +618,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 										pUser->SendFormat("clsDcCommands::PreProcessData::MyPass->RegUser4", true, "<%s> %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_THANK_YOU_FOR_PASSWORD_YOU_ARE_NOW_REGISTERED_AS], pUser->pLogInOut->pBuffer);
 									}
 									
-									delete pUser->pLogInOut;
-									pUser->pLogInOut = NULL;
+									safe_delete(pUser->pLogInOut);
 									
 									pUser->i32Profile = iProfile;
 									
@@ -1137,7 +1134,7 @@ void clsDcCommands::ConnectToMe(User * pUser, char * sData, const uint32_t ui32L
 		}
 		else if ((pUser->ui32BoolBits & User::BIT_IPV4) == User::BIT_IPV4 && (pOtherUser->ui32BoolBits & User::BIT_IPV4) == User::BIT_IPV4)
 		{
-			char * sIP = pUser->ui8IPv4Len == 0 ? pUser->sIP : pUser->sIPv4;
+			const char * sIP = pUser->ui8IPv4Len == 0 ? pUser->sIP : pUser->sIPv4;
 			
 			int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$ConnectToMe %s %s:%hu|", pOtherUser->sNick, sIP, ui16Port);
 			if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::ConnectToMe2") == true)
@@ -1945,7 +1942,7 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 }
 #ifdef USE_FLYLINKDC_EXT_JSON
 //---------------------------------------------------------------------------
-// $ExtJSON $ALL  $ $$$$|
+// $ExtJSON |
 bool clsDcCommands::ExtJSONDeflood(User * pUser, const char * sData, const uint32_t ui32Len, const bool /* bCheck */)
 {
 	if (ui32Len < (22u + pUser->ui8NickLen))
@@ -1988,10 +1985,24 @@ bool clsDcCommands::ExtJSONDeflood(User * pUser, const char * sData, const uint3
 }
 //---------------------------------------------------------------------------
 
-// $ExtJSON $ALL  $ $$$$|
+// $ExtJSON |
 bool clsDcCommands::ExtJSON(User * pUser, const char * sData, const uint32_t ui32Len)
 {
-
+	if (pUser->sNick && pUser->ui8NickLen )
+	{
+		if (ui32Len < 9 + pUser->ui8NickLen)
+		{
+			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad $ExtJSON [1] (%s) from %s (%s) - user closed.", sData, pUser->sNick, pUser->sIP);
+			pUser->Close();
+			return false;
+		}
+		if (strcmp(sData + 9, pUser->sNick) != 0)
+		{
+			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad $MyINFO [2] (%s) from %s (%s) - user closed.", sData, pUser->sNick, pUser->sIP);
+			pUser->Close();
+			return false;
+		}
+	}
 	if (pUser->ComparExtJSON(sData, ui32Len))
 	{
 		return false;
@@ -2770,9 +2781,9 @@ void clsDcCommands::Supports(User * pUser, char * sData, const uint32_t ui32Len)
 				case 'E':
 					if (sSupport[1] == 'x')
 					{
-						if (((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON) == User::SUPPORTBIT_EXTJSON) == false && szDataLen == 7 && memcmp(sSupport + 2, "tJSON", 5) == 0)
+						if (((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON2) == User::SUPPORTBIT_EXTJSON2) == false && szDataLen == 8 && memcmp(sSupport + 2, "tJSON2", 6) == 0)
 						{
-							pUser->ui32SupportBits |= User::SUPPORTBIT_EXTJSON;
+							pUser->ui32SupportBits |= User::SUPPORTBIT_EXTJSON2;
 						}
 					}
 					break;
@@ -3541,11 +3552,7 @@ bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t sz
 	}
 	
 	// PPK ... delete user ban if we have it
-	if (pUser->pLogInOut->pBan != NULL)
-	{
-		delete pUser->pLogInOut->pBan;
-		pUser->pLogInOut->pBan = NULL;
-	}
+	safe_delete(pUser->pLogInOut->pBan);
 	
 	// first check for user limit ! PPK ... allow hublist pinger to check hub any time ;)
 	if (clsProfileManager::mPtr->IsProfileAllowed(i32Profile, clsProfileManager::ENTERFULLHUB) == false && ((pUser->ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == false)
@@ -3834,11 +3841,11 @@ void clsDcCommands::ProcessCmds(User * pUser)
 					iSupportsLen += 10;
 				}
 #ifdef USE_FLYLINKDC_EXT_JSON
-				if ((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON) == User::SUPPORTBIT_EXTJSON)
+				if ((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON2) == User::SUPPORTBIT_EXTJSON2)
 				{
 					// PPK ... Hmmm Client not really need it, but for now send it ;-)
-					memcpy(clsServerManager::pGlobalBuffer + iSupportsLen, " ExtJSON", 8);
-					iSupportsLen += 8;
+					memcpy(clsServerManager::pGlobalBuffer + iSupportsLen, " ExtJSON2", 9);
+					iSupportsLen += 9;
 				}
 #endif
 				if ((pUser->ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64)
@@ -4035,7 +4042,7 @@ void clsDcCommands::ProcessCmds(User * pUser)
 	{
 		pUser->ui32BoolBits &= ~User::BIT_PRCSD_EXT_JSON;
 		// TODO ExtJSON - ????? clsUsers::mPtr->Add2MyInfosTag(pUser);
-		if ((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON) == User::SUPPORTBIT_EXTJSON)
+		if ((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON2) == User::SUPPORTBIT_EXTJSON2)
 		{
 			if (pUser->m_user_ext_info)
 			{
@@ -4226,7 +4233,7 @@ void clsDcCommands::SendIncorrectIPMsg(User * pUser, char * sBadIP, const bool b
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsDcCommands::SendIPFixedMsg(User * pUser, char * sBadIP, char * sRealIP)
+void clsDcCommands::SendIPFixedMsg(User * pUser, const char * sBadIP, const char * sRealIP)
 {
 	if ((pUser->ui32BoolBits & User::BIT_WARNED_WRONG_IP) == User::BIT_WARNED_WRONG_IP)
 	{
@@ -4270,7 +4277,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t ui32Len)
 		return;
 	}
 	
-	strcpy(pOtherUser->sIPv4, pUser->sIP);
+	strcpy(pOtherUser->sIPv4, pUser->sIP); //TODO bug
 	pOtherUser->ui8IPv4Len = pUser->ui8IpLen;
 	pOtherUser->ui32BoolBits |= User::BIT_IPV4;
 	

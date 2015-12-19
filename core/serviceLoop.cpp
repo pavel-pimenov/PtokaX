@@ -317,7 +317,7 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 				send(AccptSocket->s, clsServerManager::pGlobalBuffer, iMsgLen, 0);
 				clsServerManager::ui64BytesSent += iMsgLen;
 #ifdef _DEBUG
-				if (strstr(clsServerManager::pGlobalBuffer, "$ExtJSON $ALL") != NULL)
+				if (strstr(clsServerManager::pGlobalBuffer, "$ExtJSON ") != NULL)
 				{
 					int a = 0;
 					a++;
@@ -807,14 +807,6 @@ void clsServiceLoop::ReceiveLoop()
 				}
 #ifdef USE_FLYLINKDC_EXT_JSON
 				// TODO ExtJSON
-				/*
-				imsgLen = sprintf(msg, "$ExtJSON %s Russia$Lipetsk$Beeline|", curUser->sNick);
-				                  if(CheckSprintf(imsgLen, 1024, "clsServiceLoop::ReceiveLoop6_1") == true) {
-				                    //clsGlobalDataQueue::mPtr->AddQueueItem(msg, imsgLen, msg, imsgLen, clsGlobalDataQueue::CMD_MYINFO);
-				                    curUser->SendTextDelayed(msg);
-				                }
-				
-				*/
 				if (curUser->m_user_ext_info)
 				{
 					const std::string& l_ext_json = curUser->m_user_ext_info->GetExtJSONCommand();

@@ -333,7 +333,7 @@ struct User
 		SUPPORTBIT_TLS2                    = 0x100,
 		SUPPORTBIT_ZPIPE0                  = 0x200,
 #ifdef USE_FLYLINKDC_EXT_JSON
-		SUPPORTBIT_EXTJSON                  = 0x400
+		SUPPORTBIT_EXTJSON2                  = 0x400
 #endif
 	};
 #ifdef USE_FLYLINKDC_EXT_JSON
