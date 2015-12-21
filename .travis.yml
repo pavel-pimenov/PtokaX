@@ -3,7 +3,7 @@ compiler:
   - gcc
   - clang
 before_install:
-  - sudo apt-get install -y liblua5.1-dev zlib1g-dev libtinyxml-dev lua-iconv libsqlite3-dev
+  - sudo apt-get install -y liblua5.1-dev zlib1g-dev libtinyxml-dev libsqlite3-dev
 # lua-sql-sqlite3 lua-svn mailutils mutt
 
 script:
