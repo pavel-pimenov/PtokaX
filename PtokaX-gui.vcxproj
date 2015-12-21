@@ -620,6 +620,8 @@
     <ClInclude Include="skein\Optimized_32bit\skein_debug.h" />
     <ClInclude Include="skein\Optimized_32bit\skein_iv.h" />
     <ClInclude Include="skein\Optimized_32bit\skein_port.h" />
+    <ClInclude Include="sqlite\sqlite3.h" />
+    <ClInclude Include="sqlite\sqlite3ext.h" />
     <ClInclude Include="tinyxml\tinyxml.h" />
     <ClInclude Include="zlib\src\crc32.h" />
     <ClInclude Include="zlib\src\deflate.h" />

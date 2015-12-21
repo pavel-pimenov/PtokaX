@@ -765,9 +765,6 @@
     <ClInclude Include="zlib\src\zutil.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="sqlite\sqlite3.h">
-      <Filter>sqlite</Filter>
-    </ClInclude>
     <ClInclude Include="core\TextConverter.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -776,6 +773,12 @@
     </ClInclude>
     <ClInclude Include="core\SettingCom.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite\sqlite3.h">
+      <Filter>sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite\sqlite3ext.h">
+      <Filter>sqlite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

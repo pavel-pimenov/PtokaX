@@ -26,6 +26,8 @@ distribution.
 #ifndef TINYXML_INCLUDED
 #define TINYXML_INCLUDED
 
+#ifdef _WIN32
+
 #ifdef _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4530 )
@@ -1805,5 +1807,7 @@ private:
 #ifdef _MSC_VER
 #pragma warning( pop )
 #endif
+
+#endif // _WIN32
 
 #endif
