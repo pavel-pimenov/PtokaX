@@ -3,7 +3,7 @@ compiler:
   - gcc
   - clang
 before_install:
-  - sudo apt-update
+  - sudo apt-get update
   - sudo apt-cache search tinyxml
   - sudo apt-get install -y liblua5.1-0-dev zlib1g-dev libsqlite3-dev libtinyxml2-dev
 # lua-sql-sqlite3 lua-svn mailutils mutt libtinyxml-dev
