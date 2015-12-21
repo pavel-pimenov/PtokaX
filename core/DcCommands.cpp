@@ -1996,9 +1996,9 @@ bool clsDcCommands::ExtJSON(User * pUser, const char * sData, const uint32_t ui3
 			pUser->Close();
 			return false;
 		}
-		if (strcmp(sData + 9, pUser->sNick) != 0)
+		if ((ui32Len > pUser->ui8NickLen + 9) && memcmp(sData + 9, pUser->sNick, pUser->ui8NickLen) != 0)
 		{
-			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad $MyINFO [2] (%s) from %s (%s) - user closed.", sData, pUser->sNick, pUser->sIP);
+			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad $ExtJSON [2] (%s) from %s (%s) - user closed.", sData, pUser->sNick, pUser->sIP);
 			pUser->Close();
 			return false;
 		}
