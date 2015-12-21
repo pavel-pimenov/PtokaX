@@ -218,7 +218,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 		szLength = strlen(ppArgSTrings[0]);
 		if (szLength == 0 || szLength > 64)
 		{
-			clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: " PRIu64, (uint64_t)szLength);
+			clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: %" PRIu64, (uint64_t)szLength);
 			return 0;
 		}
 		
@@ -364,14 +364,14 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			szLength = strlen(ppArgSTrings[2]);
 			if (szLength == 0 || szLength > 39)
 			{
-				clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: " PRIu64, (uint64_t)szLength);
+				clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: %" PRIu64, (uint64_t)szLength);
 				return 0;
 			}
 			
 			szLength = strlen(ppArgSTrings[3]);
 			if (szLength == 0 || szLength > 24)
 			{
-				clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid share length: " PRIu64, (uint64_t)szLength);
+				clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid share length: %" PRIu64, (uint64_t)szLength);
 				return 0;
 			}
 			
@@ -389,7 +389,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			{
 				if (szLength > 192)
 				{
-					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid description length: " PRIu64, (uint64_t)szLength);
+					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid description length: %" PRIu64, (uint64_t)szLength);
 					return 0;
 				}
 				
@@ -409,7 +409,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			{
 				if (szLength > 192)
 				{
-					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid tag length: " PRIu64, (uint64_t)szLength);
+					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid tag length: %" PRIu64, (uint64_t)szLength);
 					return 0;
 				}
 				
@@ -429,7 +429,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			{
 				if (szLength > 32)
 				{
-					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid connection length: " PRIu64, (uint64_t)szLength);
+					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid connection length: %" PRIu64, (uint64_t)szLength);
 					return 0;
 				}
 				
@@ -449,7 +449,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			{
 				if (szLength > 96)
 				{
-					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid email length: " PRIu64, (uint64_t)szLength);
+					clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid email length: %" PRIu64, (uint64_t)szLength);
 					return 0;
 				}
 				
@@ -490,14 +490,14 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 		size_t szLength = strlen(sFirstNick);
 		if (szLength == 0 || szLength > 64)
 		{
-			clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: " PRIu64, (uint64_t)szLength);
+			clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: %" PRIu64, (uint64_t)szLength);
 			return 0;
 		}
 		
 		szLength = strlen(sFirstIP);
 		if (szLength == 0 || szLength > 39)
 		{
-			clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: " PRIu64, (uint64_t)szLength);
+			clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: %" PRIu64, (uint64_t)szLength);
 			return 0;
 		}
 		
@@ -512,14 +512,14 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 	size_t szLength = strlen(ppArgSTrings[0]);
 	if (szLength == 0 || szLength > 64)
 	{
-		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: " PRIu64, (uint64_t)szLength);
+		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: %" PRIu64, (uint64_t)szLength);
 		return 0;
 	}
 	
 	szLength = strlen(ppArgSTrings[2]);
 	if (szLength == 0 || szLength > 39)
 	{
-		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: " PRIu64, (uint64_t)szLength);
+		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: %" PRIu64, (uint64_t)szLength);
 		return 0;
 	}
 	

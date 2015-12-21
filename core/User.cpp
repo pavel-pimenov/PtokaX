@@ -1280,13 +1280,13 @@ bool User::PutInSendBuf(const char * Text, const size_t szTxtLen)
 						ui32BoolBits |= BIT_ERROR;
 						Close();
 						
-						clsUdpDebug::mPtr->BroadcastFormat("[SYS] %s (%s) SendBuffer overflow (AL:" PRIu64 "[SL:%u|NL:" PRIu64 "|FL:" PRIu64 "]/ML:" PRIu64 "). User disconnected.",
+						clsUdpDebug::mPtr->BroadcastFormat("[SYS] %s (%s) SendBuffer overflow (AL:%" PRIu64 "[SL:%u|NL:%" PRIu64 "|FL:%" PRIu64 "]/ML:%" PRIu64 "). User disconnected.",
 						                                   sNick, sIP, (uint64_t)szAllignLen, ui32SendBufDataLen, (uint64_t)szTxtLen, (uint64_t)(pSendBufHead - pSendBuf), (uint64_t)szMaxBufLen);
 						return false;
 					}
 					else
 					{
-						clsUdpDebug::mPtr->BroadcastFormat("[SYS] %s (%s) SendBuffer overflow (AL:" PRIu64 "[SL:%u|NL:" PRIu64 "|FL:" PRIu64 "]/ML:" PRIu64 "). Buffer cleared - user stays online.",
+						clsUdpDebug::mPtr->BroadcastFormat("[SYS] %s (%s) SendBuffer overflow (AL:%" PRIu64 "[SL:%u|NL:%" PRIu64 "|FL:%" PRIu64 "]/ML:%" PRIu64 "). Buffer cleared - user stays online.",
 						                                   sNick, sIP, (uint64_t)szAllignLen, ui32SendBufDataLen, (uint64_t)szTxtLen, (uint64_t)(pSendBufHead - pSendBuf), (uint64_t)szMaxBufLen);
 					}
 					
