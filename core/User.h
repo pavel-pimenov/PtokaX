@@ -402,7 +402,7 @@ struct User
 	
 	void AddMeOrIPv4Check();
 	
-	static char * SetUserInfo(char * sOldData, uint8_t &ui8OldDataLen, const char * sNewData, size_t &szNewDataLen, const char * sDataName);
+	static char * SetUserInfo(char * sOldData, uint8_t &ui8OldDataLen, const char * sNewData, size_t szNewDataLen, const char * sDataName);
 	
 	void RemFromSendBuf(const char * sData, const uint32_t iLen, const uint32_t iSbLen);
 	

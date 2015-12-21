@@ -78,6 +78,7 @@ class clsDcCommands
 #ifdef USE_FLYLINKDC_EXT_JSON
 		bool ExtJSONDeflood(User * pUser, const char * sData, const uint32_t ui32Len, const bool bCheck);
 		static bool ExtJSON(User * pUser, const char * sData, const uint32_t ui32Len);
+		static bool CheckJSON(User * pUser, const char * sData, const uint32_t ui32Len);
 #endif
 		
 		PassBf * Find(const uint8_t * ui128IpHash);

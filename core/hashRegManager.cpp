@@ -64,7 +64,7 @@ RegUser::~RegUser()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPassword, size_t szRegPassLen, uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile)
+RegUser * RegUser::CreateReg(const char * sRegNick, size_t szRegNickLen, const char * sRegPassword, size_t szRegPassLen, const uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile)
 {
 	RegUser * pReg = new(std::nothrow) RegUser();
 	
@@ -120,7 +120,7 @@ RegUser * RegUser::CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPa
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool RegUser::UpdatePassword(char * sNewPass, size_t &szNewLen)
+bool RegUser::UpdatePassword(const char * sNewPass, size_t szNewLen)
 {
 	if (clsSettingManager::mPtr->bBools[SETBOOL_HASH_PASSWORDS] == false)
 	{

@@ -1945,11 +1945,8 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 // $ExtJSON |
 bool clsDcCommands::ExtJSONDeflood(User * pUser, const char * sData, const uint32_t ui32Len, const bool /* bCheck */)
 {
-	if (ui32Len < (22u + pUser->ui8NickLen))
+	if (CheckJSON(pUser, sData, ui32Len) == false)
 	{
-		clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad $ExtJSON (%s) from %s (%s) - user closed.", sData, pUser->sNick, pUser->sIP);
-		
-		pUser->Close();
 		return false;
 	}
 	/* TODO
@@ -1984,9 +1981,7 @@ bool clsDcCommands::ExtJSONDeflood(User * pUser, const char * sData, const uint3
 	return true;
 }
 //---------------------------------------------------------------------------
-
-// $ExtJSON |
-bool clsDcCommands::ExtJSON(User * pUser, const char * sData, const uint32_t ui32Len)
+bool clsDcCommands::CheckJSON(User * pUser, const char * sData, const uint32_t ui32Len)
 {
 	if (pUser->sNick && pUser->ui8NickLen )
 	{
@@ -2002,6 +1997,16 @@ bool clsDcCommands::ExtJSON(User * pUser, const char * sData, const uint32_t ui3
 			pUser->Close();
 			return false;
 		}
+	}
+	return true;
+}
+//---------------------------------------------------------------------------
+// $ExtJSON |
+bool clsDcCommands::ExtJSON(User * pUser, const char * sData, const uint32_t ui32Len)
+{
+	if(CheckJSON(pUser, sData, ui32Len) == false)
+	{
+		return false;
 	}
 	if (pUser->ComparExtJSON(sData, ui32Len))
 	{

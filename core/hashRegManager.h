@@ -49,8 +49,8 @@ struct RegUser
 	RegUser();
 	~RegUser();
 	
-	static RegUser * CreateReg(char * sRegNick, size_t szRegNickLen, char * sRegPassword, size_t szRegPassLen, uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile);
-	bool UpdatePassword(char * sNewPass, size_t &szNewLen);
+	static RegUser * CreateReg(const char * sRegNick, size_t szRegNickLen, const char * sRegPassword, size_t szRegPassLen, const uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile);
+	bool UpdatePassword(const char * sNewPass, size_t szNewLen);
 	DISALLOW_COPY_AND_ASSIGN(RegUser);
 };
 //---------------------------------------------------------------------------
