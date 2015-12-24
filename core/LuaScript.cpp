@@ -1175,8 +1175,7 @@ void ScriptPushUserExtended(lua_State * L, User * u, const int iTable)
 	lua_rawset(L, iTable);
 	
 #ifdef USE_FLYLINKDC_EXT_JSON 
-
-	lua_pushliteral(L, "sExtJSON");
+	lua_pushliteral(L, "sExtJson");
 	if (u->m_user_ext_info && u->m_user_ext_info->GetExtJSONCommand().length())
 	{
 		lua_pushlstring(L, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
