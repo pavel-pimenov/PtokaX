@@ -1586,7 +1586,7 @@ static int GetUserData(lua_State * L)
 					lua_pushnil(L);
 			}
 			lua_rawset(L, 1);
-			break;
+			return 1;
 		}
 #endif
 		default:
@@ -2001,8 +2001,7 @@ static int GetUserValue(lua_State * L)
 			{
 				lua_pushnil(L);
 			}
-			lua_rawset(L, 1);
-			break;
+			return 1;
 		}
 #endif
 		default:
