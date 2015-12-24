@@ -1174,6 +1174,20 @@ void ScriptPushUserExtended(lua_State * L, User * u, const int iTable)
 	}
 	lua_rawset(L, iTable);
 	
+#ifdef USE_FLYLINKDC_EXT_JSON 
+
+	lua_pushliteral(L, "sExtJSON");
+	if (u->m_user_ext_info && u->m_user_ext_info->GetExtJSONCommand().length())
+	{
+		lua_pushlstring(L, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
+	}
+	else
+	{
+		lua_pushnil(L);
+	}
+	lua_rawset(L, iTable);
+#endif
+	
 	lua_pushliteral(L, "iScriptediShareSizeShort");
 #if LUA_VERSION_NUM < 503
 	lua_pushnumber(L, (double)u->ui64ChangedSharedSizeShort);
