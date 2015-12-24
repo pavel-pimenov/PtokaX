@@ -105,6 +105,7 @@ SendPmToProfile(iProfileNumber, sFromNick, sData)					- Send data as private mes
 SendPmToUser(tUser, sFromNick, sData)								- Send private message to user. Max FromNick length 64 chars, max Data length 128000 chars.
 
 Core.SetUserInfo(tUser, iValueId, nil/sValue/iValue, bPermanent)	- Set user info in MyINFO. Max sValue lenght 64 chars, $ and | is not allowed. Use bPermanent when you want to apply change permanently.
+Core.SetUserJson(tUser, sValue)	- Set user info in ExtJSON. Max sValue lenght 10*1024 chars.
 
 
 SetMan.
@@ -743,7 +744,7 @@ User data IDs for Core.GetUserData and Core.GetUserValue call.
 41	- iScriptediShareSizeShort
 42	- iScriptediShareSizeLong
 43	- tIPs
-
+100	- sExtJSON
 
 User info IDs for Core.SetUserInfo call.
 -------------------

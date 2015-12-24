@@ -521,10 +521,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 								return;
 							}
 							
-							if (ExtJSON(pUser, sData, ui32Len) == true)
-							{
-								pUser->ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
-							}
+							SetExtJSON(pUser, sData, ui32Len);
 							return;
 							
 						}
@@ -2005,7 +2002,7 @@ bool clsDcCommands::CheckExtJSON(User * pUser, const char * sData, const uint32_
 }
 //---------------------------------------------------------------------------
 // $ExtJSON |
-bool clsDcCommands::ExtJSON(User * pUser, const char * sData, const uint32_t ui32Len)
+bool clsDcCommands::SetExtJSON(User * pUser, const char * sData, const uint32_t ui32Len)
 {
 	if (CheckExtJSON(pUser, sData, ui32Len) == false)
 	{
@@ -2036,6 +2033,7 @@ bool clsDcCommands::ExtJSON(User * pUser, const char * sData, const uint32_t ui3
 	    return false;
 	}
 	*/
+	pUser->ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
 	return true;
 }
 

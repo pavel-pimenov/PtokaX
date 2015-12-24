@@ -2762,6 +2762,7 @@ static int SetUserJson(lua_State * L)
 		}
 		pUser->initExtJSON(sData);
 		pUser->SetExtJSONOriginal(sData, strlen(sData));
+		pUser->ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
 	}
 	lua_settop(L, 0);
 	return 0;
