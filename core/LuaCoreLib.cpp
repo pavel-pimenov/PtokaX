@@ -2731,19 +2731,20 @@ static int SendPmToUser(lua_State * L)
 #ifdef USE_FLYLINKDC_EXT_JSON
 static int SetUserJson(lua_State * L)
 {
-	if (lua_gettop(L) != 1)
+	if (lua_gettop(L) != 2)
 	{
-		luaL_error(L, "bad argument count to 'SetUserJson' (1 expected, got %d)", lua_gettop(L));
+		luaL_error(L, "bad argument count to 'SetUserJson' (2 expected, got %d)", lua_gettop(L));
 		lua_settop(L, 0);
 		return 0;
 	}
-	if (lua_type(L, 1) != LUA_TSTRING)
+	if (lua_type(L, 1) != LUA_TTABLE || lua_type(L, 2) != LUA_TSTRING)
 	{
-		luaL_checktype(L, 1, LUA_TSTRING);
+		luaL_checktype(L, 1, LUA_TTABLE);
+		luaL_checktype(L, 2, LUA_TSTRING);
 		lua_settop(L, 0);
 		return 0;
 	}
-	User * pUser = ScriptGetUser(L, 4, "SetUserJson");
+	User * pUser = ScriptGetUser(L, 2, "SetUserJson");
 
 	if (pUser == NULL)
 	{
