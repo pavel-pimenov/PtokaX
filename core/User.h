@@ -144,7 +144,7 @@ class ExtJSONInfo
 		{
 			m_ExtJSON = p_json;
 		}
-		void SetJSONOroginal(const std::string& p_json)
+		void SetJSONOriginal(const std::string& p_json)
 		{
 			m_ExtJSON = p_json;
 			m_ExtJSONOriginal = p_json;
@@ -336,9 +336,18 @@ struct User
 		SUPPORTBIT_EXTJSON2                  = 0x400
 #endif
 	};
+	void SendTextDelayed(const string & sText);
 #ifdef USE_FLYLINKDC_EXT_JSON
 	ExtJSONInfo * m_user_ext_info;
-	void SendTextDelayed(const string & sText);
+	void initExtJSON(const char* p_json)
+	{
+		if (m_user_ext_info == NULL)
+		{
+			m_user_ext_info = new ExtJSONInfo(p_json);
+			ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
+		}
+	}
+
 	uint64_t   getLastExtJSONSendTick() const
 	{
 		return m_user_ext_info ? m_user_ext_info->getLastExtJSONSendTick() : 0;

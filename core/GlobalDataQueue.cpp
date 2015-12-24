@@ -473,6 +473,7 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
 						}
 						break;
+#ifdef USE_FLYLINKDC_EXT_JSON
 					case CMD_EXTJSON:
 						if (!pCur->pCommand[0].empty())
 						{
@@ -489,6 +490,7 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 #endif
 						}
 						break;
+#endif
 					case CMD_MYINFO:
 						if ((ui16QueueBits & BIT_LONG_MYINFO) == BIT_LONG_MYINFO)
 						{

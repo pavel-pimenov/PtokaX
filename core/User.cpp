@@ -1530,7 +1530,7 @@ void User::SetExtJSONOriginal(const char * sNewExtJSON, const uint16_t ui16NewEx
 	{
 		clsUsers::mPtr->DelFromExtJSONInfos(this);
 		std::string l_info(sNewExtJSON, ui16NewExtJSONLen);
-		m_user_ext_info->SetJSONOroginal(l_info);
+		m_user_ext_info->SetJSONOriginal(l_info);
 		clsUsers::mPtr->Add2ExtJSON(this);
 	}
 }
@@ -1988,7 +1988,9 @@ void User::Close(bool bNoQuit/* = false*/)
 		}
 	}
 	
+#ifdef USE_FLYLINKDC_EXT_JSON	
 	clsUsers::mPtr->DelFromExtJSONInfos(this);
+#endif
 	
 	if (ui32SendBufDataLen == 0 || (ui32BoolBits & BIT_ERROR) == BIT_ERROR)
 	{

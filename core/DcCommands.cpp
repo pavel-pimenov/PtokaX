@@ -408,11 +408,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 							{
 								return;
 							}
-							if (pUser->m_user_ext_info == NULL)
-							{
-								pUser->m_user_ext_info = new ExtJSONInfo(sData); // + 14
-								pUser->ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
-							}
+							pUser->initExtJSON(sData);
 						}
 						break;
 #endif // USE_FLYLINKDC_EXT_JSON

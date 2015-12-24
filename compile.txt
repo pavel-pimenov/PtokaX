@@ -67,7 +67,8 @@
 # ln -s /mnt/webdav/home/src-bin-pdb/flylinkdc-r4xx /var/www/install/r4xx/src-bin
 # ln -s /mnt/webdav/home/src-bin-pdb/strongdc-sqlite /var/www/install/strongdc-sqlite/src-bin
 
-
+# lighttpd
+# cat access.log | grep -v FlylinkDC++ | grep -v Mozilla | grep -v r5 | grep -v r4 | grep -v StrongDC | grep -v Opera | grep -v CustomMenuManager
  
  
 To compile PtokaX on Unix operating system is needed to have installed: GNU make, GCC or Clang compiler, Lua, zlib.

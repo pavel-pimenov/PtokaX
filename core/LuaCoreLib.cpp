@@ -1573,6 +1573,22 @@ static int GetUserData(lua_State * L)
 			lua_rawset(L, 1);
 			break;
 		}
+#ifdef USE_FLYLINKDC_EXT_JSON
+		case 100:
+		{
+			lua_pushliteral(L, "sExtJSON");
+			if (u->m_user_ext_info && u->m_user_ext_info->GetExtJSONCommand().length())
+			{
+					lua_pushlstring(L, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
+			}
+			else
+			{
+					lua_pushnil(L);
+			}
+			lua_rawset(L, 1);
+			break;
+		}
+#endif
 		default:
 			luaL_error(L, "bad argument #2 to 'GetUserData' (it's not valid id)");
 			lua_settop(L, 0);
@@ -1974,6 +1990,21 @@ static int GetUserValue(lua_State * L)
 			
 			return 1;
 		}
+#ifdef USE_FLYLINKDC_EXT_JSON
+		case 100:
+		{
+			if (u->m_user_ext_info && u->m_user_ext_info->GetExtJSONCommand().length())
+			{
+				lua_pushlstring(L, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
+			}
+			else
+			{
+				lua_pushnil(L);
+			}
+			lua_rawset(L, 1);
+			break;
+		}
+#endif
 		default:
 			luaL_error(L, "bad argument #2 to 'GetUserValue' (it's not valid id)");
 			
@@ -2698,7 +2729,45 @@ static int SendPmToUser(lua_State * L)
 	return 0;
 }
 //------------------------------------------------------------------------------
+#ifdef USE_FLYLINKDC_EXT_JSON
+static int SetUserJson(lua_State * L)
+{
+	if (lua_gettop(L) != 1)
+	{
+		luaL_error(L, "bad argument count to 'SetUserJson' (1 expected, got %d)", lua_gettop(L));
+		lua_settop(L, 0);
+		return 0;
+	}
+	if (lua_type(L, 1) != LUA_TSTRING)
+	{
+		luaL_checktype(L, 1, LUA_TSTRING);
+		lua_settop(L, 0);
+		return 0;
+	}
+	User * pUser = ScriptGetUser(L, 4, "SetUserJson");
 
+	if (pUser == NULL)
+	{
+		lua_settop(L, 0);
+		return 0;
+	}
+	size_t szDataLen;
+	const char * sData = (const char *)lua_tolstring(L, 1, &szDataLen);
+	if (sData)
+	{
+		if (szDataLen > 10 * 1024 || strpbrk(sData, "}|") != NULL)
+		{
+			lua_settop(L, 0);
+			return 0;
+		}
+		pUser->initExtJSON(sData);
+		pUser->SetExtJSONOriginal(sData, strlen(sData));
+	}
+	lua_settop(L, 0);
+	return 0;
+}
+#endif
+//------------------------------------------------------------------------------
 static int SetUserInfo(lua_State * L)
 {
 	if (lua_gettop(L) != 4)
@@ -2998,6 +3067,9 @@ static const luaL_Reg core[] =
 	{ "SendPmToProfile", SendPmToProfile },
 	{ "SendPmToUser", SendPmToUser },
 	{ "SetUserInfo", SetUserInfo },
+#ifdef USE_FLYLINKDC_EXT_JSON
+	{ "SetUserJson", SetUserJson },
+#endif
 	{ NULL, NULL }
 };
 //---------------------------------------------------------------------------
