@@ -744,7 +744,7 @@ User data IDs for Core.GetUserData and Core.GetUserValue call.
 41	- iScriptediShareSizeShort
 42	- iScriptediShareSizeLong
 43	- tIPs
-100	- sExtJSON
+100	- sExtJson
 
 User info IDs for Core.SetUserInfo call.
 -------------------

@@ -2752,10 +2752,10 @@ static int SetUserJson(lua_State * L)
 		return 0;
 	}
 	size_t szDataLen;
-	const char * sData = (const char *)lua_tolstring(L, 1, &szDataLen);
+	const char * sData = (const char *)lua_tolstring(L, 2, &szDataLen);
 	if (sData)
 	{
-		if (szDataLen > 10 * 1024 || strpbrk(sData, "}|") != NULL)
+		if (szDataLen > 10 * 1024)
 		{
 			lua_settop(L, 0);
 			return 0;
