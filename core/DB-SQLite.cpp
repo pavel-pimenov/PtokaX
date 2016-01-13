@@ -63,7 +63,7 @@ DBSQLite::DBSQLite()
 	
 	char * sErrMsg = NULL;
 	
-	iRet = sqlite3_exec(pDB, "PRAGMA synchronous = NORMAL;"
+	iRet = sqlite3_exec(pDB, "PRAGMA synchronous = NORMAL;\r\n"
 	                    "PRAGMA journal_mode = WAL;",
 	                    NULL, NULL, &sErrMsg);
 	                    
@@ -80,15 +80,14 @@ DBSQLite::DBSQLite()
 	iRet = sqlite3_exec(pDB,
 	                    "CREATE TABLE IF NOT EXISTS userinfo ("
 	                    "nick VARCHAR(64) NOT NULL,"
+			    "nick_lower VARCHAR(64) NOT NULL,"
 	                    "last_updated DATETIME NOT NULL,"
 	                    "ip_address VARCHAR(39) NOT NULL,"
 	                    "share VARCHAR(24) NOT NULL,"
 	                    "description VARCHAR(192),"
 	                    "tag VARCHAR(192),"
 	                    "connection VARCHAR(32),"
-	                    "email VARCHAR(96),"
-	                    "UNIQUE (nick COLLATE NOCASE)"
-	                    ");", NULL, NULL, &sErrMsg);
+	                    "email VARCHAR(96));", NULL, NULL, &sErrMsg);
 	                    
 	if (iRet != SQLITE_OK)
 	{
@@ -96,7 +95,28 @@ DBSQLite::DBSQLite()
 		AppendLog(string("DBSQLite check/create table failed: ") + sErrMsg);
 		sqlite3_free(sErrMsg);
 		sqlite3_close(pDB);
-		
+		return;
+	}
+	iRet = sqlite3_exec(pDB, "ALTER TABLE userinfo ADD COLUMN nick_lower VARCHAR(64);", NULL, NULL, &sErrMsg);
+	if (iRet == SQLITE_OK)
+	{
+		iRet = sqlite3_exec(pDB, "update userinfo set nick_lower = LOWER(nick);", NULL, NULL, &sErrMsg);
+		if (iRet != SQLITE_OK)
+		{
+			bConnected = false;
+			AppendLog(string("DBSQLite update userinfo set nick_lower = LOWER(nick); failed: ") + sErrMsg);
+			sqlite3_free(sErrMsg);
+			sqlite3_close(pDB);
+			return;
+		}
+	}
+	iRet = sqlite3_exec(pDB, "CREATE UNIQUE INDEX IF NOT EXISTS iu_userinfo_nick ON userinfo(nick_lower);", NULL, NULL, &sErrMsg);
+	if (iRet != SQLITE_OK)
+	{
+		bConnected = false;
+		AppendLog(string("DBSQLite CREATE UNIQUE INDEX IF NOT EXISTS iu_userinfo_nick ON userinfo(nick_lower) failed: ") + sErrMsg);
+		sqlite3_free(sErrMsg);
+		sqlite3_close(pDB);
 		return;
 	}
 	
@@ -162,10 +182,40 @@ void DBSQLite::UpdateRecord(User * pUser)
 		TextConverter::mPtr->CheckUtf8AndConvert(pUser->sEmail, pUser->ui8EmailLen, sEmail, 97);
 	}
 	
+
 	char sSQLCommand[1024];
 	sqlite3_snprintf(sizeof(sSQLCommand), sSQLCommand,
-	                 "INSERT OR REPLACE INTO userinfo (nick, last_updated, ip_address, share, description, tag, connection, email) VALUES ("
+		"UPDATE userinfo SET "
+		"nick = %Q,"
+		"last_updated = DATETIME('now')," // last_updated
+		"ip_address = %Q," // ip
+		"share = %Q," // share
+		"description = %Q," // description
+		"tag = %Q," // tag
+		"connection = %Q," // connection
+		"email = %Q" // email
+		"WHERE nick_lower = LOWER(%Q);", // nick
+		sNick, pUser->sIP, sShare, sDescription, sTag, sConnection, sEmail, sNick
+	);
+
+	char * sErrMsg = NULL;
+
+	int iRet = sqlite3_exec(pDB, sSQLCommand, NULL, NULL, &sErrMsg);
+
+	if(iRet != SQLITE_OK) {
+		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite update record failed: %s", sErrMsg);
+		sqlite3_free(sErrMsg);
+	}
+
+	iRet = sqlite3_changes(pDB);
+	if(iRet != 0) {
+		return;
+	}
+
+	sqlite3_snprintf(1024, sSQLCommand,
+		"INSERT INTO userinfo (nick, nick_lower, last_updated, ip_address, share, description, tag, connection, email) VALUES ("
 	                 "%Q," // nick
+					 "LOWER(%Q)," // nick
 	                 "DATETIME('now')," // last_updated
 	                 "%Q," // ip
 	                 "%Q," // share
@@ -174,13 +224,12 @@ void DBSQLite::UpdateRecord(User * pUser)
 	                 "%Q," // connection
 	                 "%Q" // email
 	                 ");",
-	                 sNick, pUser->sIP, sShare, sDescription, sTag, sConnection, sEmail
+					 sNick, sNick, pUser->sIP, sShare, sDescription, sTag, sConnection, sEmail
 	                );
-	char * sErrMsg = NULL;
-	int iRet = sqlite3_exec(pDB, sSQLCommand, NULL, NULL, &sErrMsg);
 	
-	if (iRet != SQLITE_OK)
-	{
+	iRet = sqlite3_exec(pDB, sSQLCommand, NULL, NULL, &sErrMsg);
+
+	if(iRet != SQLITE_OK) {
 		clsUdpDebug::mPtr->BroadcastFormat("[LOG] DBSQLite insert record failed: %s", sErrMsg);
 		sqlite3_free(sErrMsg);
 	}
@@ -572,7 +621,7 @@ bool DBSQLite::SearchNick(char * sNick, const uint8_t ui8NickLen, User * pUser, 
 	bSecond = false;
 	
 	char sSQLCommand[256];
-	sqlite3_snprintf(256, sSQLCommand, "SELECT nick, %s, ip_address, share, description, tag, connection, email FROM userinfo WHERE LOWER(nick) LIKE LOWER(%Q) ORDER BY last_updated DESC LIMIT 50;", "strftime('%s', last_updated)", sUtfNick);
+	sqlite3_snprintf(256, sSQLCommand, "SELECT nick, %s, ip_address, share, description, tag, connection, email FROM userinfo WHERE nick_lower LIKE LOWER(%Q) ORDER BY last_updated DESC LIMIT 50;", "strftime('%s', last_updated)", sUtfNick);
 	
 	char * sErrMsg = NULL;
 	
