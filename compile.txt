@@ -31,9 +31,9 @@
 # ln -s /var/cache/munin/www /var/www/munin
 # modprobe nf_conntrack_ipv4
 # nf_conntrack_ipv4 -> /etc/modules
-# adduser xxx
-# adduser yyy
-# adduser zzz
+# adduser xxx chmod 700 /home/xxx
+# adduser yyy chmod 700 /home/yyy
+# adduser zzz chmod 700 /home/zzz
 # /etc/ssh# cat sshd_config | grep Allow
 # AllowUsers xxx yyy zzzz
 
@@ -69,6 +69,15 @@
 
 # lighttpd
 # cat access.log | grep -v FlylinkDC++ | grep -v Mozilla | grep -v r5 | grep -v r4 | grep -v StrongDC | grep -v Opera | grep -v CustomMenuManager
+#
+# fix for cache (https://www.anexia-it.com/blog/en/the-tale-of-lighttpd-not-sending-the-last-modified-header/)
+# etag.use-inode = "enable"
+# etag.use-mtime = "enable"
+# etag.use-size = "enable"
+# static-file.etags = "enable"
+# $HTTP["url"] =~ "\.bz2$" { setenv.add-response-header += ( "Cache-Control" => "no-store, no-cache" ) }
+# mimetype.assign += ( "" => "application/octet-stream" )
+#
  
  
 To compile PtokaX on Unix operating system is needed to have installed: GNU make, GCC or Clang compiler, Lua, zlib.
