@@ -531,22 +531,15 @@ bool clsRangeBanDialog::OnAccept()
 		{
 			if (pRangeBanToChange->sReason == NULL || strcmp(pRangeBanToChange->sReason, sReason) != NULL)
 			{
-				if (pRangeBanToChange->sReason != NULL)
-				{
-					safe_free(pRangeBanToChange->sReason);
+				safe_free_and_init(pRangeBanToChange->sReason, sReason);
 				}
-				
-				pRangeBanToChange->sReason = sReason;
 			}
-		}
-		else if (pRangeBanToChange->sReason != NULL)
+		else
 		{
 			safe_free(pRangeBanToChange->sReason);
-			
-			pRangeBanToChange->sReason = NULL;
 		}
 		
-		if (sReason != NULL && (pRangeBanToChange->sReason != sReason))
+		if (sReason != NULL && pRangeBanToChange->sReason != sReason)
 		{
 			free(sReason);
 		}
@@ -571,20 +564,15 @@ bool clsRangeBanDialog::OnAccept()
 		{
 			if (pRangeBanToChange->sBy == NULL || strcmp(pRangeBanToChange->sBy, sBy) != NULL)
 			{
-				if (pRangeBanToChange->sBy != NULL)
-				{
-					safe_free(pRangeBanToChange->sBy);
+				safe_free_and_init(pRangeBanToChange->sBy, sBy);
 				}
-				
-				pRangeBanToChange->sBy = sBy;
 			}
-		}
-		else if (pRangeBanToChange->sBy != NULL)
+		else
 		{
 			safe_free(pRangeBanToChange->sBy);
 		}
 		
-		if (sBy != NULL && (pRangeBanToChange->sBy != sBy))
+		if (sBy != NULL && pRangeBanToChange->sBy != sBy)
 		{
 			free(sBy);
 		}
