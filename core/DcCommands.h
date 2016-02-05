@@ -73,7 +73,7 @@ class clsDcCommands
 		void MyNick(User * pUser, char * sData, const uint32_t ui32Len);
 		
 		static bool ValidateUserNick(User * pUser, char * sNick, const size_t szNickLen, const bool ValidateNick);
-
+		
 		static bool ValidateUserNickFinally(bool pIsNotReg, User * pUser, const size_t szNickLen, const bool ValidateNick); // [+] FlylinkDC++
 #ifdef USE_FLYLINKDC_EXT_JSON
 		bool ExtJSONDeflood(User * pUser, const char * sData, const uint32_t ui32Len, const bool bCheck);

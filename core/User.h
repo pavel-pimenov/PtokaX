@@ -118,11 +118,11 @@ class ExtJSONInfo
 		ExtJSONInfo() : m_iLastExtJSONSendTick(0)
 		{
 		}
-		ExtJSONInfo(const char* p_info) : m_iLastExtJSONSendTick(0)
+		explicit ExtJSONInfo(const char* p_info) : m_iLastExtJSONSendTick(0)
 		{
-			if(p_info)		
-           	{
-				 m_ExtJSON = p_info;
+			if (p_info)
+			{
+				m_ExtJSON = p_info;
 			}
 		}
 		uint64_t   getLastExtJSONSendTick() const
@@ -347,7 +347,7 @@ struct User
 			ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
 		}
 	}
-
+	
 	uint64_t   getLastExtJSONSendTick() const
 	{
 		return m_user_ext_info ? m_user_ext_info->getLastExtJSONSendTick() : 0;

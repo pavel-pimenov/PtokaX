@@ -156,7 +156,7 @@ template <class T> inline void safe_free_and_init(T* & p, T* p_new_ptr)
 	if (p)
 	{
 		free(p);
-    }
+	}
 	p = p_new_ptr;
 }
 //[+]FlylinkDC++

@@ -532,8 +532,8 @@ bool clsRangeBanDialog::OnAccept()
 			if (pRangeBanToChange->sReason == NULL || strcmp(pRangeBanToChange->sReason, sReason) != NULL)
 			{
 				safe_free_and_init(pRangeBanToChange->sReason, sReason);
-				}
 			}
+		}
 		else
 		{
 			safe_free(pRangeBanToChange->sReason);
@@ -565,8 +565,8 @@ bool clsRangeBanDialog::OnAccept()
 			if (pRangeBanToChange->sBy == NULL || strcmp(pRangeBanToChange->sBy, sBy) != NULL)
 			{
 				safe_free_and_init(pRangeBanToChange->sBy, sBy);
-				}
 			}
+		}
 		else
 		{
 			safe_free(pRangeBanToChange->sBy);

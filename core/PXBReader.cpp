@@ -161,11 +161,9 @@ bool PXBReader::ReadNextItem(const uint16_t * sExpectedIdentificators, const uin
 	
 	uint8_t ui8ActualItem = 0;
 	
-	uint16_t ui16SubItemSize = 0;
-	
 	while (ui32ItemSize > 0)
 	{
-		ui16SubItemSize = ntohs(*((uint16_t *)pActualPosition));
+		uint16_t ui16SubItemSize = ntohs(*((uint16_t *)pActualPosition));
 		
 		if (ui16SubItemSize > ui32ItemSize)
 		{

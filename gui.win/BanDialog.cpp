@@ -871,9 +871,9 @@ bool clsBanDialog::OnAccept()
 			if (pBanToChange->sReason == NULL || strcmp(pBanToChange->sReason, sReason) != NULL)
 			{
 				safe_free_and_init(pBanToChange->sReason, sReason);
-				}
 			}
-		else 
+		}
+		else
 		{
 			safe_free(pBanToChange->sReason);
 		}
@@ -904,8 +904,8 @@ bool clsBanDialog::OnAccept()
 			if (pBanToChange->sBy == NULL || strcmp(pBanToChange->sBy, sBy) != NULL)
 			{
 				safe_free_and_init(pBanToChange->sBy, sBy);
-				}
 			}
+		}
 		else
 		{
 			safe_free(pBanToChange->sBy);

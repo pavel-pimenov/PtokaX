@@ -1638,7 +1638,7 @@ void User::SetMyInfoOriginal(const char * sNewMyInfo, const uint16_t ui16NewMyIn
 		ui32InfoBits &= ~INFOBIT_SHARE_CHANGED;
 	}
 	
-	if (sOldMyInfo != NULL)
+	if (sOldMyInfo)
 	{
 		free(sOldMyInfo);
 	}
@@ -1864,7 +1864,7 @@ void User::SetBuffer(const char * sKickMsg, size_t szLen /* = 0*/)
 
 void User::FreeBuffer()
 {
-		safe_free(pLogInOut->pBuffer);
+	safe_free(pLogInOut->pBuffer);
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1988,7 +1988,7 @@ void User::Close(bool bNoQuit/* = false*/)
 		}
 	}
 	
-#ifdef USE_FLYLINKDC_EXT_JSON	
+#ifdef USE_FLYLINKDC_EXT_JSON
 	clsUsers::mPtr->DelFromExtJSONInfos(this);
 #endif
 	

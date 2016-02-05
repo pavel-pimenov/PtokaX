@@ -34,7 +34,7 @@ class clsEventQueue
 			uint8_t ui128IpHash[16];
 			uint8_t ui8Id;
 			
-			event(const char* p_message);
+			explicit event(const char* p_message);
 			
 			DISALLOW_COPY_AND_ASSIGN(event);
 		};

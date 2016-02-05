@@ -1579,11 +1579,11 @@ static int GetUserData(lua_State * L)
 			lua_pushliteral(L, "sExtJson");
 			if (u->m_user_ext_info && u->m_user_ext_info->GetExtJSONCommand().length())
 			{
-					lua_pushlstring(L, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
+				lua_pushlstring(L, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
 			}
 			else
 			{
-					lua_pushnil(L);
+				lua_pushnil(L);
 			}
 			lua_rawset(L, 1);
 			return 1;
@@ -2745,7 +2745,7 @@ static int SetUserJson(lua_State * L)
 		return 0;
 	}
 	User * pUser = ScriptGetUser(L, 2, "SetUserJson");
-
+	
 	if (pUser == NULL)
 	{
 		lua_settop(L, 0);

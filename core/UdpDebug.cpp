@@ -144,7 +144,7 @@ void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 	va_list vlArgs;
 	va_start(vlArgs, sFormatMsg);
 	
-	int iRet = vsprintf(sDebugHead, sFormatMsg, vlArgs);
+	const int iRet = vsprintf(sDebugHead, sFormatMsg, vlArgs);
 	
 	va_end(vlArgs);
 	

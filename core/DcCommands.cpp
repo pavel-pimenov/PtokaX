@@ -1976,9 +1976,10 @@ bool clsDcCommands::ExtJSONDeflood(User * pUser, const char * sData, const uint3
 //---------------------------------------------------------------------------
 bool clsDcCommands::CheckExtJSON(User * pUser, const char * sData, const uint32_t ui32Len)
 {
-	if (pUser->sNick && pUser->ui8NickLen )
+	if (pUser->sNick && pUser->ui8NickLen)
 	{
-		if (ui32Len > (uint32_t)clsSettingManager::mPtr->i16Shorts[SETSHORT_MAX_MYINFO_LEN] * 10) {
+		if (ui32Len > (uint32_t)clsSettingManager::mPtr->i16Shorts[SETSHORT_MAX_MYINFO_LEN] * 10)
+		{
 			pUser->SendFormat("clsDcCommands::CheckExtJSON", true, "<%s> %s!|", "Error", "strlen(ExtJSON) > (MaxMyINFOLen * 10)");
 			//clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_MYINFO_TOO_LONG]
 			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Bad $ExtJSON len (%u) from %s (%s) - user closed. (%s)", ui32Len, pUser->sNick, pUser->sIP, sData);
