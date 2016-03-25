@@ -4723,7 +4723,7 @@ bool clsHubCommands::BanIp(User * pUser, char * sCommand, bool bFromPM, bool bFu
 }
 //---------------------------------------------------------------------------
 
-bool clsHubCommands::NickBan(User * pUser, char * sNick, char * sReason, bool bFromPM)
+bool clsHubCommands::NickBan(User * pUser, const char * sNick, char * sReason, bool bFromPM)
 {
 	RegUser * pReg = clsRegManager::mPtr->Find(sNick, strlen(sNick));
 	
@@ -5036,7 +5036,7 @@ bool clsHubCommands::TempBanIp(User * pUser, char * sCommand, const size_t dlen,
 }
 //---------------------------------------------------------------------------
 
-bool clsHubCommands::TempNickBan(User * pUser, char * sNick, char * sTime, const size_t szTimeLen, char * sReason, bool bFromPM, bool bNotNickBan/* = false*/)
+bool clsHubCommands::TempNickBan(User * pUser, const char * sNick, char * sTime, const size_t szTimeLen, char * sReason, bool bFromPM, bool bNotNickBan/* = false*/)
 {
 	RegUser * pReg = clsRegManager::mPtr->Find(sNick, strlen(sNick));
 	

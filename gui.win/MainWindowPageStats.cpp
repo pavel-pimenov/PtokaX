@@ -261,7 +261,7 @@ char * MainWindowPageStats::GetPageName()
 }
 //------------------------------------------------------------------------------
 
-void OnRedirectAllOk(char * sLine, const int iLen)
+void OnRedirectAllOk(const char * sLine, const int iLen)
 {
 	char *sMSG = (char *)malloc(iLen + 16);
 	if (sMSG == NULL)
@@ -309,7 +309,7 @@ void MainWindowPageStats::OnRedirectAll()
 }
 //---------------------------------------------------------------------------
 
-void OnMassMessageOk(char * sLine, const int iLen)
+void OnMassMessageOk(const char * sLine, const int iLen)
 {
 	char *sMSG = (char *)malloc(iLen + 256);
 	if (sMSG == NULL)

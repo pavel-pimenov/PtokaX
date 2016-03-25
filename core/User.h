@@ -36,7 +36,7 @@ struct UserBan
 	
 	uint32_t ui32Len, ui32NickHash;
 	
-	static UserBan * CreateUserBan(char * sMess, const uint32_t ui32MessLen, const uint32_t ui32Hash);
+	static UserBan * CreateUserBan(const char * sMess, const uint32_t ui32MessLen, const uint32_t ui32Hash);
 	
 	DISALLOW_COPY_AND_ASSIGN(UserBan);
 };

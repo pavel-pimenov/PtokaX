@@ -148,7 +148,7 @@ void clsUpdateDialog::DoModal(HWND hWndParent)
 }
 //---------------------------------------------------------------------------
 
-void clsUpdateDialog::Message(char * sData)
+void clsUpdateDialog::Message(const char * sData)
 {
 	RichEditAppendText(hWndWindowItems[REDT_UPDATE], sData);
 }

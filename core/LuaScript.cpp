@@ -88,7 +88,7 @@ ScriptBot::~ScriptBot()
 }
 //------------------------------------------------------------------------------
 
-ScriptBot * ScriptBot::CreateScriptBot(char * sBotNick, const size_t szNickLen, char * sDescription, const size_t szDscrLen, char * sEmail, const size_t szEmlLen, const bool bOP)
+ScriptBot * ScriptBot::CreateScriptBot(const char * sBotNick, const size_t szNickLen, const char * sDescription, const size_t szDscrLen, const char * sEmail, const size_t szEmlLen, const bool bOP)
 {
 	ScriptBot * pScriptBot = new(std::nothrow) ScriptBot();
 	
@@ -156,7 +156,7 @@ ScriptTimer::~ScriptTimer()
 ScriptTimer * ScriptTimer::CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState)
 {
 #else
-ScriptTimer * ScriptTimer::CreateScriptTimer(char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState)
+ScriptTimer * ScriptTimer::CreateScriptTimer(const char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState)
 {
 #endif
 	ScriptTimer * pScriptTimer = new(std::nothrow) ScriptTimer();
@@ -228,7 +228,7 @@ Script::~Script()
 }
 //------------------------------------------------------------------------------
 
-Script * Script::CreateScript(char * Name, const bool enabled)
+Script * Script::CreateScript(const char * Name, const bool enabled)
 {
 	Script * pScript = new(std::nothrow) Script();
 	

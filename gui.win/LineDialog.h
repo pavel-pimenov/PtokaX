@@ -24,7 +24,7 @@
 class LineDialog
 {
 	public:
-		explicit LineDialog(void (*pOnOkFunction)(char * Line, const int iLen));
+		explicit LineDialog(void (*pOnOkFunction)(const char * Line, const int iLen));
 		~LineDialog();
 		
 		static LRESULT CALLBACK StaticLineDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

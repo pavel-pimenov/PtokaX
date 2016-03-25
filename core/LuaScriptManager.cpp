@@ -242,10 +242,10 @@ void clsScriptManager::Start()
 //------------------------------------------------------------------------------
 
 #ifdef _BUILD_GUI
-bool clsScriptManager::AddScript(char * sName, const bool bEnabled, const bool bNew)
+bool clsScriptManager::AddScript(const char * sName, const bool bEnabled, const bool bNew)
 {
 #else
-bool clsScriptManager::AddScript(char * sName, const bool bEnabled, const bool /*bNew*/)
+bool clsScriptManager::AddScript(const char * sName, const bool bEnabled, const bool /*bNew*/)
 {
 #endif
 	if (ui8ScriptCount == 254)

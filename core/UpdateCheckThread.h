@@ -39,7 +39,7 @@ class clsUpdateCheckThread
 		
 		char sMsg[2048];
 		
-		static void Message(char * sMessage, const size_t szLen);
+		static void Message(const char * sMessage, const size_t szLen);
 		bool Receive();
 		bool SendHeader();
 		

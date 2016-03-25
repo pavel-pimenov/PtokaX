@@ -170,14 +170,14 @@ class clsGlobalDataQueue
 		~clsGlobalDataQueue();
 		
 		void AddQueueItem(const char * sCommand1, const size_t szLen1, const char * sCommand2, const size_t szLen2, const uint8_t ui8CmdType);
-		void OpListStore(char * sNick);
+		void OpListStore(const char * sNick);
 		void UserIPStore(User * pUser);
 		void PrepareQueueItems();
 		void ClearQueues();
 		void ProcessQueues(User * u);
 		void AddSearchDataToQueue(const User * pUser, uint32_t ui32QueueType, const QueueItem * pCur); // FlylinkDC++
 		void ProcessSingleItems(User * u) const;
-		void SingleItemStore(char * sData, const size_t szDataLen, User * pFromUser, const int32_t i32Profile, const uint8_t ui8Type);
+		void SingleItemStore(const char * sData, const size_t szDataLen, User * pFromUser, const int32_t i32Profile, const uint8_t ui8Type);
 		void SendFinalQueue();
 		void * GetLastQueueItem();
 		void * GetFirstQueueItem();

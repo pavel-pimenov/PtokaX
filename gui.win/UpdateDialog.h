@@ -32,7 +32,7 @@ class clsUpdateDialog
 		static LRESULT CALLBACK StaticUpdateDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		
 		void DoModal(HWND hWndParent);
-		void Message(char * sData);
+		void Message(const char * sData);
 		bool ParseData(char * sData, HWND hWndParent);
 	private:
 		HWND hWndWindowItems[2];

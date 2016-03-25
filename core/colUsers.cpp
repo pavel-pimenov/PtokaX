@@ -396,7 +396,7 @@ void clsUsers::Add2NickList(User * pUser)
 }
 //---------------------------------------------------------------------------
 
-void clsUsers::AddBot2NickList(char * sNick, const size_t szNickLen, const bool bIsOp)
+void clsUsers::AddBot2NickList(const char * sNick, const size_t szNickLen, const bool bIsOp)
 {
 	// $NickList nick$$nick2$$|
 	
@@ -486,7 +486,7 @@ void clsUsers::Add2OpList(User * pUser)
 }
 //---------------------------------------------------------------------------
 
-void clsUsers::DelFromNickList(char * sNick, const bool bIsOp)
+void clsUsers::DelFromNickList(const char * sNick, const bool bIsOp)
 {
 	int iRet = sprintf(clsServerManager::pGlobalBuffer, "$%s$", sNick);
 	if (CheckSprintf(iRet, clsServerManager::szGlobalBufferSize, "clsUsers::DelFromNickList") == false)
@@ -520,7 +520,7 @@ void clsUsers::DelFromNickList(char * sNick, const bool bIsOp)
 }
 //---------------------------------------------------------------------------
 
-void clsUsers::DelFromOpList(char * sNick)
+void clsUsers::DelFromOpList(const char * sNick)
 {
 	int iRet = sprintf(clsServerManager::pGlobalBuffer, "$%s$", sNick);
 	if (CheckSprintf(iRet, clsServerManager::szGlobalBufferSize, "clsUsers::DelFromOpList") == false)
@@ -542,7 +542,7 @@ void clsUsers::DelFromOpList(char * sNick)
 //---------------------------------------------------------------------------
 
 // PPK ... check global mainchat flood and add to global queue
-void clsUsers::SendChat2All(User * pUser, char * sData, const size_t szChatLen, void * pQueueItem)
+void clsUsers::SendChat2All(User * pUser, const char * sData, const size_t szChatLen, void * pQueueItem)
 {
 	clsUdpDebug::mPtr->Broadcast(sData, szChatLen);
 	
@@ -739,7 +739,7 @@ void clsUsers::DelFromMyInfosTag(User * pUser)
 }
 //---------------------------------------------------------------------------
 
-void clsUsers::AddBot2MyInfos(char * sMyInfo)
+void clsUsers::AddBot2MyInfos(const char * sMyInfo)
 {
 	size_t szLen = strlen(sMyInfo);
 	if (pMyInfosTag != NULL)
@@ -793,7 +793,7 @@ void clsUsers::AddBot2MyInfos(char * sMyInfo)
 }
 //---------------------------------------------------------------------------
 
-void clsUsers::DelBotFromMyInfos(char * sMyInfo)
+void clsUsers::DelBotFromMyInfos(const char * sMyInfo)
 {
 	size_t szLen = strlen(sMyInfo);
 	if (pMyInfosTag)

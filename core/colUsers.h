@@ -89,11 +89,11 @@ class clsUsers
 		void AddUser(User * pUser);
 		void RemUser(User * pUser);
 		void Add2NickList(User * pUser);
-		void AddBot2NickList(char * sNick, const size_t szNickLen, const bool bIsOp);
+		void AddBot2NickList(const char * sNick, const size_t szNickLen, const bool bIsOp);
 		void Add2OpList(User * pUser);
-		void DelFromNickList(char * sNick, const bool bIsOp);
-		void DelFromOpList(char * sNick);
-		void SendChat2All(User * pUser, char * sData, const size_t szChatLen, void * pToUser);
+		void DelFromNickList(const char * sNick, const bool bIsOp);
+		void DelFromOpList(const char * sNick);
+		void SendChat2All(User * pUser, const char * sData, const size_t szChatLen, void * pToUser);
 		void Add2MyInfos(User * pUser);
 		void DelFromMyInfos(User * pUser);
 #ifdef USE_FLYLINKDC_EXT_JSON
@@ -102,8 +102,8 @@ class clsUsers
 #endif
 		void Add2MyInfosTag(User * pUser);
 		void DelFromMyInfosTag(User * pUser);
-		void AddBot2MyInfos(char * sMyInfo);
-		void DelBotFromMyInfos(char * sMyInfo);
+		void AddBot2MyInfos(const char * sMyInfo);
+		void DelBotFromMyInfos(const char * sMyInfo);
 		void Add2UserIP(User * pUser);
 		void DelFromUserIP(User * pUser);
 		void Add2RecTimes(User * pUser);

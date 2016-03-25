@@ -440,7 +440,7 @@ bool clsProfileManager::IsProfileAllowed(const int32_t iProfile, const uint32_t 
 }
 //---------------------------------------------------------------------------
 
-int32_t clsProfileManager::AddProfile(char * name)
+int32_t clsProfileManager::AddProfile(const char * name)
 {
 	for (uint16_t ui16i = 0; ui16i < ui16ProfileCount; ui16i++)
 	{
@@ -791,7 +791,7 @@ void clsProfileManager::MoveProfileUp(const uint16_t iProfile)
 }
 //---------------------------------------------------------------------------
 
-void clsProfileManager::ChangeProfileName(const uint16_t iProfile, char * sName, const size_t szLen)
+void clsProfileManager::ChangeProfileName(const uint16_t iProfile, const char * sName, const size_t szLen)
 {
 	char * sOldName = ppProfilesTable[iProfile]->sName;
 	

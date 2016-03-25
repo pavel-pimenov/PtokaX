@@ -29,7 +29,7 @@ class TextConverter
 		iconv_t iconvAsciiToUtf;
 #endif
 		
-		bool CheckUtf8Validity(char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize);
+		bool CheckUtf8Validity(const char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize);
 		
 		TextConverter(const TextConverter&);
 		const TextConverter& operator=(const TextConverter&);
@@ -39,7 +39,7 @@ class TextConverter
 		TextConverter();
 		~TextConverter();
 		
-		size_t CheckUtf8AndConvert(char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize);
+		size_t CheckUtf8AndConvert(const char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize);
 };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

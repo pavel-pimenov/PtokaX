@@ -722,7 +722,7 @@ void clsMainWindowPageUsersChat::DisconnectUser()
 }
 //------------------------------------------------------------------------------
 
-void OnKickOk(char * sLine, const int iLen)
+void OnKickOk(const char * sLine, const int iLen)
 {
 	User * pUser = clsMainWindowPageUsersChat::mPtr->GetUser();
 	
@@ -741,6 +741,7 @@ void OnKickOk(char * sLine, const int iLen)
 	}
 	else
 	{
+#ifdef _FLYLINKDC_TODO
 		if (iLen > 512)
 		{
 			sLine[513] = '\0';
@@ -748,7 +749,8 @@ void OnKickOk(char * sLine, const int iLen)
 			sLine[511] = '.';
 			sLine[510] = '.';
 		}
-		
+#endif
+
 		pUser->SendFormat("OnKickOk2", false, "<%s> %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_BEING_KICKED_BCS], sLine);
 	}
 	
@@ -788,7 +790,7 @@ void clsMainWindowPageUsersChat::KickUser()
 }
 //------------------------------------------------------------------------------
 
-void OnBanOk(char * sLine, const int iLen)
+void OnBanOk(const char * sLine, const int iLen)
 {
 	User * pUser = clsMainWindowPageUsersChat::mPtr->GetUser();
 	
@@ -807,6 +809,7 @@ void OnBanOk(char * sLine, const int iLen)
 	}
 	else
 	{
+#ifdef _FLYLINKDC_TODO
 		if (iLen > 512)
 		{
 			sLine[513] = '\0';
@@ -814,6 +817,7 @@ void OnBanOk(char * sLine, const int iLen)
 			sLine[511] = '.';
 			sLine[510] = '.';
 		}
+#endif
 		
 		pUser->SendFormat("OnBanOk2", false, "<%s> %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_BEING_BANNED_BECAUSE], sLine);
 	}
@@ -855,7 +859,7 @@ void clsMainWindowPageUsersChat::BanUser()
 }
 //------------------------------------------------------------------------------
 
-void OnRedirectOk(char * sLine, const int iLen)
+void OnRedirectOk(const char * sLine, const int iLen)
 {
 	User * pUser = clsMainWindowPageUsersChat::mPtr->GetUser();
 	

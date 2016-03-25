@@ -73,7 +73,7 @@ class clsRegManager
 		clsRegManager(void);
 		~clsRegManager(void);
 		
-		bool AddNew(char * sNick, char * sPasswd, const uint16_t iProfile);
+		bool AddNew(const char * sNick, const char * sPasswd, const uint16_t iProfile);
 		
 		void Add(RegUser * Reg);
 		void Add2Table(RegUser * Reg);
@@ -82,9 +82,9 @@ class clsRegManager
 		void Rem(RegUser * Reg);
 		void RemFromTable(RegUser * Reg);
 		
-		RegUser * Find(char * sNick, const size_t szNickLen);
+		RegUser * Find(const char * sNick, const size_t szNickLen);
 		RegUser * Find(User * u);
-		RegUser * Find(uint32_t hash, char * sNick);
+		RegUser * Find(uint32_t hash, const char * sNick);
 		
 		void Load(void);
 		void Save(const bool bSaveOnChange = false, const bool bSaveOnTime = false);

@@ -36,7 +36,7 @@ struct ScriptBot
 	ScriptBot();
 	~ScriptBot();
 	
-	static ScriptBot * CreateScriptBot(char * sNick, const size_t szNickLen, char * sDescription, const size_t szDscrLen, char * sEmail, const size_t szEmailLen, const bool bOP);
+	static ScriptBot * CreateScriptBot(const char * sNick, const size_t szNickLen, const char * sDescription, const size_t szDscrLen, const char * sEmail, const size_t szEmailLen, const bool bOP);
 	DISALLOW_COPY_AND_ASSIGN(ScriptBot);
 };
 //------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ struct ScriptTimer
 #if defined(_WIN32) && !defined(_WIN_IOT)
 	static ScriptTimer * CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState);
 #else
-	static ScriptTimer * CreateScriptTimer(char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState);
+	static ScriptTimer * CreateScriptTimer(const char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState);
 #endif
 	DISALLOW_COPY_AND_ASSIGN(ScriptTimer);
 	
@@ -105,7 +105,7 @@ struct Script
 	Script();
 	~Script();
 	
-	static Script * CreateScript(char *Name, const bool enabled);
+	static Script * CreateScript(const char *Name, const bool enabled);
 	DISALLOW_COPY_AND_ASSIGN(Script);
 };
 //------------------------------------------------------------------------------

@@ -99,7 +99,7 @@ class clsScriptManager
 		Script * FindScript(const lua_State * L);
 		uint8_t FindScriptIdx(const char * sName);
 		
-		bool AddScript(char * sName, const bool bEnabled, const bool bNew);
+		bool AddScript(const char * sName, const bool bEnabled, const bool bNew);
 		
 		bool StartScript(Script * curScript, const bool bEnable);
 		void StopScript(Script * curScript, const bool bDisable);

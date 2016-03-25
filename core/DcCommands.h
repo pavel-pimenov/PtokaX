@@ -47,16 +47,16 @@ class clsDcCommands
 		
 		DISALLOW_COPY_AND_ASSIGN(clsDcCommands);
 		
-		static void BotINFO(User * pUser, char * sData, const uint32_t ui32Len);
+		static void BotINFO(User * pUser, const char * sData, const uint32_t ui32Len);
 		static void ConnectToMe(User * pUser, char * sData, const uint32_t ui32LenLen, const bool bCheck, const bool bMulti);
-		void GetINFO(User * pUser, char * sData, const uint32_t ui32Len);
-		static bool GetNickList(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck);
+		void GetINFO(User * pUser, const char * sData, const uint32_t ui32Len);
+		static bool GetNickList(User * pUser, const char * sData, const uint32_t ui32Len, const bool bCheck);
 		static void Key(User * pUser, char * sData, const uint32_t ui32Len);
 		static void Kick(User * pUser, char * sData, const uint32_t ui32Len);
-		static bool SearchDeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck, const bool bMulti);
+		static bool SearchDeflood(User * pUser, const char * sData, const uint32_t ui32Len, const bool bCheck, const bool bMulti);
 		static void Search(User * pUser, char * sData, uint32_t ui32Len, const bool bCheck, const bool bMulti);
-		static bool MyINFODeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck);
-		static bool MyINFO(User * pUser, char * sData, const uint32_t ui32Len);
+		static bool MyINFODeflood(User * pUser, const char * sData, const uint32_t ui32Len, const bool bCheck);
+		static bool MyINFO(User * pUser, const char * sData, const uint32_t ui32Len);
 		void MyPass(User * pUser, char * sData, const uint32_t ui32Len);
 		static void OpForceMove(User * pUser, char * sData, const uint32_t ui32Len);
 		static void RevConnectToMe(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck);
@@ -72,7 +72,7 @@ class clsDcCommands
 		void Unknown(User * pUser, char * sData, const uint32_t ui32Len, const bool bMyNick = false);
 		void MyNick(User * pUser, char * sData, const uint32_t ui32Len);
 		
-		static bool ValidateUserNick(User * pUser, char * sNick, const size_t szNickLen, const bool ValidateNick);
+		static bool ValidateUserNick(User * pUser, const char * sNick, const size_t szNickLen, const bool ValidateNick);
 		
 		static bool ValidateUserNickFinally(bool pIsNotReg, User * pUser, const size_t szNickLen, const bool ValidateNick); // [+] FlylinkDC++
 #ifdef USE_FLYLINKDC_EXT_JSON
@@ -90,7 +90,7 @@ class clsDcCommands
 		static void SendIncorrectIPMsg(User * pUser, char * sBadIP, const bool bCTM);
 		static void SendIPFixedMsg(User * pUser, const char * sBadIP, const char * sRealIP);
 		
-		static PrcsdUsrCmd * AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t szLen, const bool bActive);
+		static PrcsdUsrCmd * AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, const char * sSearch, const size_t szLen, const bool bActive);
 	public:
 		static clsDcCommands * mPtr;
 		

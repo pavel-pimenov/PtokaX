@@ -613,7 +613,7 @@ char* stristr2(const char *str1, const char *str2)
 // check IP string.
 // false - no ip
 // true - valid ip
-bool isIP(char * sIP)
+bool isIP(const char * sIP)
 {
 	if (clsServerManager::bUseIPv6 == true && strchr(sIP, '.') == NULL)
 	{
@@ -1163,9 +1163,9 @@ void GetHeapStats(void *hHeap, DWORD &dwCommitted, DWORD &dwUnCommitted)
 }
 //---------------------------------------------------------------------------
 
-char * ExtractFileName(char * sPath)
+const char * ExtractFileName(const char * sPath)
 {
-	char * sName = strrchr(sPath, '\\');
+	const char * sName = strrchr(sPath, '\\');
 	
 	if (sName != NULL)
 	{

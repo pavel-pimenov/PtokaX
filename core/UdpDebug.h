@@ -76,9 +76,9 @@ class clsUdpDebug
 		void Broadcast(const char * msg, const size_t szLen) const;
 		void BroadcastFormat(const char * sFormatMsg, ...) const;
 		bool New(User * pUser, const uint16_t ui16Port);
-		bool New(char * sIP, const uint16_t ui16Port, const bool bAllData, char * sScriptName);
+		bool New(const char * sIP, const uint16_t ui16Port, const bool bAllData, char * sScriptName);
 		bool Remove(User * pUser);
-		void Remove(char * sScriptName);
+		void Remove(const char * sScriptName);
 		bool CheckUdpSub(User * pUser, bool bSndMess = false) const;
 		void Send(const char * sScriptName, char * sMsg, const size_t szLen) const;
 		void Cleanup();

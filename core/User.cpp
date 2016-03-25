@@ -572,7 +572,7 @@ UserBan::~UserBan()
 }
 //---------------------------------------------------------------------------
 
-UserBan * UserBan::CreateUserBan(char * sMess, const uint32_t ui32MessLen, const uint32_t ui32Hash)
+UserBan * UserBan::CreateUserBan(const char * sMess, const uint32_t ui32MessLen, const uint32_t ui32Hash)
 {
 	UserBan * pUserBan = new(std::nothrow) UserBan();
 	

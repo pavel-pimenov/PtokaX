@@ -978,7 +978,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 //---------------------------------------------------------------------------
 
 // $BotINFO pinger identification|
-void clsDcCommands::BotINFO(User * pUser, char * sData, const uint32_t ui32Len)
+void clsDcCommands::BotINFO(User * pUser, const char * sData, const uint32_t ui32Len)
 {
 	if (((pUser->ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == false || ((pUser->ui32BoolBits & User::BIT_HAVE_BOTINFO) == User::BIT_HAVE_BOTINFO) == true)
 	{
@@ -1166,7 +1166,7 @@ void clsDcCommands::ConnectToMe(User * pUser, char * sData, const uint32_t ui32L
 //---------------------------------------------------------------------------
 
 // $GetINFO <nickname> <ownnickname>
-void clsDcCommands::GetINFO(User * pUser, char * sData, const uint32_t ui32Len)
+void clsDcCommands::GetINFO(User * pUser, const char * sData, const uint32_t ui32Len)
 {
 	if (((pUser->ui32SupportBits & User::SUPPORTBIT_NOGETINFO) == User::SUPPORTBIT_NOGETINFO) == true || ((pUser->ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO) == true || ((pUser->ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == true)
 	{
@@ -1194,7 +1194,7 @@ void clsDcCommands::GetINFO(User * pUser, char * sData, const uint32_t ui32Len)
 //---------------------------------------------------------------------------
 
 // $GetNickList
-bool clsDcCommands::GetNickList(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
+bool clsDcCommands::GetNickList(User * pUser, const char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 	if (((pUser->ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == true &&
 	        ((pUser->ui32BoolBits & User::BIT_HAVE_GETNICKLIST) == User::BIT_HAVE_GETNICKLIST) == true)
@@ -1604,7 +1604,7 @@ void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t ui32Len)
 //---------------------------------------------------------------------------
 
 // $Search $MultiSearch
-bool clsDcCommands::SearchDeflood(User *pUser, char * sData, const uint32_t ui32Len, const bool bCheck, const bool bMulti)
+bool clsDcCommands::SearchDeflood(User *pUser, const char * sData, const uint32_t ui32Len, const bool bCheck, const bool bMulti)
 {
 	// search flood protection ... modified by PPK ;-)
 	if (bCheck == true && clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::NODEFLOODSEARCH) == false)
@@ -2043,7 +2043,7 @@ bool clsDcCommands::SetExtJSON(User * pUser, const char * sData, const uint32_t 
 #endif
 //---------------------------------------------------------------------------
 // $MyINFO $ALL  $ $$$$|
-bool clsDcCommands::MyINFODeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
+bool clsDcCommands::MyINFODeflood(User * pUser, const char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 	if (ui32Len < (22u + pUser->ui8NickLen))
 	{
@@ -2092,7 +2092,7 @@ bool clsDcCommands::MyINFODeflood(User * pUser, char * sData, const uint32_t ui3
 //---------------------------------------------------------------------------
 
 // $MyINFO $ALL  $ $$$$|
-bool clsDcCommands::MyINFO(User * pUser, char * sData, const uint32_t ui32Len)
+bool clsDcCommands::MyINFO(User * pUser, const char * sData, const uint32_t ui32Len)
 {
 	// if no change, just return
 	// else store MyINFO and perform all checks again
@@ -3445,7 +3445,7 @@ void clsDcCommands::Unknown(User * pUser, char * sData, const uint32_t ui32Len, 
 }
 //---------------------------------------------------------------------------
 
-bool clsDcCommands::ValidateUserNick(User * pUser, char * sNick, const size_t szNickLen, const bool ValidateNick)
+bool clsDcCommands::ValidateUserNick(User * pUser, const char * sNick, const size_t szNickLen, const bool ValidateNick)
 {
 	// illegal characters in nick?
 	for (uint32_t ui32i = 0; ui32i < szNickLen; ui32i++)
@@ -4296,7 +4296,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t ui32Len)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, char * sSearch, const size_t szLen, const bool bActive)
+PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, const char * sSearch, const size_t szLen, const bool bActive)
 {
 	if (cmdSearch != NULL)
 	{

@@ -36,7 +36,7 @@ class clsSettingManager
 		void SaveMOTD();
 		void CheckMOTD();
 		
-		void CheckAndSet(char * sName, char * sValue);
+		void CheckAndSet(const char * sName, const char * sValue);
 		void Load();
 		void LoadXML();
 	public:
@@ -100,7 +100,7 @@ class clsSettingManager
 		void GetText(const size_t szTxtId, char * sMsg);
 		
 		void SetBool(const size_t szBoolId, const bool bValue); //SettingManager->SetBool()
-		void SetMOTD(char * sTxt, const size_t szLen);
+		void SetMOTD(const char * sTxt, const size_t szLen);
 		void SetShort(const size_t szShortId, const int16_t iValue);
 		void SetText(const size_t szTxtId, char * sTxt);
 		void SetText(const size_t szTxtId, const char * sTxt);

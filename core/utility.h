@@ -52,7 +52,7 @@ char * formatSecTime(uint64_t rest);
 char * stristr(const char *str1, const char *str2);
 char * stristr2(const char *str1, const char *str2);
 
-bool isIP(char * sIP);
+bool isIP(const char * sIP);
 
 uint32_t HashNick(const char * sNick, const size_t szNickLen);
 
@@ -101,7 +101,7 @@ void GetHeapStats(void *hHeap, DWORD &dwCommitted, DWORD &dwUnCommitted);
 void Memo(const string & sMessage);
 
 #ifdef _WIN32
-char * ExtractFileName(char * sPath);
+const char * ExtractFileName(const char * sPath);
 #endif
 
 bool FileExist(const char * sPath);

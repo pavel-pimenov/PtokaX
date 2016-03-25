@@ -233,7 +233,7 @@ void clsSettingManager::CheckMOTD()
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::CheckAndSet(char * sName, char * sValue)
+void clsSettingManager::CheckAndSet(const char * sName, const char * sValue)
 {
 	// Booleans
 	for (size_t szi = 0; szi < SETBOOL_IDS_END; szi++)
@@ -758,7 +758,7 @@ void clsSettingManager::SetBool(const size_t szBoolId, const bool bValue)
 }
 //---------------------------------------------------------------------------
 
-void clsSettingManager::SetMOTD(char * sTxt, const size_t szLen)
+void clsSettingManager::SetMOTD(const char * sTxt, const size_t szLen)
 {
 	if (ui16MOTDLen == (uint16_t)szLen &&
 	        (sMOTD != NULL && strcmp(sMOTD, sTxt) == 0))

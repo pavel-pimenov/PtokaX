@@ -193,7 +193,7 @@ void clsGlobalDataQueue::AddQueueItem(const char * sCommand1, const size_t szLen
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // appends data to the OpListQueue
-void clsGlobalDataQueue::OpListStore(char * sNick)
+void clsGlobalDataQueue::OpListStore(const char * sNick)
 {
 	if (OpListQueue.szLen == 0)
 	{
@@ -832,7 +832,7 @@ void clsGlobalDataQueue::ProcessSingleItems(User * u) const
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::SingleItemStore(char * sData, const size_t szDataLen, User * pFromUser, const int32_t i32Profile, const uint8_t ui8Type)
+void clsGlobalDataQueue::SingleItemStore(const char * sData, const size_t szDataLen, User * pFromUser, const int32_t i32Profile, const uint8_t ui8Type)
 {
 	SingleDataItem * pNewItem = new(std::nothrow) SingleDataItem;
 	if (pNewItem == NULL)

@@ -289,7 +289,7 @@ void clsReservedNicksManager::AddReservedNick(const char * sNick, const bool bFr
 }
 //---------------------------------------------------------------------------
 
-void clsReservedNicksManager::DelReservedNick(char * sNick, const bool bFromScript/* = false*/)
+void clsReservedNicksManager::DelReservedNick(const char * sNick, const bool bFromScript/* = false*/)
 {
 	uint32_t hash = HashNick(sNick, strlen(sNick));
 	

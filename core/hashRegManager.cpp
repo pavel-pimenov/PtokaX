@@ -212,7 +212,7 @@ clsRegManager::~clsRegManager(void)
 }
 //---------------------------------------------------------------------------
 
-bool clsRegManager::AddNew(char * sNick, char * sPasswd, const uint16_t iProfile)
+bool clsRegManager::AddNew(const char * sNick, const char * sPasswd, const uint16_t iProfile)
 {
 	if (Find(sNick, strlen(sNick)) != NULL)
 	{
@@ -541,7 +541,7 @@ void clsRegManager::RemFromTable(RegUser * Reg)
 }
 //---------------------------------------------------------------------------
 
-RegUser* clsRegManager::Find(char * sNick, const size_t szNickLen)
+RegUser* clsRegManager::Find(const char * sNick, const size_t szNickLen)
 {
 	uint32_t ui32Hash = HashNick(sNick, szNickLen);
 	
@@ -587,7 +587,7 @@ RegUser* clsRegManager::Find(User * u)
 }
 //---------------------------------------------------------------------------
 
-RegUser* clsRegManager::Find(uint32_t ui32Hash, char * sNick)
+RegUser* clsRegManager::Find(uint32_t ui32Hash, const char * sNick)
 {
 	const uint16_t ui16dx = CalcHash(ui32Hash);
 	

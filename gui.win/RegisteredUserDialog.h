@@ -48,7 +48,7 @@ class clsRegisteredUserDialog
 		
 		static LRESULT CALLBACK StaticRegisteredUserDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		
-		void DoModal(HWND hWndParent, RegUser * pReg = NULL, char * sNick = NULL);
+		void DoModal(HWND hWndParent, RegUser * pReg = NULL, const char * sNick = NULL);
 		void UpdateProfiles();
 		void RegChanged(RegUser * pReg);
 		void RegDeleted(RegUser * pReg);

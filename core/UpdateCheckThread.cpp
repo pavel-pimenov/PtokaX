@@ -304,7 +304,7 @@ void clsUpdateCheckThread::WaitFor()
 }
 //---------------------------------------------------------------------------
 
-void clsUpdateCheckThread::Message(char * sMessage, const size_t szLen)
+void clsUpdateCheckThread::Message(const char * sMessage, const size_t szLen)
 {
 	char *sMess = (char *)malloc(szLen + 1);
 	if (sMess == NULL)

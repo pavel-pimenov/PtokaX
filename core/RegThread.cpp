@@ -105,7 +105,7 @@ clsRegisterThread::~clsRegisterThread()
 }
 //---------------------------------------------------------------------------
 
-void clsRegisterThread::Setup(char * sListAddresses, const uint16_t ui16AddrsLen)
+void clsRegisterThread::Setup(const char * sListAddresses, const uint16_t ui16AddrsLen)
 {
 	// parse all addresses and create individul RegSockets
 	char *sAddresses = (char *)malloc(ui16AddrsLen + 1);
@@ -119,7 +119,7 @@ void clsRegisterThread::Setup(char * sListAddresses, const uint16_t ui16AddrsLen
 	memcpy(sAddresses, sListAddresses, ui16AddrsLen);
 	sAddresses[ui16AddrsLen] = '\0';
 	
-	char *sAddress = sAddresses;
+	const char *sAddress = sAddresses;
 	
 	for (uint16_t ui16i = 0; ui16i < ui16AddrsLen; ui16i++)
 	{
@@ -144,7 +144,7 @@ void clsRegisterThread::Setup(char * sListAddresses, const uint16_t ui16AddrsLen
 }
 //---------------------------------------------------------------------------
 
-void clsRegisterThread::AddSock(char * sAddress, const size_t szLen)
+void clsRegisterThread::AddSock(const char * sAddress, const size_t szLen)
 {
 	RegSocket * pNewSock = new(std::nothrow) RegSocket();
 	if (pNewSock == NULL)
@@ -832,7 +832,7 @@ bool clsRegisterThread::Receive(RegSocket * pSock)
 }
 //---------------------------------------------------------------------------
 
-void clsRegisterThread::Add2SendBuf(RegSocket * pSock, char * sData)
+void clsRegisterThread::Add2SendBuf(RegSocket * pSock, const char * sData)
 {
 	size_t szLen = strlen(sData);
 	

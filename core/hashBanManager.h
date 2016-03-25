@@ -135,18 +135,18 @@ class clsBanManager
 		BanItem* FindFull(const uint8_t * ui128IpHash, const time_t &acc_time);
 		RangeBanItem* FindFullRange(const uint8_t * ui128IpHash, const time_t &acc_time);
 		
-		BanItem* FindNick(char * sNick, const size_t szNickLen);
-		BanItem* FindNick(const uint32_t hash, const time_t &acc_time, char * sNick);
+		BanItem* FindNick(const char * sNick, const size_t szNickLen);
+		BanItem* FindNick(const uint32_t hash, const time_t &acc_time, const char * sNick);
 		BanItem* FindIP(const uint8_t * ui128IpHash, const time_t &acc_time);
 		RangeBanItem* FindRange(const uint8_t * ui128IpHash, const time_t &acc_time);
 		RangeBanItem* FindRange(const uint8_t * ui128FromHash, const uint8_t * ui128ToHash, const time_t &acc_time);
 		
-		BanItem* FindTempNick(char * sNick, const size_t szNickLen);
-		BanItem* FindTempNick(const uint32_t hash, const time_t &acc_time, char * sNick);
+		BanItem* FindTempNick(const char * sNick, const size_t szNickLen);
+		BanItem* FindTempNick(const uint32_t hash, const time_t &acc_time, const char * sNick);
 		BanItem* FindTempIP(const uint8_t * ui128IpHash, const time_t &acc_time);
 		
-		BanItem* FindPermNick(char * sNick, const size_t szNickLen);
-		BanItem* FindPermNick(const uint32_t hash, char * sNick);
+		BanItem* FindPermNick(const char * sNick, const size_t szNickLen);
+		BanItem* FindPermNick(const uint32_t hash, const char * sNick);
 		BanItem* FindPermIP(const uint8_t * ui128IpHash);
 		
 		void Load();
@@ -161,22 +161,22 @@ class clsBanManager
 		
 		void Ban(User * u, const char * sReason, char * sBy, const bool bFull);
 		char BanIp(User * u, char * sIp, char * sReason, char * sBy, const bool bFull);
-		bool NickBan(User * u, char * sNick, char * sReason, char * sBy);
+		bool NickBan(User * u, const char * sNick, char * sReason, char * sBy);
 		
 		void TempBan(User * u, const char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull);
 		char TempBanIp(User * u, char * sIp, char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull);
-		bool NickTempBan(User * u, char * sNick, char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime);
+		bool NickTempBan(User * u, const char * sNick, char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime);
 		
-		bool Unban(char * sWhat);
-		bool PermUnban(char * sWhat);
-		bool TempUnban(char * sWhat);
+		bool Unban(const char * sWhat);
+		bool PermUnban(const char * sWhat);
+		bool TempUnban(const char * sWhat);
 		
 		void RemoveAllIP(const uint8_t * ui128IpHash);
 		void RemovePermAllIP(const uint8_t * ui128IpHash);
 		void RemoveTempAllIP(const uint8_t * ui128IpHash);
 		
-		bool RangeBan(char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const bool bFull);
-		bool RangeTempBan(char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const uint32_t minutes,
+		bool RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const bool bFull);
+		bool RangeTempBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const uint32_t minutes,
 		                  const time_t &expiretime, const bool bFull);
 		                  
 		bool RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * ui128ToIpHash);

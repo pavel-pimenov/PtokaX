@@ -66,7 +66,7 @@ LRESULT CALLBACK clsProfilesDialog::StaticProfilesDialogProc(HWND hWnd, UINT uMs
 }
 //------------------------------------------------------------------------------
 
-void OnNewProfileOk(char * sLine, const int /*iLen*/)
+void OnNewProfileOk(const char * sLine, const int /*iLen*/)
 {
 	int32_t iRet = clsProfileManager::mPtr->AddProfile(sLine);
 	
@@ -555,7 +555,7 @@ void clsProfilesDialog::ChangePermissionChecks(const bool bCheck)
 }
 //------------------------------------------------------------------------------
 
-void OnRenameProfileOk(char * sLine, const int iLen)
+void OnRenameProfileOk(const char * sLine, const int iLen)
 {
 	int iSel = (int)::SendMessage(clsProfilesDialog::mPtr->hWndWindowItems[clsProfilesDialog::LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	
@@ -569,7 +569,7 @@ void OnRenameProfileOk(char * sLine, const int iLen)
 	LVITEM lvItem = { 0 };
 	lvItem.mask = LVIF_TEXT;
 	lvItem.iItem = iSel;
-	lvItem.pszText = sLine;
+	lvItem.pszText = (char*)sLine;
 	
 	::SendMessage(clsProfilesDialog::mPtr->hWndWindowItems[clsProfilesDialog::LV_PROFILES], LVM_SETITEMTEXT, iSel, (LPARAM)&lvItem);
 }

@@ -173,7 +173,7 @@ LRESULT clsRegisteredUserDialog::RegisteredUserDialogProc(UINT uMsg, WPARAM wPar
 }
 //------------------------------------------------------------------------------
 
-void clsRegisteredUserDialog::DoModal(HWND hWndParent, RegUser * pReg/* = NULL*/, char * sNick/* = NULL*/)
+void clsRegisteredUserDialog::DoModal(HWND hWndParent, RegUser * pReg/* = NULL*/, const char * sNick/* = NULL*/)
 {
 	pRegToChange = pReg;
 	
