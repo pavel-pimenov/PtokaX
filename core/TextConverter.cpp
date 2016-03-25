@@ -200,7 +200,7 @@ size_t TextConverter::CheckUtf8AndConvert(const char * sInput, const uint8_t ui8
 		return ui8InputLen;
 	}
 	
-	char * sInBuf = sInput;
+	const char * sInBuf = sInput;
 	size_t szInbufLeft = ui8InputLen;
 	
 	char * sOutBuf = sOutput;
