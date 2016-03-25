@@ -2979,7 +2979,7 @@ void User::AddMeOrIPv4Check()
 }
 //---------------------------------------------------------------------------
 
-char * User::SetUserInfo(char* sOldData, uint8_t &ui8OldDataLen, const char * sNewData, size_t sz8NewDataLen, const char * sDataName)
+char * User::SetUserInfo(char* sOldData, uint8_t &ui8OldDataLen, const char * sNewData, size_t sz8NewDataLen, const char * /* sDataName */)
 {
 	User::FreeInfo(sOldData, ui8OldDataLen);
 	

@@ -84,7 +84,7 @@ bool TextConverter::CheckUtf8Validity(const char * sInput, const uint8_t ui8Inpu
 #else
 bool TextConverter::CheckUtf8Validity(const char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize)
 {
-	char * sInBuf = sInput;
+	const char * sInBuf = sInput;
 	size_t szInbufLeft = ui8InputLen;
 		
 	char * sOutBuf = sOutput;
