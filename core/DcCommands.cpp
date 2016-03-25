@@ -409,6 +409,9 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 								return;
 							}
 							pUser->initExtJSON(sData);
+#ifdef USE_FLYLINKDC_EXT_JSON		
+							clsScriptManager::mPtr->Arrival(pUser, sData, ui32Len, clsScriptManager::EXTJSON_ARRIVAL);
+#endif
 						}
 						break;
 #endif // USE_FLYLINKDC_EXT_JSON
@@ -522,8 +525,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 							}
 							
 							SetExtJSON(pUser, sData, ui32Len);
-							return;
-							
+							return;							
 						}
 						break;
 #endif // USE_FLYLINKDC_EXT_JSON

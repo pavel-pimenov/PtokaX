@@ -334,7 +334,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
 		}
 	}
 	
-	delete clsMainWindow::mPtr;
+	safe_delete(clsMainWindow::mPtr);
 	
 	ExceptionHandlingUnitialize();
 	

@@ -112,8 +112,7 @@ class ExtJSONInfo
 {
 		std::string m_ExtJSON;
 		std::string m_ExtJSONOriginal;
-		uint64_t    m_iLastExtJSONSendTick;
-		
+		uint64_t    m_iLastExtJSONSendTick;		
 	public:
 		ExtJSONInfo() : m_iLastExtJSONSendTick(0)
 		{
@@ -140,10 +139,6 @@ class ExtJSONInfo
 			else
 				return m_ExtJSON == std::string(sNewExtJSON, ui16NewExtJSONLen);
 		}
-		void SetJSON(const std::string& p_json)
-		{
-			m_ExtJSON = p_json;
-		}
 		void SetJSONOriginal(const std::string& p_json)
 		{
 			m_ExtJSON = p_json;
@@ -152,16 +147,6 @@ class ExtJSONInfo
 		const std::string& GetExtJSONCommand() const
 		{
 			return m_ExtJSON;
-			/*      if (!m_ExtJSON.empty())
-			        {
-			            std::string l_all_fly_info = ;
-			            return l_all_fly_info;
-			        }
-			        else
-			        {
-			            return "";
-			        }
-			*/
 		}
 };
 #endif

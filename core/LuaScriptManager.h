@@ -74,6 +74,9 @@ class clsScriptManager
 			BOTINFO_ARRIVAL,
 			CLOSE_ARRIVAL,
 			UNKNOWN_ARRIVAL
+#ifdef USE_FLYLINKDC_EXT_JSON		
+			, EXTJSON_ARRIVAL
+#endif
 		};
 		
 		clsScriptManager();
@@ -107,7 +110,7 @@ class clsScriptManager
 		
 		void OnStartup();
 		void OnExit(bool bForce = false);
-		bool Arrival(User * u, const char * sData, const size_t szLen, const unsigned char &uiType);
+		bool Arrival(User * u, const char * sData, const size_t szLen, const unsigned char uiType);
 		bool UserConnected(User * u);
 		void UserDisconnected(User * u, Script * pScript = NULL);
 		

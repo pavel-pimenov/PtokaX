@@ -926,7 +926,7 @@ int GenerateRangeBanMessage(RangeBanItem * pRangeBan, const time_t &tmAccTime)
 }
 //---------------------------------------------------------------------------
 
-bool GenerateTempBanTime(const char &cMultiplyer, const uint32_t iTime, time_t &acc_time, time_t &ban_time)
+bool GenerateTempBanTime(const char cMultiplyer, const uint32_t iTime, time_t &acc_time, time_t &ban_time)
 {
 	time(&acc_time);
 	struct tm *tm = localtime(&acc_time);
@@ -1331,7 +1331,7 @@ void * LuaAlocator(void * /*pOld*/, void * pData, size_t /*szOldSize*/, size_t s
 {
 	if (szNewSize == 0)
 	{
-		if (pData != NULL)
+		if (pData)
 		{
 			free(pData);
 		}
@@ -1340,7 +1340,7 @@ void * LuaAlocator(void * /*pOld*/, void * pData, size_t /*szOldSize*/, size_t s
 	}
 	else
 	{
-		if (pData != NULL)
+		if (pData)
 		{
 			return realloc(pData, szNewSize);
 		}

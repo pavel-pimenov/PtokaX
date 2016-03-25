@@ -193,8 +193,7 @@ void clsServerManager::OnRegTimer()
 		{
 			clsRegisterThread::mPtr->Close();
 			clsRegisterThread::mPtr->WaitFor();
-			delete clsRegisterThread::mPtr;
-			clsRegisterThread::mPtr = NULL;
+			safe_delete(clsRegisterThread::mPtr);
 		}
 		
 		// Create hublist reg thread
@@ -757,8 +756,7 @@ void clsServerManager::FinalStop(const bool bDeleteServiceLoop)
 {
 	if (bDeleteServiceLoop == true)
 	{
-		delete clsServiceLoop::mPtr;
-		clsServiceLoop::mPtr = NULL;
+		safe_delete(clsServiceLoop::mPtr);
 	}
 	
 	if (clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == true)
@@ -776,48 +774,38 @@ void clsServerManager::FinalStop(const bool bDeleteServiceLoop)
 	if (clsUsers::mPtr != NULL)
 	{
 		clsUsers::mPtr->DisconnectAll();
-		delete clsUsers::mPtr;
-		clsUsers::mPtr = NULL;
+		safe_delete(clsUsers::mPtr);
 	}
 	
-	delete clsDcCommands::mPtr;
-	clsDcCommands::mPtr = NULL;
+	safe_delete(clsDcCommands::mPtr);
 	
 	// delete hashed userlist manager
-	delete clsHashManager::mPtr;
-	clsHashManager::mPtr = NULL;
+	safe_delete(clsHashManager::mPtr);
+
 	
-	delete clsGlobalDataQueue::mPtr;
-	clsGlobalDataQueue::mPtr = NULL;
+	safe_delete(clsGlobalDataQueue::mPtr);
 	
 	if (clsRegisterThread::mPtr != NULL)
 	{
 		clsRegisterThread::mPtr->Close();
 		clsRegisterThread::mPtr->WaitFor();
-		delete clsRegisterThread::mPtr;
-		clsRegisterThread::mPtr = NULL;
+		safe_delete(clsRegisterThread::mPtr);
 	}
 	
-	delete clsEventQueue::mPtr;
-	clsEventQueue::mPtr = NULL;
-	
-	delete clsIpP2Country::mPtr;
-	clsIpP2Country::mPtr = NULL;
+	safe_delete(clsEventQueue::mPtr);
+
+	safe_delete(clsIpP2Country::mPtr);
 	
 #ifdef _WITH_SQLITE
-	delete DBSQLite::mPtr;
-	DBSQLite::mPtr = NULL;
+	safe_delete(DBSQLite::mPtr);
 #elif _WITH_POSTGRES
-	delete DBPostgreSQL::mPtr;
-	DBPostgreSQL::mPtr = NULL;
+	safe_delete(DBPostgreSQL::mPtr);
 #elif _WITH_MYSQL
-	delete DBMySQL::mPtr;
-	DBMySQL::mPtr = NULL;
+	safe_delete(DBMySQL::mPtr);
 #endif
 	
 	/*  if(TLSManager != NULL) {
-	        delete TLSManager;
-	        TLSManager = NULL;
+	        safe_delete(TLSManager);
 	    }*/
 	
 	//userstat  // better here ;)
@@ -878,39 +866,18 @@ void clsServerManager::FinalClose()
 	
 	clsSettingManager::mPtr->Save();
 	
-	delete clsScriptManager::mPtr;
-	clsScriptManager::mPtr = NULL;
-	
-	delete clsTextFilesManager::mPtr;
-	clsTextFilesManager::mPtr = NULL;
-	
-	delete clsProfileManager::mPtr;
-	clsProfileManager::mPtr = NULL;
-	
-	delete clsUdpDebug::mPtr;
-	clsUdpDebug::mPtr = NULL;
-	
-	delete clsRegManager::mPtr;
-	clsRegManager::mPtr = NULL;
-	
-	delete clsBanManager::mPtr;
-	clsBanManager::mPtr = NULL;
-	
-	delete clsZlibUtility::mPtr;
-	clsZlibUtility::mPtr = NULL;
-	
-	delete clsLanguageManager::mPtr;
-	clsLanguageManager::mPtr = NULL;
-	
-	delete TextConverter::mPtr;
-	TextConverter::mPtr = NULL;
-	
-	delete clsSettingManager::mPtr;
-	clsSettingManager::mPtr = NULL;
-	
-	delete clsReservedNicksManager::mPtr;
-	clsReservedNicksManager::mPtr = NULL;
-	
+	safe_delete(clsScriptManager::mPtr);
+	safe_delete(clsTextFilesManager::mPtr);
+	safe_delete(clsProfileManager::mPtr);
+	safe_delete(clsUdpDebug::mPtr);
+	safe_delete(clsRegManager::mPtr);
+	safe_delete(clsBanManager::mPtr);
+	safe_delete(clsZlibUtility::mPtr);
+	safe_delete(clsLanguageManager::mPtr);
+	safe_delete(TextConverter::mPtr);
+	safe_delete(clsSettingManager::mPtr);
+	safe_delete(clsReservedNicksManager::mPtr);
+
 #ifdef _BUILD_GUI
 	clsMainWindow::mPtr->SaveGuiSettings();
 #endif

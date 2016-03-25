@@ -62,7 +62,7 @@ uint16_t GetIpTableIdx(const uint8_t * ui128IpHash);
 int GenerateBanMessage(BanItem * pBan, const time_t &tmAccTime);
 int GenerateRangeBanMessage(RangeBanItem * pRangeBan, const time_t &tmAccTime);
 
-bool GenerateTempBanTime(const char &cMultiplyer, const uint32_t iTime, time_t &acc_time, time_t &ban_time);
+bool GenerateTempBanTime(const char cMultiplyer, const uint32_t iTime, time_t &acc_time, time_t &ban_time);
 
 bool HaveOnlyNumbers(char *sData, const uint16_t ui16Len);
 

@@ -1,6 +1,8 @@
 #[+]FlylinkDC++
 # dpkg-reconfigure tzdata
-# sudo apt-get install liblua5.1-dev zlib1g-dev libtinyxml-dev lua-filesystem lua-iconv lua-sql-sqlite3 lua-svn libsqlite3-dev valgrind cmake denyhosts build-essential sqlite3
+# sudo apt-get install liblua5.1-0-dev zlib1g-dev libtinyxml-dev lua-filesystem lua-iconv lua-sql-sqlite3 lua-svn libsqlite3-dev valgrind cmake build-essential sqlite3 screen
+# Этих нет в ubuntu 14.04
+# sudo apt-get install liblua5.1-0-dev denyhosts
 
 # localedef -c -i ru_RU -f CP1251 ru_RU.CP1251
 # /etc/security# cat limits.conf

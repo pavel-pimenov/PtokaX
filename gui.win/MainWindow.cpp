@@ -83,11 +83,11 @@ clsMainWindow::clsMainWindow() : m_hWnd(NULL), ui64LastTrayMouseMove(0), uiTaskB
 
 clsMainWindow::~clsMainWindow()
 {
-	delete clsGuiSettingManager::mPtr;
+	safe_delete(clsGuiSettingManager::mPtr);
 	
 	for (uint8_t ui8i = 0; ui8i < (sizeof(MainWindowPages) / sizeof(MainWindowPages[0])); ui8i++)
 	{
-		delete MainWindowPages[ui8i];
+		safe_delete(MainWindowPages[ui8i]);
 	}
 	
 	NOTIFYICONDATA nid;
@@ -508,8 +508,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							clsUpdateCheckThread::mPtr->WaitFor();
 						}
 						
-						delete clsUpdateCheckThread::mPtr;
-						clsUpdateCheckThread::mPtr = NULL;
+						safe_delete(clsUpdateCheckThread::mPtr);
 						
 						// Create update check thread
 						clsUpdateCheckThread::mPtr = new(std::nothrow) clsUpdateCheckThread();
@@ -577,7 +576,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (clsUpdateDialog::mPtr->ParseData(sMsg, m_hWnd) == false)
 					{
-						delete clsUpdateDialog::mPtr;
+						safe_delete(clsUpdateDialog::mPtr);
 					}
 				}
 			}
@@ -597,8 +596,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				clsUpdateCheckThread::mPtr->WaitFor();
 			}
 			
-			delete clsUpdateCheckThread::mPtr;
-			clsUpdateCheckThread::mPtr = NULL;
+			safe_delete(clsUpdateCheckThread::mPtr);
 			
 			return 0;
 		case WM_SETFOCUS:

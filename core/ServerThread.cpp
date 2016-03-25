@@ -142,14 +142,18 @@ void ServerThread::Run()
 			{
 #ifdef _WIN32
 				if (s != INVALID_SOCKET)
+				{
 					shutdown(s, SD_SEND);
-					
-				closesocket(s);
+					closesocket(s);
+					s = INVALID_SOCKET;
+				}
 #else
 				if (s != -1)
+				{
 					shutdown(s, SHUT_RDWR);
-				
-				close(s);
+					close(s);
+					s = -1;
+			}
 #endif
 				continue;
 			}
@@ -185,9 +189,11 @@ void ServerThread::Run()
 #ifdef _WIN32
 				shutdown(s, SD_SEND);
 				closesocket(s);
+				s = INVALID_SOCKET;
 #else
 				shutdown(s, SHUT_RDWR);
 				close(s);
+				s = -1;
 #endif
 			}
 			

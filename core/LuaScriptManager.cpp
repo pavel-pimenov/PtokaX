@@ -906,7 +906,7 @@ void clsScriptManager::OnExit(bool bForce/* = false*/)
 }
 //------------------------------------------------------------------------------
 
-bool clsScriptManager::Arrival(User * u, const char * sData, const size_t szLen, const unsigned char &uiType)
+bool clsScriptManager::Arrival(User * u, const char * sData, const size_t szLen, const unsigned char uiType)
 {
 	if (clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == false)
 	{
@@ -936,6 +936,9 @@ bool clsScriptManager::Arrival(User * u, const char * sData, const size_t szLen,
 		0x40000,
 		0x80000,
 		0x100000
+#ifdef USE_FLYLINKDC_EXT_JSON		
+		,0x200000
+#endif
 	};
 	
 	bMoved = false;
@@ -965,6 +968,9 @@ bool clsScriptManager::Arrival(User * u, const char * sData, const size_t szLen,
 			                                 "ToArrival", "ConnectToMeArrival", "MultiConnectToMeArrival", "RevConnectToMeArrival", "SRArrival",
 			                                 "UDPSRArrival", "KickArrival", "OpForceMoveArrival", "SupportsArrival", "BotINFOArrival",
 			                                 "CloseArrival", "UnknownArrival"
+#ifdef USE_FLYLINKDC_EXT_JSON
+				, "ExtJSONArrival"
+#endif
 			                               };
 			                               
 			lua_getglobal(cur->pLUA, arrival[uiType]);

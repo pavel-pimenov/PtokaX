@@ -1054,6 +1054,13 @@ void User::SendCharDelayedExtJSON()
 		if (!clsUsers::mPtr->m_AllExtJSON.empty())
 		{
 			SendCharDelayed(clsUsers::mPtr->m_AllExtJSON.c_str(), clsUsers::mPtr->m_AllExtJSON.size());
+#ifdef _WIN32
+ #ifdef _PtokaX_TESTING_
+			string l_log = string(clsUsers::mPtr->m_AllExtJSON.c_str(), clsUsers::mPtr->m_AllExtJSON.size());
+			l_log += "\r\n";
+			AppendDebugLog(l_log.c_str());
+ #endif
+#endif
 		}
 	}
 }
