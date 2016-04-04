@@ -48,7 +48,10 @@ clsEventQueue * clsEventQueue::mPtr = NULL;
 clsEventQueue::event::event(const char* p_message) : pPrev(NULL), pNext(NULL), ui8Id(0)
 {
 	memset(&ui128IpHash, 0, 16);
-	sMsg = p_message;
+	if (p_message)
+	{
+		sMsg = p_message;
+	}
 }
 //---------------------------------------------------------------------------
 
