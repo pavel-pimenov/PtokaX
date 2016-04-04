@@ -215,7 +215,7 @@ static int GetReg(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sNick = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sNick = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen == 0)
 	{
@@ -291,8 +291,8 @@ static int AddReg(lua_State * L)
 		}
 		
 		size_t szNickLen, szPassLen;
-		char *sNick = (char *)lua_tolstring(L, 1, &szNickLen);
-		char *sPass = (char *)lua_tolstring(L, 2, &szPassLen);
+		const char *sNick = lua_tolstring(L, 1, &szNickLen);
+		const char *sPass = lua_tolstring(L, 2, &szPassLen);
 		
 #if LUA_VERSION_NUM < 503
 		uint16_t i16Profile = (uint16_t)lua_tonumber(L, 3);
@@ -332,7 +332,7 @@ static int AddReg(lua_State * L)
 		}
 		
 		size_t szNickLen;
-		char *sNick = (char *)lua_tolstring(L, 1, &szNickLen);
+		const char *sNick = lua_tolstring(L, 1, &szNickLen);
 		
 #if LUA_VERSION_NUM < 503
 		uint16_t ui16Profile = (uint16_t)lua_tonumber(L, 2);
@@ -416,7 +416,7 @@ static int DelReg(lua_State * L)
 	}
 	
 	size_t szNickLen;
-	char * sNick = (char *)lua_tolstring(L, 1, &szNickLen);
+	const char * sNick = lua_tolstring(L, 1, &szNickLen);
 	
 	if (szNickLen == 0)
 	{
@@ -462,12 +462,12 @@ static int ChangeReg(lua_State * L)
 	}
 	
 	size_t szNickLen, szPassLen = 0;
-	char * sNick = (char *)lua_tolstring(L, 1, &szNickLen);
-	char * sPass = NULL;
+	const char * sNick = lua_tolstring(L, 1, &szNickLen);
+	const char * sPass = NULL;
 	
 	if (lua_type(L, 2) == LUA_TSTRING)
 	{
-		sPass = (char *)lua_tolstring(L, 2, &szPassLen);
+		sPass = lua_tolstring(L, 2, &szPassLen);
 		if (szPassLen == 0 || szPassLen > 64 || strpbrk(sPass, "|") != NULL)
 		{
 			lua_settop(L, 0);

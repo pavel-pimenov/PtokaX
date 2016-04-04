@@ -516,8 +516,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 				}
 			}
 			
-			uint8_t ui128IPHash[16];
-			memset(ui128IPHash, 0, 16);
+			Hash128 ui128IPHash;
 			
 			if (clsIpP2Country::mPtr->ui32Count != 0 && HashIP(sIP, ui128IPHash) == true)
 			{

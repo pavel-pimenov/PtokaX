@@ -20,6 +20,9 @@
 //---------------------------------------------------------------------------
 #ifndef DcCommandsH
 #define DcCommandsH
+
+#include "utility.h"
+
 //---------------------------------------------------------------------------
 struct User;
 struct PrcsdUsrCmd;
@@ -35,7 +38,7 @@ class clsDcCommands
 			
 			int iCount;
 			
-			uint8_t ui128IpHash[16];
+			Hash128 m_ui128IpHash;
 			
 			explicit PassBf(const uint8_t * ui128Hash);
 			~PassBf(void) { };

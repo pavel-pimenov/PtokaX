@@ -67,7 +67,7 @@ clsTextFilesManager::~clsTextFilesManager()
 }
 //---------------------------------------------------------------------------
 
-bool clsTextFilesManager::ProcessTextFilesCmd(User * u, char * cmd, bool fromPM/* = false*/) const
+bool clsTextFilesManager::ProcessTextFilesCmd(User * u, const char * cmd, bool fromPM/* = false*/) const
 {
 	TextFile * cur = NULL,
 	           * next = pTextFiles;

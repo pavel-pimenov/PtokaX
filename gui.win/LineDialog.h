@@ -29,7 +29,7 @@ class LineDialog
 		
 		static LRESULT CALLBACK StaticLineDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		
-		void DoModal(HWND hWndParent, char * Caption, char * Line);
+		void DoModal(HWND hWndParent, const char * Caption, const char * Line);
 	private:
 		HWND hWndWindowItems[5];
 		

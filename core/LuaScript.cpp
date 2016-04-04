@@ -63,9 +63,9 @@ char ScriptTimer::sDefaultTimerFunc[] = "OnTimer";
 static int ScriptPanic(lua_State * L)
 {
 	size_t szLen = 0;
-	char * stmp = (char*)lua_tolstring(L, -1, &szLen);
+	const char * stmp = (char*)lua_tolstring(L, -1, &szLen);
 	
-	string sMsg = "[LUA] At panic -> " + string(stmp, szLen);
+	const string sMsg = "[LUA] At panic -> " + string(stmp, szLen);
 	
 	AppendLog(sMsg);
 	
@@ -153,7 +153,7 @@ ScriptTimer::~ScriptTimer()
 //------------------------------------------------------------------------------
 
 #if defined(_WIN32) && !defined(_WIN_IOT)
-ScriptTimer * ScriptTimer::CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState)
+ScriptTimer * ScriptTimer::CreateScriptTimer(UINT_PTR uiTmrId, const char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState)
 {
 #else
 ScriptTimer * ScriptTimer::CreateScriptTimer(const char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState)
@@ -580,9 +580,9 @@ bool ScriptStart(Script * cur)
 	else
 	{
 		size_t szLen = 0;
-		char * stmp = (char*)lua_tolstring(cur->pLUA, -1, &szLen);
+		const char * stmp = (char*)lua_tolstring(cur->pLUA, -1, &szLen);
 		
-		string sMsg(stmp, szLen);
+		const string sMsg(stmp, szLen);
 		
 #ifdef _BUILD_GUI
 		RichEditAppendText(clsMainWindowPageScripts::mPtr->hWndPageItems[clsMainWindowPageScripts::REDT_SCRIPTS_ERRORS],
@@ -753,7 +753,7 @@ void ScriptOnExit(Script * cur)
 }
 //------------------------------------------------------------------------------
 
-static bool ScriptOnError(Script * cur, char * sErrorMsg, const size_t szMsgLen)
+static bool ScriptOnError(Script * cur, const char * sErrorMsg, const size_t szMsgLen)
 {
 	lua_pushcfunction(cur->pLUA, ScriptTraceback);
 	int iTraceback = lua_gettop(cur->pLUA);
@@ -774,7 +774,7 @@ static bool ScriptOnError(Script * cur, char * sErrorMsg, const size_t szMsgLen)
 	if (lua_pcall(cur->pLUA, 1, 0, iTraceback) != 0)  // 1 passed parameters, zero returned
 	{
 		size_t szLen = 0;
-		char * stmp = (char*)lua_tolstring(cur->pLUA, -1, &szLen);
+		const char * stmp = (char*)lua_tolstring(cur->pLUA, -1, &szLen);
 		
 		string sMsg(stmp, szLen);
 		
@@ -1261,7 +1261,7 @@ User * ScriptGetUser(lua_State * L, const int iTop, const char * sFunction)
 		}
 		
 		size_t szNickLen;
-		char * sNick = (char *)lua_tolstring(L, iTop + 2, &szNickLen);
+		const char * sNick = lua_tolstring(L, iTop + 2, &szNickLen);
 		
 		if (u != clsHashManager::mPtr->FindUser(sNick, szNickLen))
 		{
@@ -1276,9 +1276,9 @@ User * ScriptGetUser(lua_State * L, const int iTop, const char * sFunction)
 void ScriptError(Script * cur)
 {
 	size_t szLen = 0;
-	char * stmp = (char*)lua_tolstring(cur->pLUA, -1, &szLen);
+	const char * stmp = (char*)lua_tolstring(cur->pLUA, -1, &szLen);
 	
-	string sMsg(stmp, szLen);
+	const string sMsg(stmp, szLen);
 	
 #ifdef _BUILD_GUI
 	RichEditAppendText(clsMainWindowPageScripts::mPtr->hWndPageItems[clsMainWindowPageScripts::REDT_SCRIPTS_ERRORS],

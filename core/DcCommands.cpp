@@ -57,7 +57,7 @@ clsDcCommands * clsDcCommands::mPtr = NULL;
 
 clsDcCommands::PassBf::PassBf(const uint8_t * ui128Hash) : pPrev(NULL), pNext(NULL), iCount(1)
 {
-	memcpy(ui128IpHash, ui128Hash, 16);
+	m_ui128IpHash.init(ui128Hash);
 }
 //---------------------------------------------------------------------------
 
@@ -3764,7 +3764,7 @@ clsDcCommands::PassBf * clsDcCommands::Find(const uint8_t * ui128IpHash)
 		cur = next;
 		next = cur->pNext;
 		
-		if (memcmp(cur->ui128IpHash, ui128IpHash, 16) == 0)
+		if (memcmp(cur->m_ui128IpHash, ui128IpHash, 16) == 0)
 		{
 			return cur;
 		}

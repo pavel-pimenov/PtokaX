@@ -1547,7 +1547,7 @@ void User::SetMyInfoOriginal(const char * sNewMyInfo, const uint16_t ui16NewMyIn
 {
 	char * sOldMyInfo = sMyInfoOriginal;
 	
-	char * sOldDescription = sDescription;
+	const char * sOldDescription = sDescription;
 	uint8_t ui8OldDescriptionLen = ui8DescriptionLen;
 	
 	char * sOldTag = sTag;
@@ -1663,7 +1663,7 @@ void User::SetMyInfoOriginal(const char * sNewMyInfo, const uint16_t ui16NewMyIn
 }
 //------------------------------------------------------------------------------
 
-static void UserSetMyInfoLong(User * u, char * sNewMyInfoLong, const uint16_t ui16NewMyInfoLongLen)
+static void UserSetMyInfoLong(User * u, const char * sNewMyInfoLong, const uint16_t ui16NewMyInfoLongLen)
 {
 	if (u->sMyInfoLong != NULL)
 	{
@@ -1692,7 +1692,7 @@ static void UserSetMyInfoLong(User * u, char * sNewMyInfoLong, const uint16_t ui
 }
 //------------------------------------------------------------------------------
 
-static void UserSetMyInfoShort(User * u, char * sNewMyInfoShort, const uint16_t ui16NewMyInfoShortLen)
+static void UserSetMyInfoShort(User * u, const char * sNewMyInfoShort, const uint16_t ui16NewMyInfoShortLen)
 {
 	if (u->sMyInfoShort != NULL)
 	{
@@ -2551,7 +2551,7 @@ bool User::GenerateMyInfoShort()   // true == changed
 	// Add mode to start of description if is enabled
 	if (clsSettingManager::mPtr->bBools[SETBOOL_MODE_TO_DESCRIPTION] == true && sModes[0] != 0)
 	{
-		char * sActualDescription = NULL;
+		const char * sActualDescription = NULL;
 		
 		if (ui8ChangedDescriptionShortLen != 0)
 		{

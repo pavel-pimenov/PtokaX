@@ -510,7 +510,7 @@ int32_t clsProfileManager::GetProfileIndex(const char * name)
 // returns: 0 if the name doesnot exists or is a default profile idx 0-3
 //          -1 if the profile is in use
 //          1 on success
-int32_t clsProfileManager::RemoveProfileByName(char * name)
+int32_t clsProfileManager::RemoveProfileByName(const char * name)
 {
 	for (uint16_t ui16i = 0; ui16i < ui16ProfileCount; ui16i++)
 	{

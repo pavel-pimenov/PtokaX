@@ -47,9 +47,8 @@ static const size_t szRangeBanIdsLen = sizeof(sRangeBanIds) - 1;
 
 BanItem::BanItem(void) : tTempBanExpire(0), sNick(NULL), sReason(NULL), sBy(NULL), pPrev(NULL), pNext(NULL), pHashNickTablePrev(NULL), pHashNickTableNext(NULL), pHashIpTablePrev(NULL), pHashIpTableNext(NULL), ui32NickHash(0), ui8Bits(0)
 {
-	sIp[0] = '\0';
-	
 	memset(ui128IpHash, 0, 16);
+	memset(sIp, 0, sizeof(sIp));
 }
 //---------------------------------------------------------------------------
 
@@ -61,13 +60,23 @@ BanItem::~BanItem(void)
 }
 //---------------------------------------------------------------------------
 
+void BanItem::initIP(const char* pIP)
+{
+	strcpy(sIp, pIP);
+}
+//---------------------------------------------------------------------------
+
+void BanItem::initIP(const User* u)
+{
+	strcpy(sIp,u->sIP);
+	memcpy(ui128IpHash, u->ui128IpHash, sizeof(ui128IpHash));
+}
+//---------------------------------------------------------------------------
+
 RangeBanItem::RangeBanItem(void) : tTempBanExpire(0), sReason(NULL), sBy(NULL), pPrev(NULL), pNext(NULL), ui8Bits(0)
 {
-	sIpFrom[0] = '\0';
-	sIpTo[0] = '\0';
-	
-	memset(ui128FromIpHash, 0, 16);
-	memset(ui128ToIpHash, 0, 16);
+	memset(sIpFrom, 0, sizeof(sIpFrom));
+	memset(sIpTo, 0, sizeof(sIpTo));
 }
 //---------------------------------------------------------------------------
 
@@ -76,6 +85,7 @@ RangeBanItem::~RangeBanItem(void)
 	free(sReason);
 	free(sBy);
 }
+
 //---------------------------------------------------------------------------
 
 clsBanManager::clsBanManager(void) : ui32SaveCalled(0), pTempBanListS(NULL), pTempBanListE(NULL), pPermBanListS(NULL), pPermBanListE(NULL),
@@ -1389,7 +1399,7 @@ void clsBanManager::Load()
 			{
 				in_addr ipv4addr;
 				memcpy(&ipv4addr, pBan->ui128IpHash + 12, 4);
-				strcpy(pBan->sIp, inet_ntoa(ipv4addr));
+				pBan->initIP(inet_ntoa(ipv4addr));
 			}
 			else
 			{
@@ -1559,7 +1569,7 @@ void clsBanManager::Load()
 		
 		memcpy(pRangeBan->ui128FromIpHash, pxbRangeBans.pItemDatas[1], 16);
 		
-		if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pRangeBan->ui128FromIpHash))
+		if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pRangeBan->ui128FromIpHash.data()))
 		{
 			in_addr ipv4addr;
 			memcpy(&ipv4addr, pRangeBan->ui128FromIpHash + 12, 4);
@@ -1584,7 +1594,7 @@ void clsBanManager::Load()
 		
 		memcpy(pRangeBan->ui128ToIpHash, pxbRangeBans.pItemDatas[2], 16);
 		
-		if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pRangeBan->ui128ToIpHash))
+		if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pRangeBan->ui128ToIpHash.data()))
 		{
 			in_addr ipv4addr;
 			memcpy(&ipv4addr, pRangeBan->ui128ToIpHash + 12, 4);
@@ -2416,7 +2426,7 @@ void clsBanManager::ClearPermRange(void)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool bFull)
+void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -2427,8 +2437,7 @@ void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool b
 	
 	pBan->ui8Bits |= PERM;
 	
-	strcpy(pBan->sIp, u->sIP);
-	memcpy(pBan->ui128IpHash, u->ui128IpHash, 16);
+	pBan->initIP(u);
 	pBan->ui8Bits |= IP;
 	
 	if (bFull == true)
@@ -2630,7 +2639,7 @@ void clsBanManager::Ban(User * u, const char * sReason, char * sBy, const bool b
 }
 //---------------------------------------------------------------------------
 
-char clsBanManager::BanIp(User * u, char * sIp, char * sReason, char * sBy, const bool bFull)
+char clsBanManager::BanIp(User * u, const char * sIp, const char * sReason, const char * sBy, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -2643,14 +2652,13 @@ char clsBanManager::BanIp(User * u, char * sIp, char * sReason, char * sBy, cons
 	
 	if (u != NULL)
 	{
-		strcpy(pBan->sIp, u->sIP);
-		memcpy(pBan->ui128IpHash, u->ui128IpHash, 16);
+		pBan->initIP(u);
 	}
 	else
 	{
 		if (sIp != NULL && HashIP(sIp, pBan->ui128IpHash) == true)
 		{
-			strcpy(pBan->sIp, sIp);
+			pBan->initIP(sIp);
 		}
 		else
 		{
@@ -2770,7 +2778,7 @@ char clsBanManager::BanIp(User * u, char * sIp, char * sReason, char * sBy, cons
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::NickBan(User * u, const char * sNick, char * sReason, char * sBy)
+bool clsBanManager::NickBan(User * u, const char * sNick, const char * sReason, const char * sBy)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -2838,8 +2846,7 @@ bool clsBanManager::NickBan(User * u, const char * sNick, char * sReason, char *
 		pBan->sNick[u->ui8NickLen] = '\0';
 		pBan->ui32NickHash = u->ui32NickHash;
 		
-		strcpy(pBan->sIp, u->sIP);
-		memcpy(pBan->ui128IpHash, u->ui128IpHash, 16);
+		pBan->initIP(u);
 	}
 	
 	pBan->ui8Bits |= NICK;
@@ -2935,7 +2942,7 @@ bool clsBanManager::NickBan(User * u, const char * sNick, char * sReason, char *
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
+void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -2946,8 +2953,8 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
 	
 	pBan->ui8Bits |= TEMP;
 	
-	strcpy(pBan->sIp, u->sIP);
-	memcpy(pBan->ui128IpHash, u->ui128IpHash, 16);
+	pBan->initIP(u);
+
 	pBan->ui8Bits |= IP;
 	
 	if (bFull == true)
@@ -3214,7 +3221,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, char * sBy, const ui
 }
 //---------------------------------------------------------------------------
 
-char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
+char clsBanManager::TempBanIp(User * u, const char * sIp, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -3227,14 +3234,13 @@ char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, 
 	
 	if (u != NULL)
 	{
-		strcpy(pBan->sIp, u->sIP);
-		memcpy(pBan->ui128IpHash, u->ui128IpHash, 16);
+		pBan->initIP(u);
 	}
 	else
 	{
 		if (sIp != NULL && HashIP(sIp, pBan->ui128IpHash) == true)
 		{
-			strcpy(pBan->sIp, sIp);
+			pBan->initIP(sIp);
 		}
 		else
 		{
@@ -3362,7 +3368,7 @@ char clsBanManager::TempBanIp(User * u, char * sIp, char * sReason, char * sBy, 
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::NickTempBan(User * u, const char * sNick, char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime)
+bool clsBanManager::NickTempBan(User * u, const char * sNick, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime)
 {
 	BanItem * pBan = new(std::nothrow) BanItem();
 	if (pBan == NULL)
@@ -3428,8 +3434,8 @@ bool clsBanManager::NickTempBan(User * u, const char * sNick, char * sReason, ch
 		pBan->sNick[u->ui8NickLen] = '\0';
 		pBan->ui32NickHash = u->ui32NickHash;
 		
-		strcpy(pBan->sIp, u->sIP);
-		memcpy(pBan->ui128IpHash, u->ui128IpHash, 16);
+		pBan->initIP(u);
+
 	}
 	
 	pBan->ui8Bits |= NICK;
@@ -3561,8 +3567,7 @@ bool clsBanManager::Unban(const char * sWhat)
 	
 	if (Ban == NULL)
 	{
-		uint8_t ui128Hash[16];
-		memset(ui128Hash, 0, 16);
+		Hash128 ui128Hash;
 		
 		if (HashIP(sWhat, ui128Hash) == true && (Ban = FindIP(ui128Hash, acc_time)) != NULL)
 		{
@@ -3593,8 +3598,7 @@ bool clsBanManager::PermUnban(const char * sWhat)
 	
 	if (Ban == NULL)
 	{
-		uint8_t ui128Hash[16];
-		memset(ui128Hash, 0, 16);
+		Hash128 ui128Hash;
 		
 		if (HashIP(sWhat, ui128Hash) == true && (Ban = FindPermIP(ui128Hash)) != NULL)
 		{
@@ -3628,8 +3632,7 @@ bool clsBanManager::TempUnban(const char * sWhat)
 	
 	if (Ban == NULL)
 	{
-		uint8_t ui128Hash[16];
-		memset(ui128Hash, 0, 16);
+		Hash128 ui128Hash;
 		
 		if (HashIP(sWhat, ui128Hash) == true && (Ban = FindTempIP(ui128Hash, acc_time)) != NULL)
 		{
@@ -3784,7 +3787,7 @@ void clsBanManager::RemoveTempAllIP(const uint8_t * ui128IpHash)
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const bool bFull)
+bool clsBanManager::RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, const char * sIpTo, const uint8_t * ui128ToIpHash, const char * sReason, const char * sBy, const bool bFull)
 {
 	RangeBanItem * pRangeBan = new(std::nothrow) RangeBanItem();
 	if (pRangeBan == NULL)
@@ -3893,7 +3896,7 @@ bool clsBanManager::RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHa
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::RangeTempBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const uint32_t minutes,
+bool clsBanManager::RangeTempBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, const char * sIpTo, const uint8_t * ui128ToIpHash, const char * sReason, const char * sBy, const uint32_t minutes,
                                  const time_t &expiretime, const bool bFull)
 {
 	RangeBanItem * pRangeBan = new(std::nothrow) RangeBanItem();

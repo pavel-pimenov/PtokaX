@@ -64,7 +64,7 @@ struct ScriptTimer
 	~ScriptTimer();
 	
 #if defined(_WIN32) && !defined(_WIN_IOT)
-	static ScriptTimer * CreateScriptTimer(UINT_PTR uiTmrId, char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState);
+	static ScriptTimer * CreateScriptTimer(UINT_PTR uiTmrId, const char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState);
 #else
 	static ScriptTimer * CreateScriptTimer(const char * sFunctName, const size_t szLen, const int iRef, lua_State * pLuaState);
 #endif

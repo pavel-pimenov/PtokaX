@@ -163,9 +163,9 @@ static int RegBot(lua_State * L)
 	
 	size_t szNickLen, szDescrLen, szEmailLen;
 	
-	char *nick = (char *)lua_tolstring(L, 1, &szNickLen);
-	char *description = (char *)lua_tolstring(L, 2, &szDescrLen);
-	char *email = (char *)lua_tolstring(L, 3, &szEmailLen);
+	const char *nick = lua_tolstring(L, 1, &szNickLen);
+	const char *description = lua_tolstring(L, 2, &szDescrLen);
+	const char *email = lua_tolstring(L, 3, &szEmailLen);
 	
 	bool bIsOP = lua_toboolean(L, 4) == 0 ? false : true;
 	
@@ -277,7 +277,7 @@ static int UnregBot(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * botnick = (char *)lua_tolstring(L, 1, &szLen);
+	const char * botnick = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen == 0)
 	{
@@ -901,7 +901,7 @@ static int GetUser(lua_State * L)
 	
 	size_t szLen = 0;
 	
-	char * nick;
+	const char * nick;
 	
 	int n = lua_gettop(L);
 	
@@ -918,7 +918,7 @@ static int GetUser(lua_State * L)
 			return 1;
 		}
 		
-		nick = (char *)lua_tolstring(L, 1, &szLen);
+		nick = lua_tolstring(L, 1, &szLen);
 		
 		bFullTable = lua_toboolean(L, 2) == 0 ? false : true;
 	}
@@ -934,7 +934,7 @@ static int GetUser(lua_State * L)
 			return 1;
 		}
 		
-		nick = (char *)lua_tolstring(L, 1, &szLen);
+		nick = lua_tolstring(L, 1, &szLen);
 	}
 	else
 	{
@@ -976,7 +976,7 @@ static int GetUsers(lua_State * L)
 	
 	size_t szLen = 0;
 	
-	char * sIP;
+	const char * sIP;
 	
 	int n = lua_gettop(L);
 	
@@ -993,7 +993,7 @@ static int GetUsers(lua_State * L)
 			return 1;
 		}
 		
-		sIP = (char *)lua_tolstring(L, 1, &szLen);
+		sIP = lua_tolstring(L, 1, &szLen);
 		
 		bFullTable = lua_toboolean(L, 2) == 0 ? false : true;
 	}
@@ -1009,7 +1009,7 @@ static int GetUsers(lua_State * L)
 			return 1;
 		}
 		
-		sIP = (char *)lua_tolstring(L, 1, &szLen);
+		sIP = lua_tolstring(L, 1, &szLen);
 	}
 	else
 	{
@@ -1020,8 +1020,7 @@ static int GetUsers(lua_State * L)
 		return 1;
 	}
 	
-	uint8_t ui128Hash[16];
-	memset(ui128Hash, 0, 16);
+	Hash128 ui128Hash;
 	
 	if (szLen == 0 || HashIP(sIP, ui128Hash) == false)
 	{
@@ -2039,7 +2038,7 @@ static int Disconnect(lua_State * L)
 	else if (lua_type(L, 1) == LUA_TSTRING)
 	{
 		size_t szLen;
-		char * nick = (char *)lua_tolstring(L, 1, &szLen);
+		const char * nick = lua_tolstring(L, 1, &szLen);
 		
 		if (szLen == 0)
 		{
@@ -2107,8 +2106,8 @@ static int Kick(lua_State * L)
 	}
 	
 	size_t szKickerLen, szReasonLen;
-	char *sKicker = (char *)lua_tolstring(L, 2, &szKickerLen);
-	char *sReason = (char *)lua_tolstring(L, 3, &szReasonLen);
+	const char *sKicker = lua_tolstring(L, 2, &szKickerLen);
+	const char *sReason = lua_tolstring(L, 3, &szReasonLen);
 	
 	if (szKickerLen == 0 || szKickerLen > 64 || szReasonLen == 0 || szReasonLen > 128000)
 	{
@@ -2170,8 +2169,8 @@ static int Redirect(lua_State * L)
 	}
 	
 	size_t szAddressLen, szReasonLen;
-	char *sAddress = (char *)lua_tolstring(L, 2, &szAddressLen);
-	char *sReason = (char *)lua_tolstring(L, 3, &szReasonLen);
+	const char *sAddress = lua_tolstring(L, 2, &szAddressLen);
+	const char *sReason = lua_tolstring(L, 3, &szReasonLen);
 	
 	if (szAddressLen == 0 || szAddressLen > 1024 || szReasonLen == 0 || szReasonLen > 128000)
 	{
@@ -2282,7 +2281,7 @@ static int SendToAll(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sData = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sData = lua_tolstring(L, 1, &szLen);
 	
 	if (sData[0] != '\0' && szLen < 128001)
 	{
@@ -2322,8 +2321,8 @@ static int SendToNick(lua_State * L)
 	}
 	
 	size_t szNickLen, szDataLen;
-	char *sNick = (char *)lua_tolstring(L, 1, &szNickLen);
-	char *sData = (char *)lua_tolstring(L, 2, &szDataLen);
+	const char *sNick = lua_tolstring(L, 1, &szNickLen);
+	const char *sData = lua_tolstring(L, 2, &szDataLen);
 	
 	if (szNickLen == 0 || szDataLen == 0 || szDataLen > 128000)
 	{
@@ -2369,7 +2368,7 @@ static int SendToOpChat(lua_State * L)
 	}
 	
 	size_t szDataLen;
-	char * sData = (char *)lua_tolstring(L, 1, &szDataLen);
+	const char * sData = lua_tolstring(L, 1, &szDataLen);
 	
 	if (szDataLen == 0 || szDataLen > 128000)
 	{
@@ -2408,7 +2407,7 @@ static int SendToOps(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sData = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sData = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen == 0 || szLen > 128000)
 	{
@@ -2453,7 +2452,7 @@ static int SendToProfile(lua_State * L)
 	int32_t i32Profile = (int32_t)lua_tointeger(L, 1);
 	
 	size_t szDataLen;
-	char * sData = (char *)lua_tolstring(L, 2, &szDataLen);
+	const char * sData = lua_tolstring(L, 2, &szDataLen);
 	
 	if (szDataLen == 0 || szDataLen > 128000)
 	{
@@ -2504,7 +2503,7 @@ static int SendToUser(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sData = (char *)lua_tolstring(L, 2, &szLen);
+	const char * sData = lua_tolstring(L, 2, &szLen);
 	
 	if (szLen == 0 || szLen > 128000)
 	{
@@ -2547,8 +2546,8 @@ static int SendPmToAll(lua_State * L)
 	}
 	
 	size_t szFromLen, szDataLen;
-	char * sFrom = (char *)lua_tolstring(L, 1, &szFromLen);
-	char * sData = (char *)lua_tolstring(L, 2, &szDataLen);
+	const char * sFrom = lua_tolstring(L, 1, &szFromLen);
+	const char * sData = lua_tolstring(L, 2, &szDataLen);
 	
 	if (szFromLen == 0 || szFromLen > 64 || szDataLen == 0 || szDataLen > 128000)
 	{
@@ -2586,9 +2585,9 @@ static int SendPmToNick(lua_State * L)
 	}
 	
 	size_t szToLen, szFromLen, szDataLen;
-	char * sTo = (char *)lua_tolstring(L, 1, &szToLen);
-	char * sFrom = (char *)lua_tolstring(L, 2, &szFromLen);
-	char * sData = (char *)lua_tolstring(L, 3, &szDataLen);
+	const char * sTo = lua_tolstring(L, 1, &szToLen);
+	const char * sFrom = lua_tolstring(L, 2, &szFromLen);
+	const char * sData = lua_tolstring(L, 3, &szDataLen);
 	
 	if (szToLen == 0 || szFromLen == 0 || szFromLen > 64 || szDataLen == 0 || szDataLen > 128000)
 	{
@@ -2625,8 +2624,8 @@ static int SendPmToOps(lua_State * L)
 	}
 	
 	size_t szFromLen, szDataLen;
-	char * sFrom = (char *)lua_tolstring(L, 1, &szFromLen);
-	char * sData = (char *)lua_tolstring(L, 2, &szDataLen);
+	const char * sFrom = lua_tolstring(L, 1, &szFromLen);
+	const char * sData = lua_tolstring(L, 2, &szDataLen);
 	
 	if (szFromLen == 0 || szFromLen > 64 || szDataLen == 0 || szDataLen > 128000)
 	{
@@ -2666,8 +2665,8 @@ static int SendPmToProfile(lua_State * L)
 	int32_t iProfile = (int32_t)lua_tointeger(L, 1);
 	
 	size_t szFromLen, szDataLen;
-	char * sFrom = (char *)lua_tolstring(L, 2, &szFromLen);
-	char * sData = (char *)lua_tolstring(L, 3, &szDataLen);
+	const char * sFrom = lua_tolstring(L, 2, &szFromLen);
+	const char * sData = lua_tolstring(L, 3, &szDataLen);
 	
 	if (szFromLen == 0 || szFromLen > 64 || szDataLen == 0 || szDataLen > 128000)
 	{
@@ -2713,8 +2712,8 @@ static int SendPmToUser(lua_State * L)
 	}
 	
 	size_t szFromLen, szDataLen;
-	char * sFrom = (char *)lua_tolstring(L, 2, &szFromLen);
-	char * sData = (char *)lua_tolstring(L, 3, &szDataLen);
+	const char * sFrom = lua_tolstring(L, 2, &szFromLen);
+	const char * sData = lua_tolstring(L, 3, &szDataLen);
 	
 	if (szFromLen == 0 || szFromLen > 64 || szDataLen == 0 || szDataLen > 128000)
 	{
@@ -2752,7 +2751,7 @@ static int SetUserJson(lua_State * L)
 		return 0;
 	}
 	size_t szDataLen;
-	const char * sData = (const char *)lua_tolstring(L, 2, &szDataLen);
+	const char * sData = lua_tolstring(L, 2, &szDataLen);
 	if (sData)
 	{
 		if (szDataLen > 10 * 1024)
@@ -2822,7 +2821,7 @@ static int SetUserInfo(lua_State * L)
 		}
 		
 		size_t szDataLen;
-		char * sData = (char *)lua_tolstring(L, 3, &szDataLen);
+		const char * sData = lua_tolstring(L, 3, &szDataLen);
 		
 		if (szDataLen > 64 || strpbrk(sData, "$|") != NULL)
 		{

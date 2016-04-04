@@ -120,7 +120,7 @@ class clsProfileManager
 		bool IsProfileAllowed(const int32_t iProfile, const uint32_t iOption) const;
 		int32_t AddProfile(const char * name);
 		int32_t GetProfileIndex(const char * name);
-		int32_t RemoveProfileByName(char * name);
+		int32_t RemoveProfileByName(const char * name);
 		void MoveProfileDown(const uint16_t iProfile);
 		void MoveProfileUp(const uint16_t iProfile);
 		void ChangeProfileName(const uint16_t iProfile, const char * sName, const size_t szLen);

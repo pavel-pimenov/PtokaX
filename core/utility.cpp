@@ -617,7 +617,7 @@ bool isIP(const char * sIP)
 {
 	if (clsServerManager::bUseIPv6 == true && strchr(sIP, '.') == NULL)
 	{
-		uint8_t ui128IpHash[16];
+		Hash128 ui128IpHash;
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_WIN_IOT)
 		if (win_inet_pton(sIP, ui128IpHash) != 1)
 		{
@@ -1711,7 +1711,7 @@ bool IsPrivateIP(const char * sIP)
 {
 	if (clsServerManager::bUseIPv6 == true && strchr(sIP, '.') == NULL)
 	{
-		uint8_t ui128IpHash[16];
+		Hash128 ui128IpHash;
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_WIN_IOT)
 		if (win_inet_pton(sIP, ui128IpHash) != 1)
 		{
@@ -1722,7 +1722,7 @@ bool IsPrivateIP(const char * sIP)
 			return false;
 		}
 		
-		if (IN6_IS_ADDR_LOOPBACK((in6_addr *)ui128IpHash) || IN6_IS_ADDR_LINKLOCAL((in6_addr *)ui128IpHash) || IN6_IS_ADDR_SITELOCAL((in6_addr *)ui128IpHash))
+		if (IN6_IS_ADDR_LOOPBACK((in6_addr *)ui128IpHash.data()) || IN6_IS_ADDR_LINKLOCAL((in6_addr *)ui128IpHash.data()) || IN6_IS_ADDR_SITELOCAL((in6_addr *)ui128IpHash.data()))
 		{
 			return true;
 		}

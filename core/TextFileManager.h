@@ -47,7 +47,7 @@ class clsTextFilesManager
 		clsTextFilesManager();
 		~clsTextFilesManager();
 		
-		bool ProcessTextFilesCmd(User * u, char * cmd, bool fromPM = false) const;
+		bool ProcessTextFilesCmd(User * u, const char * cmd, bool fromPM = false) const;
 		void RefreshTextFiles();
 };
 //---------------------------------------------------------------------------

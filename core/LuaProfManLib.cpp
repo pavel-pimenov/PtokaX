@@ -309,7 +309,7 @@ static int AddProfile(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sProfileName = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sProfileName = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen == 0 || szLen > 64)
 	{
@@ -351,7 +351,7 @@ static int RemoveProfile(lua_State * L)
 	if (lua_type(L, 1) == LUA_TSTRING)
 	{
 		size_t szLen;
-		char * sProfileName = (char *)lua_tolstring(L, 1, &szLen);
+		const char * sProfileName = lua_tolstring(L, 1, &szLen);
 		
 		if (szLen == 0)
 		{
@@ -501,7 +501,7 @@ static int GetProfile(lua_State * L)
 	if (lua_type(L, 1) == LUA_TSTRING)
 	{
 		size_t szLen;
-		char *profName = (char *)lua_tolstring(L, 1, &szLen);
+		const char *profName = lua_tolstring(L, 1, &szLen);
 		
 		if (szLen == 0)
 		{
@@ -702,7 +702,7 @@ static int SetProfileName(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sName = (char *)lua_tolstring(L, 2, &szLen);
+	const char * sName = lua_tolstring(L, 2, &szLen);
 	
 	if (szLen == 0 || szLen > 64)
 	{

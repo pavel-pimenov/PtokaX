@@ -2702,8 +2702,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 				
 				sCommand += 11;
 				
-				uint8_t ui128Hash[16];
-				memset(ui128Hash, 0, 16);
+				Hash128 ui128Hash;
 				
 				// check ip
 				if (HashIP(sCommand, ui128Hash) == false)
@@ -3033,9 +3032,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 					return true;
 				}
 				
-				uint8_t ui128FromHash[16], ui128ToHash[16];
-				memset(ui128FromHash, 0, 16);
-				memset(ui128ToHash, 0, 16);
+				Hash128 ui128FromHash, ui128ToHash;
 				
 				if (HashIP(sCommand, ui128FromHash) == false || HashIP(sIpTo, ui128ToHash) == false)
 				{
@@ -4659,8 +4656,7 @@ bool clsHubCommands::BanIp(User * pUser, char * sCommand, bool bFromPM, bool bFu
 		{
 			UncountDeflood(pUser, bFromPM);
 			
-			uint8_t ui128Hash[16];
-			memset(ui128Hash, 0, 16);
+			Hash128 ui128Hash;
 			
 			HashIP(sCommand, ui128Hash);
 			
@@ -4965,8 +4961,7 @@ bool clsHubCommands::TempBanIp(User * pUser, char * sCommand, const size_t dlen,
 	{
 		case 0:
 		{
-			uint8_t ui128Hash[16];
-			memset(ui128Hash, 0, 16);
+			Hash128 ui128Hash;
 			
 			HashIP(sCommand, ui128Hash);
 			
@@ -5143,9 +5138,7 @@ bool clsHubCommands::RangeBan(User * pUser, char * sCommand, const size_t dlen, 
 		return true;
 	}
 	
-	uint8_t ui128FromHash[16], ui128ToHash[16];
-	memset(ui128FromHash, 0, 16);
-	memset(ui128ToHash, 0, 16);
+	Hash128 ui128FromHash, ui128ToHash;
 	
 	if (iCmdPartsLen[0] == 0 || iCmdPartsLen[1] == 0 || HashIP(sCmdParts[0], ui128FromHash) == false || HashIP(sCmdParts[1], ui128ToHash) == false)
 	{
@@ -5241,9 +5234,7 @@ bool clsHubCommands::RangeTempBan(User * pUser, char * sCommand, const size_t dl
 		return true;
 	}
 	
-	uint8_t ui128FromHash[16], ui128ToHash[16];
-	memset(ui128FromHash, 0, 16);
-	memset(ui128ToHash, 0, 16);
+	Hash128 ui128FromHash, ui128ToHash;
 	
 	if (iCmdPartsLen[0] == 0 || iCmdPartsLen[1] == 0 || iCmdPartsLen[2] == 0 || HashIP(sCmdParts[0], ui128FromHash) == false || HashIP(sCmdParts[1], ui128ToHash) == false)
 	{
@@ -5309,9 +5300,7 @@ bool clsHubCommands::RangeUnban(User * pUser, char * sCommand, bool bFromPM, uns
 		sToIp++;
 	}
 	
-	uint8_t ui128FromHash[16], ui128ToHash[16];
-	memset(ui128FromHash, 0, 16);
-	memset(ui128ToHash, 0, 16);
+	Hash128 ui128FromHash, ui128ToHash;
 	
 	if (sToIp == NULL || sCommand[0] == '\0' || sToIp[0] == '\0' || HashIP(sCommand, ui128FromHash) == false || HashIP(sToIp, ui128ToHash) == false)
 	{
@@ -5362,9 +5351,7 @@ bool clsHubCommands::RangeUnban(User * pUser, char * sCommand, bool bFromPM)
 		sToIp++;
 	}
 	
-	uint8_t ui128FromHash[16], ui128ToHash[16];
-	memset(ui128FromHash, 0, 16);
-	memset(ui128ToHash, 0, 16);
+	Hash128 ui128FromHash, ui128ToHash;
 	
 	if (sToIp == NULL || sCommand[0] == '\0' || sToIp[0] == '\0' || HashIP(sCommand, ui128FromHash) == false || HashIP(sToIp, ui128ToHash) == false)
 	{

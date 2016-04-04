@@ -459,8 +459,7 @@ bool ServerThread::isFlooder(const SOCKET &s, const sockaddr_storage &addr)
 bool ServerThread::isFlooder(const int s, const sockaddr_storage &addr)
 {
 #endif
-	uint8_t ui128IpHash[16];
-	memset(ui128IpHash, 0, sizeof(ui128IpHash));
+	Hash128 ui128IpHash;
 	
 	if (addr.ss_family == AF_INET6)
 	{

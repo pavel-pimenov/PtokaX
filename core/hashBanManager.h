@@ -19,6 +19,8 @@
 //---------------------------------------------------------------------------
 #ifndef hashBanManagerH
 #define hashBanManagerH
+
+#include "utility.h"
 //---------------------------------------------------------------------------
 struct User;
 //---------------------------------------------------------------------------
@@ -39,7 +41,9 @@ struct BanItem
 	
 	uint8_t ui8Bits;
 	char sIp[40];
-	
+
+	void initIP(const User* u);
+	void initIP(const char* pIP);
 	BanItem();
 	~BanItem();
 	
@@ -55,7 +59,7 @@ struct RangeBanItem
 	
 	RangeBanItem * pPrev, * pNext;
 	
-	uint8_t ui128FromIpHash[16], ui128ToIpHash[16];
+	Hash128 ui128FromIpHash, ui128ToIpHash;
 	
 	uint8_t ui8Bits;
 	
@@ -159,13 +163,13 @@ class clsBanManager
 		void ClearTempRange(void);
 		void ClearPermRange(void);
 		
-		void Ban(User * u, const char * sReason, char * sBy, const bool bFull);
-		char BanIp(User * u, char * sIp, char * sReason, char * sBy, const bool bFull);
-		bool NickBan(User * u, const char * sNick, char * sReason, char * sBy);
+		void Ban(User * u, const char * sReason, const char * sBy, const bool bFull);
+		char BanIp(User * u, const char * sIp, const char * sReason, const char * sBy, const bool bFull);
+		bool NickBan(User * u, const char * sNick, const char * sReason, const char * sBy);
 		
-		void TempBan(User * u, const char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull);
-		char TempBanIp(User * u, char * sIp, char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull);
-		bool NickTempBan(User * u, const char * sNick, char * sReason, char * sBy, const uint32_t minutes, const time_t &expiretime);
+		void TempBan(User * u, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull);
+		char TempBanIp(User * u, const char * sIp, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull);
+		bool NickTempBan(User * u, const char * sNick, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime);
 		
 		bool Unban(const char * sWhat);
 		bool PermUnban(const char * sWhat);
@@ -175,8 +179,8 @@ class clsBanManager
 		void RemovePermAllIP(const uint8_t * ui128IpHash);
 		void RemoveTempAllIP(const uint8_t * ui128IpHash);
 		
-		bool RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const bool bFull);
-		bool RangeTempBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, char * sIpTo, const uint8_t * ui128ToIpHash, char * sReason, char * sBy, const uint32_t minutes,
+		bool RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, const char * sIpTo, const uint8_t * ui128ToIpHash, const char * sReason, const char * sBy, const bool bFull);
+		bool RangeTempBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, const char * sIpTo, const uint8_t * ui128ToIpHash, const char * sReason, const char * sBy, const uint32_t minutes,
 		                  const time_t &expiretime, const bool bFull);
 		                  
 		bool RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * ui128ToIpHash);

@@ -112,7 +112,7 @@ LRESULT LineDialog::LineDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 //------------------------------------------------------------------------------
 
-void LineDialog::DoModal(HWND hWndParent, char * Caption, char * Line)
+void LineDialog::DoModal(HWND hWndParent, const char * Caption, const char * Line)
 {
 	if (atomLineDialog == 0)
 	{

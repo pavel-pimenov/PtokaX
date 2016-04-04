@@ -91,7 +91,7 @@ static int SetMOTD(lua_State * L)
 	}
 	
 	size_t szLen = 0;
-	char * sTxt = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sTxt = lua_tolstring(L, 1, &szLen);
 	
 	clsSettingManager::mPtr->SetMOTD(sTxt, szLen);
 	
@@ -345,7 +345,7 @@ static int SetString(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sValue = (char *)lua_tolstring(L, 2, &szLen);
+	const char * sValue = lua_tolstring(L, 2, &szLen);
 	
 	clsSettingManager::mPtr->SetText(szId, sValue, szLen);
 	
@@ -633,12 +633,12 @@ static int SetOpChat(lua_State * L)
 		return 0;
 	}
 	
-	char *NewBotName, *NewBotDescription, *NewBotEmail;
+	const char *NewBotName, *NewBotDescription, *NewBotEmail;
 	size_t szNameLen, szDescrLen, szEmailLen;
 	
-	NewBotName = (char *)lua_tolstring(L, 2, &szNameLen);
-	NewBotDescription = (char *)lua_tolstring(L, 3, &szDescrLen);
-	NewBotEmail = (char *)lua_tolstring(L, 4, &szEmailLen);
+	NewBotName = lua_tolstring(L, 2, &szNameLen);
+	NewBotDescription = lua_tolstring(L, 3, &szDescrLen);
+	NewBotEmail = lua_tolstring(L, 4, &szEmailLen);
 	
 	if (szNameLen == 0 || szNameLen > 64 || szDescrLen > 64 || szEmailLen > 64 ||
 	        strpbrk(NewBotName, " $|") != NULL || strpbrk(NewBotDescription, "$|") != NULL ||
@@ -791,12 +791,12 @@ static int SetHubBot(lua_State * L)
 		return 0;
 	}
 	
-	char *NewBotName, *NewBotDescription, *NewBotEmail;
+	const char *NewBotName, *NewBotDescription, *NewBotEmail;
 	size_t szNameLen, szDescrLen, szEmailLen;
 	
-	NewBotName = (char *)lua_tolstring(L, 2, &szNameLen);
-	NewBotDescription = (char *)lua_tolstring(L, 3, &szDescrLen);
-	NewBotEmail = (char *)lua_tolstring(L, 4, &szEmailLen);
+	NewBotName = lua_tolstring(L, 2, &szNameLen);
+	NewBotDescription = lua_tolstring(L, 3, &szDescrLen);
+	NewBotEmail = lua_tolstring(L, 4, &szEmailLen);
 	
 	if (szNameLen == 0 || szNameLen > 64 || szDescrLen > 64 || szEmailLen > 64 ||
 	        strpbrk(NewBotName, " $|") != NULL || strpbrk(NewBotDescription, "$|") != NULL ||

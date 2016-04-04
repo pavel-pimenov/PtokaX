@@ -64,7 +64,7 @@ static int Reg(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sIP = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sIP = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen < 7 || szLen > 39 || isIP(sIP) == false)
 	{
@@ -139,7 +139,7 @@ static int Send(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sMsg = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sMsg = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen == 0)
 	{

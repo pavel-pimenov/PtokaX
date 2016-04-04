@@ -47,7 +47,7 @@ static int AddTimer(lua_State * L)
 	int n = lua_gettop(L);
 	
 	size_t szLen = 0;
-	char * sFunctionName = NULL;
+	const char * sFunctionName = NULL;
 	int iRef = 0;
 	
 	if (n == 2)
@@ -62,7 +62,7 @@ static int AddTimer(lua_State * L)
 		
 		if (lua_type(L, 2) == LUA_TSTRING)
 		{
-			sFunctionName = (char *)lua_tolstring(L, 2, &szLen);
+			sFunctionName = lua_tolstring(L, 2, &szLen);
 			
 			if (szLen == 0)
 			{

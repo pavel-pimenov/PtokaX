@@ -329,7 +329,7 @@ LONG WINAPI PtokaX_UnhandledExceptionFilter(LPEXCEPTION_POINTERS ExceptionInfo)
 }
 //---------------------------------------------------------------------------
 
-void ExceptionHandlingInitialize(const string &sPath, char * sAppPath)
+void ExceptionHandlingInitialize(const string &sPath, const char * sAppPath)
 {
 	sLogPath = sPath + "\\logs\\";
 	

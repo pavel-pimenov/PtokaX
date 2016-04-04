@@ -151,7 +151,7 @@ static int Move(lua_State * L, const bool bUp)
 	}
 	
 	size_t szLen;
-	char *sName = (char *)lua_tolstring(L, 1, &szLen);
+	const char *sName = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen == 0)
 	{
@@ -214,7 +214,7 @@ static int StartScript(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sName = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sName = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen == 0)
 	{
@@ -283,7 +283,7 @@ static int RestartScript(lua_State * L)
 	}
 	
 	size_t szLen;
-	char *sName = (char *)lua_tolstring(L, 1, &szLen);
+	const char *sName = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen == 0)
 	{
@@ -342,7 +342,7 @@ static int StopScript(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sName = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sName = lua_tolstring(L, 1, &szLen);
 	
 	if (szLen == 0)
 	{

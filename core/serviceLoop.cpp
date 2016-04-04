@@ -181,10 +181,9 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 {
 	bool bIPv6 = false;
 	
-	char sIP[40];
+	char sIP[40] = { 0 };
 	
-	uint8_t ui128IpHash[16];
-	memset(ui128IpHash, 0, 16);
+	Hash128 ui128IpHash;
 	
 	uint16_t ui16IpTableIdx = 0;
 	

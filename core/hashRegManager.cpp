@@ -342,7 +342,7 @@ void clsRegManager::Add2Table(RegUser * Reg)
 }
 //---------------------------------------------------------------------------
 
-void clsRegManager::ChangeReg(RegUser * pReg, char * sNewPasswd, const uint16_t ui16NewProfile)
+void clsRegManager::ChangeReg(RegUser * pReg, const char * sNewPasswd, const uint16_t ui16NewProfile)
 {
 	if (sNewPasswd != NULL)
 	{

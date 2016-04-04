@@ -186,7 +186,8 @@ struct User
 	
 	char * sNick, *sVersion;
 	char * sMyInfoOriginal, *sMyInfoShort, *sMyInfoLong;
-	char * sDescription, *sTag, *sConnection, *sEmail;
+	char * sDescription;
+	char * sTag, *sConnection, *sEmail;
 	char * sClient, *sTagVersion;
 	char * sLastChat, *sLastPM, *sLastSearch;
 	char * pSendBuf, * pRecvBuf, * pSendBufHead;

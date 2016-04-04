@@ -78,8 +78,17 @@
 # etag.use-size = "enable"
 # static-file.etags = "enable"
 # $HTTP["url"] =~ "\.bz2$" { setenv.add-response-header += ( "Cache-Control" => "no-store, no-cache" ) }
+# $HTTP["url"] =~ "\.xml$" { setenv.add-response-header += ( "Cache-Control" => "no-store, no-cache" ) }
+# $HTTP["url"] =~ "\.sign$" { setenv.add-response-header += ( "Cache-Control" => "no-store, no-cache" ) }
 # mimetype.assign += ( "" => "application/octet-stream" )
 #
+
+# sqlite - pdo
+#cd .../my-app
+#chgrp www-data databasedir
+#chgrp www-data databasedir/mydb.db
+#chmod g+w databasedir
+#chmod g+w databasedir/mydb.db
  
  
 To compile PtokaX on Unix operating system is needed to have installed: GNU make, GCC or Clang compiler, Lua, zlib.

@@ -54,10 +54,9 @@ static int GetCountryCode(lua_State * L)
 	}
 	
 	size_t szLen;
-	char * sIP = (char *)lua_tolstring(L, 1, &szLen);
+	const char * sIP = lua_tolstring(L, 1, &szLen);
 	
-	uint8_t ui128Hash[16];
-	memset(ui128Hash, 0, 16);
+	Hash128 ui128Hash;
 	
 	if (szLen == 0 || HashIP(sIP, ui128Hash) == false)
 	{
@@ -91,10 +90,9 @@ static int GetCountryName(lua_State * L)
 	if (lua_type(L, 1) == LUA_TSTRING)
 	{
 		size_t szLen;
-		char * sIP = (char *)lua_tolstring(L, 1, &szLen);
+		const char * sIP = lua_tolstring(L, 1, &szLen);
 		
-		uint8_t ui128Hash[16];
-		memset(ui128Hash, 0, 16);
+		Hash128 ui128Hash;
 		
 		if (szLen == 0 || HashIP(sIP, ui128Hash) == false)
 		{
