@@ -1364,23 +1364,22 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 				
 				UncountDeflood(pUser, bFromPM);
 				
-				char sTime[256];
-				strcpy(sTime, formatTime((ban_time - acc_time) / 60));
+				const std::string sTime(formatTime((ban_time - acc_time) / 60));
 				
 				// Send user a message that he has been tempbanned
-				pOtherUser->SendFormat("clsHubCommands::DoCommand->nicktempban", false, "<%s> %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_HAD_BEEN_TEMP_BANNED_TO], sTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
+				pOtherUser->SendFormat("clsHubCommands::DoCommand->nicktempban", false, "<%s> %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_HAD_BEEN_TEMP_BANNED_TO], sTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
 				                       sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
 				                       
 				if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)
 				{
 					clsGlobalDataQueue::mPtr->StatusMessageFormat("clsHubCommands::DoCommand->nicktempban", "<%s> *** %s %s %s %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], sCmdParts[0], clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN_TMPBND_BY], pUser->sNick,
-					                                              clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
+					                                              clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
 				}
 				
 				if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == false || ((pUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
 				{
 					pUser->SendFormatCheckPM("clsHubCommands::DoCommand->nicktempban8", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], sCmdParts[0],
-					                         clsLanguageManager::mPtr->sTexts[LAN_BEEN_TEMP_BANNED_TO], sTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
+					                         clsLanguageManager::mPtr->sTexts[LAN_BEEN_TEMP_BANNED_TO], sTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
 				}
 				
 				clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) tempbanned by %s", pOtherUser->sNick, pOtherUser->sIP, pUser->sNick);
@@ -4851,24 +4850,23 @@ bool clsHubCommands::TempBan(User * pUser, char * sCommand, const size_t dlen, b
 		
 		clsBanManager::mPtr->TempBan(pOtherUser, sCmdParts[2], pUser->sNick, 0, ban_time, bFull);
 		UncountDeflood(pUser, bFromPM);
-		char sTime[256];
-		strcpy(sTime, formatTime((ban_time - acc_time) / 60));
+		const std::string sTime(formatTime((ban_time - acc_time) / 60));
 		
 		// Send user a message that he has been tempbanned
-		pOtherUser->SendFormat("clsHubCommands::TempBan", false, "<%s> %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_HAD_BEEN_TEMP_BANNED_TO], sTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
+		pOtherUser->SendFormat("clsHubCommands::TempBan", false, "<%s> %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_HAD_BEEN_TEMP_BANNED_TO], sTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
 		                       sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
 		                       
 		if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)
 		{
 			clsGlobalDataQueue::mPtr->StatusMessageFormat("clsHubCommands::TempBan", "<%s> *** %s %s %s %s %s%s %s %s %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], sCmdParts[0], clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], pOtherUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN],
-			                                              bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
+			                                              bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
 			                                              sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
 		}
 		
 		if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == false || ((pUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
 		{
 			pUser->SendFormatCheckPM("clsHubCommands::TempBan6", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s %s %s%s %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], sCmdParts[0], clsLanguageManager::mPtr->sTexts[LAN_WITH_IP],
-			                         pOtherUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN], bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
+			                         pOtherUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN], bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
 			                         sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
 		}
 		
@@ -5010,19 +5008,18 @@ bool clsHubCommands::TempBanIp(User * pUser, char * sCommand, const size_t dlen,
 	}
 	
 	UncountDeflood(pUser, bFromPM);
-	char sTime[256];
-	strcpy(sTime, formatTime((ban_time - acc_time) / 60));
+	const std::string sTime(formatTime((ban_time - acc_time) / 60));
 	
 	if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)
 	{
 		clsGlobalDataQueue::mPtr->StatusMessageFormat("clsHubCommands::TempBanIp", "<%s> *** %s %s %s%s %s %s %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], sCommand, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN], bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "",
-		                                              clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
+		                                              clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
 	}
 	
 	if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == false || ((pUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
 	{
 		pUser->SendFormatCheckPM("clsHubCommands::TempBanIp6", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s%s %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], sCmdParts[0], clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN],
-		                         bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
+		                         bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sCmdParts[2] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
 	}
 	
 	clsUdpDebug::mPtr->BroadcastFormat("[SYS] IP %s %stemp banned by %s", sCmdParts[0], bFull == true ? "full " : "", pUser->sNick);
@@ -5064,19 +5061,18 @@ bool clsHubCommands::TempNickBan(User * pUser, const char * sNick, char * sTime,
 	
 	UncountDeflood(pUser, bFromPM);
 	
-	char sBanTime[256];
-	strcpy(sBanTime, formatTime((ban_time - acc_time) / 60));
+	const std::string sBanTime(formatTime((ban_time - acc_time) / 60));
 	
 	if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)
 	{
 		clsGlobalDataQueue::mPtr->StatusMessageFormat("clsHubCommands::TempNickBan", "<%s> *** %s %s %s %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], sNick, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN_TMPBND_BY], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_TO_LWR],
-		                                              sBanTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sReason == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sReason);
+		                                              sBanTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sReason == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sReason);
 	}
 	
 	if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == false || ((pUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
 	{
 		pUser->SendFormatCheckPM("clsHubCommands::TempNickBan4", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], sNick, clsLanguageManager::mPtr->sTexts[LAN_BEEN_TEMP_BANNED_TO],
-		                         sBanTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sReason == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sReason);
+		                         sBanTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR], sReason == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sReason);
 	}
 	
 	clsUdpDebug::mPtr->BroadcastFormat("[SYS] Nick %s tempbanned by %s", sNick, pUser->sNick);
@@ -5272,20 +5268,19 @@ bool clsHubCommands::RangeTempBan(User * pUser, char * sCommand, const size_t dl
 	}
 	
 	UncountDeflood(pUser, bFromPM);
-	char sTime[256];
-	strcpy(sTime, formatTime((ban_time - acc_time) / 60));
+	const std::string sTime(formatTime((ban_time - acc_time) / 60));
 	
 	if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)
 	{
 		clsGlobalDataQueue::mPtr->StatusMessageFormat("clsHubCommands::RangeTempBan", "<%s> *** %s %s-%s %s %s%s %s %s %s: %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_RANGE], sCmdParts[0], sCmdParts[1], clsLanguageManager::mPtr->sTexts[LAN_IS_LWR],
-		                                              bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime, clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
+		                                              bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime.c_str(), clsLanguageManager::mPtr->sTexts[LAN_BECAUSE_LWR],
 		                                              sCmdParts[3] == NULL ? clsLanguageManager::mPtr->sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[3]);
 	}
 	
 	if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == false || ((pUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
 	{
 		pUser->SendFormatCheckPM("clsHubCommands::RangeTempBan6", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s-%s %s %s%s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_RANGE],
-		                         sCmdParts[0], sCmdParts[1], clsLanguageManager::mPtr->sTexts[LAN_IS_LWR], bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime);
+		                         sCmdParts[0], sCmdParts[1], clsLanguageManager::mPtr->sTexts[LAN_IS_LWR], bFull == true ? clsLanguageManager::mPtr->sTexts[LAN_FULL_LWR] : "", clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime.c_str());
 	}
 	return true;
 }

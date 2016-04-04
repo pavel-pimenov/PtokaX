@@ -1564,16 +1564,15 @@ void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t ui32Len)
 				{
 					clsBanManager::mPtr->TempBan(OtherUser, OtherUser->pLogInOut->pBuffer, pUser->sNick, 0, ban_time, false);
 					
-					char sTime[256];
-					strcpy(sTime, formatTime((ban_time - acc_time) / 60));
+					const std::string sTime(formatTime((ban_time - acc_time) / 60));
 					
 					clsGlobalDataQueue::mPtr->StatusMessageFormat("clsDcCommands::Kick2", "<%s> *** %s %s %s %s %s %s %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], OtherUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], OtherUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN],
-					                                              clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime);
+					                                              clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_BY_LWR], pUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime.c_str());
 					                                              
 					if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == false || ((pUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
 					{
 						pUser->SendFormat("clsDcCommands::Kick7", true, "<%s> *** %s %s %s %s %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], OtherUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], OtherUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN],
-						                  clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime);
+						                  clsLanguageManager::mPtr->sTexts[LAN_TEMP_BANNED], clsLanguageManager::mPtr->sTexts[LAN_TO_LWR], sTime.c_str());
 					}
 					
 					// disconnect the user
