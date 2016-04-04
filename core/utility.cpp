@@ -317,7 +317,7 @@ const char * ErrnoStr(const uint32_t iError)
 #endif
 //---------------------------------------------------------------------------
 
-char * formatBytes(int64_t iBytes)
+const char * formatBytes(int64_t iBytes)
 {
 	static const char *unit[] = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB", " ", " ", " ", " ", " ", " ", " "};
 	static char sBytes[128];
@@ -348,7 +348,7 @@ char * formatBytes(int64_t iBytes)
 }
 //---------------------------------------------------------------------------
 
-char * formatBytesPerSecond(int64_t iBytes)
+const char * formatBytesPerSecond(int64_t iBytes)
 {
 	static const char *secondunit[] = {"B/s", "kB/s", "MB/s", "GB/s", "TB/s", "PB/s", "EB/s", "ZB/s", "YB/s", " ", " ", " ", " ", " ", " ", " "};
 	static char sBytes[128];
@@ -379,7 +379,7 @@ char * formatBytesPerSecond(int64_t iBytes)
 }
 //---------------------------------------------------------------------------
 
-char * formatTime(uint64_t rest)
+const char * formatTime(uint64_t rest)
 {
 	static char time[256];
 	time[0] = '\0';
@@ -464,7 +464,7 @@ char * formatTime(uint64_t rest)
 }
 //---------------------------------------------------------------------------
 
-char * formatSecTime(uint64_t rest)
+const char * formatSecTime(uint64_t rest)
 {
 	static char time[256];
 	time[0] = '\0';

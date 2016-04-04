@@ -4851,7 +4851,7 @@ bool clsHubCommands::TempBan(User * pUser, char * sCommand, const size_t dlen, b
 		
 		clsBanManager::mPtr->TempBan(pOtherUser, sCmdParts[2], pUser->sNick, 0, ban_time, bFull);
 		UncountDeflood(pUser, bFromPM);
-		static char sTime[256];
+		char sTime[256];
 		strcpy(sTime, formatTime((ban_time - acc_time) / 60));
 		
 		// Send user a message that he has been tempbanned
@@ -5010,7 +5010,7 @@ bool clsHubCommands::TempBanIp(User * pUser, char * sCommand, const size_t dlen,
 	}
 	
 	UncountDeflood(pUser, bFromPM);
-	static char sTime[256];
+	char sTime[256];
 	strcpy(sTime, formatTime((ban_time - acc_time) / 60));
 	
 	if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)
@@ -5272,7 +5272,7 @@ bool clsHubCommands::RangeTempBan(User * pUser, char * sCommand, const size_t dl
 	}
 	
 	UncountDeflood(pUser, bFromPM);
-	static char sTime[256];
+	char sTime[256];
 	strcpy(sTime, formatTime((ban_time - acc_time) / 60));
 	
 	if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)

@@ -1564,7 +1564,7 @@ void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t ui32Len)
 				{
 					clsBanManager::mPtr->TempBan(OtherUser, OtherUser->pLogInOut->pBuffer, pUser->sNick, 0, ban_time, false);
 					
-					static char sTime[256];
+					char sTime[256];
 					strcpy(sTime, formatTime((ban_time - acc_time) / 60));
 					
 					clsGlobalDataQueue::mPtr->StatusMessageFormat("clsDcCommands::Kick2", "<%s> *** %s %s %s %s %s %s %s %s: %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], OtherUser->sNick, clsLanguageManager::mPtr->sTexts[LAN_WITH_IP], OtherUser->sIP, clsLanguageManager::mPtr->sTexts[LAN_HAS_BEEN],

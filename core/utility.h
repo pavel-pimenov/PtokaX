@@ -44,10 +44,10 @@ char * WSErrorStr(const uint32_t iError);
 const char * ErrnoStr(const uint32_t iError);
 #endif
 
-char * formatBytes(int64_t iBytes);
-char * formatBytesPerSecond(int64_t iBytes);
-char * formatTime(uint64_t rest);
-char * formatSecTime(uint64_t rest);
+const char * formatBytes(int64_t iBytes);
+const char * formatBytesPerSecond(int64_t iBytes);
+const char * formatTime(uint64_t rest);
+const char * formatSecTime(uint64_t rest);
 
 char * stristr(const char *str1, const char *str2);
 char * stristr2(const char *str1, const char *str2);
