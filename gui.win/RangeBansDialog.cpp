@@ -453,10 +453,10 @@ int clsRangeBansDialog::CompareRangeBans(const void * pItem, const void * pOther
 	switch (clsRangeBansDialog::mPtr->iSortColumn)
 	{
 		case 0:
-			return (memcmp(pFirstRangeBan->ui128FromIpHash, pSecondRangeBan->ui128FromIpHash, 16) > 0) ? 1 :
-			       ((memcmp(pFirstRangeBan->ui128FromIpHash, pSecondRangeBan->ui128FromIpHash, 16) == 0) ?
-			        (memcmp(pFirstRangeBan->ui128ToIpHash, pSecondRangeBan->ui128ToIpHash, 16) > 0) ? 1 :
-			        ((memcmp(pFirstRangeBan->ui128ToIpHash, pSecondRangeBan->ui128ToIpHash, 16) == 0) ? 0 : -1) : -1);
+			return (memcmp(pFirstRangeBan->ui128FromIpHash.data(), pSecondRangeBan->ui128FromIpHash.data(), 16) > 0) ? 1 :
+			       ((memcmp(pFirstRangeBan->ui128FromIpHash.data(), pSecondRangeBan->ui128FromIpHash.data(), 16) == 0) ?
+			        (memcmp(pFirstRangeBan->ui128ToIpHash.data(), pSecondRangeBan->ui128ToIpHash.data(), 16) > 0) ? 1 :
+			        ((memcmp(pFirstRangeBan->ui128ToIpHash.data(), pSecondRangeBan->ui128ToIpHash.data(), 16) == 0) ? 0 : -1) : -1);
 		case 1:
 			return _stricmp(pFirstRangeBan->sReason == NULL ? "" : pFirstRangeBan->sReason, pSecondRangeBan->sReason == NULL ? "" : pSecondRangeBan->sReason);
 		case 2:

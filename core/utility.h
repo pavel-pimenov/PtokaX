@@ -72,7 +72,7 @@ public:
 	{
 		return m_ui128Hash;
 	}
-	 uint8_t* data()
+	 const uint8_t* data() const
 	 {
 		 return m_ui128Hash;
 	 }
