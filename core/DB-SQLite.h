@@ -40,6 +40,7 @@ class DBSQLite
 		~DBSQLite();
 		
 		void UpdateRecord(User * pUser);
+		void IncMessageCount(User * pUser);
 		
 		bool SearchNick(const char * sNick, const uint8_t ui8NickLen, User * pUser, const bool bFromPM);
 		bool SearchIP(const char * sIP, User * pUser, const bool bFromPM);

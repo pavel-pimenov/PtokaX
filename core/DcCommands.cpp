@@ -51,6 +51,15 @@
 #include "../gui.win/GuiUtil.h"
 #include "../gui.win/MainWindowPageUsersChat.h"
 #endif
+
+#ifdef _WITH_SQLITE
+#include "DB-SQLite.h"
+#elif _WITH_POSTGRES
+#include "DB-PostgreSQL.h"
+#elif _WITH_MYSQL
+#include "DB-MySQL.h"
+#endif
+
 //---------------------------------------------------------------------------
 clsDcCommands * clsDcCommands::mPtr = NULL;
 //---------------------------------------------------------------------------
@@ -3357,6 +3366,9 @@ void clsDcCommands::Chat(User * pUser, char * sData, const uint32_t ui32Len, con
 	}
 	
 	pUser->AddPrcsdCmd(PrcsdUsrCmd::CHAT, sData, ui32Len, reinterpret_cast<User *>(pQueueItem));
+#ifdef _WITH_SQLITE
+	DBSQLite::mPtr->IncMessageCount(pUser);
+#endif
 }
 //---------------------------------------------------------------------------
 
