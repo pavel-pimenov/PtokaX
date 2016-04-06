@@ -3119,6 +3119,12 @@ void clsDcCommands::Version(User * pUser, char * sData, const uint32_t ui32Len)
 // Chat message
 bool clsDcCommands::ChatDeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
 {
+#ifndef _WIN32
+	{
+		syslog(LOG_DEBUG, "[Chat][%s][%u/%u][%u] %s", pUser->sIP, pUser->ui32SendBufLen, pUser->ui32SendBufDataLen,ui32Len, std::string(sData, ui32Len).c_str());
+	}
+#endif
+
 #ifdef _BUILD_GUI
 	if (::SendMessage(clsMainWindowPageUsersChat::mPtr->hWndPageItems[clsMainWindowPageUsersChat::BTN_SHOW_CHAT], BM_GETCHECK, 0, 0) == BST_CHECKED)
 	{
