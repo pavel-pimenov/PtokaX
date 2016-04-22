@@ -44,8 +44,13 @@ static const size_t szBanIdsLen = sizeof(sBanIds) - 1;
 static const char sRangeBanIds[] = "BT" "RF" "RT" "FB" "RE" "BY" "EX";
 static const size_t szRangeBanIdsLen = sizeof(sRangeBanIds) - 1;
 //---------------------------------------------------------------------------
+BanItemBase::~BanItemBase()
+{
+	free(sReason);
+	free(sBy);
+}
 
-BanItem::BanItem(void) : tTempBanExpire(0), sNick(NULL), sReason(NULL), sBy(NULL), pPrev(NULL), pNext(NULL), pHashNickTablePrev(NULL), pHashNickTableNext(NULL), pHashIpTablePrev(NULL), pHashIpTableNext(NULL), ui32NickHash(0), ui8Bits(0)
+BanItem::BanItem(void) : sNick(NULL),  pPrev(NULL), pNext(NULL), pHashNickTablePrev(NULL), pHashNickTableNext(NULL), pHashIpTablePrev(NULL), pHashIpTableNext(NULL), ui32NickHash(0)
 {
 	memset(ui128IpHash, 0, 16);
 	memset(sIp, 0, sizeof(sIp));
@@ -55,8 +60,6 @@ BanItem::BanItem(void) : tTempBanExpire(0), sNick(NULL), sReason(NULL), sBy(NULL
 BanItem::~BanItem(void)
 {
 	free(sNick);
-	free(sReason);
-	free(sBy);
 }
 //---------------------------------------------------------------------------
 
@@ -73,7 +76,7 @@ void BanItem::initIP(const User* u)
 }
 //---------------------------------------------------------------------------
 
-RangeBanItem::RangeBanItem(void) : tTempBanExpire(0), sReason(NULL), sBy(NULL), pPrev(NULL), pNext(NULL), ui8Bits(0)
+RangeBanItem::RangeBanItem(void) : pPrev(NULL), pNext(NULL) 
 {
 	memset(sIpFrom, 0, sizeof(sIpFrom));
 	memset(sIpTo, 0, sizeof(sIpTo));
@@ -82,8 +85,6 @@ RangeBanItem::RangeBanItem(void) : tTempBanExpire(0), sReason(NULL), sBy(NULL), 
 
 RangeBanItem::~RangeBanItem(void)
 {
-	free(sReason);
-	free(sBy);
 }
 
 //---------------------------------------------------------------------------
@@ -2608,7 +2609,21 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 		}
 		pBan->sReason[szReasonLen] = '\0';
 	}
-	
+	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
+	{
+		return;
+	}
+	if (Add(pBan) == false)
+	{
+		delete pBan;
+		return;
+	}
+
+	Save();
+}
+//---------------------------------------------------------------------------
+bool clsBanManager::AddBanInternal(const char * sBy, BanItemBase * pBan, const char* sFunction)
+{
 	if (sBy != NULL)
 	{
 		size_t szByLen = strlen(sBy);
@@ -2620,23 +2635,17 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 		if (pBan->sBy == NULL)
 		{
 			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanManager::Ban\n", (uint64_t)(szByLen + 1));
-			
-			return;
+
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in %s\n", (uint64_t)(szByLen + 1), sFunction);
+
+			return false;
 		}
 		memcpy(pBan->sBy, sBy, szByLen);
 		pBan->sBy[szByLen] = '\0';
 	}
-	
-	if (Add(pBan) == false)
-	{
-		delete pBan;
-		return;
-	}
-	
-	Save();
+	return true;
 }
+
 //---------------------------------------------------------------------------
 
 char clsBanManager::BanIp(User * u, const char * sIp, const char * sReason, const char * sBy, const bool bFull)
@@ -2746,32 +2755,16 @@ char clsBanManager::BanIp(User * u, const char * sIp, const char * sReason, cons
 		pBan->sReason[szReasonLen] = '\0';
 	}
 	
-	if (sBy != NULL)
+	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
-		size_t szByLen = strlen(sBy);
-		if (szByLen > 63)
-		{
-			szByLen = 63;
-		}
-		pBan->sBy = (char *)malloc(szByLen + 1);
-		if (pBan->sBy == NULL)
-		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanManager::BanIp\n", (uint64_t)(szByLen + 1));
-			
-			return 1;
-		}
-		memcpy(pBan->sBy, sBy, szByLen);
-		pBan->sBy[szByLen] = '\0';
+		return 1;
 	}
-	
 	if (Add(pBan) == false)
 	{
 		delete pBan;
 		return 1;
 	}
-	
+
 	Save();
 	
 	return 0;
@@ -2909,33 +2902,16 @@ bool clsBanManager::NickBan(User * u, const char * sNick, const char * sReason, 
 		}
 		pBan->sReason[szReasonLen] = '\0';
 	}
-	
-	if (sBy != NULL)
+	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
-		size_t szByLen = strlen(sBy);
-		if (szByLen > 63)
-		{
-			szByLen = 63;
-		}
-		pBan->sBy = (char *)malloc(szByLen + 1);
-		if (pBan->sBy == NULL)
-		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanManager::NickBan\n", (uint64_t)(szByLen + 1));
-			
-			return false;
-		}
-		memcpy(pBan->sBy, sBy, szByLen);
-		pBan->sBy[szByLen] = '\0';
+		return false;
 	}
-	
 	if (Add(pBan) == false)
 	{
 		delete pBan;
 		return false;
 	}
-	
+
 	Save();
 	
 	return true;
@@ -3190,33 +3166,17 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 		}
 		pBan->sReason[szReasonLen] = '\0';
 	}
-	
-	if (sBy != NULL)
+
+	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
-		size_t szByLen = strlen(sBy);
-		if (szByLen > 63)
-		{
-			szByLen = 63;
-		}
-		pBan->sBy = (char *)malloc(szByLen + 1);
-		if (pBan->sBy == NULL)
-		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanManager::TempBan\n", (uint64_t)(szByLen + 1));
-			
-			return;
-		}
-		memcpy(pBan->sBy, sBy, szByLen);
-		pBan->sBy[szByLen] = '\0';
+		return;
 	}
-	
 	if (Add(pBan) == false)
 	{
 		delete pBan;
 		return;
 	}
-	
+
 	Save();
 }
 //---------------------------------------------------------------------------
@@ -3335,33 +3295,17 @@ char clsBanManager::TempBanIp(User * u, const char * sIp, const char * sReason, 
 		}
 		pBan->sReason[szReasonLen] = '\0';
 	}
-	
-	if (sBy != NULL)
+
+	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
-		size_t szByLen = strlen(sBy);
-		if (szByLen > 63)
-		{
-			szByLen = 63;
-		}
-		pBan->sBy = (char *)malloc(szByLen + 1);
-		if (pBan->sBy == NULL)
-		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanManager::TempBanIp\n", (uint64_t)(szByLen + 1));
-			
-			return 1;
-		}
-		memcpy(pBan->sBy, sBy, szByLen);
-		pBan->sBy[szByLen] = '\0';
+		return 1;
 	}
-	
 	if (Add(pBan) == false)
 	{
 		delete pBan;
 		return 1;
 	}
-	
+
 	Save();
 	
 	return 0;
@@ -3523,33 +3467,17 @@ bool clsBanManager::NickTempBan(User * u, const char * sNick, const char * sReas
 		}
 		pBan->sReason[szReasonLen] = '\0';
 	}
-	
-	if (sBy != NULL)
+
+	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
-		size_t szByLen = strlen(sBy);
-		if (szByLen > 63)
-		{
-			szByLen = 63;
-		}
-		pBan->sBy = (char *)malloc(szByLen + 1);
-		if (pBan->sBy == NULL)
-		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanManager::NickTempBan\n", (uint64_t)(szByLen + 1));
-			
-			return false;
-		}
-		memcpy(pBan->sBy, sBy, szByLen);
-		pBan->sBy[szByLen] = '\0';
+		return false;
 	}
-	
 	if (Add(pBan) == false)
 	{
 		delete pBan;
 		return false;
 	}
-	
+
 	Save();
 	
 	return true;
@@ -3869,24 +3797,9 @@ bool clsBanManager::RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHa
 		pRangeBan->sReason[szReasonLen] = '\0';
 	}
 	
-	if (sBy != NULL)
+	if (AddBanInternal(sBy, pRangeBan, __FUNCTION__) == false)
 	{
-		size_t szByLen = strlen(sBy);
-		if (szByLen > 63)
-		{
-			szByLen = 63;
-		}
-		pRangeBan->sBy = (char *)malloc(szByLen + 1);
-		if (pRangeBan->sBy == NULL)
-		{
-			delete pRangeBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanManager::RangeBan\n", (uint64_t)(szByLen + 1));
-			
-			return false;
-		}
-		memcpy(pRangeBan->sBy, sBy, szByLen);
-		pRangeBan->sBy[szByLen] = '\0';
+		return false;
 	}
 	
 	AddRange(pRangeBan);
@@ -4003,24 +3916,9 @@ bool clsBanManager::RangeTempBan(const char * sIpFrom, const uint8_t * ui128From
 		pRangeBan->sReason[szReasonLen] = '\0';
 	}
 	
-	if (sBy != NULL)
+	if (AddBanInternal(sBy, pRangeBan, __FUNCTION__) == false)
 	{
-		size_t szByLen = strlen(sBy);
-		if (szByLen > 63)
-		{
-			szByLen = 63;
-		}
-		pRangeBan->sBy = (char *)malloc(szByLen + 1);
-		if (pRangeBan->sBy == NULL)
-		{
-			delete pRangeBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in clsBanManager::RangeTempBan\n", (uint64_t)(szByLen + 1));
-			
-			return false;
-		}
-		memcpy(pRangeBan->sBy, sBy, szByLen);
-		pRangeBan->sBy[szByLen] = '\0';
+		return false;
 	}
 	
 	AddRange(pRangeBan);

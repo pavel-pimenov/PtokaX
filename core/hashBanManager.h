@@ -25,11 +25,22 @@
 struct User;
 //---------------------------------------------------------------------------
 
-struct BanItem
+struct BanItemBase
 {
 	time_t tTempBanExpire;
-	
-	char * sNick, * sReason, * sBy;
+	char * sReason;
+	char * sBy;
+	uint8_t ui8Bits;
+
+	BanItemBase() : sReason(NULL), sBy(NULL), tTempBanExpire(0), ui8Bits(0)
+	{
+	}
+	virtual ~BanItemBase();
+	DISALLOW_COPY_AND_ASSIGN(BanItemBase);
+};
+struct BanItem : public BanItemBase
+{
+	char * sNick;
 	
 	BanItem * pPrev, * pNext;
 	BanItem * pHashNickTablePrev, * pHashNickTableNext;
@@ -39,7 +50,6 @@ struct BanItem
 	
 	uint8_t ui128IpHash[16];
 	
-	uint8_t ui8Bits;
 	char sIp[40];
 
 	void initIP(const User* u);
@@ -51,17 +61,13 @@ struct BanItem
 };
 //---------------------------------------------------------------------------
 
-struct RangeBanItem
+struct RangeBanItem : public BanItemBase
 {
-	time_t tTempBanExpire;
-	
-	char * sReason, * sBy;
 	
 	RangeBanItem * pPrev, * pNext;
 	
 	Hash128 ui128FromIpHash, ui128ToIpHash;
 	
-	uint8_t ui8Bits;
 	
 	char sIpFrom[40], sIpTo[40] ;
 	
@@ -163,6 +169,7 @@ class clsBanManager
 		void ClearTempRange(void);
 		void ClearPermRange(void);
 		
+		bool AddBanInternal(const char * sBy, BanItemBase * pBan, const char* sFunction);
 		void Ban(User * u, const char * sReason, const char * sBy, const bool bFull);
 		char BanIp(User * u, const char * sIp, const char * sReason, const char * sBy, const bool bFull);
 		bool NickBan(User * u, const char * sNick, const char * sReason, const char * sBy);
