@@ -33,7 +33,7 @@
 
 /obj/PtokaX.log
 
-/compiled/cfg
+/compiled/cfg/*.xml
 
 /compiled/logs
 
