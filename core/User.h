@@ -346,7 +346,11 @@ struct User
 		}
 	}
 #endif
-	
+	// alex82 ... Запретили юзерам с одинаковыми профилями глушить друг друга
+	bool CheckBanAlex82(const User* pOtherUser) const
+	{
+		return pOtherUser->i32Profile != -1 && i32Profile != 0 && i32Profile >= pOtherUser->i32Profile;
+	}
 	User();
 	~User();
 	
