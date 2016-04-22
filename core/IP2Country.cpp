@@ -21,6 +21,7 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #include "IP2Country.h"
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#include "SettingManager.h"
 #include "ServerManager.h"
 #include "utility.h"
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -30,51 +31,96 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 clsIpP2Country * clsIpP2Country::mPtr = NULL;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#define COUNTRY_COUNT   254 // alex82 ... Число стран в списке
 
-static const char * CountryNames[] = { "Andorra", "United Arab Emirates", "Afghanistan", "Antigua and Barbuda", "Anguilla", "Albania", "Armenia", "Angola", "Antarctica", "Argentina",
-                                       "American Samoa", "Austria", "Australia", "Aruba", "Aland Islands", "Azerbaijan", "Bosnia and Herzegovina", "Barbados", "Bangladesh", "Belgium", "Burkina Faso", "Bulgaria", "Bahrain",
-                                       "Burundi", "Benin", "Saint Barthelemy", "Bermuda", "Brunei Darussalam", "Bolivia", "Bonaire", "Brazil", "Bahamas", "Bhutan", "Bouvet Island", "Botswana", "Belarus", "Belize", "Canada",
-                                       "Cocos (Keeling) Islands", "The Democratic Republic of the Congo", "Central African Republic", "Congo", "Cote D'Ivoire", "Cook Islands", "Chile", "Cameroon", "China", "Colombia",
-                                       "Costa Rica", "Cuba", "Cape Verde", "Curacao", "Christmas Island", "Cyprus", "Czech Republic", "Germany", "Djibouti", "Denmark", "Dominica", "Dominican Republic", "Algeria", "Ecuador",
-                                       "Estonia", "Egypt", "Western Sahara", "Eritrea", "Spain", "Ethiopia", "Finland", "Fiji", "Falkland Islands (Malvinas)", "Micronesia", "Faroe Islands", "France", "Gabon", "United Kingdom",
-                                       "Grenada", "Georgia", "French Guiana", "Guernsey", "Ghana", "Gibraltar", "Greenland", "Gambia", "Guinea", "Guadeloupe", "Equatorial Guinea", "Greece",
-                                       "South Georgia and the South Sandwich Islands", "Guatemala", "Guam", "Guinea-Bissau", "Guyana", "Hong Kong", "Heard Island and McDonald Islands", "Honduras", "Croatia", "Haiti", "Hungary",
-                                       "Switzerland", "Indonesia", "Ireland", "Israel", "Isle of Man", "India", "British Indian Ocean Territory", "Iraq", "Iran", "Iceland", "Italy", "Jersey", "Jamaica", "Jordan", "Japan",
-                                       "Kenya", "Kyrgyzstan", "Cambodia", "Kiribati", "Comoros", "Saint Kitts and Nevis", "Democratic People's Republic of Korea", "Republic of Korea", "Kuwait", "Cayman Islands", "Kazakhstan",
-                                       "Lao People's Democratic Republic", "Lebanon", "Saint Lucia", "Liechtenstein", "Sri Lanka", "Liberia", "Lesotho", "Lithuania", "Luxembourg", "Latvia", "Libyan Arab Jamahiriya", "Morocco",
-                                       "Monaco", "Moldova", "Montenegro", "Saint Martin", "Madagascar", "Marshall Islands", "Macedonia", "Mali", "Myanmar", "Mongolia", "Macao", "Northern Mariana Islands", "Martinique",
-                                       "Mauritania", "Montserrat", "Malta", "Mauritius", "Maldives", "Malawi", "Mexico", "Malaysia", "Mozambique", "Namibia", "New Caledonia", "Niger", "Norfolk Island", "Nigeria", "Nicaragua",
-                                       "Netherlands", "Norway", "Nepal", "Nauru", "Niue", "New Zealand", "Oman", "Panama", "Peru", "French Polynesia", "Papua New Guinea", "Philippines", "Pakistan", "Poland",
-                                       "Saint Pierre and Miquelon", "Pitcairn", "Puerto Rico", "Palestinian Territory", "Portugal", "Palau", "Paraguay", "Qatar", "Reunion", "Romania", "Serbia", "Russian Federation",
-                                       "Rwanda", "Saudi Arabia", "Solomon Islands", "Seychelles", "Sudan", "Sweden", "Singapore", "Saint Helena", "Slovenia", "Svalbard and Jan Mayen", "Slovakia", "Sierra Leone", "San Marino",
-                                       "Senegal", "Somalia", "Suriname", "South Sudan", "Sao Tome and Principe", "El Salvador", "Sint Maarten (Dutch Part)", "Syrian Arab Republic", "Swaziland", "Turks and Caicos Islands", "Chad",
-                                       "French Southern Territories", "Togo", "Thailand", "Tajikistan", "Tokelau", "Timor-Leste", "Turkmenistan", "Tunisia", "Tonga", "Turkey", "Trinidad and Tobago", "Tuvalu", "Taiwan",
-                                       "Tanzania", "Ukraine", "Uganda", "United States Minor Outlying Islands", "United States", "Uruguay", "Uzbekistan", "Holy See (Vatican City State)",
-                                       "Saint Vincent and the Grenadines", "Venezuela", "Virgin Islands, British", "Virgin Islands, U.S.", "Viet Nam", "Vanuatu", "Wallis and Futuna", "Samoa", "Yemen", "Mayotte", "South Africa",
-                                       "Zambia", "Zimbabwe", "Netherlands Antilles", "Unknown (Asia-Pacific)", "Unknown (European Union)", "Unknown",
+static const char * CountryNames[COUNTRY_COUNT] =
+{
+	"Andorra", "United Arab Emirates", "Afghanistan", "Antigua and Barbuda", "Anguilla", "Albania", "Armenia", "Angola",
+	"Argentina", "American Samoa", "Austria", "Australia", "Aruba", "Aland Islands", "Azerbaijan", "Bosnia and Herzegovina",
+	"Barbados", "Bangladesh", "Belgium", "Burkina Faso", "Bulgaria", "Bahrain", "Burundi", "Benin", "Saint Barthelemy",
+	"Bermuda", "Brunei Darussalam", "Bolivia", "Brazil", "Bahamas", "Bhutan", "Bouvet Island", "Botswana", "Belarus",
+	"Belize", "Canada", "Cocos (Keeling) Islands", "The Democratic Republic of the Congo", "Central African Republic",
+	"Congo", "Switzerland", "Cote D'Ivoire", "Cook Islands", "Chile", "Cameroon", "China", "Colombia", "Costa Rica",
+	"Serbia and Montenegro", "Cuba", "Cape Verde", "Curacao", "Christmas Island", "Cyprus", "Czech Republic", "Germany",
+	"Djibouti", "Denmark", "Dominica", "Dominican Republic", "Algeria", "Ecuador", "Estonia", "Egypt", "Western Sahara",
+	"Eritrea", "Spain", "Ethiopia", "Finland", "Fiji", "Falkland Islands (Malvinas)", "Micronesia", "Faroe Islands",
+	"France", "Gabon", "United Kingdom", "Grenada", "Georgia", "French Guiana", "Guernsey", "Ghana", "Gibraltar", "Greenland",
+	"Gambia", "Guinea", "Guadeloupe", "Equatorial Guinea", "Greece", "South Georgia and the South Sandwich Islands",
+	"Guatemala", "Guam", "Guinea-Bissau", "Guyana", "Hong Kong", "Heard Island and McDonald Islands", "Honduras", "Croatia",
+	"Haiti", "Hungary", "Indonesia", "Ireland", "Israel", "Isle of Man", "India", "British Indian Ocean Territory", "Iraq",
+	"Iran", "Iceland", "Italy", "Jersey", "Jamaica", "Jordan", "Japan", "Kenya", "Kyrgyzstan", "Cambodia", "Kiribati",
+	"Comoros", "Saint Kitts and Nevis", "Democratic People's Republic of Korea", "Republic of Korea", "Kuwait",
+	"Cayman Islands", "Kazakhstan", "Lao People's Democratic Republic", "Lebanon", "Saint Lucia", "Liechtenstein",
+	"Sri Lanka", "Liberia", "Lesotho", "Lithuania", "Luxembourg", "Latvia", "Libyan Arab Jamahiriya", "Morocco", "Monaco",
+	"Moldova", "Montenegro", "Saint Martin", "Madagascar", "Marshall Islands", "Macedonia", "Mali", "Myanmar", "Mongolia",
+	"Macao", "Northern Mariana Islands", "Martinique", "Mauritania", "Montserrat", "Malta", "Mauritius", "Maldives", "Malawi",
+	"Mexico", "Malaysia", "Mozambique", "Namibia", "New Caledonia", "Niger", "Norfolk Island", "Nigeria", "Nicaragua",
+	"Netherlands", "Norway", "Nepal", "Nauru", "Niue", "New Zealand", "Oman", "Panama", "Peru", "French Polynesia",
+	"Papua New Guinea", "Philippines", "Pakistan", "Poland", "Saint Pierre and Miquelon", "Pitcairn", "Puerto Rico",
+	"Palestinian Territory", "Portugal", "Palau", "Paraguay", "Qatar", "Reunion", "Romania", "Serbia", "Russian Federation",
+	"Rwanda", "Saudi Arabia", "Solomon Islands", "Seychelles", "Sudan", "Sweden", "Singapore", "Saint Helena", "Slovenia",
+	"Svalbard and Jan Mayen", "Slovakia", "Sierra Leone", "San Marino", "Senegal", "Somalia", "Suriname", "South Sudan",
+	"Sao Tome and Principe", "El Salvador", "Sint Maarten (Dutch Part)", "Syrian Arab Republic", "Swaziland",
+	"Turks and Caicos Islands", "Chad", "French Southern Territories", "Togo", "Thailand", "Tajikistan", "Tokelau",
+	"Timor-Leste", "Turkmenistan", "Tunisia", "Tonga", "Turkey", "Trinidad and Tobago", "Tuvalu", "Taiwan", "Tanzania",
+	"Ukraine", "Uganda", "United States Minor Outlying Islands", "United States", "Uruguay", "Uzbekistan",
+	"Holy See (Vatican City State)", "Saint Vincent and the Grenadines", "Venezuela", "Virgin Islands, British",
+	"Virgin Islands, U.S.", "Viet Nam", "Vanuatu", "Wallis and Futuna", "Samoa", "Yemen", "Mayotte", "South Africa",
+	"Zambia", "Zimbabwe", "Netherlands Antilles", "Unknown (Asia-Pacific)", "Unknown (Local network)",
+	"Unknown (European Union)", "Unknown (Reserved)", "Unknown"
+};
+
+static const char * CountryNamesRussian[COUNTRY_COUNT] =
+{
+	"Андорра", "ОАЭ", "Афганистан", "Антигуа и Барбуда", "Ангилья", "Албания", "Армения", "Ангола", "Аргентина",
+	"Американское Самоа", "Австрия", "Австралия", "Аруба", "Аландские острова", "Азербайджан", "Босния и Герцеговина",
+	"Барбадос", "Бангладеш", "Бельгия", "Буркина Фасо", "Болгария", "Бахрейн", "Бурунди", "Бенин", "Сен-Бартельми",
+	"Бермуды", "Бруней", "Боливия", "Бразилия", "Багамы", "Бутан", "Остров Буве", "Ботсвана", "Беларусь", "Белиз",
+	"Канада", "Кокосовые острова", "ДР Конго", "ЦАР", "Республика Конго", "Швейцария", "Кот-д’Ивуар", "Острова Кука",
+	"Чили", "Камерун", "Китай", "Колумбия", "Коста-Рика", "Сербия и Черногория", "Куба", "Кабо-Верде", "Кюрасао",
+	"Остров Рождества", "Кипр", "Чехия", "Германия", "Джибути", "Дания", "Доминика", "Доминиканская Республика", "Алжир",
+	"Эквадор", "Эстония", "Египет", "Западная Сахара", "Эритрея", "Испания", "Эфиопия", "Финляндия", "Фиджи",
+	"Фолклендские острова", "Микронезия", "Фарерские острова", "Франция", "Габон", "Великобритания", "Гренада",
+	"Грузия", "Французская Гвиана", "Гернси", "Гана", "Гибралтар", "Гренландия", "Гамбия", "Гвинея", "Гваделупа",
+	"Экваториальная Гвинея", "Греция", "Южная Георгия и Южные Сандвичевы острова", "Гватемала", "Гуам", "Гвинея-Бисау",
+	"Гайана", "Гонконг", "Херд и Макдональд", "Гондурас", "Хорватия", "Гаити", "Венгрия", "Индонезия", "Ирландия",
+	"Израиль", "Остров Мэн", "Индия", "Британские территории в Индийском океане", "Ирак", "Иран", "Исландия", "Италия",
+	"Джерси", "Ямайка", "Иордания", "Япония", "Кения", "Киргизия", "Камбоджа", "Кирибати", "Коморские Острова",
+	"Сент-Киттс и Невис", "КНДР", "Республика Корея", "Кувейт", "Каймановы острова", "Казахстан", "Лаос", "Ливан",
+	"Сент-Люсия", "Лихтенштейн", "Шри-Ланка", "Либерия", "Лесото", "Литва", "Люксембург", "Латвия", "Ливия", "Марокко",
+	"Монако", "Молдова", "Черногория", "Сен-Мартен", "Мадагаскар", "Маршалловы Острова", "Македония", "Мали", "Мьянма",
+	"Монголия", "Аомынь", "Северные Марианские острова", "Мартиника", "Мавритания", "Монтсеррат", "Мальта", "Маврикий",
+	"Мальдивы", "Малави", "Мексика", "Малайзия", "Мозамбик", "Намибия", "Новая Каледония", "Нигер", "Остров Норфолк",
+	"Нигерия", "Никарагуа", "Нидерланды", "Норвегия", "Непал", "Науру", "Ниуэ", "Новая Зеландия", "Оман", "Панама", "Перу",
+	"Французская Полинезия", "Папуа — Новая Гвинея", "Филиппины", "Пакистан", "Польша", "Сен-Пьер и Микелон",
+	"Острова Питкэрн", "Пуэрто-Рико", "Палестина", "Португалия", "Палау", "Парагвай", "Катар", "Реюньон", "Румыния",
+	"Сербия", "Россия", "Руанда", "Саудовская Аравия", "Соломоновы Острова", "Сейшельские Острова", "Судан", "Швеция",
+	"Сингапур", "Остров Святой Елены", "Словения", "Шпицберген и Ян-Майен", "Словакия", "Сьерра-Леоне", "Сан-Марино",
+	"Сенегал", "Сомали", "Суринам", "Южный Судан", "Сан-Томе и Принсипи", "Сальвадор", "Синт-Мартен", "Сирия", "Свазиленд",
+	"Тёркс и Кайкос", "Чад", "Французские Южные и Антарктические Территории", "Того", "Таиланд", "Таджикистан", "Токелау",
+	"Восточный Тимор", "Туркмения", "Тунис", "Тонга", "Турция", "Тринидад и Тобаго", "Тувалу", "Тайвань", "Танзания",
+	"Украина", "Уганда", "Внешние малые острова (США)", "США", "Уругвай", "Узбекистан", "Ватикан", "Сент-Винсент и Гренадины",
+	"Венесуэла", "Британские Виргинские острова", "Американские Виргинские острова", "Вьетнам", "Вануату", "Уоллис и Футуна",
+	"Самоа", "Йемен", "Майотта", "ЮАР", "Замбия", "Зимбабве", "Нидерландские Антильские острова",
+	"Неизвестно (Азиатско-Тихоокеанский регион)", "Неизвестно (Локальная сеть)", "Неизвестно (Европейский Союз)",
+	"Неизвестно (Зарезервировано)", "Неизвестно"
                                      };
-// last updated 25 sep 2011
-static const char * CountryCodes[] = { "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR",
-                                       "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH",
-                                       "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA",
-                                       "CC", "CD", "CF", "CG", "CI", "CK", "CL", "CM", "CN", "CO",
-                                       "CR", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC",
-                                       "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB",
-                                       "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR",
-                                       "GS", "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU",
-                                       "CH", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP",
-                                       "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ",
-                                       "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA",
-                                       "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ",
-                                       "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NF", "NG", "NI",
-                                       "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL",
-                                       "PM", "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU",
-                                       "RW", "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM",
-                                       "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD",
-                                       "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW",
-                                       "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA",
-                                       "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "YE", "YT", "ZA",
-                                       "ZM", "ZW", "AN", "AP", "EU", "??",
+// alex82 ... last updated 23 dec 2014
+static const char * CountryCodes[COUNTRY_COUNT] =
+{
+	"AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AR", "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF",
+	"BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG",
+	"CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CS", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO",
+	"DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG",
+	"GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "ID",
+	"IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP",
+	"KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF",
+	"MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC",
+	"NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN",
+	"PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ",
+	"SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL",
+	"TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN",
+	"VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW", "AN", "AP", "LN", "EU", "ZZ", "??"
                                      };
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -203,7 +249,7 @@ void clsIpP2Country::LoadIPv4()
 				}
 				else if (ui8d == 4)
 				{
-					for (uint8_t ui8i = 0; ui8i < 252; ui8i++)
+					for (uint8_t ui8i = 0; ui8i < COUNTRY_COUNT - 1; ui8i++)
 					{
 						if (*((uint16_t *)CountryCodes[ui8i]) == *((uint16_t *)sStart))
 						{
@@ -391,7 +437,7 @@ void clsIpP2Country::LoadIPv6()
 				}
 				else
 				{
-					for (uint8_t ui8i = 0; ui8i < 252; ui8i++)
+					for (uint8_t ui8i = 0; ui8i < COUNTRY_COUNT - 1; ui8i++)
 					{
 						if (*((uint16_t *)CountryCodes[ui8i]) == *((uint16_t *)sStart))
 						{
@@ -506,7 +552,7 @@ const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool bCount
 				}
 				else
 				{
-					return CountryNames[ui8RangeCI[ui32i]];
+					return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[ui8RangeCI[ui32i]] : CountryNames[ui8RangeCI[ui32i]];
 				}
 			}
 		}
@@ -523,7 +569,7 @@ const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool bCount
 				}
 				else
 				{
-					return CountryNames[ui8IPv6RangeCI[ui32i]];
+					return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[ui8IPv6RangeCI[ui32i]] : CountryNames[ui8IPv6RangeCI[ui32i]];
 				}
 			}
 		}
@@ -531,11 +577,11 @@ const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool bCount
 	
 	if (bCountryName == false)
 	{
-		return CountryCodes[252];
+		return CountryCodes[COUNTRY_COUNT - 1];
 	}
 	else
 	{
-		return CountryNames[252];
+		return(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[COUNTRY_COUNT - 1] : CountryNames[COUNTRY_COUNT - 1];
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -589,7 +635,7 @@ uint8_t clsIpP2Country::Find(const uint8_t * ui128IpHash)
 		}
 	}
 	
-	return 252;
+	return COUNTRY_COUNT - 1;
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -601,9 +647,24 @@ const char * clsIpP2Country::GetCountry(const uint8_t ui8dx, const bool bCountry
 	}
 	else
 	{
-		return CountryNames[ui8dx];
+		return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[ui8dx] : CountryNames[ui8dx];
 	}
 }
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// alex82 ... Определяем страну по коду
+const char * clsIpP2Country::GetCountryName(const char * sCode)
+{
+	for (uint8_t ui8i = 0; ui8i < COUNTRY_COUNT; ui8i++)
+	{
+		if (strcasecmp(CountryCodes[ui8i], sCode) == 0)
+		{
+			return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[ui8i] : CountryNames[ui8i];
+		}
+	}
+	return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[COUNTRY_COUNT - 1] : CountryNames[COUNTRY_COUNT - 1];
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void clsIpP2Country::Reload()

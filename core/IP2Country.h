@@ -44,7 +44,8 @@ class clsIpP2Country
 		uint8_t Find(const uint8_t * ui128IpHash);
 		
 		static const char * GetCountry(const uint8_t ui8dx, const bool bCountryName);
-		
+		static const char * GetCountryName(const char * sCode);
+
 		void Reload();
 };
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

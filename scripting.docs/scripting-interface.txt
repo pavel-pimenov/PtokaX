@@ -266,6 +266,7 @@ IP2Country.
 GetCountryCode(sIP)		- Return country code of given IP or nil when IP is not valid.
 GetCountryName(sIP)		- Return country name of given IP or nil when IP is not valid.
 GetCountryName(tUser)	- Return country name for given user.
+GetCountryName(sCode)	- Return country name for given country code.
 Reload()				- Reload (update) database from database files.
 
 
@@ -744,7 +745,7 @@ User data IDs for Core.GetUserData and Core.GetUserValue call.
 41	- iScriptediShareSizeShort
 42	- iScriptediShareSizeLong
 43	- tIPs
-100	- sExtJson
+100	- sExtJson // FlylinkDC++
 
 User info IDs for Core.SetUserInfo call.
 -------------------

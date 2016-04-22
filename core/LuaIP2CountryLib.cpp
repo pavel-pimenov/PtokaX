@@ -93,8 +93,16 @@ static int GetCountryName(lua_State * L)
 		const char * sIP = lua_tolstring(L, 1, &szLen);
 		
 		Hash128 ui128Hash;
-		
-		if (szLen == 0 || HashIP(sIP, ui128Hash) == false)
+
+		// alex82 ... Определяем страну по коду
+		if (szLen == 2)
+		{
+			lua_settop(L, 0);
+			lua_pushstring(L, clsIpP2Country::mPtr->GetCountryName(sIP));
+			
+			return 1;
+		}
+		else if (szLen == 0 || HashIP(sIP, ui128Hash) == false)
 		{
 			lua_settop(L, 0);
 			lua_pushnil(L);
