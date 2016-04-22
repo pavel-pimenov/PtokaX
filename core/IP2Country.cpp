@@ -122,6 +122,13 @@ static const char * CountryCodes[COUNTRY_COUNT] =
 	"TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN",
 	"VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW", "AN", "AP", "LN", "EU", "ZZ", "??"
                                      };
+static const char* TranslateCountry(int p_index)
+{
+	if (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0)
+		return CountryNamesRussian[p_index];
+	else
+		return CountryNames[p_index];
+}
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void clsIpP2Country::LoadIPv4()
@@ -552,7 +559,7 @@ const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool bCount
 				}
 				else
 				{
-					return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[ui8RangeCI[ui32i]] : CountryNames[ui8RangeCI[ui32i]];
+					return TranslateCountry(ui8RangeCI[ui32i]);
 				}
 			}
 		}
@@ -569,7 +576,7 @@ const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool bCount
 				}
 				else
 				{
-					return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[ui8IPv6RangeCI[ui32i]] : CountryNames[ui8IPv6RangeCI[ui32i]];
+					return TranslateCountry(ui8IPv6RangeCI[ui32i]);
 				}
 			}
 		}
@@ -581,7 +588,7 @@ const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool bCount
 	}
 	else
 	{
-		return(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[COUNTRY_COUNT - 1] : CountryNames[COUNTRY_COUNT - 1];
+		return TranslateCountry(COUNTRY_COUNT - 1);
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -647,7 +654,7 @@ const char * clsIpP2Country::GetCountry(const uint8_t ui8dx, const bool bCountry
 	}
 	else
 	{
-		return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[ui8dx] : CountryNames[ui8dx];
+		return TranslateCountry(ui8dx);
 	}
 }
 
@@ -659,10 +666,10 @@ const char * clsIpP2Country::GetCountryName(const char * sCode)
 	{
 		if (strcasecmp(CountryCodes[ui8i], sCode) == 0)
 		{
-			return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[ui8i] : CountryNames[ui8i];
+			return TranslateCountry(ui8i);
 		}
 	}
-	return (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0) ? CountryNamesRussian[COUNTRY_COUNT - 1] : CountryNames[COUNTRY_COUNT - 1];
+	return TranslateCountry(COUNTRY_COUNT - 1);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
