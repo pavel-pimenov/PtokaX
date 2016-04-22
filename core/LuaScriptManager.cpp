@@ -939,6 +939,9 @@ bool clsScriptManager::Arrival(User * u, const char * sData, const size_t szLen,
 #ifdef USE_FLYLINKDC_EXT_JSON		
 		,0x200000
 #endif
+		//alex82... More arrivals
+		,0x400000
+		,0x800000
 	};
 	
 	bMoved = false;
@@ -971,7 +974,9 @@ bool clsScriptManager::Arrival(User * u, const char * sData, const size_t szLen,
 #ifdef USE_FLYLINKDC_EXT_JSON
 				, "ExtJSONArrival"
 #endif
-			                               };
+				// alex82 ... More arrivals
+				, "BadPassArrival", "ValidateDenideArrival"
+			};
 			                               
 			lua_getglobal(cur->pLUA, arrival[uiType]);
 			iTop = lua_gettop(cur->pLUA);

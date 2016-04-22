@@ -122,7 +122,7 @@ static const char * CountryCodes[COUNTRY_COUNT] =
 	"TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN",
 	"VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW", "AN", "AP", "LN", "EU", "ZZ", "??"
 };
-static const char* TranslateCountry(int p_index)
+static const char* TranslateCountry(unsigned p_index)
 {
 	if (p_index < sizeof(CountryNamesRussian) / sizeof(CountryNamesRussian[0]))
 	{

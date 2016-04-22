@@ -77,6 +77,9 @@ class clsScriptManager
 #ifdef USE_FLYLINKDC_EXT_JSON		
 			, EXTJSON_ARRIVAL
 #endif
+			// alex82 ... More arrivals
+			,BAD_PASS_ARRIVAL
+			,VALIDATE_DENIDE_ARRIVAL
 		};
 		
 		clsScriptManager();

@@ -198,7 +198,7 @@ void clsDcCommands::PreProcessData(User * pUser, char * sData, const bool bCheck
 #endif // USE_FLYLINKDC_EXT_JSON
 						
 					case 'M':
-						if (memcmp(sData + 2, "yINFO ", 6) == 0)
+						if (memcmp(sData + 2, "yINFO $ALL ", 11) == 0)
 						{
 							iStatCmdMyInfo++;
 							if (((pUser->ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false)
@@ -1466,7 +1466,8 @@ void clsDcCommands::Kick(User * pUser, char * sData, const uint32_t ui32Len)
 			return;
 		}
 		
-		if (OtherUser->i32Profile != -1 && pUser->i32Profile > OtherUser->i32Profile)
+		// alex82 ... Запретили юзерам с одинаковыми профилями кикать друг друга
+		if (OtherUser->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= OtherUser->i32Profile)
 		{
 			pUser->SendFormat("clsDcCommands::Kick3", true, "<%s> %s %s!|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_NOT_ALLOWED_TO_KICK], OtherUser->sNick);
 			return;
@@ -2206,6 +2207,9 @@ void clsDcCommands::MyPass(User * pUser, char * sData, const uint32_t ui32Len)
 				pReg->ui8BadPassCount++;
 		}
 		
+		// alex82 ... добавили BadPassArrival
+		clsScriptManager::mPtr->Arrival(pUser, sData + 8, ui32Len - 9, clsScriptManager::BAD_PASS_ARRIVAL);
+		
 		if (clsSettingManager::mPtr->i16Shorts[SETSHORT_BRUTE_FORCE_PASS_PROTECT_BAN_TYPE] != 0)
 		{
 			// brute force password protection
@@ -2420,7 +2424,8 @@ void clsDcCommands::OpForceMove(User * pUser, char * sData, const uint32_t ui32L
 	User *OtherUser = clsHashManager::mPtr->FindUser(sCmdParts[0], iCmdPartsLen[0]);
 	if (OtherUser)
 	{
-		if (OtherUser->i32Profile != -1 && pUser->i32Profile > OtherUser->i32Profile)
+		// alex82 ... Запретили юзерам с одинаковыми профилями перенаправлять друг друга
+		if (OtherUser->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= OtherUser->i32Profile)
 		{
 			pUser->SendFormat("clsDcCommands::OpForceMove2", true, "<%s> %s %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_NOT_ALLOWED_TO_REDIRECT], OtherUser->sNick);
 			return;
@@ -2650,22 +2655,7 @@ void clsDcCommands::Supports(User * pUser, char * sData, const uint32_t ui32Len)
 		return;
 	}
 	
-	if (sData[ui32Len - 2] == ' ')
-	{
-		if (clsSettingManager::mPtr->bBools[SETBOOL_NO_QUACK_SUPPORTS] == false)
-		{
-			pUser->ui32BoolBits |= User::BIT_QUACK_SUPPORTS;
-		}
-		else
-		{
-			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Quack $Supports from %s (%s) - user closed. (%s)", pUser->sNick, pUser->sIP, sData);
-			
-			pUser->SendFormat("clsDcCommands::Supports1", false, "<%s> %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_QUACK_SUPPORTS]);
-			
-			pUser->Close();
-			return;
-		}
-	}
+	// alex82 ... Удалили бессмысленную опцию "Отключать клиенты, отправляющие $Supports с ошибками", поскольку "ошибками" считается только лишний пробел в конце команды.
 	
 	clsScriptManager::mPtr->Arrival(pUser, sData, ui32Len, clsScriptManager::SUPPORTS_ARRIVAL);
 	
@@ -3023,7 +3013,8 @@ void clsDcCommands::To(User * pUser, char * sData, const uint32_t ui32Len, const
 				}
 				
 				// HubCommands
-				if (ui32Len1 - pUser->ui8NickLen >= 10)
+				// alex82 ... Уменьшили минимальную длину команды
+				if (ui32Len1 - pUser->ui8NickLen >= 7)
 				{
 					if (clsHubCommands::DoCommand(pUser, sBuff, ui32Len1, true)) return;
 				}
@@ -3672,6 +3663,8 @@ bool clsDcCommands::ValidateUserNick(User * pUser, const char * sNick, const siz
 			
 				if (Reg == NULL)
 				{
+					// alex82 ... добавили ValidateDenideArrival
+					clsScriptManager::mPtr->Arrival(pUser, sNick, szNickLen, clsScriptManager::VALIDATE_DENIDE_ARRIVAL);
 					if (// TODO OtherUser->ui64SharedSize == pUser->ui64SharedSize &&
 					    strcmp(OtherUser->sNick, pUser->sNick) == 0 && strcmp(OtherUser->sIP, pUser->sIP) == 0) //[+] FlylinkDC++
 					{
@@ -3958,7 +3951,8 @@ void clsDcCommands::ProcessCmds(User * pUser)
 					}
 					
 					// built-in commands
-					if (cur->ui32Len - pUser->ui8NickLen >= 9)
+					// alex82 ... Уменьшили минимальную длину команды
+					if (cur->ui32Len - pUser->ui8NickLen >= 6)
 					{
 						if (clsHubCommands::DoCommand(pUser, sBuff - (pUser->ui8NickLen - 1), cur->ui32Len)) break;
 						
@@ -4100,8 +4094,12 @@ bool CheckPort(char * sData, char cPortEnd)
 		if (isdigit(sData[ui8i]) != 0)
 		{
 			continue;
+			// alex82 ... NAT Traversal fix by Pavel Pimenov
 		}
-		else if (sData[ui8i] == cPortEnd || (cPortEnd == '|' && sData[ui8i] == 'S' && sData[ui8i + 1] == cPortEnd))
+		else if (sData[ui8i] == cPortEnd ||
+		         (cPortEnd == '|' && sData[ui8i] == 'S' && sData[ui8i + 1] == cPortEnd) ||
+		         (sData[ui8i] == 'N' && (sData[ui8i + 1] == 'S' || sData[ui8i + 1] == ' ')) ||
+		         (sData[ui8i] == 'R' && (sData[ui8i + 1] == 'S' || sData[ui8i + 1] == '|')))
 		{
 			char cEnd = sData[ui8i];
 			sData[ui8i] = '\0';
@@ -4303,7 +4301,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t ui32Len)
 		return;
 	}
 	
-	strcpy(pOtherUser->sIPv4, pUser->sIP); //TODO bug
+	strcpy(pOtherUser->sIPv4, pUser->sIP);
 	pOtherUser->ui8IPv4Len = pUser->ui8IpLen;
 	pOtherUser->ui32BoolBits |= User::BIT_IPV4;
 	

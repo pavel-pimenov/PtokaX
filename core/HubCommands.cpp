@@ -313,7 +313,8 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 				}
 				
 				// PPK don't gag user with higher profile
-				if (pOtherUser->i32Profile != -1 && pUser->i32Profile > pOtherUser->i32Profile)
+				// alex82 ... Запретили юзерам с одинаковыми профилями глушить друг друга
+				if (pOtherUser->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= pOtherUser->i32Profile)
 				{
 					pUser->SendFormatCheckPM("clsHubCommands::DoCommand->gag6", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_NOT_ALW_TO_GAG], pOtherUser->sNick);
 					return true;
@@ -377,7 +378,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 						return true;
 					}
 #elif _WITH_MYSQL
-					if (DBMySQL::mPtr->SearchNick(sCommand, dlen - 8, pUser, bFromPM) == true)
+					if (DBMySQL::mPtr->SearchNick(sCommand, (uint8_t)dlen - 8, pUser, bFromPM) == true)
 					{
 						UncountDeflood(pUser, bFromPM);
 						return true;
@@ -1195,7 +1196,8 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 				if (pOtherUser != NULL)
 				{
 					// PPK don't nickban user with higher profile
-					if (pOtherUser->i32Profile != -1 && pUser->i32Profile > pOtherUser->i32Profile)
+					// alex82 ... Запретили юзерам с одинаковыми профилями банить друг друга
+					if (pOtherUser->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= pOtherUser->i32Profile)
 					{
 						pUser->SendFormatCheckPM("clsHubCommands::DoCommand->nickban5", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_NOT_ALLOWED_TO],
 						                         clsLanguageManager::mPtr->sTexts[LAN_BAN_LWR], pOtherUser->sNick);
@@ -1327,7 +1329,8 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 				if (pOtherUser != NULL)
 				{
 					// PPK don't tempban user with higher profile
-					if (pOtherUser->i32Profile != -1 && pUser->i32Profile > pOtherUser->i32Profile)
+					// alex82 ... Запретили юзерам с одинаковыми профилями банить друг друга
+					if (pOtherUser->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= pOtherUser->i32Profile)
 					{
 						pUser->SendFormatCheckPM("clsHubCommands::DoCommand->nicktempban5", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_NOT_ALLOWED_TO],
 						                         clsLanguageManager::mPtr->sTexts[LAN_TEMP_BAN_NICK], pOtherUser->sNick);
@@ -2288,7 +2291,8 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 				}
 				
 				// PPK don't drop user with higher profile
-				if (pOtherUser->i32Profile != -1 && pUser->i32Profile > pOtherUser->i32Profile)
+				// alex82 ... Запретили юзерам с одинаковыми профилями банить друг друга
+				if (pOtherUser->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= pOtherUser->i32Profile)
 				{
 					pUser->SendFormatCheckPM("clsHubCommands::DoCommand->drop6", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_NOT_ALLOWED_TO],
 					                         clsLanguageManager::mPtr->sTexts[LAN_DROP_LWR], pOtherUser->sNick);
@@ -4572,7 +4576,8 @@ bool clsHubCommands::Ban(User * pUser, char * sCommand, bool bFromPM, bool bFull
 	if (pOtherUser != NULL)
 	{
 		// PPK don't ban user with higher profile
-		if (pOtherUser->i32Profile != -1 && pUser->i32Profile > pOtherUser->i32Profile)
+		// alex82 ... Запретили юзерам с одинаковыми профилями банить друг друга
+		if (pOtherUser->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= pOtherUser->i32Profile)
 		{
 			pUser->SendFormatCheckPM("clsHubCommands::Ban4", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_NOT_ALWD_TO_BAN], sCommand);
 			return true;
@@ -4673,7 +4678,8 @@ bool clsHubCommands::BanIp(User * pUser, char * sCommand, bool bFromPM, bool bFu
 				}
 				
 				// PPK don't nickban user with higher profile
-				if (pCur->i32Profile != -1 && pUser->i32Profile > pCur->i32Profile)
+				// alex82 ... Запретили юзерам с одинаковыми профилями банить друг друга
+				if (pCur->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= pCur->i32Profile)
 				{
 					pUser->SendFormatCheckPM("clsHubCommands::BanIp2", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_NOT_ALLOWED_TO],
 					                         clsLanguageManager::mPtr->sTexts[LAN_BAN_LWR], pCur->sNick);
@@ -4723,7 +4729,8 @@ bool clsHubCommands::NickBan(User * pUser, const char * sNick, char * sReason, b
 	RegUser * pReg = clsRegManager::mPtr->Find(sNick, strlen(sNick));
 	
 	// don't nickban user with higher profile
-	if (pReg != NULL && pUser->i32Profile > pReg->ui16Profile)
+	// alex82 ... Запретили юзерам с одинаковыми профилями банить друг друга
+	if (pReg != NULL && pUser->i32Profile != 0 && pUser->i32Profile >= pReg->ui16Profile)
 	{
 		pUser->SendFormatCheckPM("clsHubCommands::NickBan1", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_NOT_ALLOWED_TO],
 		                         clsLanguageManager::mPtr->sTexts[LAN_BAN_LWR], sNick);
@@ -4830,7 +4837,8 @@ bool clsHubCommands::TempBan(User * pUser, char * sCommand, const size_t dlen, b
 	if (pOtherUser != NULL)
 	{
 		// PPK don't tempban user with higher profile
-		if (pOtherUser->i32Profile != -1 && pUser->i32Profile > pOtherUser->i32Profile)
+		// alex82 ... Запретили юзерам с одинаковыми профилями банить друг друга
+		if (pOtherUser->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= pOtherUser->i32Profile)
 		{
 			pUser->SendFormatCheckPM("clsHubCommands::TempBan4", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_ARE_NOT_ALWD_TO_TEMPBAN], sCmdParts[0]);
 			return true;
@@ -4976,7 +4984,8 @@ bool clsHubCommands::TempBanIp(User * pUser, char * sCommand, const size_t dlen,
 				}
 				
 				// PPK don't nickban user with higher profile
-				if (pCur->i32Profile != -1 && pUser->i32Profile > pCur->i32Profile)
+				// alex82 ... Запретили юзерам с одинаковыми профилями банить друг друга
+				if (pCur->i32Profile != -1 && pUser->i32Profile != 0 && pUser->i32Profile >= pCur->i32Profile)
 				{
 					pUser->SendFormatCheckPM("clsHubCommands::TempBanIp3", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_NOT_ALLOWED_TO],
 					                         clsLanguageManager::mPtr->sTexts[LAN_BAN_LWR], pCur->sNick);
@@ -5033,7 +5042,8 @@ bool clsHubCommands::TempNickBan(User * pUser, const char * sNick, char * sTime,
 	RegUser * pReg = clsRegManager::mPtr->Find(sNick, strlen(sNick));
 	
 	// don't nickban user with higher profile
-	if (pReg != NULL && pUser->i32Profile > pReg->ui16Profile)
+	// alex82 ... Запретили юзерам с одинаковыми профилями банить друг друга
+	if (pReg != NULL && pUser->i32Profile != 0 && pUser->i32Profile >= pReg->ui16Profile)
 	{
 		pUser->SendFormatCheckPM("clsHubCommands::TempNickBan1", bFromPM == true ? clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_NOT_ALLOWED_TO],
 		                         clsLanguageManager::mPtr->sTexts[LAN_BAN_LWR], sNick);
