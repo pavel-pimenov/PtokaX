@@ -121,13 +121,20 @@ static const char * CountryCodes[COUNTRY_COUNT] =
 	"SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL",
 	"TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN",
 	"VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW", "AN", "AP", "LN", "EU", "ZZ", "??"
-                                     };
+};
 static const char* TranslateCountry(int p_index)
 {
-	if (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0)
-		return CountryNamesRussian[p_index];
+	if (p_index < sizeof(CountryNamesRussian) / sizeof(CountryNamesRussian[0]))
+	{
+		if (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0)
+			return CountryNamesRussian[p_index];
+		else
+			return CountryNames[p_index];
+	}
 	else
-		return CountryNames[p_index];
+	{
+		return "Error country index";
+	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

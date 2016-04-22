@@ -103,6 +103,7 @@ DBSQLite::DBSQLite()
     iRet = sqlite3_exec(pDB, "ALTER TABLE userinfo ADD COLUMN message_count INTEGER default 0;", NULL, NULL, &sErrMsg);
 	if (iRet == SQLITE_OK)
 	{
+/*
 		if (iRet != SQLITE_OK)
 		{
 			bConnected = false;
@@ -111,6 +112,7 @@ DBSQLite::DBSQLite()
 			sqlite3_close(pDB);
 			return;
 		}
+		*/
 	}
 	iRet = sqlite3_exec(pDB, "CREATE INDEX IF NOT EXISTS i_userinfo_message_count ON userinfo(message_count);", NULL, NULL, &sErrMsg);
 	if (iRet != SQLITE_OK)

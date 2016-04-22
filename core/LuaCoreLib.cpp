@@ -35,6 +35,9 @@
 #include "UdpDebug.h"
 #include "User.h"
 #include "utility.h"
+// alex82 ... Добавили функции статистики
+#include "DcCommands.h"
+
 //---------------------------------------------------------------------------
 #ifdef _WIN32
 #pragma hdrstop
@@ -2528,6 +2531,57 @@ static int SendToUser(lua_State * L)
 }
 //------------------------------------------------------------------------------
 
+static int SendAsUser(lua_State * L)
+{
+	if (lua_gettop(L) != 2)
+	{
+		luaL_error(L, "bad argument count to 'SendAsUser' (2 expected, got %d)", lua_gettop(L));
+		lua_settop(L, 0);
+		return 0;
+	}
+	
+	if (lua_type(L, 1) != LUA_TTABLE || lua_type(L, 2) != LUA_TSTRING)
+	{
+		luaL_checktype(L, 1, LUA_TTABLE);
+		luaL_checktype(L, 2, LUA_TSTRING);
+		lua_settop(L, 0);
+		return 0;
+	}
+	
+	User *u = ScriptGetUser(L, 2, "SendAsUser");
+	
+	if (u == NULL)
+	{
+		lua_settop(L, 0);
+		return 0;
+	}
+	
+	size_t szLen;
+	char * sData = (char *)lua_tolstring(L, 2, &szLen);
+	
+	if (szLen == 0 || szLen > 65535)
+	{
+		lua_settop(L, 0);
+		return 0;
+	}
+	
+	if (sData[szLen - 1] != '|')
+	{
+		luaL_error(L, "invalid command");
+		lua_settop(L, 0);
+		return 0;
+	}
+	else
+	{
+		clsDcCommands::mPtr->PreProcessData(u, sData, true, szLen);
+		clsDcCommands::mPtr->ProcessCmds(u);
+	}
+	
+	lua_settop(L, 0);
+	return 0;
+}
+//------------------------------------------------------------------------------
+
 static int SendPmToAll(lua_State * L)
 {
 	if (lua_gettop(L) != 2)
@@ -3061,6 +3115,7 @@ static const luaL_Reg core[] =
 	{ "SendToOps", SendToOps },
 	{ "SendToProfile", SendToProfile },
 	{ "SendToUser", SendToUser },
+	{ "SendAsUser", SendAsUser },
 	{ "SendPmToAll", SendPmToAll },
 	{ "SendPmToNick", SendPmToNick },
 	{ "SendPmToOps", SendPmToOps },

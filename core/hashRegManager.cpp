@@ -726,6 +726,10 @@ void clsRegManager::Load(void)
 			else
 			{
 				Add(pNewUser);
+#ifdef _DEBUG
+				//const string l_nick((const char *)pxbRegs.pItemDatas[0], pxbRegs.ui16ItemLengths[0]);
+				//printf("[MEM] OK Allocate new User = %s\n", l_nick.c_str());
+#endif
 			}
 			
 		}
