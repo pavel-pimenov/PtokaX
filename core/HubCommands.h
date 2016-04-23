@@ -41,6 +41,7 @@ class clsHubCommands
 		static void SendNoPermission(User * pUser, const bool bFromPM);
 		static int CheckFromPm(User * pUser, const bool bFromPM);
 		static void UncountDeflood(User * pUser, const bool bFromPM);
+		static void BanAppandInternal(BanItem * curBan, string & BanList, uint32_t iBanNum);
 	public:
 		static bool DoCommand(User * pUser, char * sCommand, const size_t szCmdLen, bool bFromPM = false);
 };

@@ -63,6 +63,44 @@
 #pragma comment(lib, "psapi.lib")
 #endif
 
+void clsHubCommands::BanAppandInternal(BanItem * curBan, string & BanList, uint32_t iBanNum)
+{
+	BanList += "[ " + string(iBanNum) + " ]";
+
+	if (curBan->sIp[0] != '\0')
+	{
+		if (((curBan->ui8Bits & clsBanManager::IP) == clsBanManager::IP) == true)
+		{
+			BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
+		}
+		BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_IP], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_IP]) + ": " + string(curBan->sIp);
+		if (((curBan->ui8Bits & clsBanManager::FULL) == clsBanManager::FULL) == true)
+		{
+			BanList += " (" + string(clsLanguageManager::mPtr->sTexts[LAN_FULL], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FULL]) + ")";
+		}
+	}
+
+	if (curBan->sNick != NULL)
+	{
+		if (((curBan->ui8Bits & clsBanManager::NICK) == clsBanManager::NICK) == true)
+		{
+			BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
+		}
+		BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_NICK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_NICK]) + ": " + string(curBan->sNick);
+	}
+
+	if (curBan->sBy != NULL)
+	{
+		BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BY], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BY]) + ": " + string(curBan->sBy);
+	}
+
+	if (curBan->sReason != NULL)
+	{
+		BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_REASON], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_REASON]) + ": " + string(curBan->sReason);
+	}
+
+}
+
 bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmdLen, bool bFromPM/* = false*/)
 {
 	size_t dlen;
@@ -151,39 +189,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 						}
 						
 						iBanNum++;
-						BanList += "[ " + string(iBanNum) + " ]";
-						
-						if (curBan->sIp[0] != '\0')
-						{
-							if (((curBan->ui8Bits & clsBanManager::IP) == clsBanManager::IP) == true)
-							{
-								BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
-							}
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_IP], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_IP]) + ": " + string(curBan->sIp);
-							if (((curBan->ui8Bits & clsBanManager::FULL) == clsBanManager::FULL) == true)
-							{
-								BanList += " (" + string(clsLanguageManager::mPtr->sTexts[LAN_FULL], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FULL]) + ")";
-							}
-						}
-						
-						if (curBan->sNick != NULL)
-						{
-							if (((curBan->ui8Bits & clsBanManager::NICK) == clsBanManager::NICK) == true)
-							{
-								BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
-							}
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_NICK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_NICK]) + ": " + string(curBan->sNick);
-						}
-						
-						if (curBan->sBy != NULL)
-						{
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BY], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BY]) + ": " + string(curBan->sBy);
-						}
-						
-						if (curBan->sReason != NULL)
-						{
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_REASON], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_REASON]) + ": " + string(curBan->sReason);
-						}
+						BanAppandInternal(curBan, BanList, iBanNum);
 						
 						struct tm *tm = localtime(&curBan->tTempBanExpire);
 						strftime(clsServerManager::pGlobalBuffer, 256, "%c\n", tm);
@@ -214,39 +220,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 						nextBan = curBan->pNext;
 						
 						iBanNum++;
-						BanList += "[ " + string(iBanNum) + " ]";
-						
-						if (curBan->sIp[0] != '\0')
-						{
-							if (((curBan->ui8Bits & clsBanManager::IP) == clsBanManager::IP) == true)
-							{
-								BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
-							}
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_IP], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_IP]) + ": " + string(curBan->sIp);
-							if (((curBan->ui8Bits & clsBanManager::FULL) == clsBanManager::FULL) == true)
-							{
-								BanList += " (" + string(clsLanguageManager::mPtr->sTexts[LAN_FULL], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FULL]) + ")";
-							}
-						}
-						
-						if (curBan->sNick != NULL)
-						{
-							if (((curBan->ui8Bits & clsBanManager::NICK) == clsBanManager::NICK) == true)
-							{
-								BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
-							}
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_NICK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_NICK]) + ": " + string(curBan->sNick);
-						}
-						
-						if (curBan->sBy != NULL)
-						{
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BY], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BY]) + ": " + string(curBan->sBy);
-						}
-						
-						if (curBan->sReason != NULL)
-						{
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_REASON], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_REASON]) + ": " + string(curBan->sReason);
-						}
+						BanAppandInternal(curBan, BanList, iBanNum);
 						
 						BanList += "\n";
 					}
@@ -611,39 +585,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 						}
 						
 						iBanNum++;
-						BanList += "[ " + string(iBanNum) + " ]";
-						
-						if (curBan->sIp[0] != '\0')
-						{
-							if (((curBan->ui8Bits & clsBanManager::IP) == clsBanManager::IP) == true)
-							{
-								BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
-							}
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_IP], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_IP]) + ": " + string(curBan->sIp);
-							if (((curBan->ui8Bits & clsBanManager::FULL) == clsBanManager::FULL) == true)
-							{
-								BanList += " (" + string(clsLanguageManager::mPtr->sTexts[LAN_FULL], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FULL]) + ")";
-							}
-						}
-						
-						if (curBan->sNick != NULL)
-						{
-							if (((curBan->ui8Bits & clsBanManager::NICK) == clsBanManager::NICK) == true)
-							{
-								BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
-							}
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_NICK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_NICK]) + ": " + string(curBan->sNick);
-						}
-						
-						if (curBan->sBy != NULL)
-						{
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BY], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BY]) + ": " + string(curBan->sBy);
-						}
-						
-						if (curBan->sReason != NULL)
-						{
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_REASON], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_REASON]) + ": " + string(curBan->sReason);
-						}
+						BanAppandInternal(curBan, BanList, iBanNum);
 						
 						struct tm *tm = localtime(&curBan->tTempBanExpire);
 						strftime(clsServerManager::pGlobalBuffer, 256, "%c\n", tm);
@@ -749,39 +691,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 						nextBan = curBan->pNext;
 						
 						iBanNum++;
-						BanList += "[ " + string(iBanNum) + " ]";
-						
-						if (curBan->sIp[0] != '\0')
-						{
-							if (((curBan->ui8Bits & clsBanManager::IP) == clsBanManager::IP) == true)
-							{
-								BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
-							}
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_IP], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_IP]) + ": " + string(curBan->sIp);
-							if (((curBan->ui8Bits & clsBanManager::FULL) == clsBanManager::FULL) == true)
-							{
-								BanList += " (" + string(clsLanguageManager::mPtr->sTexts[LAN_FULL], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FULL]) + ")";
-							}
-						}
-						
-						if (curBan->sNick != NULL)
-						{
-							if (((curBan->ui8Bits & clsBanManager::NICK) == clsBanManager::NICK) == true)
-							{
-								BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BANNED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BANNED]);
-							}
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_NICK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_NICK]) + ": " + string(curBan->sNick);
-						}
-						
-						if (curBan->sBy != NULL)
-						{
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_BY], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_BY]) + ": " + string(curBan->sBy);
-						}
-						
-						if (curBan->sReason != NULL)
-						{
-							BanList += " " + string(clsLanguageManager::mPtr->sTexts[LAN_REASON], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_REASON]) + ": " + string(curBan->sReason);
-						}
+						BanAppandInternal(curBan, BanList, iBanNum);
 						
 						BanList += "\n";
 					}
