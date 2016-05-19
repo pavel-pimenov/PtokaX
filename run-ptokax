@@ -3,7 +3,11 @@
 if [ -n `locale -a|grep -i ru_RU.cp1251` ]; then
 LANG=ru_RU.CP1251
 export LUA_PATH='/home/dc/src/PtokaX/scripts/libs/?.lua;;'
+while true
+do
 ./PtokaX
+sleep 5s
+done
 else
 echo 'ERROR: run $sudolocaledef -c -i ru_RU -f CP1251 ru_RU.CP1251'
 fi
