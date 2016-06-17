@@ -1,6 +1,6 @@
 #[+]FlylinkDC++
 # dpkg-reconfigure tzdata
-# sudo apt-get install liblua5.1-0-dev zlib1g-dev libtinyxml-dev lua-filesystem lua-iconv lua-sql-sqlite3 lua-svn libsqlite3-dev valgrind cmake build-essential sqlite3 screen
+# sudo apt-get install liblua5.1-0-dev zlib1g-dev libtinyxml-dev lua-filesystem lua-iconv lua-sql-sqlite3 lua-svn libsqlite3-dev valgrind cmake build-essential sqlite3 screen curl
 # Этих нет в ubuntu 14.04
 # sudo apt-get install liblua5.1-0-dev denyhosts
 
@@ -11,8 +11,8 @@
 # Add swap - https://www.digitalocean.com/community/tutorials/how-to-add-swap-on-ubuntu-14-04
 # sudo apt-get install ntp conntrack lighttpd munin htop mc vnstat nload git subversion webalizer
 #  ------ lighttpd -------
-# /usr/sbin/lighty-enable-mod status
-# /usr/sbin/lighty-enable-mod accesslog
+# sudo /usr/sbin/lighty-enable-mod status
+# sudo /usr/sbin/lighty-enable-mod accesslog
 #  ------ webalizer ------
 # /etc/webalizer# diff webalizer.conf webalizer.conf.sample
 #  LogFile /var/log/lighttpd/access.log.1
@@ -25,6 +25,9 @@
 #$ sudo apt-get install geoipupdate
 # -----------------------
 # ln -s /usr/share/munin/plugins/fw_conntrack /etc/munin/plugins/fw_conntrack
+# ln -s /usr/share/munin/plugins/nginx_request /etc/munin/plugins/nginx_request
+# ln -s /usr/share/munin/plugins/nginx_status /etc/munin/plugins/nginx_status
+  
 
 # ln -s /usr/share/munin/plugins/apache_accesses /etc/munin/plugins/apache_accesses
 # ln -s /usr/share/munin/plugins/apache_processes /etc/munin/plugins/apache_processes  

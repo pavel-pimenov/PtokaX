@@ -654,23 +654,29 @@ void clsUsers::Add2ExtJSON(const User * pUser)
 		const std::string l_ext_json_info = pUser->m_user_ext_info->GetExtJSONCommand();
 		const size_t i = m_AllExtJSON.find(l_ext_json_info);
 		if (i == std::string::npos)
+		{
 			m_AllExtJSON += l_ext_json_info;
+		}
 		else
 		{
-			// assert!
+		//	printf("Skip duplicate clsUsers::Add2ExtJSON l_ext_json_info = %s\r\n", l_ext_json_info.c_str());
 		}
 	}
 }
 //---------------------------------------------------------------------------
 void clsUsers::DelFromExtJSONInfos(const User * pUser)
 {
-	if (pUser->m_user_ext_info)
+	if (pUser->m_user_ext_info && !m_AllExtJSON.empty())
 	{
 		const std::string l_ext_json_info = pUser->m_user_ext_info->GetExtJSONCommand();
 		const size_t i = m_AllExtJSON.find(l_ext_json_info);
 		if (i != std::string::npos)
 		{
 			m_AllExtJSON.erase(i, l_ext_json_info.size());
+		}
+		else
+		{
+		//	printf("Skip erase clsUsers::DelFromExtJSONInfos l_ext_json_info = %s\r\n", l_ext_json_info.c_str());
 		}
 	}
 }

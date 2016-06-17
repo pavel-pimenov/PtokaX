@@ -32,7 +32,7 @@ struct BanItemBase
 	char * sBy;
 	uint8_t ui8Bits;
 
-	BanItemBase() : sReason(NULL), sBy(NULL), tTempBanExpire(0), ui8Bits(0)
+	BanItemBase() : tTempBanExpire(0), sReason(NULL), sBy(NULL), ui8Bits(0)
 	{
 	}
 	virtual ~BanItemBase();

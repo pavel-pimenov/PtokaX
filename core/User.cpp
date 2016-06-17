@@ -1026,7 +1026,7 @@ void User::SendChar(const char * cText, const size_t szTextLen)
 	else
 	{
 		uint32_t iLen = 0;
-		char *sData = clsZlibUtility::mPtr->CreateZPipe(cText, szTextLen, iLen);
+		const char *sData = clsZlibUtility::mPtr->CreateZPipe(cText, szTextLen, iLen);
 		
 		if (iLen == 0)
 		{
@@ -1081,7 +1081,7 @@ void User::SendCharDelayed(const char * cText, const size_t szTextLen)
 	else
 	{
 		uint32_t iLen = 0;
-		char *sPipeData = clsZlibUtility::mPtr->CreateZPipe(cText, szTextLen, iLen);
+		const char *sPipeData = clsZlibUtility::mPtr->CreateZPipe(cText, szTextLen, iLen);
 		
 		if (iLen == 0)
 		{
@@ -1110,7 +1110,7 @@ void User::SendTextDelayed(const string &sText)
 	else
 	{
 		uint32_t iLen = 0;
-		char *sData = clsZlibUtility::mPtr->CreateZPipe(sText.c_str(), sText.size(), iLen);
+		const char *sData = clsZlibUtility::mPtr->CreateZPipe(sText.c_str(), sText.size(), iLen);
 		
 		if (iLen == 0)
 		{
@@ -1155,7 +1155,7 @@ void User::SendFormat(const char * sFrom, const bool bDelayed, const char * sFor
 	else
 	{
 		uint32_t iLen = 0;
-		char *sData = clsZlibUtility::mPtr->CreateZPipe(clsServerManager::pGlobalBuffer, iRet, iLen);
+		const char *sData = clsZlibUtility::mPtr->CreateZPipe(clsServerManager::pGlobalBuffer, iRet, iLen);
 		
 		if (iLen == 0)
 		{
@@ -1222,7 +1222,7 @@ void User::SendFormatCheckPM(const char * sFrom, const char * sOtherNick, const 
 	else
 	{
 		uint32_t iLen = 0;
-		char *sData = clsZlibUtility::mPtr->CreateZPipe(clsServerManager::pGlobalBuffer, iMsgLen, iLen);
+		const char *sData = clsZlibUtility::mPtr->CreateZPipe(clsServerManager::pGlobalBuffer, iMsgLen, iLen);
 		
 		if (iLen == 0)
 		{
