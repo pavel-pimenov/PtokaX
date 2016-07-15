@@ -36,6 +36,7 @@
 #endif
 //---------------------------------------------------------------------------
 clsUdpDebug * clsUdpDebug::mPtr = NULL;
+bool g_isUseSyslog = false;
 //---------------------------------------------------------------------------
 
 clsUdpDebug::UdpDbgItem::UdpDbgItem() : pPrev(NULL), pNext(NULL), sNick(NULL),
@@ -88,6 +89,7 @@ clsUdpDebug::~clsUdpDebug()
 void clsUdpDebug::Broadcast(const char * msg, const size_t szMsgLen) const
 {
 #ifndef _WIN32
+	if(g_isUseSyslog)
 	{
 		std::string l_str(msg, szMsgLen);
 		//printf("%s\r", l_str.c_str());
@@ -125,6 +127,7 @@ void clsUdpDebug::BroadcastFormat(const char * sFormatMsg, ...) const
 {
 
 #ifndef _WIN32
+	if (g_isUseSyslog)
 	{
 		std::string l_str;
 		l_str.resize(65535);

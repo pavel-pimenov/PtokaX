@@ -47,7 +47,19 @@ static void SigHandler(int sig)
 	sigaction(sig, &sigact, NULL);
 }
 //---------------------------------------------------------------------------
-
+static void showUsage()
+{
+  printf("Usage: PtokaX [-d] [-v] [-m] [-c configdir] [-p pidfile]\n\n"
+         "Options:\n"
+         "\t-d\t\t- run as daemon.\n"
+         "\t-c configdir\t- absolute path to PtokaX configuration directory.\n"
+         "\t-p pidfile\t-p <pidfile>	- path with filename where PtokaX PID will be stored.\n"
+         "\t-v\t\t- show PtokaX version with build date and time.\n"
+         "\t-m\t\t- show PtokaX configuration menu.\n"
+         "\t-use-syslog\t\t- Use syslog.\n"
+        );
+}
+//---------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
 	bool bSetup = false;
@@ -106,14 +118,7 @@ int main(int argc, char* argv[])
 		}
 		else if (strcasecmp(argv[i], "-h") == 0)
 		{
-			printf("Usage: PtokaX [-d] [-v] [-m] [-c configdir] [-p pidfile]\n\n"
-			       "Options:\n"
-			       "\t-d\t\t- run as daemon.\n"
-			       "\t-c configdir\t- absolute path to PtokaX configuration directory.\n"
-			       "\t-p pidfile\t-p <pidfile>	- path with filename where PtokaX PID will be stored.\n"
-			       "\t-v\t\t- show PtokaX version with build date and time.\n"
-			       "\t-m\t\t- show PtokaX configuration menu.\n"
-			      );
+			showUsage();
 			return EXIT_SUCCESS;
 		}
 		else if (strcasecmp(argv[i], "-p") == 0)
@@ -126,6 +131,12 @@ int main(int argc, char* argv[])
 			
 			sPidFile = argv[i];
 		}
+		 else if(strcmp(argv[i], "-use-syslog") == 0)
+		{
+			 extern bool g_isUseSyslog;
+			 g_isUseSyslog = true;
+			 printf("\r\n[+] Use syslog for debug\r\n");
+		}
 		else if (strcasecmp(argv[i], "/generatexmllanguage") == 0)
 		{
 			clsLanguageManager::GenerateXmlExample();
@@ -137,14 +148,8 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			printf("Unknown parameter %s.\nUsage: PtokaX [-d] [-v] [-m] [-c configdir] [-p pidfile]\n\n"
-			       "Options:\n"
-			       "\t-d\t\t- run as daemon.\n"
-			       "\t-c configdir\t- absolute path to PtokaX configuration directory.\n"
-			       "\t-p pidfile\t-p <pidfile>	- path with filename where PtokaX PID will be stored.\n"
-			       "\t-v\t\t- show PtokaX version with build date and time.\n"
-			       "\t-m\t\t- show PtokaX configuration menu.\n",
-			       argv[i]);
+			printf("Unknown parameter %s.\n",argv[i]);
+			showUsage();
 			return EXIT_SUCCESS;
 		}
 	}

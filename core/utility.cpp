@@ -46,11 +46,15 @@ static const int MAX_PAT_SIZE = 64;
 static const int MAX_ALPHABET_SIZE = 255;
 */
 //---------------------------------------------------------------------------
+extern bool g_isUseSyslog;
 
 void AppendSyslog(const char* sType, const char * sData)
 {
 #ifndef _WIN32
-	syslog(LOG_NOTICE, "[%s] %s", sType, sData);
+	if (g_isUseSyslog)
+	{
+		syslog(LOG_NOTICE, "[%s] %s", sType, sData);
+	}
 #endif
 }
 
@@ -1095,6 +1099,7 @@ void AppendDebugLog(const char * sData)
 void AppendDebugLogFormat(const char * sFormatMsg, ...)
 {
 #ifndef _WIN32 // [+]FlylinkDC++
+	if (g_isUseSyslog)
 	{
 		std::string l_str;
 		l_str.resize(65535);

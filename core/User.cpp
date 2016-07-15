@@ -461,10 +461,19 @@ static void UserParseMyInfo(User * u)
 							u->SendFormat("UserParseMyInfo2", false, "<%s> %s!|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_FAKE_TAG]);
 							
 							u->sTag[u->ui8TagLen] = '\0';
-							clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) with fake Tag disconnected: %s", u->sNick, u->sIP, u->sTag);
-							
-							u->Close();
-							return;
+							clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) with fake Tag: %s", u->sNick, u->sIP, u->sTag);
+
+							//
+							// [-] FlylinkDC++ fix User JuniorSD_R166 with fake Tag disconnected: <FlylinkDC++ V:r503-x64-19807,M ,H:0/0/0,S:15>
+							// u->Close();
+							// return;
+							//
+							u->iNormalHubs = 1; // [+]FlylinkDC++
+							if (u->Hubs == 0)
+							{
+								u->Hubs = 1;
+							}
+							break;
 						}
 						case 'S':
 							if (sTagPart[2] == '\0')
@@ -1645,10 +1654,7 @@ void User::SetMyInfoOriginal(const char * sNewMyInfo, const uint16_t ui16NewMyIn
 		ui32InfoBits &= ~INFOBIT_SHARE_CHANGED;
 	}
 	
-	if (sOldMyInfo)
-	{
-		free(sOldMyInfo);
-	}
+	safe_free(sOldMyInfo);
 	
 	if (((ui32InfoBits & INFOBIT_SHARE_SHORT_PERM) == INFOBIT_SHARE_SHORT_PERM) == false)
 	{
