@@ -3111,6 +3111,7 @@ void clsDcCommands::Version(User * pUser, char * sData, const uint32_t ui32Len)
 bool clsDcCommands::ChatDeflood(User * pUser, char * sData, const uint32_t ui32Len, const bool bCheck)
 {
 #ifndef _WIN32
+	if(g_isUseSyslog)
 	{
 		syslog(LOG_DEBUG, "[Chat][%s][%u/%u][%u] %s", pUser->sIP, pUser->ui32SendBufLen, pUser->ui32SendBufDataLen,ui32Len, std::string(sData, ui32Len).c_str());
 	}

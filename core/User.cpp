@@ -464,7 +464,7 @@ static void UserParseMyInfo(User * u)
 							clsUdpDebug::mPtr->BroadcastFormat("[SYS] User %s (%s) with fake Tag: %s", u->sNick, u->sIP, u->sTag);
 
 							//
-							// [-] FlylinkDC++ fix User JuniorSD_R166 with fake Tag disconnected: <FlylinkDC++ V:r503-x64-19807,M ,H:0/0/0,S:15>
+							// [-] FlylinkDC++ fix User JuniorSD_R166 (178.68.64.129) with fake Tag disconnected: <FlylinkDC++ V:r503-x64-19807,M ,H:0/0/0,S:15>
 							// u->Close();
 							// return;
 							//

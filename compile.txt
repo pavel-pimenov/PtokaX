@@ -1,8 +1,8 @@
 #[+]FlylinkDC++
 # dpkg-reconfigure tzdata
-# sudo apt-get install liblua5.1-0-dev zlib1g-dev libtinyxml-dev lua-filesystem lua-iconv lua-sql-sqlite3 lua-svn libsqlite3-dev valgrind cmake build-essential sqlite3 screen curl
+# sudo apt-get install mc vnstat nload liblua5.1-0-dev zlib1g-dev libtinyxml-dev lua-filesystem lua-iconv lua-sql-sqlite3 lua-svn libsqlite3-dev valgrind cmake build-essential sqlite3 screen curl subversion htop
 # Этих нет в ubuntu 14.04
-# sudo apt-get install liblua5.1-0-dev denyhosts
+# sudo apt-get install denyhosts
 
 # localedef -c -i ru_RU -f CP1251 ru_RU.CP1251
 # /etc/security# cat limits.conf
@@ -24,18 +24,19 @@
 #$ sudo apt-get update
 #$ sudo apt-get install geoipupdate
 # -----------------------
-# ln -s /usr/share/munin/plugins/fw_conntrack /etc/munin/plugins/fw_conntrack
-# ln -s /usr/share/munin/plugins/nginx_request /etc/munin/plugins/nginx_request
-# ln -s /usr/share/munin/plugins/nginx_status /etc/munin/plugins/nginx_status
+# sudo ln -s /usr/share/munin/plugins/fw_conntrack /etc/munin/plugins/fw_conntrack
+# sudo ln -s /usr/share/munin/plugins/nginx_request /etc/munin/plugins/nginx_request
+# sudo ln -s /usr/share/munin/plugins/nginx_status /etc/munin/plugins/nginx_status
   
-
+ 
 # ln -s /usr/share/munin/plugins/apache_accesses /etc/munin/plugins/apache_accesses
 # ln -s /usr/share/munin/plugins/apache_processes /etc/munin/plugins/apache_processes  
 # ln -s /usr/share/munin/plugins/apache_volume /etc/munin/plugins/apache_volume
 #
-# ln -s /var/cache/munin/www /var/www/munin
-# modprobe nf_conntrack_ipv4
+# sudo ln -s /var/cache/munin/www /var/www/munin
+# sudo modprobe nf_conntrack_ipv4
 # nf_conntrack_ipv4 -> /etc/modules
+# adduser dc chmod 700 /home/dc
 # adduser xxx chmod 700 /home/xxx
 # adduser yyy chmod 700 /home/yyy
 # adduser zzz chmod 700 /home/zzz
@@ -47,6 +48,7 @@
 # adduser xxx sudo
 
 # scp -C -r -P 22 dc@dc.fly-server.ru:/home/dc/src/PtokaX /home/dc/src/PtokaX
+# scp -C -r -P 22 media@192.168.1.6:/home/media /home/ppa/1/
 # or
 # tar czfP /home/dc/src/backup-PtokaX.tar.gz /home/dc/src/PtokaX
 # scp -C -r -P 22 dc@dc.fly-server.ru:/home/dc/src/backup-PtokaX.tar.gz /home/dc/src/
@@ -86,14 +88,36 @@
 # mimetype.assign += ( "" => "application/octet-stream" )
 #
 
+# apache2
+a2enmod headers
+
+<filesMatch "\.(bz|xml|sig)$">
+  FileETag None
+  <ifModule mod_headers.c>
+     Header unset ETag
+     Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+     Header set Pragma "no-cache"
+     Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+  </ifModule>
+</filesMatch>
+
+
+
 # sqlite - pdo
 #cd .../my-app
 #chgrp www-data databasedir
 #chgrp www-data databasedir/mydb.db
 #chmod g+w databasedir
 #chmod g+w databasedir/mydb.db
- 
- 
+
+#sshd
+#sudo apt-get install sendemail
+root@test:/etc/ssh# cat sshrc
+ip=`echo $SSH_CONNECTION | cut -d " " -f 1`
+logger -t ssh-wrapper $USER login from $ip
+echo "User $USER just logged in from $ip" | sendemail -q -u "SSH Login" -f "fly-server <dht@fly-server.ru>" -t "ppa <ppa74@yandex.ru>" & 
+
+######################################################################################################################################
 To compile PtokaX on Unix operating system is needed to have installed: GNU make, GCC or Clang compiler, Lua, zlib.
 Optionaly for database support is required: PostgreSQL or SQLite or MySQL or MariaDB.
 On most Unixes are these things available as packages.

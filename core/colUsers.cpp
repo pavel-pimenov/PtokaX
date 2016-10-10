@@ -659,7 +659,7 @@ void clsUsers::Add2ExtJSON(const User * pUser)
 		}
 		else
 		{
-		//	printf("Skip duplicate clsUsers::Add2ExtJSON l_ext_json_info = %s\r\n", l_ext_json_info.c_str());
+			// printf("Skip duplicate clsUsers::Add2ExtJSON l_ext_json_info = %s\r\n", l_ext_json_info.c_str());
 		}
 	}
 }
@@ -676,7 +676,7 @@ void clsUsers::DelFromExtJSONInfos(const User * pUser)
 		}
 		else
 		{
-		//	printf("Skip erase clsUsers::DelFromExtJSONInfos l_ext_json_info = %s\r\n", l_ext_json_info.c_str());
+			// printf("Skip erase clsUsers::DelFromExtJSONInfos l_ext_json_info = %s\r\n", l_ext_json_info.c_str());
 		}
 	}
 }

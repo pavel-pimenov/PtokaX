@@ -586,7 +586,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 						
 						iBanNum++;
 						BanAppandInternal(curBan, BanList, iBanNum);
-						
+
 						struct tm *tm = localtime(&curBan->tTempBanExpire);
 						strftime(clsServerManager::pGlobalBuffer, 256, "%c\n", tm);
 						
@@ -692,7 +692,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 						
 						iBanNum++;
 						BanAppandInternal(curBan, BanList, iBanNum);
-						
+
 						BanList += "\n";
 					}
 					
@@ -888,7 +888,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 							
 						if (iBanNum == 0)
 						{
-							bIsEmpty = false;
+							bIsEmpty = false;							
 							
 							BanList += string(clsLanguageManager::mPtr->sTexts[LAN_PERM_RANGE_BANS], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_PERM_RANGE_BANS]) + ":\n\n";
 						}
