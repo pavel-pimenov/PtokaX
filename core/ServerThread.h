@@ -81,9 +81,9 @@ class ServerThread
 		void WaitFor();
 		bool Listen(bool bSilent = false);
 #ifdef _WIN32
-		bool isFlooder(const SOCKET &s, const sockaddr_storage &addr);
+		bool isFlooder(SOCKET &s, const sockaddr_storage &addr);
 #else
-		bool isFlooder(const int s, const sockaddr_storage &addr);
+		bool isFlooder(int& s, const sockaddr_storage &addr);
 #endif
 		void RemoveConFlood(AntiConFlood * cur);
 		void ResumeSck();

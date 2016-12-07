@@ -287,14 +287,7 @@ void clsUsers::DisconnectAll()
 					u->pPrev->pNext = u->pNext;
 					u->pNext->pPrev = u->pPrev;
 				}
-				
-#ifdef _WIN32
-				shutdown(u->Sck, SD_SEND);
-				closesocket(u->Sck);
-#else
-				shutdown(u->Sck, SHUT_RD);
-				close(u->Sck);
-#endif
+				shutdown_and_close(u->Sck, SHUT_RD);
 				
 				delete u;
 			}
@@ -317,15 +310,7 @@ void clsUsers::DisconnectAll()
 	{
 		u = next;
 		next = u->pNext;
-		
-#ifdef _WIN32
-		shutdown(u->Sck, SD_SEND);
-		closesocket(u->Sck);
-#else
-		shutdown(u->Sck, SHUT_RDWR);
-		close(u->Sck);
-#endif
-		
+		shutdown_and_close(u->Sck, SHUT_RDWR);
 		delete u;
 	}
 }

@@ -38,7 +38,7 @@
 ServerThread::AntiConFlood::AntiConFlood(const uint8_t * pIpHash) : ui64Time(clsServerManager::ui64ActualTick), pPrev(NULL), pNext(NULL), ui16Hits(1)
 {
 	memcpy(ui128IpHash, pIpHash, 16);
-};
+}
 //---------------------------------------------------------------------------
 
 ServerThread::ServerThread(const int iAddrFamily, const uint16_t ui16PortNumber) : pAntiFloodList(NULL),
@@ -140,21 +140,7 @@ void ServerThread::Run()
 		{
 			if (bTerminated == true)
 			{
-#ifdef _WIN32
-				if (s != INVALID_SOCKET)
-				{
-					shutdown(s, SD_SEND);
-					closesocket(s);
-					s = INVALID_SOCKET;
-				}
-#else
-				if (s != -1)
-				{
-					shutdown(s, SHUT_RDWR);
-					close(s);
-					s = -1;
-			}
-#endif
+				shutdown_and_close(s, SHUT_RDWR);
 				continue;
 			}
 			
@@ -186,15 +172,7 @@ void ServerThread::Run()
 		{
 			if (isFlooder(s, addr) == true)
 			{
-#ifdef _WIN32
-				shutdown(s, SD_SEND);
-				closesocket(s);
-				s = INVALID_SOCKET;
-#else
-				shutdown(s, SHUT_RDWR);
-				close(s);
-				s = -1;
-#endif
+				shutdown_and_close(s, SHUT_RDWR);
 			}
 			
 #ifdef _WIN32
@@ -248,12 +226,10 @@ bActive = false;
 void ServerThread::Close()
 {
 	bTerminated = true;
-#ifdef _WIN32
-	closesocket(server);
-#else
+#ifndef _WIN32
 	shutdown(server, SHUT_RDWR);
-	close(server);
 #endif
+	safe_closesocket(server);
 }
 //---------------------------------------------------------------------------
 
@@ -405,11 +381,7 @@ bool ServerThread::Listen(bool bSilent/* = false*/)
 			          string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR]) + ": " + string(ui16Port));
 #endif
 		}
-#ifdef _WIN32
-		closesocket(server);
-#else
-		close(server);
-#endif
+		safe_closesocket(server);
 		return false;
 	}
 	
@@ -440,11 +412,7 @@ bool ServerThread::Listen(bool bSilent/* = false*/)
 			AppendLog(string(clsLanguageManager::mPtr->sTexts[LAN_SRV_LISTEN_ERR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SRV_LISTEN_ERR]) + ": " + string(errno) + " " + string(clsLanguageManager::mPtr->sTexts[LAN_FOR_PORT_LWR], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_FOR_PORT_LWR]) + ": " + string(ui16Port));
 #endif
 		}
-#ifdef _WIN32
-		closesocket(server);
-#else
-		close(server);
-#endif
+		safe_closesocket(server);
 		return false;
 	}
 	
@@ -453,10 +421,10 @@ bool ServerThread::Listen(bool bSilent/* = false*/)
 //---------------------------------------------------------------------------
 
 #ifdef _WIN32
-bool ServerThread::isFlooder(const SOCKET &s, const sockaddr_storage &addr)
+bool ServerThread::isFlooder(SOCKET &s, const sockaddr_storage &addr)
 {
 #else
-bool ServerThread::isFlooder(const int s, const sockaddr_storage &addr)
+bool ServerThread::isFlooder(int& s, const sockaddr_storage &addr)
 {
 #endif
 	Hash128 ui128IpHash;

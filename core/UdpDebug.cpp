@@ -54,12 +54,7 @@ clsUdpDebug::UdpDbgItem::UdpDbgItem() : pPrev(NULL), pNext(NULL), sNick(NULL),
 clsUdpDebug::UdpDbgItem::~UdpDbgItem()
 {
 	free(sNick);
-	
-#ifdef _WIN32
-	closesocket(s);
-#else
-	close(s);
-#endif
+	safe_closesocket(s);
 }
 //---------------------------------------------------------------------------
 

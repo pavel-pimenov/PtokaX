@@ -51,14 +51,7 @@ clsRegisterThread::RegSocket::~RegSocket()
 	free(sAddress);
 	free(pRecvBuf);
 	free(pSendBuf);
-	
-#ifdef _WIN32
-	shutdown(sock, SD_SEND);
-	closesocket(sock);
-#else
-	shutdown(sock, SHUT_RDWR);
-	close(sock);
-#endif
+	shutdown_and_close(sock, SHUT_RDWR);
 }
 //---------------------------------------------------------------------------
 

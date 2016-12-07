@@ -1387,12 +1387,7 @@ void CheckForIPv4()
 			return;
 		}
 	}
-	
-#ifdef _WIN32
-	closesocket(sock);
-#else
-	close(sock);
-#endif
+	safe_closesocket(sock);
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1430,11 +1425,7 @@ void CheckForIPv6()
 		clsServerManager::bIPv6DualStack = true;
 	}
 	
-#ifdef _WIN32
-	closesocket(sock);
-#else
-	close(sock);
-#endif
+	safe_closesocket(sock);
 	
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_WIN_IOT)
 	HINSTANCE hWs2_32 = ::LoadLibrary("Ws2_32.dll");

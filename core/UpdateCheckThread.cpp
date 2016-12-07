@@ -46,14 +46,7 @@ clsUpdateCheckThread::~clsUpdateCheckThread()
 	
 	if (sSocket != INVALID_SOCKET)
 	{
-#ifdef _WIN32
-		shutdown(sSocket, SD_SEND);
-		closesocket(sSocket);
-#else
-		shutdown(sSocket, 1);
-		close(sSocket);
-#endif
-		sSocket = INVALID_SOCKET;
+		shutdown_and_close(sSocket, SHUT_WR);
 	}
 	
 	free(sRecvBuf);

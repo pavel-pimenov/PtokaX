@@ -134,12 +134,7 @@ bool UDPThread::Listen(const int iAddressFamily)
 UDPThread::~UDPThread()
 {
 #ifdef _WIN32
-	if (sock != INVALID_SOCKET)
-	{
-		closesocket(sock);
-		
-		sock = INVALID_SOCKET;
-	}
+	safe_closesocket(sock);
 	
 	if (hThreadHandle != INVALID_HANDLE_VALUE)
 	{
@@ -209,11 +204,10 @@ void UDPThread::Close()
 {
 	bTerminated = true;
 #ifdef _WIN32
-	closesocket(sock);
 #else
 	shutdown(sock, SHUT_RDWR);
-	close(sock);
 #endif
+	safe_closesocket(sock);
 }
 //---------------------------------------------------------------------------
 

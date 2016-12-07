@@ -160,13 +160,7 @@ clsServiceLoop::~clsServiceLoop()
 	{
 		cursck = nextsck;
 		nextsck = cursck->pNext;
-#ifdef _WIN32
-		shutdown(cursck->s, SD_SEND);
-		closesocket(cursck->s);
-#else
-		shutdown(cursck->s, SHUT_RDWR);
-		close(cursck->s);
-#endif
+		shutdown_and_close(cursck->s, SHUT_RDWR);
 		delete cursck;
 	}
 	
@@ -234,13 +228,7 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 	{
 		clsUdpDebug::mPtr->BroadcastFormat("[SYS] setsockopt failed on attempt to set SO_RCVBUF. IP: %s Err: %s (%d)", sIP, ErrnoStr(errno), errno);
 #endif
-#ifdef _WIN32
-		shutdown(AccptSocket->s, SD_SEND);
-		closesocket(AccptSocket->s);
-#else
-		shutdown(AccptSocket->s, SHUT_RDWR);
-		close(AccptSocket->s);
-#endif
+		shutdown_and_close(AccptSocket->s, SHUT_RDWR);
 		return;
 	}
 	
@@ -256,13 +244,7 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 	{
 		clsUdpDebug::mPtr->BroadcastFormat("[SYS] setsockopt failed on attempt to set SO_SNDBUF. IP: %s Err: %s (%d)", sIP, ErrnoStr(errno), errno);
 #endif
-#ifdef _WIN32
-		shutdown(AccptSocket->s, SD_SEND);
-		closesocket(AccptSocket->s);
-#else
-		shutdown(AccptSocket->s, SHUT_RDWR);
-		close(AccptSocket->s);
-#endif
+		shutdown_and_close(AccptSocket->s, SHUT_RDWR);
 		return;
 	}
 	
@@ -276,8 +258,7 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 	{
 		clsUdpDebug::mPtr->BroadcastFormat("[SYS] setsockopt failed on attempt to set SO_KEEPALIVE. IP: %s Err: %s (%d)", sIP, ErrnoStr(errno), errno);
 	
-		shutdown(AccptSocket->s, SHUT_RDWR);
-		close(AccptSocket->s);
+		shutdown_and_close(AccptSocket->s, SHUT_RDWR);
 	
 		return;
 	}
@@ -296,13 +277,7 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 	{
 		clsUdpDebug::mPtr->BroadcastFormat("[SYS] fcntl failed on attempt to set O_NONBLOCK. IP: %s Err: %s (%d)", sIP, ErrnoStr(errno), errno);
 #endif
-#ifdef _WIN32
-		shutdown(AccptSocket->s, SD_SEND);
-		closesocket(AccptSocket->s);
-#else
-		shutdown(AccptSocket->s, SHUT_RDWR);
-		close(AccptSocket->s);
-#endif
+		shutdown_and_close(AccptSocket->s, SHUT_RDWR);
 		return;
 	}
 	
@@ -325,13 +300,7 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 				
 			}
 		}
-#ifdef _WIN32
-		shutdown(AccptSocket->s, SD_SEND);
-		closesocket(AccptSocket->s);
-#else
-		shutdown(AccptSocket->s, SHUT_RDWR);
-		close(AccptSocket->s);
-#endif
+		shutdown_and_close(AccptSocket->s, SHUT_RDWR);
 		return;
 	}
 	
@@ -344,18 +313,13 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 	{
 		if (((Ban->ui8Bits & clsBanManager::FULL) == clsBanManager::FULL) == true)
 		{
-			int iMsgLen = GenerateBanMessage(Ban, acc_time);
+			const int iMsgLen = GenerateBanMessage(Ban, acc_time);
 			if (iMsgLen != 0)
 			{
 				send(AccptSocket->s, clsServerManager::pGlobalBuffer, iMsgLen, 0);
 			}
-#ifdef _WIN32
-			shutdown(AccptSocket->s, SD_SEND);
-			closesocket(AccptSocket->s);
-#else
-			shutdown(AccptSocket->s, SHUT_RD);
-			close(AccptSocket->s);
-#endif
+			shutdown_and_close(AccptSocket->s, SHUT_RD);
+
 //			clsUdpDebug::mPtr->BroadcastFormat("[SYS] Banned ip %s - connection closed.", sIP);
 
 			return;
@@ -373,13 +337,8 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 			{
 				send(AccptSocket->s, clsServerManager::pGlobalBuffer, iMsgLen, 0);
 			}
-#ifdef _WIN32
-			shutdown(AccptSocket->s, SD_SEND);
-			closesocket(AccptSocket->s);
-#else
-			shutdown(AccptSocket->s, SHUT_RD);
-			close(AccptSocket->s);
-#endif
+			shutdown_and_close(AccptSocket->s, SHUT_RD);
+
 //            clsUdpDebug::mPtr->BroadcastFormat("[SYS] Range Banned ip %s - connection closed.", sIP);
 
 			return;
@@ -393,13 +352,8 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 	
 	if (pUser == NULL)
 	{
-#ifdef _WIN32
-		shutdown(AccptSocket->s, SD_SEND);
-		closesocket(AccptSocket->s);
-#else
-		shutdown(AccptSocket->s, SHUT_RDWR);
-		close(AccptSocket->s);
-#endif
+		shutdown_and_close(AccptSocket->s, SHUT_RDWR);
+
 		AppendDebugLog("%s - [MEM] Cannot allocate pUser in clsServiceLoop::AcceptUser\n");
 		return;
 	}
@@ -408,13 +362,8 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 	
 	if (pUser->pLogInOut == NULL)
 	{
-#ifdef _WIN32
-		shutdown(AccptSocket->s, SD_SEND);
-		closesocket(AccptSocket->s);
-#else
-		shutdown(AccptSocket->s, SHUT_RDWR);
-		close(AccptSocket->s);
-#endif
+		shutdown_and_close(AccptSocket->s, SHUT_RDWR);
+
 		delete pUser;
 		
 		AppendDebugLog("%s - [MEM] Cannot allocate pLogInOut in clsServiceLoop::AcceptUser\n");
@@ -449,13 +398,7 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 		pUser->pLogInOut->pBan = UserBan::CreateUserBan(clsServerManager::pGlobalBuffer, iMsglen, hash);
 		if (pUser->pLogInOut->pBan == NULL)
 		{
-#ifdef _WIN32
-			shutdown(AccptSocket->s, SD_SEND);
-			closesocket(AccptSocket->s);
-#else
-			shutdown(AccptSocket->s, SHUT_RDWR);
-			close(AccptSocket->s);
-#endif
+			shutdown_and_close(AccptSocket->s, SHUT_RDWR);
 			
 			AppendDebugLog("%s - [MEM] Cannot allocate new uBan in clsServiceLoop::AcceptUser\n");
 			
@@ -470,13 +413,7 @@ void clsServiceLoop::AcceptUser(AcceptedSocket *AccptSocket)
 		pUser->pLogInOut->pBan = UserBan::CreateUserBan(clsServerManager::pGlobalBuffer, iMsgLen, 0);
 		if (pUser->pLogInOut->pBan == NULL)
 		{
-#ifdef _WIN32
-			shutdown(AccptSocket->s, SD_SEND);
-			closesocket(AccptSocket->s);
-#else
-			shutdown(AccptSocket->s, SHUT_RDWR);
-			close(AccptSocket->s);
-#endif
+			shutdown_and_close(AccptSocket->s, SHUT_RDWR);
 			
 			AppendDebugLog("%s - [MEM] Cannot allocate new uBan in clsServiceLoop::AcceptUser1\n");
 			
@@ -1009,13 +946,7 @@ void clsServiceLoop::ReceiveLoop()
 			// if user is marked as dead, remove him
 			case User::STATE_REMME:
 			{
-#ifdef _WIN32
-				shutdown(curUser->Sck, SD_SEND);
-				closesocket(curUser->Sck);
-#else
-				shutdown(curUser->Sck, SHUT_RD);
-				close(curUser->Sck);
-#endif
+				shutdown_and_close(curUser->Sck, SHUT_RD);
 				
 				// linked list
 				clsUsers::mPtr->RemUser(curUser);
@@ -1191,22 +1122,16 @@ void clsServiceLoop::SendLoop()
 //---------------------------------------------------------------------------
 
 #ifdef _WIN32
-void clsServiceLoop::AcceptSocket(const SOCKET &s, const sockaddr_storage &addr)
+void clsServiceLoop::AcceptSocket(SOCKET &s, const sockaddr_storage &addr)
 {
 #else
-void clsServiceLoop::AcceptSocket(const int s, const sockaddr_storage &addr)
+void clsServiceLoop::AcceptSocket(int& s, const sockaddr_storage &addr)
 {
 #endif
 	AcceptedSocket * pNewSocket = new(std::nothrow) AcceptedSocket;
 	if (pNewSocket == NULL)
 	{
-#ifdef _WIN32
-		shutdown(s, SD_SEND);
-		closesocket(s);
-#else
-		shutdown(s, SHUT_RDWR);
-		close(s);
-#endif
+		shutdown_and_close(s, SHUT_RDWR);
 		
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewSocket in clsServiceLoop::AcceptSocket\n");
 		return;

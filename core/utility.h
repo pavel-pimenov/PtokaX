@@ -210,6 +210,37 @@ template <class T> inline void safe_delete_array(T* & p)
 		p = NULL;
 	}
 }
+#ifdef _WIN32
+static const int SHUT_RD = 0;
+static const int SHUT_WR = 1;
+static const int SHUT_RDWR = 2;
+#endif
+template <class T>inline void safe_closesocket(T& p_socket)
+{
+#ifdef _WIN32
+	if (p_socket != INVALID_SOCKET)
+	{
+		closesocket(p_socket);
+		p_socket = INVALID_SOCKET;
+	}
+#else
+	if (p_socket != -1)
+	{
+		close(p_socket);
+		p_socket = -1;
+	}
+#endif
+}
 
+template <class T>inline void shutdown_and_close(T& p_socket, int p_type)
+{
+#ifdef _WIN32
+	(void)p_type;
+	shutdown(p_socket, SD_SEND);
+#else
+	shutdown(p_socket, p_type);
+#endif
+	safe_closesocket(p_socket);
+}
 
 #endif
