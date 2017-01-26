@@ -1656,7 +1656,7 @@ void clsSettingManager::UpdateRedirectAddress()
 		return;
 	}
 	
-	int iMsgLen = sprintf(sPreTexts[SETPRETXT_REDIRECT_ADDRESS], "$ForceMove %s|", sTexts[SETTXT_REDIRECT_ADDRESS]);
+	const int iMsgLen = sprintf(sPreTexts[SETPRETXT_REDIRECT_ADDRESS], "$ForceMove %s|", sTexts[SETTXT_REDIRECT_ADDRESS]);
 	if (CheckSprintf(iMsgLen, szNeededLen, "clsSettingManager::UpdateRedirectAddress") == false)
 	{
 		exit(EXIT_FAILURE);
@@ -2024,7 +2024,7 @@ void clsSettingManager::UpdateMaxHubsLimitMessage()
 	
 	static const char* sHubs = "%[hubs]";
 	
-	char * sMatch = strstr(sTexts[SETTXT_MAX_HUBS_LIMIT_MSG], sHubs);
+	const char * sMatch = strstr(sTexts[SETTXT_MAX_HUBS_LIMIT_MSG], sHubs);
 	
 	if (sMatch != NULL)
 	{
@@ -2585,7 +2585,7 @@ void clsSettingManager::DisableBot(const bool bNickChanged/* = true*/, const boo
 			clsUsers::mPtr->DelFromNickList(sTexts[SETTXT_BOT_NICK], true);
 		}
 		
-		int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", sTexts[SETTXT_BOT_NICK]);
+		const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", sTexts[SETTXT_BOT_NICK]);
 		if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsSettingManager::DisableBot") == true)
 		{
 			if (bBotsSameNick == true)
@@ -2742,7 +2742,7 @@ void clsSettingManager::DisableOpChat(const bool bNickChanged/* = true*/)
 	{
 		clsUsers::mPtr->DelFromNickList(sTexts[SETTXT_OP_CHAT_NICK], true);
 		
-		int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", sTexts[SETTXT_OP_CHAT_NICK]);
+		const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", sTexts[SETTXT_OP_CHAT_NICK]);
 		if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsSettingManager::DisableOpChat") == true)
 		{
 			User * curUser = NULL,

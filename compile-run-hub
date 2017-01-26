@@ -4,8 +4,8 @@
 # iptables -A OUTPUT -p udp --dport 53 -d 8.8.8.8 -j ACCEPT
 # iptables -A OUTPUT -p udp --dport 53 -d 8.8.4.4 -j ACCEPT
 # block all other udp
-# iptables -A OUTPUT -p udp -j DROP
-# ip6tables -A OUTPUT -p udp -j DROP
+# iptables -A INPUT -p udp -j DROP
+# ip6tables -A INPUT -p udp -j DROP
 #
 #-----------------------------------------------------
 # iptables -vnL

@@ -70,3 +70,5 @@ valgrind*.log
 /compiled/*.dmp
 /obj/*.idb
 /compiled/*.7z
+/*.opendb
+/*.db

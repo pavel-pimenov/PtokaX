@@ -100,8 +100,8 @@ class clsGlobalDataQueue
 		
 		GlobalQueue GlobalQueues[144];
 		
-		struct OpsQueue OpListQueue;
-		struct IPsQueue UserIPQueue;
+		OpsQueue OpListQueue;
+		IPsQueue UserIPQueue;
 		
 		GlobalQueue * pCreatedGlobalQueues;
 		

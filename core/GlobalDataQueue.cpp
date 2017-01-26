@@ -477,7 +477,7 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 					case CMD_EXTJSON:
 						if (!pCur->pCommand[0].empty())
 						{
-							if (((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON2) == User::SUPPORTBIT_EXTJSON2) == true)
+							if (pUser->isSupportExtJSON())
 							{
 								AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
 							}

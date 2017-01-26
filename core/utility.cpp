@@ -634,7 +634,7 @@ bool isIP(const char * sIP)
 	}
 	else
 	{
-		uint32_t ui32IpHash = inet_addr(sIP);
+		const uint32_t ui32IpHash = inet_addr(sIP);
 		
 		if (ui32IpHash == INADDR_NONE)
 		{

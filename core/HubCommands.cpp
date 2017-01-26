@@ -1517,7 +1517,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 					sCommand[64000] = '\0';
 				}
 				
-				int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "%s $<%s> %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, sCommand + 8);
+				const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "%s $<%s> %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, sCommand + 8);
 				if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsHubCommands::DoCommand117") == true)
 				{
 					clsGlobalDataQueue::mPtr->SingleItemStore(clsServerManager::pGlobalBuffer, iMsgLen, pUser, 0, clsGlobalDataQueue::SI_PM2ALL);
@@ -1573,7 +1573,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 				UncountDeflood(pUser, bFromPM);
 				
 				// Send message to all that we are going to restart the hub
-				int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "<%s> %s. %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_HUB_WILL_BE_RESTARTED], clsLanguageManager::mPtr->sTexts[LAN_BACK_IN_FEW_MINUTES]);
+				const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "<%s> %s. %s.|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_HUB_WILL_BE_RESTARTED], clsLanguageManager::mPtr->sTexts[LAN_BACK_IN_FEW_MINUTES]);
 				if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsHubCommands::DoCommand126") == true)
 				{
 					clsUsers::mPtr->SendChat2All(pUser, clsServerManager::pGlobalBuffer, iMsgLen, NULL);
@@ -2110,7 +2110,7 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 				
 				UncountDeflood(pUser, bFromPM);
 				
-				int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "%s $<%s> %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, sCommand + 10);
+				const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "%s $<%s> %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], pUser->sNick, sCommand + 10);
 				if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsHubCommands::DoCommand193") == true)
 				{
 					clsGlobalDataQueue::mPtr->SingleItemStore(clsServerManager::pGlobalBuffer, iMsgLen, pUser, 0, clsGlobalDataQueue::SI_PM2OPS);
@@ -3900,10 +3900,10 @@ bool clsHubCommands::DoCommand(User * pUser, char * sCommand, const size_t szCmd
 #ifdef _WIN32
 				FILETIME tmpa, tmpb, kernelTimeFT, userTimeFT;
 				GetProcessTimes(GetCurrentProcess(), &tmpa, &tmpb, &kernelTimeFT, &userTimeFT);
-				int64_t kernelTime = kernelTimeFT.dwLowDateTime | (((int64_t)kernelTimeFT.dwHighDateTime) << 32);
-				int64_t userTime = userTimeFT.dwLowDateTime | (((int64_t)userTimeFT.dwHighDateTime) << 32);
-				int64_t icpuSec = (kernelTime + userTime) / (10000000I64);
-				
+				const int64_t kernelTime = kernelTimeFT.dwLowDateTime | (((int64_t)kernelTimeFT.dwHighDateTime) << 32);
+				const int64_t userTime = userTimeFT.dwLowDateTime | (((int64_t)userTimeFT.dwHighDateTime) << 32);
+				const int64_t icpuSec = (kernelTime + userTime) / (10000000I64);
+
 				char cpuusage[32];
 				int iLen = sprintf(cpuusage, "%.2f%%\r\n", clsServerManager::dCpuUsage / 0.6);
 				if (CheckSprintf(iLen, 32, "clsHubCommands::DoCommand3921") == false)

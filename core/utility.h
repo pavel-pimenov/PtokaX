@@ -66,7 +66,7 @@ public:
 	}
 	void init(const uint8_t * ui128Hash)
 	{
-		memcpy(m_ui128Hash, ui128Hash, 16);
+		memcpy(m_ui128Hash, ui128Hash, sizeof(m_ui128Hash));
 	}
 	operator uint8_t* ()
 	{
@@ -78,7 +78,7 @@ public:
 	 }
 	 bool compare(const uint8_t * ui128Hash) const
 	 {
-		 return memcmp(m_ui128Hash, ui128Hash, 16) == 0;
+		 return memcmp(m_ui128Hash, ui128Hash, sizeof(m_ui128Hash)) == 0;
 	 }
 };
 

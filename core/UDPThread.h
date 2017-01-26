@@ -38,7 +38,7 @@ class UDPThread
 		
 		bool bTerminated;
 		
-		char rcvbuf[4096];
+		char rcvbuf[1024];
 		
 		DISALLOW_COPY_AND_ASSIGN(UDPThread);
 	public:
@@ -55,7 +55,7 @@ class UDPThread
 		void WaitFor();
 		
 		static UDPThread * Create(const int iAddressFamily);
-		static void Destroy(UDPThread * pUDPThread);
+		static void Destroy(UDPThread *& pUDPThread);
 };
 //---------------------------------------------------------------------------
 

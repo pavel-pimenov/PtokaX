@@ -554,11 +554,7 @@ void ServerThread::SuspendSck(const uint32_t iTime)
 				iSuspendTime = 1;
 			}
 		}
-#ifdef _WIN32
-		closesocket(server);
-#else
-		close(server);
-#endif
+		safe_closesocket(server);
 	}
 }
 //---------------------------------------------------------------------------

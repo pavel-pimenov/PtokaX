@@ -278,9 +278,9 @@ void clsRegisterThread::Run()
 		{
 #ifdef _WIN32
 			int iError = WSAGetLastError();
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock resolve error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock resolve error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
 #else
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock resolve error (%s)", cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock resolve error (%s)", cur->sAddress);
 #endif
 			if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Execute1") == true)
 			{
@@ -308,11 +308,11 @@ void clsRegisterThread::Run()
 		if ((cur->sock = socket(pResult->ai_family, pResult->ai_socktype, pResult->ai_protocol)) == INVALID_SOCKET)
 		{
 			int iError = WSAGetLastError();
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock create error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock create error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
 #else
 		if ((cur->sock = socket(pResult->ai_family, pResult->ai_socktype, pResult->ai_protocol)) == -1)
 		{
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock create error %d. (%s)", errno, cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock create error %d. (%s)", errno, cur->sAddress);
 #endif
 			if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::AddSock1") == true)
 			{
@@ -332,12 +332,12 @@ void clsRegisterThread::Run()
 		if (setsockopt(cur->sock, SOL_SOCKET, SO_RCVBUF, (char *) &bufsize, sizeof(bufsize)) == SOCKET_ERROR)
 		{
 			int iError = WSAGetLastError();
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock recv buff error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock recv buff error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
 #else
 		int bufsize = 1024;
 		if (setsockopt(cur->sock, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize)) == -1)
 		{
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock recv buff error %d. (%s)", errno, cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock recv buff error %d. (%s)", errno, cur->sAddress);
 #endif
 			if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::AddSock2") == true)
 			{
@@ -357,11 +357,11 @@ void clsRegisterThread::Run()
 		if (setsockopt(cur->sock, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)) == SOCKET_ERROR)
 		{
 			int iError = WSAGetLastError();
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock send buff error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock send buff error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
 #else
 		if (setsockopt(cur->sock, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize)) == -1)
 		{
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock send buff error %d. (%s)", errno, cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock send buff error %d. (%s)", errno, cur->sAddress);
 #endif
 			if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::AddSock3") == true)
 			{
@@ -381,12 +381,12 @@ void clsRegisterThread::Run()
 		if (ioctlsocket(cur->sock, FIONBIO, (unsigned long *)&block) == SOCKET_ERROR)
 		{
 			int iError = WSAGetLastError();
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock non-block error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock non-block error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
 #else
 		int oldFlag = fcntl(cur->sock, F_GETFL, 0);
 		if (fcntl(cur->sock, F_SETFL, oldFlag | O_NONBLOCK) == -1)
 		{
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock non-block error %d. (%s)", errno, cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock non-block error %d. (%s)", errno, cur->sAddress);
 #endif
 			if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::AddSock4") == true)
 			{
@@ -407,13 +407,13 @@ void clsRegisterThread::Run()
 			int iError = WSAGetLastError();
 			if (iError != WSAEWOULDBLOCK)
 			{
-				int iMsgLen = sprintf(sMsg, "[REG] RegSock connect error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
+				const int iMsgLen = sprintf(sMsg, "[REG] RegSock connect error %s (%d). (%s)", WSErrorStr(iError), iError, cur->sAddress);
 #else
 		if (connect(cur->sock, pResult->ai_addr, (int)pResult->ai_addrlen) == -1)
 		{
 			if (errno != EINPROGRESS)
 			{
-				int iMsgLen = sprintf(sMsg, "[REG] RegSock connect error %s (%d). (%s)", ErrnoStr(errno), errno, cur->sAddress);
+				const int iMsgLen = sprintf(sMsg, "[REG] RegSock connect error %s (%d). (%s)", ErrnoStr(errno), errno, cur->sAddress);
 #endif
 				if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Execute2") == true)
 				{
@@ -486,7 +486,7 @@ void clsRegisterThread::Run()
 		
 		if (bTerminated == false)
 		{
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock timeout. (%s)", cur->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock timeout. (%s)", cur->sAddress);
 			if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Execute3") == true)
 			{
 				clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_REGSOCK_MSG, sMsg);
@@ -533,12 +533,12 @@ bool clsRegisterThread::Receive(RegSocket * pSock)
 	if (ioctlsocket(pSock->sock, FIONREAD, &iAvailBytes) == SOCKET_ERROR)
 	{
 		int iError = WSAGetLastError();
-		int iMsgLen = sprintf(sMsg, "[REG] RegSock ioctlsocket(FIONREAD) error %s (%d). (%s)", WSErrorStr(iError), iError, pSock->sAddress);
+		const int iMsgLen = sprintf(sMsg, "[REG] RegSock ioctlsocket(FIONREAD) error %s (%d). (%s)", WSErrorStr(iError), iError, pSock->sAddress);
 #else
 	int iAvailBytes = 0;
 	if (ioctl(pSock->sock, FIONREAD, &iAvailBytes) == -1)
 	{
-		int iMsgLen = sprintf(sMsg, "[REG] RegSock ioctl(FIONREAD) error %s (%d). (%s)", ErrnoStr(errno), errno, pSock->sAddress);
+		const int iMsgLen = sprintf(sMsg, "[REG] RegSock ioctl(FIONREAD) error %s (%d). (%s)", ErrnoStr(errno), errno, pSock->sAddress);
 #endif
 		if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Receive0") == true)
 		{
@@ -563,7 +563,7 @@ bool clsRegisterThread::Receive(RegSocket * pSock)
 		size_t szAllignLen = ((pSock->ui32RecvBufLen + iAvailBytes + 1) & 0xFFFFFE00) + 0x200;
 		if (szAllignLen > 2048)
 		{
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock receive buffer overflow. (%s)", pSock->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock receive buffer overflow. (%s)", pSock->sAddress);
 			if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Receive5") == true)
 			{
 				clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_REGSOCK_MSG, sMsg);
@@ -611,11 +611,11 @@ bool clsRegisterThread::Receive(RegSocket * pSock)
 #ifdef _WIN32
 				if (iRet == SOCKET_ERROR)
 				{
-					int iMsgLen = sprintf(sMsg, "[REG] RegSock getsockopt error %s (%d). (%s)", WSErrorStr(iRet), iRet, pSock->sAddress);
+					const int iMsgLen = sprintf(sMsg, "[REG] RegSock getsockopt error %s (%d). (%s)", WSErrorStr(iRet), iRet, pSock->sAddress);
 #else
 				if (iRet == -1)
 				{
-					int iMsgLen = sprintf(sMsg, "[REG] RegSock getsockopt error %d. (%s)", iRet, pSock->sAddress);
+					const int iMsgLen = sprintf(sMsg, "[REG] RegSock getsockopt error %d. (%s)", iRet, pSock->sAddress);
 #endif
 					if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Receive1") == true)
 					{
@@ -627,9 +627,9 @@ bool clsRegisterThread::Receive(RegSocket * pSock)
 				else if (iErr != 0)
 				{
 #ifdef _WIN32
-					int iMsgLen = sprintf(sMsg, "[REG] RegSock connect error %s (%d). (%s)", WSErrorStr(iErr), iErr, pSock->sAddress);
+					const int iMsgLen = sprintf(sMsg, "[REG] RegSock connect error %s (%d). (%s)", WSErrorStr(iErr), iErr, pSock->sAddress);
 #else
-					int iMsgLen = sprintf(sMsg, "[REG] RegSock connect error %d. (%s)", iErr, pSock->sAddress);
+					const int iMsgLen = sprintf(sMsg, "[REG] RegSock connect error %d. (%s)", iErr, pSock->sAddress);
 #endif
 					if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Receive2") == true)
 					{
@@ -642,9 +642,9 @@ bool clsRegisterThread::Receive(RegSocket * pSock)
 			}
 			
 #ifdef _WIN32
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock recv error %s (%d). (%s)", WSErrorStr(iError), iError, pSock->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock recv error %s (%d). (%s)", WSErrorStr(iError), iError, pSock->sAddress);
 #else
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock recv error %s (%d). (%s)", ErrnoStr(errno), errno, pSock->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock recv error %s (%d). (%s)", ErrnoStr(errno), errno, pSock->sAddress);
 #endif
 			if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Receive3") == true)
 			{
@@ -659,7 +659,7 @@ bool clsRegisterThread::Receive(RegSocket * pSock)
 	}
 	else if (iBytes == 0)
 	{
-		int iMsgLen = sprintf(sMsg, "[REG] RegSock closed connection by server. (%s)", pSock->sAddress);
+		const int iMsgLen = sprintf(sMsg, "[REG] RegSock closed connection by server. (%s)", pSock->sAddress);
 		if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Receive4") == true)
 		{
 			clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_REGSOCK_MSG, sMsg);
@@ -686,11 +686,11 @@ bool clsRegisterThread::Receive(RegSocket * pSock)
 				if (getsockname(pSock->sock, (struct sockaddr *) &addr, &addrlen) == SOCKET_ERROR)
 				{
 					int iError = WSAGetLastError();
-					int iMsgLen = sprintf(sMsg, "[REG] RegSock local port error %s (%d). (%s)", WSErrorStr(iError), iError, pSock->sAddress);
+					const int iMsgLen = sprintf(sMsg, "[REG] RegSock local port error %s (%d). (%s)", WSErrorStr(iError), iError, pSock->sAddress);
 #else
 				if (getsockname(pSock->sock, (struct sockaddr *) &addr, &addrlen) == -1)
 				{
-					int iMsgLen = sprintf(sMsg, "[REG] RegSock local port error %d. (%s)", errno, pSock->sAddress);
+					const int iMsgLen = sprintf(sMsg, "[REG] RegSock local port error %d. (%s)", errno, pSock->sAddress);
 #endif
 					if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Receive6") == true)
 					{
@@ -863,13 +863,13 @@ bool clsRegisterThread::Send(RegSocket * pSock)
 		int iError = WSAGetLastError();
 		if (iError != WSAEWOULDBLOCK)
 		{
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock send error %s (%d). (%s)", WSErrorStr(iError), iError, pSock->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock send error %s (%d). (%s)", WSErrorStr(iError), iError, pSock->sAddress);
 #else
 	if (iBytes == -1)
 	{
 		if (errno != EAGAIN)
 		{
-			int iMsgLen = sprintf(sMsg, "[REG] RegSock send error %s (%d). (%s)", ErrnoStr(errno), errno, pSock->sAddress);
+			const int iMsgLen = sprintf(sMsg, "[REG] RegSock send error %s (%d). (%s)", ErrnoStr(errno), errno, pSock->sAddress);
 #endif
 			if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Send1") == true)
 			{
@@ -892,7 +892,7 @@ bool clsRegisterThread::Send(RegSocket * pSock)
 	}
 	else
 	{
-		int iMsgLen = sprintf(sMsg, "[REG] Hub is registered on %s hublist (Users: %u, Share: %" PRIu64 ")", pSock->sAddress, clsServerManager::ui32Logged, clsServerManager::ui64TotalShare);
+		const int iMsgLen = sprintf(sMsg, "[REG] Hub is registered on %s hublist (Users: %u, Share: %" PRIu64 ")", pSock->sAddress, clsServerManager::ui32Logged, clsServerManager::ui64TotalShare);
 		if (CheckSprintf(iMsgLen, 2048, "clsRegisterThread::Send2") == true)
 		{
 			clsEventQueue::mPtr->AddThread(clsEventQueue::EVENT_REGSOCK_MSG, sMsg);

@@ -1058,7 +1058,7 @@ void User::SendChar(const char * cText, const size_t szTextLen)
 #ifdef USE_FLYLINKDC_EXT_JSON
 void User::SendCharDelayedExtJSON()
 {
-	if (((ui32SupportBits & SUPPORTBIT_EXTJSON2) == SUPPORTBIT_EXTJSON2) == true)
+	if (isSupportExtJSON())
 	{
 		if (!clsUsers::mPtr->m_AllExtJSON.empty())
 		{
@@ -2796,8 +2796,8 @@ bool User::ProcessRules()
 		if (clsProfileManager::mPtr->IsAllowed(this, clsProfileManager::NOSLOTHUBRATIO) == false &&
 		        clsSettingManager::mPtr->i16Shorts[SETSHORT_HUB_SLOT_RATIO_HUBS] != 0 && clsSettingManager::mPtr->i16Shorts[SETSHORT_HUB_SLOT_RATIO_SLOTS] != 0)
 		{
-			uint32_t slots = Slots;
-			uint32_t hubs = Hubs > 0 ? Hubs : 1;
+			const uint32_t slots = Slots;
+			const uint32_t hubs = Hubs > 0 ? Hubs : 1;
 			if (((double)slots / hubs) < ((double)clsSettingManager::mPtr->i16Shorts[SETSHORT_HUB_SLOT_RATIO_SLOTS] / clsSettingManager::mPtr->i16Shorts[SETSHORT_HUB_SLOT_RATIO_HUBS]))
 			{
 				SendChar(clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SLOT_RATIO_MSG], clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_HUB_SLOT_RATIO_MSG]);

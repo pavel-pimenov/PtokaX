@@ -97,7 +97,7 @@ void clsUpdateCheckThread::Run()
 	if (::getaddrinfo("update.fly-server.ru", "80", &hints, &pResult) != 0 || (pResult->ai_family != AF_INET && pResult->ai_family != AF_INET6))
 	{
 		int iError = WSAGetLastError();
-		int iMsgLen = sprintf(sMsg, "Update check resolve error %s (%d).", WSErrorStr(iError), iError);
+		const int iMsgLen = sprintf(sMsg, "Update check resolve error %s (%d).", WSErrorStr(iError), iError);
 		if (CheckSprintf(iMsgLen, 2048, "clsUpdateCheckThread::Run") == true)
 		{
 			Message(sMsg, iMsgLen);
@@ -118,11 +118,11 @@ void clsUpdateCheckThread::Run()
 	if ((sSocket = socket(pResult->ai_family, pResult->ai_socktype, pResult->ai_protocol)) == INVALID_SOCKET)
 	{
 		int iError = WSAGetLastError();
-		int iMsgLen = sprintf(sMsg, "Update check create error %s (%d).", WSErrorStr(iError), iError);
+		const int iMsgLen = sprintf(sMsg, "Update check create error %s (%d).", WSErrorStr(iError), iError);
 #else
 	if ((sSocket = socket(pResult->ai_family, pResult->ai_socktype, pResult->ai_protocol)) == -1)
 	{
-		int iMsgLen = sprintf(sMsg, "Update check create error %s (%d).", WSErrorStr(errno), errno);
+		const int iMsgLen = sprintf(sMsg, "Update check create error %s (%d).", WSErrorStr(errno), errno);
 #endif
 		if (CheckSprintf(iMsgLen, 2048, "clsUpdateCheckThread::Run1") == true)
 		{
@@ -142,11 +142,11 @@ void clsUpdateCheckThread::Run()
 	if (setsockopt(sSocket, SOL_SOCKET, SO_RCVBUF, (char *) &bufsize, sizeof(bufsize)) == SOCKET_ERROR)
 	{
 		int iError = WSAGetLastError();
-		int iMsgLen = sprintf(sMsg, "Update check recv buff error %s (%d).", WSErrorStr(iError), iError);
+		const int iMsgLen = sprintf(sMsg, "Update check recv buff error %s (%d).", WSErrorStr(iError), iError);
 #else
 	if (setsockopt(sSocket, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize)) == -1)
 	{
-		int iMsgLen = sprintf(sMsg, "Update check recv buff error %s (%d).", WSErrorStr(errno), errno);
+		const int iMsgLen = sprintf(sMsg, "Update check recv buff error %s (%d).", WSErrorStr(errno), errno);
 #endif
 		if (CheckSprintf(iMsgLen, 2048, "clsUpdateCheckThread::Run2") == true)
 		{
@@ -166,11 +166,11 @@ void clsUpdateCheckThread::Run()
 	if (setsockopt(sSocket, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize)) == SOCKET_ERROR)
 	{
 		int iError = WSAGetLastError();
-		int iMsgLen = sprintf(sMsg, "Update check send buff error %s (%d).", WSErrorStr(iError), iError);
+		const int iMsgLen = sprintf(sMsg, "Update check send buff error %s (%d).", WSErrorStr(iError), iError);
 #else
 	if (setsockopt(sSocket, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize)) == -1)
 	{
-		int iMsgLen = sprintf(sMsg, "Update check buff error %s (%d).", WSErrorStr(errno), errno);
+		const int iMsgLen = sprintf(sMsg, "Update check buff error %s (%d).", WSErrorStr(errno), errno);
 #endif
 		if (CheckSprintf(iMsgLen, 2048, "clsUpdateCheckThread::Run3") == true)
 		{
@@ -193,13 +193,13 @@ void clsUpdateCheckThread::Run()
 		int iError = WSAGetLastError();
 		if (iError != WSAEWOULDBLOCK)
 		{
-			int iMsgLen = sprintf(sMsg, "Update check connect error %s (%d).", WSErrorStr(iError), iError);
+			const int iMsgLen = sprintf(sMsg, "Update check connect error %s (%d).", WSErrorStr(iError), iError);
 #else
 	if (connect(sSocket, pResult->ai_addr, (int)pResult->ai_addrlen) == -1)
 	{
 		if (errno != EAGAIN)
 		{
-			int iMsgLen = sprintf(sMsg, "Update check connect error %s (%d).", WSErrorStr(errno), errno);
+			const int iMsgLen = sprintf(sMsg, "Update check connect error %s (%d).", WSErrorStr(errno), errno);
 #endif
 			if (CheckSprintf(iMsgLen, 2048, "clsUpdateCheckThread::Run4") == true)
 			{
@@ -233,12 +233,12 @@ void clsUpdateCheckThread::Run()
 	if (ioctlsocket(sSocket, FIONBIO, (unsigned long *)&block) == SOCKET_ERROR)
 	{
 		int iError = WSAGetLastError();
-		int iMsgLen = sprintf(sMsg, "Update check non-block error %s (%d).", WSErrorStr(iError), iError);
+		const int iMsgLen = sprintf(sMsg, "Update check non-block error %s (%d).", WSErrorStr(iError), iError);
 #else
 	int32_t oldFlag = fcntl(u->s, F_GETFL, 0);
 	if (fcntl(sSocket, F_SETFL, oldFlag | O_NONBLOCK) == -1)
 	{
-		int iMsgLen = sprintf(sMsg, "Update check non-block error %s (%d).", WSErrorStr(errno), errno);
+		const int iMsgLen = sprintf(sMsg, "Update check non-block error %s (%d).", WSErrorStr(errno), errno);
 #endif
 		if (CheckSprintf(iMsgLen, 2048, "clsUpdateCheckThread::Run5") == true)
 		{
@@ -325,11 +325,11 @@ bool clsUpdateCheckThread::SendHeader()
 	if (iBytes == SOCKET_ERROR)
 	{
 		int iError = WSAGetLastError();
-		int iMsgLen = sprintf(sMsg, "Update check send error %s (%d).", WSErrorStr(iError), iError);
+		const int iMsgLen = sprintf(sMsg, "Update check send error %s (%d).", WSErrorStr(iError), iError);
 #else
 	if (iBytes == -1)
 	{
-		int iMsgLen = sprintf(sMsg, "Update check send error %s (%d).)", WSErrorStr(errno), errno);
+		const int iMsgLen = sprintf(sMsg, "Update check send error %s (%d).)", WSErrorStr(errno), errno);
 #endif
 		if (CheckSprintf(iMsgLen, 2048, "clsUpdateCheckThread::SendHeader") == true)
 		{
@@ -352,7 +352,7 @@ bool clsUpdateCheckThread::Receive()
 	if (ioctlsocket(sSocket, FIONREAD, &ui32bytes) == SOCKET_ERROR)
 	{
 		int iError = WSAGetLastError();
-		int iMsgLen = sprintf(sMsg, "Update check ioctlsocket(FIONREAD) error %s (%d).", WSErrorStr(iError), iError);
+		const int iMsgLen = sprintf(sMsg, "Update check ioctlsocket(FIONREAD) error %s (%d).", WSErrorStr(iError), iError);
 		if (CheckSprintf(iMsgLen, 2048, "clsUpdateCheckThread::Receive") == true)
 		{
 			Message(sMsg, iMsgLen);
@@ -399,13 +399,13 @@ bool clsUpdateCheckThread::Receive()
 		int iError = WSAGetLastError();
 		if (iError != WSAEWOULDBLOCK)
 		{
-			int iMsgLen = sprintf(sMsg, "Update check recv error %s (%d).", WSErrorStr(iError), iError);
+			const int iMsgLen = sprintf(sMsg, "Update check recv error %s (%d).", WSErrorStr(iError), iError);
 #else
 	if (iBytes == -1)
 	{
 		if (errno != EAGAIN)
 		{
-			int iMsgLen = sprintf(sMsg, "Update check recv error %s (%d).", WSErrorStr(errno), errno);
+			const int iMsgLen = sprintf(sMsg, "Update check recv error %s (%d).", WSErrorStr(errno), errno);
 #endif
 			if (CheckSprintf(iMsgLen, 2048, "clsUpdateCheckThread::Receive2") == true)
 			{

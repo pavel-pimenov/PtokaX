@@ -288,7 +288,7 @@ void clsEventQueue::ProcessEvents()
 					char *temp = (char *)strchr(cur->sMsg.c_str() + 4, ' ');
 					if (temp == NULL)
 					{
-						break;;
+						break;
 					}
 					
 					size_t szLen = (temp - cur->sMsg.c_str()) - 4;

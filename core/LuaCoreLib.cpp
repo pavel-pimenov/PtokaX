@@ -239,7 +239,7 @@ static int RegBot(lua_State * L)
 	clsUsers::mPtr->AddBot2MyInfos(pNewBot->sMyINFO);
 	
 	// PPK ... fixed hello sending only to users without NoHello
-	int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Hello %s|", pNewBot->sNick);
+	const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Hello %s|", pNewBot->sNick);
 	if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "RegBot") == true)
 	{
 		clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::pGlobalBuffer, iMsgLen, NULL, 0, clsGlobalDataQueue::CMD_HELLO);
@@ -315,7 +315,7 @@ static int UnregBot(lua_State * L)
 			
 			clsUsers::mPtr->DelBotFromMyInfos(cur->sMyINFO);
 			
-			int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", cur->sNick);
+			const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", cur->sNick);
 			if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "UnregBot") == true)
 			{
 				clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::pGlobalBuffer, iMsgLen, NULL, 0, clsGlobalDataQueue::CMD_QUIT);
@@ -1395,7 +1395,8 @@ static int GetUserData(lua_State * L)
 		case 27:
 		{
 			lua_pushliteral(L, "sMac");
-			char sMac[18];
+			char sMac[18]; 
+			sMac[0] = 0;
 			if (GetMacAddress(u->sIP, sMac) == true)
 			{
 				lua_pushlstring(L, sMac, 17);
@@ -1845,6 +1846,7 @@ static int GetUserValue(lua_State * L)
 		case 27:
 		{
 			char sMac[18];
+			sMac[0] = 0;
 			if (GetMacAddress(u->sIP, sMac) == true)
 			{
 				lua_pushlstring(L, sMac, 17);
@@ -2808,14 +2810,13 @@ static int SetUserJson(lua_State * L)
 	const char * sData = lua_tolstring(L, 2, &szDataLen);
 	if (sData)
 	{
-		if (szDataLen > 10 * 1024)
+		if (szDataLen > 5 * 1024)
 		{
 			lua_settop(L, 0);
 			return 0;
 		}
 		pUser->initExtJSON(sData);
 		pUser->SetExtJSONOriginal(sData, strlen(sData));
-		pUser->ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
 	}
 	lua_settop(L, 0);
 	return 0;
@@ -3078,7 +3079,7 @@ static int SetUserInfo(lua_State * L)
 }
 //------------------------------------------------------------------------------
 
-static const luaL_Reg core[] =
+static const luaL_Reg g_core[] =
 {
 	{ "Restart", Restart },
 	{ "Shutdown", Shutdown },
@@ -3136,7 +3137,7 @@ int RegCore(lua_State * L)
 #else
 void RegCore(lua_State * L)
 {
-	luaL_register(L, "Core", core);
+	luaL_register(L, "Core", g_core);
 #endif
 	
 	lua_pushliteral(L, "Version");

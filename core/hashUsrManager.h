@@ -37,7 +37,7 @@ class clsHashManager
 			
 			uint16_t ui16Count;
 			
-			IpTableItem() : pPrev(NULL), pNext(NULL), pFirstUser(NULL), ui16Count(0) { };
+			IpTableItem() : pPrev(NULL), pNext(NULL), pFirstUser(NULL), ui16Count(0) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(IpTableItem);
 		};

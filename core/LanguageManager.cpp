@@ -100,7 +100,7 @@ void clsLanguageManager::Load()
 		{
 			if (doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY)
 			{
-				int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file %s.xml. %s (Col: %d, Row: %d)", clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], doc.ErrorDesc(), doc.Column(), doc.Row());
+				const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file %s.xml. %s (Col: %d, Row: %d)", clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], doc.ErrorDesc(), doc.Column(), doc.Row());
 				CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsLanguageManager::Load");
 #ifdef _BUILD_GUI
 				::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);

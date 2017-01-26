@@ -185,7 +185,7 @@ void UDPThread::Run()
 	
 	while (bTerminated == false)
 	{
-		int len = recvfrom(sock, rcvbuf, 4095, 0, (struct sockaddr *)&sas, &sas_len);
+		int len = recvfrom(sock, rcvbuf, sizeof(rcvbuf)-1, 0, (struct sockaddr *)&sas, &sas_len);
 		
 		if (len < 5 || strncmp(rcvbuf, "$SR ", 4) != 0)
 		{
@@ -247,13 +247,14 @@ UDPThread * UDPThread::Create(const int iAddressFamily)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void UDPThread::Destroy(UDPThread * pUDPThread)
+void UDPThread::Destroy(UDPThread *& pUDPThread)
 {
 	if (pUDPThread != NULL)
 	{
 		pUDPThread->Close();
 		pUDPThread->WaitFor();
 		delete pUDPThread;
+		pUDPThread = NULL;
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

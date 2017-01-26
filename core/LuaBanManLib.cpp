@@ -341,7 +341,7 @@ static int GetBan(lua_State * L)
 	size_t szLen;
 	const char * sValue = lua_tolstring(L, 1, &szLen);
 	
-	BanItem *Ban = clsBanManager::mPtr->FindNick(sValue, szLen);
+	BanItem * Ban = clsBanManager::mPtr->FindNick(sValue, szLen);
 	
 	Hash128 ui128Hash;
 	
@@ -438,7 +438,7 @@ static int GetPermBan(lua_State * L)
 	size_t szLen;
 	const char * sValue = lua_tolstring(L, 1, &szLen);
 	
-	BanItem *Ban = clsBanManager::mPtr->FindPermNick(sValue, szLen);
+	BanItem * Ban = clsBanManager::mPtr->FindPermNick(sValue, szLen);
 	
 	Hash128 ui128Hash;
 	

@@ -53,7 +53,7 @@ void clsScriptManager::LoadXML()
 	{
 		if (doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY)
 		{
-			int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Scripts.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
+			const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Scripts.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
 			CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsScriptManager::LoadXML");
 #ifdef _BUILD_GUI
 			::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);

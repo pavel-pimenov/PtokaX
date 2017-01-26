@@ -678,7 +678,7 @@ void ScriptStop(Script * cur)
 			
 			clsUsers::mPtr->DelBotFromMyInfos(bot->sMyINFO);
 			
-			int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", bot->sNick);
+			const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Quit %s|", bot->sNick);
 			if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "ScriptStop") == true)
 			{
 				clsGlobalDataQueue::mPtr->AddQueueItem(clsServerManager::pGlobalBuffer, iMsgLen, NULL, 0, clsGlobalDataQueue::CMD_QUIT);
@@ -1056,6 +1056,7 @@ void ScriptPushUserExtended(lua_State * L, User * u, const int iTable)
 	
 	lua_pushliteral(L, "sMac");
 	char sMac[18];
+	sMac[0] = 0;
 	if (GetMacAddress(u->sIP, sMac) == true)
 	{
 		lua_pushlstring(L, sMac, 17);

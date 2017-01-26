@@ -199,7 +199,7 @@ void clsProfileManager::LoadXML()
 	{
 		if (doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY)
 		{
-			int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Profiles.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
+			const int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file Profiles.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
 			CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsProfileManager::LoadXML");
 #ifdef _BUILD_GUI
 			::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
@@ -418,7 +418,7 @@ void clsProfileManager::SaveProfiles()
 }
 //---------------------------------------------------------------------------
 
-bool clsProfileManager::IsAllowed(User * u, const uint32_t iOption) const
+bool clsProfileManager::IsAllowed(const User * u, const uint32_t iOption) const
 {
 	// profile number -1 = normal user/no profile assigned
 	if (u->i32Profile == -1)

@@ -133,9 +133,9 @@ void clsServerManager::OnSecTimer()
 #ifdef _WIN32
 	FILETIME tmpa, tmpb, kernelTimeFT, userTimeFT;
 	GetProcessTimes(GetCurrentProcess(), &tmpa, &tmpb, &kernelTimeFT, &userTimeFT);
-	int64_t kernelTime = kernelTimeFT.dwLowDateTime | (((int64_t)kernelTimeFT.dwHighDateTime) << 32);
-	int64_t userTime = userTimeFT.dwLowDateTime | (((int64_t)userTimeFT.dwHighDateTime) << 32);
-	double dcpuSec = double(kernelTime + userTime) / double(10000000I64);
+	const int64_t kernelTime = kernelTimeFT.dwLowDateTime | (((int64_t)kernelTimeFT.dwHighDateTime) << 32);
+	const int64_t userTime = userTimeFT.dwLowDateTime | (((int64_t)userTimeFT.dwHighDateTime) << 32);
+	const double dcpuSec = double(kernelTime + userTime) / double(10000000I64);
 	dCpuUsage = dcpuSec - daCpuUsage[ui8MinTick];
 	daCpuUsage[ui8MinTick] = dcpuSec;
 #else
@@ -143,10 +143,10 @@ void clsServerManager::OnSecTimer()
 	
 	getrusage(RUSAGE_SELF, &rs);
 	
-	double dcpuSec = double(rs.ru_utime.tv_sec) + (double(rs.ru_utime.tv_usec) / 1000000) +
+	const double dcpuSec = double(rs.ru_utime.tv_sec) + (double(rs.ru_utime.tv_usec) / 1000000) +
 	                 double(rs.ru_stime.tv_sec) + (double(rs.ru_stime.tv_usec) / 1000000);
-	clsServerManager::dCpuUsage = dcpuSec - clsServerManager::daCpuUsage[clsServerManager::ui8MinTick];
-	clsServerManager::daCpuUsage[clsServerManager::ui8MinTick] = dcpuSec;
+	dCpuUsage = dcpuSec - daCpuUsage[clsServerManager::ui8MinTick];
+	daCpuUsage[clsServerManager::ui8MinTick] = dcpuSec;
 #endif
 	
 	if (++clsServerManager::ui8MinTick == 60)
@@ -765,10 +765,8 @@ void clsServerManager::FinalStop(const bool bDeleteServiceLoop)
 	}
 	
 	UDPThread::Destroy(UDPThread::mPtrIPv6);
-	UDPThread::mPtrIPv6 = NULL;
 	
 	UDPThread::Destroy(UDPThread::mPtrIPv4);
-	UDPThread::mPtrIPv4 = NULL;
 	
 	// delete userlist field
 	if (clsUsers::mPtr != NULL)

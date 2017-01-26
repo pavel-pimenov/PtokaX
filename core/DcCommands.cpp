@@ -2788,7 +2788,7 @@ void clsDcCommands::Supports(User * pUser, char * sData, const uint32_t ui32Len)
 				case 'E':
 					if (sSupport[1] == 'x')
 					{
-						if (((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON2) == User::SUPPORTBIT_EXTJSON2) == false && szDataLen == 8 && memcmp(sSupport + 2, "tJSON2", 6) == 0)
+						if (pUser->isSupportExtJSON() == false && szDataLen == 8 && memcmp(sSupport + 2, "tJSON2", 6) == 0)
 						{
 							pUser->ui32SupportBits |= User::SUPPORTBIT_EXTJSON2;
 						}
@@ -3861,7 +3861,7 @@ void clsDcCommands::ProcessCmds(User * pUser)
 					iSupportsLen += 10;
 				}
 #ifdef USE_FLYLINKDC_EXT_JSON
-				if ((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON2) == User::SUPPORTBIT_EXTJSON2)
+				if (pUser->isSupportExtJSON())
 				{
 					// PPK ... Hmmm Client not really need it, but for now send it ;-)
 					memcpy(clsServerManager::pGlobalBuffer + iSupportsLen, " ExtJSON2", 9);
@@ -4063,7 +4063,7 @@ void clsDcCommands::ProcessCmds(User * pUser)
 	{
 		pUser->ui32BoolBits &= ~User::BIT_PRCSD_EXT_JSON;
 		// TODO ExtJSON - ????? clsUsers::mPtr->Add2MyInfosTag(pUser);
-		if ((pUser->ui32SupportBits & User::SUPPORTBIT_EXTJSON2) == User::SUPPORTBIT_EXTJSON2)
+		if (pUser->isSupportExtJSON())
 		{
 			if (pUser->m_user_ext_info)
 			{

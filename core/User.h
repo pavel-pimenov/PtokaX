@@ -60,7 +60,7 @@ struct LoginLogout
 
 struct PrcsdUsrCmd
 {
-	PrcsdUsrCmd() : pNext(NULL), pPtr(NULL), sCommand(NULL), ui32Len(0), ui8Type(0) { };
+	PrcsdUsrCmd() : pNext(NULL), pPtr(NULL), sCommand(NULL), ui32Len(0), ui8Type(0) { }
 	
 	enum PrcsdCmdsIds
 	{
@@ -179,6 +179,10 @@ struct User
 			return true;
 		else
 			return m_user_ext_info->ComparExtJSON(sNewExtJSON, ui16NewExtJSONLen);
+	}
+	bool isSupportExtJSON() const
+	{
+		return (ui32SupportBits & SUPPORTBIT_EXTJSON2) == SUPPORTBIT_EXTJSON2;
 	}
 #endif
 	

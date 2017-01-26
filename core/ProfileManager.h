@@ -116,7 +116,7 @@ class clsProfileManager
 		clsProfileManager();
 		~clsProfileManager();
 		
-		bool IsAllowed(User * u, const uint32_t iOption) const;
+		bool IsAllowed(const User * u, const uint32_t iOption) const;
 		bool IsProfileAllowed(const int32_t iProfile, const uint32_t iOption) const;
 		int32_t AddProfile(const char * name);
 		int32_t GetProfileIndex(const char * name);
