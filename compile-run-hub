@@ -1,5 +1,5 @@
 # Hint 1:
-# sudo setcap 'cap_net_bind_service=+ep' /home/dc/src/PtokaX/PtokaX 
+# sudo setcap 'cap_net_bind_service=+ep' /home/dc/src/PtokaX/PtokaX
 # allow dns requests to google nameservers
 # iptables -A OUTPUT -p udp --dport 53 -d 8.8.8.8 -j ACCEPT
 # iptables -A OUTPUT -p udp --dport 53 -d 8.8.4.4 -j ACCEPT
@@ -57,6 +57,6 @@ LANG=ru_RU.CP1251
 if [ -n `locale -a|grep -i ru_RU.cp1251` ]; then
 ./PtokaX
 else
-echo 'ERROR: run $sudolocaledef -c -i ru_RU -f CP1251 ru_RU.CP1251'
+echo 'ERROR: run $sudo localedef -c -i ru_RU -f CP1251 ru_RU.CP1251'
 fi
 # valgrind --leak-check=full --leak-resolution=med --log-file=valgrind-log-file.log --time-stamp=yes ./PtokaX
