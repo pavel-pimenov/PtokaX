@@ -1100,10 +1100,10 @@ void clsDcCommands::ConnectToMe(User * pUser, char * sData, const uint32_t ui32L
 	
 	towho[0] = ' ';
 	
-	uint8_t ui8AfterPortLen = 0;
+    uint16_t ui16AfterPortLen = 0;
 	uint16_t ui16Port = 0;
 	bool bWrongPort = false;
-	bool bCorrectIP = CheckIPPort(pUser, towho + 1, bWrongPort, ui16Port, ui8AfterPortLen, '|');
+	bool bCorrectIP = CheckIPPort(pUser, towho + 1, bWrongPort, ui16Port, ui16AfterPortLen, '|');
 	
 	if (bWrongPort == true)
 	{
@@ -1756,7 +1756,7 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 		
 		pUser->iSR = 0;
 		
-		pUser->pCmdPassiveSearch = AddSearch(pUser, pUser->pCmdPassiveSearch, sData, ui32Len, false);
+		AddSearch(pUser, pUser->pCmdPassiveSearch, sData, ui32Len, false);
 	}
 	else
 	{
@@ -1796,10 +1796,10 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 			}
 		}
 		
-		uint8_t ui8AfterPortLen = 0;
+        uint16_t ui16AfterPortLen = 0;
 		uint16_t ui16Port = 0;
 		bool bWrongPort = false;
-		bool bCorrectIP = CheckIPPort(pUser, sData + iAfterCmd, bWrongPort, ui16Port, ui8AfterPortLen, ' ');
+		bool bCorrectIP = CheckIPPort(pUser, sData + iAfterCmd, bWrongPort, ui16Port, ui16AfterPortLen, ' ');
 		
 		if (bWrongPort == true)
 		{
@@ -1818,18 +1818,18 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 			{
 				if ((pUser->ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE)
 				{
-					int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search [%s]:%hu %s", pUser->sIP, ui16Port, sData + iAfterCmd + ui8AfterPortLen);
+					int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search [%s]:%hu %s", pUser->sIP, ui16Port, sData + iAfterCmd + ui16AfterPortLen);
 					if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::Search12-1") == true)
 					{
-						pUser->pCmdActive6Search = AddSearch(pUser, pUser->pCmdActive6Search, clsServerManager::pGlobalBuffer, iMsgLen, true);
+						AddSearch(pUser, pUser->pCmdActive6Search, clsServerManager::pGlobalBuffer, iMsgLen, true);
 					}
 				}
 				else
 				{
-					int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search Hub:%s %s", pUser->sNick, sData + iAfterCmd + ui8AfterPortLen);
+					int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search Hub:%s %s", pUser->sNick, sData + iAfterCmd + ui16AfterPortLen);
 					if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::Search12-1") == true)
 					{
-						pUser->pCmdPassiveSearch = AddSearch(pUser, pUser->pCmdPassiveSearch, clsServerManager::pGlobalBuffer, iMsgLen, false);
+						AddSearch(pUser, pUser->pCmdPassiveSearch, clsServerManager::pGlobalBuffer, iMsgLen, false);
 					}
 				}
 				
@@ -1837,18 +1837,18 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 				{
 					if ((pUser->ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE)
 					{
-						int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search %s:%hu %s", pUser->sIPv4, ui16Port, sData + iAfterCmd + ui8AfterPortLen);
+						int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search %s:%hu %s", pUser->sIPv4, ui16Port, sData + iAfterCmd + ui16AfterPortLen);
 						if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::Search12-2") == true)
 						{
-							pUser->pCmdActive4Search = AddSearch(pUser, pUser->pCmdActive4Search, clsServerManager::pGlobalBuffer, iMsgLen, true);
+							AddSearch(pUser, pUser->pCmdActive4Search, clsServerManager::pGlobalBuffer, iMsgLen, true);
 						}
 					}
 					else
 					{
-						int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search Hub:%s %s", pUser->sNick, sData + iAfterCmd + ui8AfterPortLen);
+						int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search Hub:%s %s", pUser->sNick, sData + iAfterCmd + ui16AfterPortLen);
 						if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::Search12-3") == true)
 						{
-							pUser->pCmdPassiveSearch = AddSearch(pUser, pUser->pCmdPassiveSearch, clsServerManager::pGlobalBuffer, iMsgLen, false);
+							AddSearch(pUser, pUser->pCmdPassiveSearch, clsServerManager::pGlobalBuffer, iMsgLen, false);
 						}
 					}
 				}
@@ -1867,10 +1867,10 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 			{
 				char * sIP = pUser->ui8IPv4Len == 0 ? pUser->sIP : pUser->sIPv4;
 				
-				int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search %s:%hu %s", sIP, ui16Port, sData + iAfterCmd + ui8AfterPortLen);
+				int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search %s:%hu %s", sIP, ui16Port, sData + iAfterCmd + ui16AfterPortLen);
 				if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::Search13") == true)
 				{
-					pUser->pCmdActive4Search = AddSearch(pUser, pUser->pCmdActive4Search, clsServerManager::pGlobalBuffer, iMsgLen, true);
+					AddSearch(pUser, pUser->pCmdActive4Search, clsServerManager::pGlobalBuffer, iMsgLen, true);
 				}
 				
 				char * sBadIP = sData + iAfterCmd;
@@ -1896,26 +1896,26 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 		{
 			if (sData[8] == '[')
 			{
-				pUser->pCmdActive6Search = AddSearch(pUser, pUser->pCmdActive6Search, sData, ui32Len, true);
+				AddSearch(pUser, pUser->pCmdActive6Search, sData, ui32Len, true);
 				
 				if ((pUser->ui32BoolBits & User::BIT_IPV4) == User::BIT_IPV4)
 				{
-					if (GetPort(sData + 8, ui16Port, ui8AfterPortLen, ' ') == false)
+					if (GetPort(sData + 8, ui16Port, ui16AfterPortLen, ' ') == false)
 					{
 						if ((pUser->ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE)
 						{
-							int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search %s:%hu %s", pUser->sIPv4, ui16Port, sData + 8 + ui8AfterPortLen);
+							int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search %s:%hu %s", pUser->sIPv4, ui16Port, sData + 8 + ui16AfterPortLen);
 							if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::Search15") == true)
 							{
-								pUser->pCmdActive4Search = AddSearch(pUser, pUser->pCmdActive4Search, clsServerManager::pGlobalBuffer, iMsgLen, true);
+								AddSearch(pUser, pUser->pCmdActive4Search, clsServerManager::pGlobalBuffer, iMsgLen, true);
 							}
 						}
 						else
 						{
-							int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search Hub:%s %s", pUser->sNick, sData + 8 + ui8AfterPortLen);
+							int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search Hub:%s %s", pUser->sNick, sData + 8 + ui16AfterPortLen);
 							if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::Search16") == true)
 							{
-								pUser->pCmdPassiveSearch = AddSearch(pUser, pUser->pCmdPassiveSearch, clsServerManager::pGlobalBuffer, iMsgLen, false);
+								AddSearch(pUser, pUser->pCmdPassiveSearch, clsServerManager::pGlobalBuffer, iMsgLen, false);
 							}
 						}
 					}
@@ -1923,16 +1923,16 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 			}
 			else
 			{
-				pUser->pCmdActive4Search = AddSearch(pUser, pUser->pCmdActive4Search, sData, ui32Len, true);
+				AddSearch(pUser, pUser->pCmdActive4Search, sData, ui32Len, true);
 				
 				if (((pUser->ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE) == false)
 				{
-					if (GetPort(sData + 8, ui16Port, ui8AfterPortLen, ' ') == false)
+					if (GetPort(sData + 8, ui16Port, ui16AfterPortLen, ' ') == false)
 					{
-						int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search Hub:%s %s", pUser->sNick, sData + 8 + ui8AfterPortLen);
+						int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "$Search Hub:%s %s", pUser->sNick, sData + 8 + ui16AfterPortLen);
 						if (CheckSprintf(iMsgLen, clsServerManager::szGlobalBufferSize, "clsDcCommands::Search17") == true)
 						{
-							pUser->pCmdPassiveSearch = AddSearch(pUser, pUser->pCmdPassiveSearch, clsServerManager::pGlobalBuffer, iMsgLen, false);
+							AddSearch(pUser, pUser->pCmdPassiveSearch, clsServerManager::pGlobalBuffer, iMsgLen, false);
 						}
 					}
 				}
@@ -1940,7 +1940,7 @@ void clsDcCommands::Search(User *pUser, char * sData, uint32_t ui32Len, const bo
 		}
 		else
 		{
-			pUser->pCmdActive4Search = AddSearch(pUser, pUser->pCmdActive4Search, sData, ui32Len, true);
+			AddSearch(pUser, pUser->pCmdActive4Search, sData, ui32Len, true);
 		}
 	}
 }
@@ -4125,7 +4125,7 @@ bool CheckPort(char * sData, char cPortEnd)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool clsDcCommands::CheckIPPort(const User * pUser, char * sIP, bool &bWrongPort, uint16_t &ui16Port, uint8_t &ui8AfterPortLen, char cPortEnd)
+bool clsDcCommands::CheckIPPort(const User * pUser, char * sIP, bool &bWrongPort, uint16_t &ui16Port, uint16_t &ui16AfterPortLen, char cPortEnd)
 {
 	if ((pUser->ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
 	{
@@ -4149,13 +4149,13 @@ bool clsDcCommands::CheckIPPort(const User * pUser, char * sIP, bool &bWrongPort
 		return true;
 	}
 	
-	bWrongPort = GetPort(sIP, ui16Port, ui8AfterPortLen, cPortEnd);
+	bWrongPort = GetPort(sIP, ui16Port, ui16AfterPortLen, cPortEnd);
 	
 	return false;
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool clsDcCommands::GetPort(char * sData, uint16_t &ui16Port, uint8_t &ui8AfterPortLen, char cPortEnd)
+bool clsDcCommands::GetPort(char * sData, uint16_t &ui16Port, uint16_t &ui16AfterPortLen, char cPortEnd)
 {
 	char * sPortEnd = strchr(sData, cPortEnd);
 	if (sPortEnd == NULL)
@@ -4186,7 +4186,7 @@ bool clsDcCommands::GetPort(char * sData, uint16_t &ui16Port, uint8_t &ui8AfterP
 	
 	ui16Port = (uint16_t)iPort;
 	
-	ui8AfterPortLen = (uint8_t)(sPortEnd - sData) + 1;
+	ui16AfterPortLen = (uint8_t)(sPortEnd - sData) + 1;
 	
 	return false;
 }
@@ -4312,7 +4312,7 @@ void clsDcCommands::MyNick(User * pUser, char * sData, const uint32_t ui32Len)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, const char * sSearch, const size_t szLen, const bool bActive)
+void clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd *& cmdSearch, const char * sSearch, const size_t szLen, const bool bActive)
 {
 	if (cmdSearch != NULL)
 	{
@@ -4326,7 +4326,7 @@ PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, co
 			
 			AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for clsDcCommands::AddSearch1\n", (uint64_t)(cmdSearch->ui32Len + szLen + 1));
 			
-			return cmdSearch;
+			return;
 		}
 		memcpy(cmdSearch->sCommand + cmdSearch->ui32Len, sSearch, szLen);
 		cmdSearch->ui32Len += (uint32_t)szLen;
@@ -4343,14 +4343,14 @@ PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, co
 	}
 	else
 	{
-		cmdSearch = new(std::nothrow) PrcsdUsrCmd();
+		cmdSearch = new(std::nothrow) PrcsdUsrCmd;
 		if (cmdSearch == NULL)
 		{
 			pUser->ui32BoolBits |= User::BIT_ERROR;
 			pUser->Close();
 			
 			AppendDebugLog("%s - [MEM] Cannot allocate new cmdSearch in clsDcCommands::AddSearch1\n");
-			return cmdSearch;
+			return;
 		}
 		
 		cmdSearch->sCommand = (char *)malloc(szLen + 1);
@@ -4362,8 +4362,7 @@ PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, co
 			pUser->Close();
 			
 			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for DcCommands::Search5\n", (uint64_t)(szLen + 1));
-			
-			return NULL;
+			return;
 		}
 		
 		memcpy(cmdSearch->sCommand, sSearch, szLen);
@@ -4381,6 +4380,6 @@ PrcsdUsrCmd * clsDcCommands::AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, co
 		}
 	}
 	
-	return cmdSearch;
+	return;
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

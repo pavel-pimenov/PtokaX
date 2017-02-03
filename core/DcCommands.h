@@ -87,13 +87,13 @@ class clsDcCommands
 		PassBf * Find(const uint8_t * ui128IpHash);
 		void Remove(PassBf * PassBfItem);
 		
-		static bool CheckIPPort(const User * pUser, char * sIP, bool &bWrongPort, uint16_t &ui16Port, uint8_t &ui8AfterPortLen, char cPortEnd);
-		static bool GetPort(char * sData, uint16_t &ui16Port, uint8_t &ui8AfterPortLen, char cPortEnd);
+  		static bool CheckIPPort(const User * pUser, char * sIP, bool &bWrongPort, uint16_t &ui16Port, uint16_t &ui16AfterPortLen, char cPortEnd);
+        static bool GetPort(char * sData, uint16_t &ui16Port, uint16_t &ui16AfterPortLen, char cPortEnd);
 		static void SendIncorrectPortMsg(User * pUser, const bool bCTM);
 		static void SendIncorrectIPMsg(User * pUser, char * sBadIP, const bool bCTM);
 		static void SendIPFixedMsg(User * pUser, const char * sBadIP, const char * sRealIP);
 		
-		static PrcsdUsrCmd * AddSearch(User * pUser, PrcsdUsrCmd * cmdSearch, const char * sSearch, const size_t szLen, const bool bActive);
+		static void AddSearch(User * pUser, PrcsdUsrCmd *& cmdSearch, const char * sSearch, const size_t szLen, const bool bActive);
 	public:
 		static clsDcCommands * mPtr;
 		
