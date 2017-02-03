@@ -29,7 +29,7 @@ class SettingPageMOTD : public SettingPage
 		bool bUpdateMOTD;
 		
 		SettingPageMOTD();
-		~SettingPageMOTD() { };
+		~SettingPageMOTD() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		

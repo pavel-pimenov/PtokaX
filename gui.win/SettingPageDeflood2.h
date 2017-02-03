@@ -27,7 +27,7 @@ class SettingPageDeflood2 : public SettingPage
 {
 	public:
 		SettingPageDeflood2();
-		~SettingPageDeflood2() { };
+		~SettingPageDeflood2() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		

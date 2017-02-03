@@ -89,7 +89,7 @@ class clsBanManager
 			
 			BanItem * pFirstBan;
 			
-			IpTableItem() : pPrev(NULL), pNext(NULL), pFirstBan(NULL) { };
+			IpTableItem() : pPrev(NULL), pNext(NULL), pFirstBan(NULL) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(IpTableItem);
 		};

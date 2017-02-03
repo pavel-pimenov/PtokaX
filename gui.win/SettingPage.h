@@ -39,7 +39,7 @@ class SettingPage
 		bool bCreated;
 		
 		SettingPage();
-		virtual ~SettingPage() { };
+		virtual ~SettingPage() { }
 		
 		static LRESULT CALLBACK StaticSettingPageProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		

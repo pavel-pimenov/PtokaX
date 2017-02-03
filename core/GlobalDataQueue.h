@@ -35,7 +35,7 @@ class clsGlobalDataQueue
 			
 			uint8_t ui8CommandType;
 			
-			QueueItem() : pNext(NULL), ui8CommandType(0) { };
+			QueueItem() : pNext(NULL), ui8CommandType(0) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(QueueItem);
 		};
@@ -50,7 +50,7 @@ class clsGlobalDataQueue
 			
 			bool bCreated, bZlined;
 			
-			GlobalQueue() : pNext(NULL), pBuffer(NULL), pZbuffer(NULL), szLen(0), szSize(0), szZlen(0), szZsize(0), bCreated(false), bZlined(false) { };
+			GlobalQueue() : pNext(NULL), pBuffer(NULL), pZbuffer(NULL), szLen(0), szSize(0), szZlen(0), szZsize(0), bCreated(false), bZlined(false) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(GlobalQueue);
 		};
@@ -61,7 +61,7 @@ class clsGlobalDataQueue
 			
 			size_t szLen, szSize;
 			
-			OpsQueue() : pBuffer(NULL), szLen(0), szSize(0) { };
+			OpsQueue() : pBuffer(NULL), szLen(0), szSize(0) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(OpsQueue);
 		};
@@ -74,7 +74,7 @@ class clsGlobalDataQueue
 			
 			bool bHaveDollars;
 			
-			IPsQueue() : pBuffer(NULL), szLen(0), szSize(0), bHaveDollars(false) { };
+			IPsQueue() : pBuffer(NULL), szLen(0), szSize(0), bHaveDollars(false) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(IPsQueue);
 		};
@@ -93,7 +93,7 @@ class clsGlobalDataQueue
 			
 			uint8_t ui8Type;
 			
-			SingleDataItem() : pPrev(NULL), pNext(NULL), pFromUser(NULL), pData(NULL), szDataLen(0), i32Profile(0), ui8Type(0) { };
+			SingleDataItem() : pPrev(NULL), pNext(NULL), pFromUser(NULL), pData(NULL), szDataLen(0), i32Profile(0), ui8Type(0) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(SingleDataItem);
 		};

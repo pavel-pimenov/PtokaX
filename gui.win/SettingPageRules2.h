@@ -29,7 +29,7 @@ class SettingPageRules2 : public SettingPage
 		bool bUpdateSlotsLimitMessage, bUpdateHubSlotRatioMessage, bUpdateMaxHubsLimitMessage;
 		
 		SettingPageRules2();
-		~SettingPageRules2() { };
+		~SettingPageRules2() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		

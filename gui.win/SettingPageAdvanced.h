@@ -29,7 +29,7 @@ class SettingPageAdvanced : public SettingPage
 		bool bUpdateSysTray, bUpdateScripting;
 		
 		SettingPageAdvanced();
-		~SettingPageAdvanced() { };
+		~SettingPageAdvanced() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		

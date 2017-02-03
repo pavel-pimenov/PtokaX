@@ -29,7 +29,7 @@ class SettingPageRules : public SettingPage
 		bool bUpdateNickLimitMessage, bUpdateMinShare, bUpdateMaxShare, bUpdateShareLimitMessage;
 		
 		SettingPageRules();
-		~SettingPageRules() { };
+		~SettingPageRules() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		

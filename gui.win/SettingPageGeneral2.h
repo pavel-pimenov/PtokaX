@@ -30,7 +30,7 @@ class SettingPageGeneral2 : public SettingPage
 		     bUpdateMaxHubsLimitMessage, bUpdateNoTagMessage, bUpdateTempBanRedirAddress, bUpdatePermBanRedirAddress, bUpdateNickLimitMessage;
 		     
 		SettingPageGeneral2();
-		~SettingPageGeneral2() { };
+		~SettingPageGeneral2() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		

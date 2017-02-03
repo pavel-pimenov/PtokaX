@@ -31,7 +31,7 @@ class SettingPageBots : public SettingPage
 		     bUpdateBot, bOpChatNickChanged, bUpdateOpChat;
 		     
 		SettingPageBots();
-		~SettingPageBots() { };
+		~SettingPageBots() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		

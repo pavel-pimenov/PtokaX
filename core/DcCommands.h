@@ -41,7 +41,7 @@ class clsDcCommands
 			Hash128 m_ui128IpHash;
 			
 			explicit PassBf(const uint8_t * ui128Hash);
-			~PassBf(void) { };
+			~PassBf(void) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(PassBf);
 		};

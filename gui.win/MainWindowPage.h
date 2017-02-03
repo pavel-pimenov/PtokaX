@@ -27,7 +27,7 @@ class MainWindowPage
 		HWND m_hWnd;
 		
 		MainWindowPage();
-		virtual ~MainWindowPage() { };
+		virtual ~MainWindowPage() { }
 		
 		static LRESULT CALLBACK StaticMainWindowPageProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		

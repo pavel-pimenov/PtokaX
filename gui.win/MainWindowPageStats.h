@@ -53,7 +53,7 @@ class MainWindowPageStats : public MainWindowPage
 		};
 		
 		MainWindowPageStats();
-		~MainWindowPageStats() { };
+		~MainWindowPageStats() { }
 		
 		bool CreateMainWindowPage(HWND hOwner);
 		void UpdateLanguage();

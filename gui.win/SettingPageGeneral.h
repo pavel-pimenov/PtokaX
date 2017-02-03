@@ -29,7 +29,7 @@ class SettingPageGeneral : public SettingPage
 		bool bUpdateHubNameWelcome, bUpdateHubName, bUpdateTCPPorts, bUpdateUDPPort, bUpdateAutoReg, bUpdateLanguage;
 		
 		SettingPageGeneral();
-		~SettingPageGeneral() { };
+		~SettingPageGeneral() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		

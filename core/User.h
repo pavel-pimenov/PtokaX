@@ -92,7 +92,7 @@ struct User; // needed for next struct, and next struct must be defined before u
 
 struct PrcsdToUsrCmd
 {
-	PrcsdToUsrCmd() : pNext(NULL), pTo(NULL), sCommand(NULL), sToNick(NULL), ui32Len(0), ui32PmCount(0), ui32Loops(0), ui32ToNickLen(0) { };
+	PrcsdToUsrCmd() : pNext(NULL), pTo(NULL), sCommand(NULL), sToNick(NULL), ui32Len(0), ui32PmCount(0), ui32Loops(0), ui32ToNickLen(0) { }
 	
 	PrcsdToUsrCmd * pNext;
 	

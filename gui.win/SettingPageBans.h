@@ -29,7 +29,7 @@ class SettingPageBans : public SettingPage
 		bool bUpdateTempBanRedirAddress, bUpdatePermBanRedirAddress;
 		
 		SettingPageBans();
-		~SettingPageBans() { };
+		~SettingPageBans() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		

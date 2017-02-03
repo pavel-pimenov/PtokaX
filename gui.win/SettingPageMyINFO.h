@@ -29,7 +29,7 @@ class SettingPageMyINFO : public SettingPage
 		bool bUpdateNoTagMessage;
 		
 		SettingPageMyINFO();
-		~SettingPageMyINFO() { };
+		~SettingPageMyINFO() { }
 		
 		bool CreateSettingPage(HWND hOwner);
 		
