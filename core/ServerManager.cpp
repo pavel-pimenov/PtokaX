@@ -382,14 +382,15 @@ void clsServerManager::Initialize()
 		AppendDebugLog("%s - [MEM] Cannot allocate clsSettingManager::mPtr in ServerInitialize\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
+#if defined(_WITH_SQLITE)	
 	TextConverter::mPtr = new(std::nothrow) TextConverter();
 	if (TextConverter::mPtr == NULL)
 	{
 		AppendDebugLog("%s - [MEM] Cannot allocate TextConverter::mPtr in ServerInitialize\n");
 		exit(EXIT_FAILURE);
 	}
-	
+#endif // _WITH_SQLITE	
 	clsLanguageManager::mPtr = new(std::nothrow) clsLanguageManager();
 	if (clsLanguageManager::mPtr == NULL)
 	{
@@ -872,7 +873,9 @@ void clsServerManager::FinalClose()
 	safe_delete(clsBanManager::mPtr);
 	safe_delete(clsZlibUtility::mPtr);
 	safe_delete(clsLanguageManager::mPtr);
+#if defined(_WITH_SQLITE)	
 	safe_delete(TextConverter::mPtr);
+#endif
 	safe_delete(clsSettingManager::mPtr);
 	safe_delete(clsReservedNicksManager::mPtr);
 
