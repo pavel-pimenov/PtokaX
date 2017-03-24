@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -19,7 +19,10 @@
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #ifndef DBSQLiteH
 #define DBSQLiteH
+
+#ifdef FLYLINKDC_USE_DB
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+struct ChatCommand;
 struct User;
 typedef struct sqlite3 sqlite3;
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -27,14 +30,12 @@ typedef struct sqlite3 sqlite3;
 class DBSQLite
 {
 	private:
-		sqlite3 * pDB;
+		sqlite3 * m_pSqliteDB;
 		
-		bool bConnected;
+		bool m_bConnected;
 		
-		DBSQLite(const DBSQLite&);
-		const DBSQLite& operator=(const DBSQLite&);
 	public:
-		static DBSQLite * mPtr;
+		static DBSQLite * m_Ptr;
 		
 		DBSQLite();
 		~DBSQLite();
@@ -42,11 +43,15 @@ class DBSQLite
 		void UpdateRecord(User * pUser);
 		void IncMessageCount(User * pUser);
 		
-		bool SearchNick(const char * sNick, const uint8_t ui8NickLen, User * pUser, const bool bFromPM);
-		bool SearchIP(const char * sIP, User * pUser, const bool bFromPM);
+		bool SearchNick(ChatCommand * pChatCommand);
+		bool SearchIP(ChatCommand * pChatCommand);
 		
+#ifdef FLYLINKDC_USE_SQLITE_REMOVE_OLD_RECORD
 		void RemoveOldRecords(const uint16_t ui16Days);
+#endif
+		DISALLOW_COPY_AND_ASSIGN(DBSQLite);
 };
+#endif // FLYLINKDC_USE_DB
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #endif

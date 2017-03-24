@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -21,42 +21,42 @@
 #define ResNickManagerH
 //---------------------------------------------------------------------------
 
-class clsReservedNicksManager
+class ReservedNicksManager
 {
 	private:
 		struct ReservedNick
 		{
-			ReservedNick * pPrev, * pNext;
+			ReservedNick * m_pPrev, * m_pNext;
 			
-			char * sNick;
+			char * m_sNick;
 			
-			uint32_t ui32Hash;
+			uint32_t m_ui32Hash;
 			
-			bool bFromScript;
+			bool m_bFromScript;
 			
 			ReservedNick();
 			~ReservedNick();
 			
-			static ReservedNick * CreateReservedNick(const char * sNewNick, uint32_t ui32NickHash);
+			static ReservedNick * CreateReservedNick(const char * sNewNick, uint32_t m_ui32NickHash);
 			
 			DISALLOW_COPY_AND_ASSIGN(ReservedNick);
 		};
 		
-		ReservedNick * pReservedNicks;
+		ReservedNick * m_pReservedNicks;
 		
-		DISALLOW_COPY_AND_ASSIGN(clsReservedNicksManager);
+		DISALLOW_COPY_AND_ASSIGN(ReservedNicksManager);
 		
 		
 		void Load();
 		void Save() const;
 		void LoadXML();
 	public:
-		static clsReservedNicksManager * mPtr;
+		static ReservedNicksManager * m_Ptr;
 		
-		clsReservedNicksManager();
-		~clsReservedNicksManager();
+		ReservedNicksManager();
+		~ReservedNicksManager();
 		
-		bool CheckReserved(const char * sNick, const uint32_t hash) const;
+		bool CheckReserved(const char * sNick, const uint32_t ui32Hash) const;
 		void AddReservedNick(const char * sNick, const bool bFromScript = false);
 		void DelReservedNick(const char * sNick, const bool bFromScript = false);
 };

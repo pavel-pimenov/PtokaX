@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -29,30 +29,29 @@
 #pragma hdrstop
 #endif
 //---------------------------------------------------------------------------
-clsHashManager * clsHashManager::mPtr = NULL;
+HashManager * HashManager::m_Ptr = nullptr;
 //---------------------------------------------------------------------------
 
-clsHashManager::clsHashManager()
+HashManager::HashManager()
 {
-	memset(pNickTable, 0, sizeof(pNickTable));
-	memset(pIpTable, 0, sizeof(pIpTable));
+	memset(m_pIpTable, 0, sizeof(m_pIpTable));
 	
-	//Memo("clsHashManager created");
+	//Memo("HashManager created");
 }
 //---------------------------------------------------------------------------
 
-clsHashManager::~clsHashManager()
+HashManager::~HashManager()
 {
-	//Memo("clsHashManager destroyed");
+	//Memo("HashManager destroyed");
 	for (uint32_t ui32i = 0; ui32i < 65536; ui32i++)
 	{
 		IpTableItem * cur = NULL,
-		              * next = pIpTable[ui32i];
+		              * next = m_pIpTable[ui32i];
 		              
 		while (next != NULL)
 		{
 			cur = next;
-			next = cur->pNext;
+			next = cur->m_pNext;
 			
 			delete cur;
 		}
@@ -60,258 +59,197 @@ clsHashManager::~clsHashManager()
 }
 //---------------------------------------------------------------------------
 
-bool clsHashManager::Add(User * u)
+bool HashManager::Add(User * pUser)
 {
-	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
-	
-	if (pNickTable[ui16dx] != NULL)
+
+	if (pUser->m_sNick)
 	{
-		pNickTable[ui16dx]->pHashTablePrev = u;
-		u->pHashTableNext = pNickTable[ui16dx];
+		m_NickTable[std::string(pUser->m_sNick, pUser->m_ui8NickLen)] = pUser;
 	}
 	
-	pNickTable[ui16dx] = u;
-	
-	if (pIpTable[u->ui16IpTableIdx] == NULL)
+	if (m_pIpTable[pUser->m_ui16IpTableIdx] == NULL)
 	{
-		pIpTable[u->ui16IpTableIdx] = new(std::nothrow) IpTableItem;
+		m_pIpTable[pUser->m_ui16IpTableIdx] = new (std::nothrow) IpTableItem;
 		
-		if (pIpTable[u->ui16IpTableIdx] == NULL)
+		if (m_pIpTable[pUser->m_ui16IpTableIdx] == NULL)
 		{
-			u->ui32BoolBits |= User::BIT_ERROR;
-			u->Close();
+			pUser->m_ui32BoolBits |= User::BIT_ERROR;
+			pUser->Close();
 			
-			AppendDebugLog("%s - [MEM] Cannot allocate IpTableItem in clsHashManager::Add\n");
+			AppendDebugLog("%s - [MEM] Cannot allocate IpTableItem in HashManager::Add\n");
 			return false;
 		}
 		
-		pIpTable[u->ui16IpTableIdx]->pNext = NULL;
-		pIpTable[u->ui16IpTableIdx]->pPrev = NULL;
+		m_pIpTable[pUser->m_ui16IpTableIdx]->m_pNext = nullptr;
+		m_pIpTable[pUser->m_ui16IpTableIdx]->m_pPrev = nullptr;
 		
-		pIpTable[u->ui16IpTableIdx]->pFirstUser = u;
-		pIpTable[u->ui16IpTableIdx]->ui16Count = 1;
+		m_pIpTable[pUser->m_ui16IpTableIdx]->m_pFirstUser = pUser;
+		m_pIpTable[pUser->m_ui16IpTableIdx]->m_ui16Count = 1;
 		
 		return true;
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[u->ui16IpTableIdx];
+	              * next = m_pIpTable[pUser->m_ui16IpTableIdx];
 	              
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstUser->ui128IpHash, u->ui128IpHash, 16) == 0)
+		if (memcmp(cur->m_pFirstUser->m_ui128IpHash, pUser->m_ui128IpHash, 16) == 0)
 		{
-			cur->pFirstUser->pHashIpTablePrev = u;
-			u->pHashIpTableNext = cur->pFirstUser;
-			cur->pFirstUser = u;
-			cur->ui16Count++;
+			cur->m_pFirstUser->m_pHashIpTablePrev = pUser;
+			pUser->m_pHashIpTableNext = cur->m_pFirstUser;
+			cur->m_pFirstUser = pUser;
+			cur->m_ui16Count++;
 			
 			return true;
 		}
 	}
 	
-	cur = new(std::nothrow) IpTableItem;
+	cur = new (std::nothrow) IpTableItem;
 	
 	if (cur == NULL)
 	{
-		u->ui32BoolBits |= User::BIT_ERROR;
-		u->Close();
+		pUser->m_ui32BoolBits |= User::BIT_ERROR;
+		pUser->Close();
 		
-		AppendDebugLog("%s - [MEM] Cannot allocate IpTableItem2 in clsHashManager::Add\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate IpTableItem2 in HashManager::Add\n");
 		return false;
 	}
 	
-	cur->pFirstUser = u;
-	cur->ui16Count = 1;
+	cur->m_pFirstUser = pUser;
+	cur->m_ui16Count = 1;
 	
-	cur->pNext = pIpTable[u->ui16IpTableIdx];
-	cur->pPrev = NULL;
+	cur->m_pNext = m_pIpTable[pUser->m_ui16IpTableIdx];
+	cur->m_pPrev = nullptr;
 	
-	pIpTable[u->ui16IpTableIdx]->pPrev = cur;
-	pIpTable[u->ui16IpTableIdx] = cur;
+	m_pIpTable[pUser->m_ui16IpTableIdx]->m_pPrev = cur;
+	m_pIpTable[pUser->m_ui16IpTableIdx] = cur;
 	
 	return true;
 }
 //---------------------------------------------------------------------------
 
-void clsHashManager::Remove(User * u)
+void HashManager::Remove(User * pUser)
 {
-	if (u->pHashTablePrev == NULL)
+
+	if (pUser->m_sNick)
 	{
-		const uint16_t ui16dx = CalcHash(u->ui32NickHash);
-		
-		if (u->pHashTableNext == NULL)
-		{
-			pNickTable[ui16dx] = NULL;
-		}
-		else
-		{
-			u->pHashTableNext->pHashTablePrev = NULL;
-			pNickTable[ui16dx] = u->pHashTableNext;
-		}
-	}
-	else if (u->pHashTableNext == NULL)
-	{
-		u->pHashTablePrev->pHashTableNext = NULL;
-	}
-	else
-	{
-		u->pHashTablePrev->pHashTableNext = u->pHashTableNext;
-		u->pHashTableNext->pHashTablePrev = u->pHashTablePrev;
+		m_NickTable.erase(std::string(pUser->m_sNick, pUser->m_ui8NickLen));
 	}
 	
-	u->pHashTablePrev = NULL;
-	u->pHashTableNext = NULL;
-	
-	if (u->pHashIpTablePrev == NULL)
+	if (pUser->m_pHashIpTablePrev == NULL)
 	{
 		IpTableItem * cur = NULL,
-		              * next = pIpTable[u->ui16IpTableIdx];
+		              * next = m_pIpTable[pUser->m_ui16IpTableIdx];
 		              
 		while (next != NULL)
 		{
 			cur = next;
-			next = cur->pNext;
+			next = cur->m_pNext;
 			
-			if (memcmp(cur->pFirstUser->ui128IpHash, u->ui128IpHash, 16) == 0)
+			if (memcmp(cur->m_pFirstUser->m_ui128IpHash, pUser->m_ui128IpHash, 16) == 0)
 			{
-				cur->ui16Count--;
+				cur->m_ui16Count--;
 				
-				if (u->pHashIpTableNext == NULL)
+				if (pUser->m_pHashIpTableNext == NULL)
 				{
-					if (cur->pPrev == NULL)
+					if (cur->m_pPrev == NULL)
 					{
-						if (cur->pNext == NULL)
+						if (cur->m_pNext == NULL)
 						{
-							pIpTable[u->ui16IpTableIdx] = NULL;
+							m_pIpTable[pUser->m_ui16IpTableIdx] = nullptr;
 						}
 						else
 						{
-							cur->pNext->pPrev = NULL;
-							pIpTable[u->ui16IpTableIdx] = cur->pNext;
+							cur->m_pNext->m_pPrev = nullptr;
+							m_pIpTable[pUser->m_ui16IpTableIdx] = cur->m_pNext;
 						}
 					}
-					else if (cur->pNext == NULL)
+					else if (cur->m_pNext == NULL)
 					{
-						cur->pPrev->pNext = NULL;
+						cur->m_pPrev->m_pNext = nullptr;
 					}
 					else
 					{
-						cur->pPrev->pNext = cur->pNext;
-						cur->pNext->pPrev = cur->pPrev;
+						cur->m_pPrev->m_pNext = cur->m_pNext;
+						cur->m_pNext->m_pPrev = cur->m_pPrev;
 					}
 					
 					delete cur;
 				}
 				else
 				{
-					u->pHashIpTableNext->pHashIpTablePrev = NULL;
-					cur->pFirstUser = u->pHashIpTableNext;
+					pUser->m_pHashIpTableNext->m_pHashIpTablePrev = nullptr;
+					cur->m_pFirstUser = pUser->m_pHashIpTableNext;
 				}
 				
-				u->pHashIpTablePrev = NULL;
-				u->pHashIpTableNext = NULL;
+				pUser->m_pHashIpTablePrev = nullptr;
+				pUser->m_pHashIpTableNext = nullptr;
 				
 				return;
 			}
 		}
 	}
-	else if (u->pHashIpTableNext == NULL)
+	else if (pUser->m_pHashIpTableNext == NULL)
 	{
-		u->pHashIpTablePrev->pHashIpTableNext = NULL;
+		pUser->m_pHashIpTablePrev->m_pHashIpTableNext = nullptr;
 	}
 	else
 	{
-		u->pHashIpTablePrev->pHashIpTableNext = u->pHashIpTableNext;
-		u->pHashIpTableNext->pHashIpTablePrev = u->pHashIpTablePrev;
+		pUser->m_pHashIpTablePrev->m_pHashIpTableNext = pUser->m_pHashIpTableNext;
+		pUser->m_pHashIpTableNext->m_pHashIpTablePrev = pUser->m_pHashIpTablePrev;
 	}
 	
-	u->pHashIpTablePrev = NULL;
-	u->pHashIpTableNext = NULL;
+	pUser->m_pHashIpTablePrev = nullptr;
+	pUser->m_pHashIpTableNext = nullptr;
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[u->ui16IpTableIdx];
+	              * next = m_pIpTable[pUser->m_ui16IpTableIdx];
 	              
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstUser->ui128IpHash, u->ui128IpHash, 16) == 0)
+		if (memcmp(cur->m_pFirstUser->m_ui128IpHash, pUser->m_ui128IpHash, 16) == 0)
 		{
-			cur->ui16Count--;
+			cur->m_ui16Count--;
 			
 			return;
 		}
 	}
 }
 //---------------------------------------------------------------------------
-
-User * clsHashManager::FindUser(const char * sNick, const size_t szNickLen)
+User * HashManager::FindUser(const std::string& sNick) const
 {
-	const uint32_t ui32Hash = HashNick(sNick, szNickLen);
-	
-	const uint16_t ui16dx = CalcHash(ui32Hash);
-	
-	User * next = pNickTable[ui16dx];
-	
-	// pointer exists ? Then we need look for nick
-	if (next != NULL)
+	auto i = m_NickTable.find(sNick);
+	if (i != m_NickTable.end())
 	{
-		User * cur = NULL;
-		
-		while (next != NULL)
-		{
-			cur = next;
-			next = cur->pHashTableNext;
-			
-			// we are looking for duplicate string
-			if (cur->ui32NickHash == ui32Hash && cur->ui8NickLen == szNickLen && strcasecmp(cur->sNick, sNick) == 0)
-			{
-				return cur;
-			}
-		}
+		return i->second;
 	}
-	
+	return NULL;
+}
+//---------------------------------------------------------------------------
+User * HashManager::FindUser(const char * sNick, const size_t szNickLen)  const
+{
+	if (sNick)
+	{
+		return FindUser(std::string(sNick, szNickLen));
+	}
 	// no equal hash found, we dont have the nick in list
 	return NULL;
 }
 //---------------------------------------------------------------------------
-
-User * clsHashManager::FindUser(User * u)
+User * HashManager::FindUser(const User * pUser)  const
 {
-
-	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
-	
-	User * next = pNickTable[ui16dx];
-	
-	// pointer exists ? Then we need look for nick
-	if (next != NULL)
-	{
-		User * cur = NULL;
-		
-		while (next != NULL)
-		{
-			cur = next;
-			next = cur->pHashTableNext;
-			
-			// we are looking for duplicate string
-			if (cur->ui32NickHash == u->ui32NickHash && cur->ui8NickLen == u->ui8NickLen && strcasecmp(cur->sNick, u->sNick) == 0)
-			{
-				return cur;
-			}
-		}
-	}
-	
-	// no equal hash found, we dont have the nick in list
-	return NULL;
+	return FindUser(pUser->m_sNick, pUser->m_ui8NickLen);
 }
 //---------------------------------------------------------------------------
 
-User * clsHashManager::FindUser(const uint8_t * ui128IpHash)
+User * HashManager::FindUser(const uint8_t * ui128IpHash) const
 {
 	uint16_t ui16IpTableIdx = 0;
 	
@@ -325,16 +263,16 @@ User * clsHashManager::FindUser(const uint8_t * ui128IpHash)
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[ui16IpTableIdx];
+	              * next = m_pIpTable[ui16IpTableIdx];
 	              
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstUser->ui128IpHash, ui128IpHash, 16) == 0)
+		if (memcmp(cur->m_pFirstUser->m_ui128IpHash, ui128IpHash, 16) == 0)
 		{
-			return cur->pFirstUser;
+			return cur->m_pFirstUser;
 		}
 	}
 	
@@ -342,19 +280,19 @@ User * clsHashManager::FindUser(const uint8_t * ui128IpHash)
 }
 //---------------------------------------------------------------------------
 
-uint32_t clsHashManager::GetUserIpCount(User * u) const
+uint32_t HashManager::GetUserIpCount(const User * pUser) const
 {
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[u->ui16IpTableIdx];
+	              * next = m_pIpTable[pUser->m_ui16IpTableIdx];
 	              
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstUser->ui128IpHash, u->ui128IpHash, 16) == 0)
+		if (memcmp(cur->m_pFirstUser->m_ui128IpHash, pUser->m_ui128IpHash, 16) == 0)
 		{
-			return cur->ui16Count;
+			return cur->m_ui16Count;
 		}
 	}
 	

@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -51,7 +51,7 @@ int ScaleGuiDefaultsOnly(const int iValue)
 
 void RichEditOpenLink(const HWND hRichEdit, const ENLINK * pEnLink)
 {
-	TCHAR * sURL = new(std::nothrow) TCHAR[(pEnLink->chrg.cpMax - pEnLink->chrg.cpMin) + 1];
+	TCHAR * sURL = new (std::nothrow) TCHAR[(pEnLink->chrg.cpMax - pEnLink->chrg.cpMin) + 1];
 	
 	if (sURL == NULL)
 	{

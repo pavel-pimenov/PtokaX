@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -23,14 +23,14 @@
 struct User;
 //---------------------------------------------------------------------------
 
-class clsTextFilesManager
+class TextFilesManager
 {
 	private:
 		struct TextFile
 		{
-			TextFile * pPrev, * pNext;
+			TextFile * m_pPrev, * m_pNext;
 			
-			char * sCommand, * sText;
+			char * m_sCommand, *m_sText;
 			
 			TextFile();
 			~TextFile();
@@ -38,16 +38,16 @@ class clsTextFilesManager
 			DISALLOW_COPY_AND_ASSIGN(TextFile);
 		};
 		
-		TextFile * pTextFiles;
+		TextFile * m_pTextFiles;
 		
-		DISALLOW_COPY_AND_ASSIGN(clsTextFilesManager);
+		DISALLOW_COPY_AND_ASSIGN(TextFilesManager);
 	public:
-		static clsTextFilesManager * mPtr;
+		static TextFilesManager * m_Ptr;
 		
-		clsTextFilesManager();
-		~clsTextFilesManager();
+		TextFilesManager();
+		~TextFilesManager();
 		
-		bool ProcessTextFilesCmd(User * u, const char * cmd, bool fromPM = false) const;
+		bool ProcessTextFilesCmd(User * pUser, char * sCommand, const bool bFromPM = false) const;
 		void RefreshTextFiles();
 };
 //---------------------------------------------------------------------------

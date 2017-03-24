@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -42,18 +42,18 @@ LRESULT CALLBACK EnableDbCheckProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 		{
 			if (::SendMessage(hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED)
 			{
-				::SetFocus(::GetNextDlgTabItem(clsSettingDialog::mPtr->hWndWindowItems[clsSettingDialog::WINDOW_HANDLE], hWnd, FALSE));
+				::SetFocus(::GetNextDlgTabItem(SettingDialog::m_Ptr->m_hWndWindowItems[SettingDialog::WINDOW_HANDLE], hWnd, FALSE));
 			}
 			else
 			{
-				::SetFocus(clsSettingDialog::mPtr->hWndWindowItems[clsSettingDialog::TV_TREE]);
+				::SetFocus(SettingDialog::m_Ptr->m_hWndWindowItems[SettingDialog::TV_TREE]);
 			}
 			
 			return 0;
 		}
 		else
 		{
-			::SetFocus(::GetNextDlgTabItem(clsSettingDialog::mPtr->hWndWindowItems[clsSettingDialog::WINDOW_HANDLE], hWnd, TRUE));
+			::SetFocus(::GetNextDlgTabItem(SettingDialog::m_Ptr->m_hWndWindowItems[SettingDialog::WINDOW_HANDLE], hWnd, TRUE));
 			return 0;
 		}
 	}

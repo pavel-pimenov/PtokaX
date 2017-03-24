@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -51,7 +51,7 @@
 //---------------------------------------------------------------------------
 #define WM_TRAYICON (WM_USER+10)
 //---------------------------------------------------------------------------
-clsMainWindow * clsMainWindow::mPtr = NULL;
+clsMainWindow * clsMainWindow::mPtr = nullptr;
 //---------------------------------------------------------------------------
 static const char sPtokaXDash[] = "PtokaX - ";
 static const size_t szPtokaXDashLen = sizeof(sPtokaXDash) - 1;
@@ -65,7 +65,7 @@ uint64_t PXGetTickCount()
 }
 
 typedef ULONGLONG(WINAPI *GTC64)(void);
-GTC64 pGTC64 = NULL;
+GTC64 pGTC64 = nullptr;
 
 uint64_t PXGetTickCount64()
 {
@@ -76,7 +76,7 @@ uint64_t PXGetTickCount64()
 
 clsMainWindow::clsMainWindow() : m_hWnd(NULL), ui64LastTrayMouseMove(0), uiTaskBarCreated(0)
 {
-	memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
+	memset(&m_hWndWindowItems, 0, sizeof(m_hWndWindowItems));
 	memset(&MainWindowPages, 0, sizeof(MainWindowPages));
 }
 //---------------------------------------------------------------------------
@@ -178,8 +178,8 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				dwTabsStyle |= TCS_HOTTRACK;
 			}
 			
-			hWndWindowItems[TC_TABS] = ::CreateWindowEx(0, WC_TABCONTROL, "", dwTabsStyle, 0, 0, rcMain.right, clsGuiSettingManager::iEditHeight, m_hWnd, NULL, clsServerManager::hInstance, NULL);
-			::SendMessage(hWndWindowItems[TC_TABS], WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
+			m_hWndWindowItems[TC_TABS] = ::CreateWindowEx(0, WC_TABCONTROL, "", dwTabsStyle, 0, 0, rcMain.right, clsGuiSettingManager::iEditHeight, m_hWnd, NULL, clsServerManager::hInstance, NULL);
+			::SendMessage(m_hWndWindowItems[TC_TABS], WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
 			
 			TCITEM tcItem = { 0 };
 			tcItem.mask = TCIF_TEXT | TCIF_PARAM;
@@ -195,7 +195,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					
 					tcItem.pszText = MainWindowPages[ui8i]->GetPageName();
 					tcItem.lParam = (LPARAM)MainWindowPages[ui8i];
-					::SendMessage(hWndWindowItems[TC_TABS], TCM_INSERTITEM, ui8i, (LPARAM)&tcItem);
+					::SendMessage(m_hWndWindowItems[TC_TABS], TCM_INSERTITEM, ui8i, (LPARAM)&tcItem);
 				}
 				
 				if (ui8i == 0 && clsGuiSettingManager::mPtr->i32Integers[GUISETINT_MAIN_WINDOW_HEIGHT] == clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_MAIN_WINDOW_HEIGHT))
@@ -214,12 +214,14 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 			
-			clsGuiSettingManager::wpOldTabsProc = (WNDPROC)::SetWindowLongPtr(hWndWindowItems[TC_TABS], GWLP_WNDPROC, (LONG_PTR)TabsProc);
+			clsGuiSettingManager::wpOldTabsProc = (WNDPROC)::SetWindowLongPtr(m_hWndWindowItems[TC_TABS], GWLP_WNDPROC, (LONG_PTR)TabsProc);
+			
+#ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
 			
 			if (clsSettingManager::mPtr->bBools[SETBOOL_CHECK_NEW_RELEASES] == true)
 			{
 				// Create update check thread
-				clsUpdateCheckThread::mPtr = new(std::nothrow) clsUpdateCheckThread();
+				clsUpdateCheckThread::mPtr = new (std::nothrow) clsUpdateCheckThread();
 				if (clsUpdateCheckThread::mPtr == NULL)
 				{
 					AppendDebugLog("%s - [MEM] Cannot allocate clsUpdateCheckThread::mPtr in MainWindow::MainWindowProc::WM_CREATE\n");
@@ -229,7 +231,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				// Start the update check thread
 				clsUpdateCheckThread::mPtr->Resume();
 			}
-			
+#endif
 			return 0;
 		}
 		case WM_CLOSE:
@@ -335,11 +337,11 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				RECT rc;
 				::SetRect(&rc, 0, 0, GET_X_LPARAM(lParam), clsGuiSettingManager::iEditHeight);
-				::SendMessage(hWndWindowItems[TC_TABS], TCM_ADJUSTRECT, FALSE, (LPARAM)&rc);
+				::SendMessage(m_hWndWindowItems[TC_TABS], TCM_ADJUSTRECT, FALSE, (LPARAM)&rc);
 				
 				HDWP hdwp = ::BeginDeferWindowPos(3);
 				
-				::DeferWindowPos(hdwp, hWndWindowItems[TC_TABS], NULL, 0, 0, GET_X_LPARAM(lParam), clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
+				::DeferWindowPos(hdwp, m_hWndWindowItems[TC_TABS], NULL, 0, 0, GET_X_LPARAM(lParam), clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
 				
 				for (uint8_t ui8i = 0; ui8i < (sizeof(MainWindowPages) / sizeof(MainWindowPages[0])); ui8i++)
 				{
@@ -363,7 +365,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == hWndWindowItems[TC_TABS])
+			if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[TC_TABS])
 			{
 				if (((LPNMHDR)lParam)->code == TCN_SELCHANGE)
 				{
@@ -375,7 +377,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					NMTCKEYDOWN * ptckd = (NMTCKEYDOWN *)lParam;
 					if (ptckd->wVKey == VK_TAB)
 					{
-						int iPage = (int)::SendMessage(hWndWindowItems[TC_TABS], TCM_GETCURSEL, 0, 0);
+						int iPage = (int)::SendMessage(m_hWndWindowItems[TC_TABS], TCM_GETCURSEL, 0, 0);
 						
 						if (iPage == -1)
 						{
@@ -385,7 +387,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						TCITEM tcItem = { 0 };
 						tcItem.mask = TCIF_PARAM;
 						
-						if ((BOOL)::SendMessage(hWndWindowItems[TC_TABS], TCM_GETITEM, iPage, (LPARAM)&tcItem) == FALSE)
+						if ((BOOL)::SendMessage(m_hWndWindowItems[TC_TABS], TCM_GETITEM, iPage, (LPARAM)&tcItem) == FALSE)
 						{
 							break;
 						}
@@ -420,18 +422,18 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					return 0;
 				case IDC_SETTINGS:
 				{
-					clsSettingDialog::mPtr = new(std::nothrow) clsSettingDialog();
+					SettingDialog::m_Ptr = new (std::nothrow) SettingDialog();
 					
-					if (clsSettingDialog::mPtr != NULL)
+					if (SettingDialog::m_Ptr != nullptr)
 					{
-						clsSettingDialog::mPtr->DoModal(m_hWnd);
+						SettingDialog::m_Ptr->DoModal(m_hWnd);
 					}
 					
 					return 0;
 				}
 				case IDC_REG_USERS:
 				{
-					clsRegisteredUsersDialog::mPtr = new(std::nothrow) clsRegisteredUsersDialog();
+					clsRegisteredUsersDialog::mPtr = new (std::nothrow) clsRegisteredUsersDialog();
 					
 					if (clsRegisteredUsersDialog::mPtr != NULL)
 					{
@@ -442,7 +444,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 				case IDC_PROFILES:
 				{
-					clsProfilesDialog::mPtr = new(std::nothrow) clsProfilesDialog();
+					clsProfilesDialog::mPtr = new (std::nothrow) clsProfilesDialog();
 					
 					if (clsProfilesDialog::mPtr != NULL)
 					{
@@ -453,7 +455,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 				case IDC_BANS:
 				{
-					clsBansDialog::mPtr = new(std::nothrow) clsBansDialog();
+					clsBansDialog::mPtr = new (std::nothrow) clsBansDialog();
 					
 					if (clsBansDialog::mPtr != NULL)
 					{
@@ -464,7 +466,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 				case IDC_RANGE_BANS:
 				{
-					clsRangeBansDialog::mPtr = new(std::nothrow) clsRangeBansDialog();
+					clsRangeBansDialog::mPtr = new (std::nothrow) clsRangeBansDialog();
 					
 					if (clsRangeBansDialog::mPtr != NULL)
 					{
@@ -475,7 +477,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 				case IDC_ABOUT:
 				{
-					AboutDialog * pAboutDlg = new(std::nothrow) AboutDialog();
+					AboutDialog * pAboutDlg = new (std::nothrow) AboutDialog();
 					
 					if (pAboutDlg != NULL)
 					{
@@ -495,7 +497,8 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					return 0;
 				case IDC_UPDATE_CHECK:
 				{
-					clsUpdateDialog::mPtr = new(std::nothrow) clsUpdateDialog();
+#ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
+					clsUpdateDialog::mPtr = new (std::nothrow) clsUpdateDialog();
 					
 					if (clsUpdateDialog::mPtr != NULL)
 					{
@@ -511,7 +514,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						safe_delete(clsUpdateCheckThread::mPtr);
 						
 						// Create update check thread
-						clsUpdateCheckThread::mPtr = new(std::nothrow) clsUpdateCheckThread();
+						clsUpdateCheckThread::mPtr = new (std::nothrow) clsUpdateCheckThread();
 						if (clsUpdateCheckThread::mPtr == NULL)
 						{
 							AppendDebugLog("%s - [MEM] Cannot allocate clsUpdateCheckThread::mPtr in MainWindow::MainWindowProc::IDC_UPDATE_CHECK\n");
@@ -521,7 +524,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						// Start the update check thread
 						clsUpdateCheckThread::mPtr->Resume();
 					}
-					
+#endif
 					return 0;
 				}
 				case IDC_SAVE_SETTINGS:
@@ -570,7 +573,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			
 			if (clsUpdateDialog::mPtr == NULL)
 			{
-				clsUpdateDialog::mPtr = new(std::nothrow) clsUpdateDialog();
+				clsUpdateDialog::mPtr = new (std::nothrow) clsUpdateDialog();
 				
 				if (clsUpdateDialog::mPtr != NULL)
 				{
@@ -590,6 +593,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 		case WM_UPDATE_CHECK_TERMINATE:
+#ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
 			if (clsUpdateCheckThread::mPtr != NULL)
 			{
 				clsUpdateCheckThread::mPtr->Close();
@@ -597,10 +601,10 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			
 			safe_delete(clsUpdateCheckThread::mPtr);
-			
+#endif
 			return 0;
 		case WM_SETFOCUS:
-			::SetFocus(hWndWindowItems[TC_TABS]);
+			::SetFocus(m_hWndWindowItems[TC_TABS]);
 			return 0;
 	}
 	
@@ -616,7 +620,7 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 HWND clsMainWindow::CreateEx()
 {
-	clsGuiSettingManager::mPtr = new(std::nothrow) clsGuiSettingManager();
+	clsGuiSettingManager::mPtr = new (std::nothrow) clsGuiSettingManager();
 	
 	if (clsGuiSettingManager::mPtr == NULL)
 	{
@@ -629,9 +633,9 @@ HWND clsMainWindow::CreateEx()
 	                            };
 	InitCommonControlsEx(&iccx);
 	
-	MainWindowPages[0] = new(std::nothrow) MainWindowPageStats();
-	MainWindowPages[1] = new(std::nothrow) clsMainWindowPageUsersChat();
-	MainWindowPages[2] = new(std::nothrow) clsMainWindowPageScripts();
+	MainWindowPages[0] = new (std::nothrow) MainWindowPageStats();
+	MainWindowPages[1] = new (std::nothrow) clsMainWindowPageUsersChat();
+	MainWindowPages[2] = new (std::nothrow) clsMainWindowPageScripts();
 	
 	for (uint8_t ui8i = 0; ui8i < 3; ui8i++)
 	{
@@ -809,7 +813,7 @@ void clsMainWindow::UpdateLanguage()
 			tcItem.mask = TCIF_TEXT;
 			
 			tcItem.pszText = MainWindowPages[ui8i]->GetPageName();
-			::SendMessage(hWndWindowItems[TC_TABS], TCM_SETITEM, ui8i, (LPARAM)&tcItem);
+			::SendMessage(m_hWndWindowItems[TC_TABS], TCM_SETITEM, ui8i, (LPARAM)&tcItem);
 		}
 	}
 	
@@ -889,7 +893,7 @@ void clsMainWindow::EnableGuiItems(const BOOL &bEnable) const
 
 void clsMainWindow::OnSelChanged()
 {
-	int iPage = (int)::SendMessage(hWndWindowItems[TC_TABS], TCM_GETCURSEL, 0, 0);
+	int iPage = (int)::SendMessage(m_hWndWindowItems[TC_TABS], TCM_GETCURSEL, 0, 0);
 	
 	if (iPage == -1)
 	{
@@ -899,7 +903,7 @@ void clsMainWindow::OnSelChanged()
 	TCITEM tcItem = { 0 };
 	tcItem.mask = TCIF_PARAM;
 	
-	if ((BOOL)::SendMessage(hWndWindowItems[TC_TABS], TCM_GETITEM, iPage, (LPARAM)&tcItem) == FALSE)
+	if ((BOOL)::SendMessage(m_hWndWindowItems[TC_TABS], TCM_GETITEM, iPage, (LPARAM)&tcItem) == FALSE)
 	{
 		return;
 	}

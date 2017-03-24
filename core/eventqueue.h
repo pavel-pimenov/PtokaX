@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -21,32 +21,32 @@
 #define eventqueueH
 //---------------------------------------------------------------------------
 #include "CriticalSection.h"
-class clsEventQueue
+class EventQueue
 {
 	private:
 	
-		struct event
+		struct Event
 		{
-			event * pPrev, * pNext;
+			Event * m_pPrev, * m_pNext;
 			
-			std::string sMsg;
+			std::string m_sMsg;
 			
-			uint8_t ui128IpHash[16];
-			uint8_t ui8Id;
+			uint8_t m_ui128IpHash[16];
+			uint8_t m_ui8Id;
 			
-			explicit event(const char* p_message);
+			explicit Event(const char* p_message);
 			
-			DISALLOW_COPY_AND_ASSIGN(event);
+			DISALLOW_COPY_AND_ASSIGN(Event);
 		};
 		
-		event * pNormalE, * pThreadE;
+		Event * m_pNormalE, * m_pThreadE;
 		
-		CriticalSection csEventQueue;
-		DISALLOW_COPY_AND_ASSIGN(clsEventQueue);
+		CriticalSection m_csEventQueue;
+		DISALLOW_COPY_AND_ASSIGN(EventQueue);
 	public:
-		static clsEventQueue * mPtr;
+		static EventQueue * m_Ptr;
 		
-		event * pNormalS, * pThreadS;
+		Event * m_pNormalS, * m_pThreadS;
 		
 		enum
 		{
@@ -61,11 +61,11 @@ class clsEventQueue
 			EVENT_UDP_SR
 		};
 		
-		clsEventQueue();
-		~clsEventQueue();
+		EventQueue();
+		~EventQueue();
 		
-		void AddNormal(uint8_t ui8Id, const char * sMsg);
-		void AddThread(uint8_t ui8Id, const char * sMsg, const sockaddr_storage * sas = NULL);
+		void AddNormal(const uint8_t ui8Id, const char * sMsg);
+		void AddThread(const uint8_t ui8Id, const char * sMsg, const sockaddr_storage * sas = NULL);
 		void ProcessEvents();
 };
 //---------------------------------------------------------------------------

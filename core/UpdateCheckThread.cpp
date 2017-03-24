@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -27,10 +27,13 @@
 #endif
 //---------------------------------------------------------------------------
 #include "UpdateCheckThread.h"
+
+#ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
+
 //---------------------------------------------------------------------------
 #include "../gui.win/MainWindow.h"
 //---------------------------------------------------------------------------
-clsUpdateCheckThread * clsUpdateCheckThread::mPtr = NULL;
+clsUpdateCheckThread * clsUpdateCheckThread::mPtr = nullptr;
 //---------------------------------------------------------------------------
 
 clsUpdateCheckThread::clsUpdateCheckThread() : hThread(INVALID_HANDLE_VALUE), sRecvBuf(NULL), sSocket(INVALID_SOCKET), ui32FileLen(0), ui32RecvBufLen(0), ui32RecvBufSize(0), ui32BytesRead(0), ui32BytesSent(0), bOk(false), bData(false), bTerminated(false)
@@ -78,7 +81,7 @@ void clsUpdateCheckThread::Resume()
 
 void clsUpdateCheckThread::Run()
 {
-	struct addrinfo * pResult = NULL;
+	struct addrinfo * pResult = nullptr;
 	
 	struct addrinfo hints;
 	memset(&hints, 0, sizeof(addrinfo));
@@ -525,3 +528,4 @@ bool clsUpdateCheckThread::Receive()
 	return true;
 }
 //---------------------------------------------------------------------------
+#endif // FLYLINKDC_USE_UPDATE_CHECKER_THREAD

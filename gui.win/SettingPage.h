@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -39,22 +39,22 @@ class SettingPage
 		bool bCreated;
 		
 		SettingPage();
-		virtual ~SettingPage() { }
+		virtual ~SettingPage() { };
 		
 		static LRESULT CALLBACK StaticSettingPageProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		
-		virtual bool CreateSettingPage(HWND hOwner) = NULL;
+		virtual bool CreateSettingPage(HWND hOwner) = 0;
 		
-		virtual void Save() = NULL;
+		virtual void Save() = 0;
 		virtual void GetUpdates(bool & /*bUpdateHubNameWelcome*/, bool & /*bUpdateHubName*/, bool & /*bUpdateTCPPorts*/, bool & /*bUpdateUDPPort*/,
 		                        bool & /*bUpdateAutoReg*/, bool & /*bUpdatedMOTD*/, bool & /*bUpdatedHubSec*/, bool & /*bUpdatedRegOnlyMessage*/, bool & /*bUpdatedShareLimitMessage*/,
 		                        bool & /*bUpdatedSlotsLimitMessage*/, bool & /*bUpdatedHubSlotRatioMessage*/, bool & /*bUpdatedMaxHubsLimitMessage*/, bool & /*bUpdatedNoTagMessage*/,
 		                        bool & /*bUpdatedNickLimitMessage*/, bool & /*bUpdatedBotsSameNick*/, bool & /*bUpdatedBotNick*/, bool & /*bUpdatedBot*/, bool & /*bUpdatedOpChatNick*/,
 		                        bool & /*bUpdatedOpChat*/, bool & /*bUpdatedLanguage*/, bool & /*bUpdatedTextFiles*/, bool & /*bUpdatedRedirectAddress*/, bool & /*bUpdatedTempBanRedirAddress*/,
-		                        bool & /*bUpdatedPermBanRedirAddress*/, bool & /*bUpdatedSysTray*/, bool & /*bUpdatedScripting*/, bool & /*bUpdatedMinShare*/, bool & /*bUpdatedMaxShare*/) = NULL;
+		                        bool & /*bUpdatedPermBanRedirAddress*/, bool & /*bUpdatedSysTray*/, bool & /*bUpdatedScripting*/, bool & /*bUpdatedMinShare*/, bool & /*bUpdatedMaxShare*/) = 0;
 		                        
-		virtual char * GetPageName() = NULL;
-		virtual void FocusLastItem() = NULL;
+		virtual char * GetPageName() = 0;
+		virtual void FocusLastItem() = 0;
 	protected:
 		void CreateHWND(HWND hOwner);
 		static void RemoveDollarsPipes(HWND hWnd);
@@ -66,7 +66,7 @@ class SettingPage
 		SettingPage(const SettingPage&);
 		const SettingPage& operator=(const SettingPage&);
 		
-		virtual LRESULT SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = NULL;
+		virtual LRESULT SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 };
 //------------------------------------------------------------------------------
 

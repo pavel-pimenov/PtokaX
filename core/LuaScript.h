@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -26,12 +26,12 @@ struct Script;
 
 struct ScriptBot
 {
-	ScriptBot * pPrev, * pNext;
+	ScriptBot * m_pPrev, * m_pNext;
 	
-	char *sNick;
-	char *sMyINFO;
+	char *m_sNick;
+	char *m_sMyINFO;
 	
-	bool bIsOP;
+	bool m_bIsOP;
 	
 	ScriptBot();
 	~ScriptBot();
@@ -44,21 +44,21 @@ struct ScriptBot
 struct ScriptTimer
 {
 #if defined(_WIN32) && !defined(_WIN_IOT)
-	UINT_PTR uiTimerId;
+	UINT_PTR m_uiTimerId;
 #else
-	uint64_t ui64Interval;
-	uint64_t ui64LastTick;
+	uint64_t m_ui64Interval;
+	uint64_t m_ui64LastTick;
 #endif
 	
-	ScriptTimer * pPrev, * pNext;
+	ScriptTimer * m_pPrev, * m_pNext;
 	
-	lua_State * pLua;
+	lua_State * m_pLua;
 	
-	char * sFunctionName;
+	char * m_sFunctionName;
 	
-	int iFunctionRef;
+	int m_iFunctionRef;
 	
-	static char sDefaultTimerFunc[];
+	static char m_sDefaultTimerFunc[];
 	
 	ScriptTimer();
 	~ScriptTimer();
@@ -75,19 +75,19 @@ struct ScriptTimer
 
 struct Script
 {
-	Script * pPrev, * pNext;
+	Script * m_pPrev, * m_pNext;
 	
-	ScriptBot * pBotList;
+	ScriptBot * m_pBotList;
 	
-	lua_State * pLUA;
+	lua_State * m_pLua;
 	
-	char * sName;
+	char * m_sName;
 	
-	uint32_t ui32DataArrivals;
+	uint32_t m_ui32DataArrivals;
 	
-	uint16_t ui16Functions;
+	uint16_t m_ui16Functions;
 	
-	bool bEnabled, bRegUDP, bProcessed;
+	bool m_bEnabled, m_bRegUDP, m_bProcessed;
 	
 	enum LuaFunctions
 	{
@@ -105,33 +105,33 @@ struct Script
 	Script();
 	~Script();
 	
-	static Script * CreateScript(const char *Name, const bool enabled);
+	static Script * CreateScript(const char *sName, const bool enabled);
 	DISALLOW_COPY_AND_ASSIGN(Script);
 };
 //------------------------------------------------------------------------------
 
-bool ScriptStart(Script * cur);
-void ScriptStop(Script * cur);
+bool ScriptStart(Script * pScript);
+void ScriptStop(Script * pScript);
 
-int ScriptGetGC(Script * cur);
+int ScriptGetGC(Script * pScript);
 
-void ScriptOnStartup(Script * cur);
-void ScriptOnExit(Script * cur);
+void ScriptOnStartup(Script * pScript);
+void ScriptOnExit(Script * pScript);
 
-void ScriptPushUser(lua_State * L, User * u, const bool bFullTable = false);
-void ScriptPushUserExtended(lua_State * L, User * u, const int iTable);
+void ScriptPushUser(lua_State * pLua, User * pUser, const bool bFullTable = false);
+void ScriptPushUserExtended(lua_State * pLua, User * pUser, const int iTable);
 
-User * ScriptGetUser(lua_State * L, const int iTop, const char * sFunction);
+User * ScriptGetUser(lua_State * pLua, const int iTop, const char * sFunction);
 
-void ScriptError(Script * cur);
+void ScriptError(Script * pScript);
 
 #if defined(_WIN32) && !defined(_WIN_IOT)
-void ScriptOnTimer(const UINT_PTR &uiTimerId);
+void ScriptOnTimer(const UINT_PTR& uiTimerId);
 #else
 void ScriptOnTimer(const uint64_t &ui64ActualMillis);
 #endif
 
-int ScriptTraceback(lua_State * L);
+int ScriptTraceback(lua_State * pLua);
 //------------------------------------------------------------------------------
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -40,7 +40,7 @@
 #include "Resources.h"
 #include "ScriptEditorDialog.h"
 //---------------------------------------------------------------------------
-clsMainWindowPageScripts * clsMainWindowPageScripts::mPtr = NULL;
+clsMainWindowPageScripts * clsMainWindowPageScripts::mPtr = nullptr;
 //---------------------------------------------------------------------------
 #define IDC_OPEN_IN_EXT_EDITOR      500
 #define IDC_OPEN_IN_SCRIPT_EDITOR   501
@@ -59,7 +59,7 @@ clsMainWindowPageScripts::clsMainWindowPageScripts() : bIgnoreItemChanged(false)
 
 clsMainWindowPageScripts::~clsMainWindowPageScripts()
 {
-	clsMainWindowPageScripts::mPtr = NULL;
+	clsMainWindowPageScripts::mPtr = nullptr;
 }
 //---------------------------------------------------------------------------
 
@@ -181,7 +181,7 @@ static LRESULT CALLBACK MultiRichEditProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			return 0;
 		}
 		
-		::SetFocus(clsMainWindow::mPtr->hWndWindowItems[clsMainWindow::TC_TABS]);
+		::SetFocus(clsMainWindow::SettingDialog::m_Ptr->m_hWndWindowItems[clsMainWindow::TC_TABS]);
 		return 0;
 	}
 	else if (uMsg == WM_KEYDOWN && wParam == VK_ESCAPE)
@@ -231,7 +231,7 @@ static LRESULT CALLBACK ScriptsProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 				}
 			}
 			
-			::SetFocus(clsMainWindow::mPtr->hWndWindowItems[clsMainWindow::TC_TABS]);
+			::SetFocus(clsMainWindow::SettingDialog::m_Ptr->m_hWndWindowItems[clsMainWindow::TC_TABS]);
 			
 			return 0;
 		}
@@ -281,7 +281,7 @@ static LRESULT CALLBACK MoveUpProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 				}
 			}
 			
-			::SetFocus(clsMainWindow::mPtr->hWndWindowItems[clsMainWindow::TC_TABS]);
+			::SetFocus(clsMainWindow::SettingDialog::m_Ptr->m_hWndWindowItems[clsMainWindow::TC_TABS]);
 			
 			return 0;
 		}
@@ -317,7 +317,7 @@ static LRESULT CALLBACK MoveDownProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 				}
 			}
 			
-			::SetFocus(clsMainWindow::mPtr->hWndWindowItems[clsMainWindow::TC_TABS]);
+			::SetFocus(clsMainWindow::SettingDialog::m_Ptr->m_hWndWindowItems[clsMainWindow::TC_TABS]);
 			
 			return 0;
 		}
@@ -492,7 +492,7 @@ void clsMainWindowPageScripts::OnContextMenu(HWND hWindow, LPARAM lParam)
 
 void clsMainWindowPageScripts::OpenScriptEditor(const char * sScript/* = NULL*/)
 {
-	ScriptEditorDialog * pScriptEditorDialog = new(std::nothrow) ScriptEditorDialog();
+	ScriptEditorDialog * pScriptEditorDialog = new (std::nothrow) ScriptEditorDialog();
 	
 	if (pScriptEditorDialog != NULL)
 	{

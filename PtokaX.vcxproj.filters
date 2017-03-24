@@ -283,6 +283,10 @@
     <ClCompile Include="core\DB-SQLite.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="core\HubCommands-AE.cpp" />
+    <ClCompile Include="core\HubCommands-FH.cpp" />
+    <ClCompile Include="core\HubCommands-IQ.cpp" />
+    <ClCompile Include="core\HubCommands-RZ.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\eventqueue.h">

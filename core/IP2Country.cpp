@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -29,7 +29,7 @@
 #pragma hdrstop
 #endif
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-clsIpP2Country * clsIpP2Country::mPtr = NULL;
+IpP2Country * IpP2Country::m_Ptr = nullptr;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #define COUNTRY_COUNT   254 // alex82 ... Число стран в списке
 
@@ -104,7 +104,7 @@ static const char * CountryNamesRussian[COUNTRY_COUNT] =
 	"Самоа", "Йемен", "Майотта", "ЮАР", "Замбия", "Зимбабве", "Нидерландские Антильские острова",
 	"Неизвестно (Азиатско-Тихоокеанский регион)", "Неизвестно (Локальная сеть)", "Неизвестно (Европейский Союз)",
 	"Неизвестно (Зарезервировано)", "Неизвестно"
-                                     };
+};
 // alex82 ... last updated 23 dec 2014
 static const char * CountryCodes[COUNTRY_COUNT] =
 {
@@ -126,7 +126,7 @@ static const char* TranslateCountry(unsigned p_index)
 {
 	if (p_index < sizeof(CountryNamesRussian) / sizeof(CountryNamesRussian[0]))
 	{
-		if (clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(clsSettingManager::mPtr->sTexts[SETTXT_LANGUAGE], "Russian") == 0)
+		if (SettingManager::m_Ptr->m_sTexts[SETTXT_LANGUAGE] != NULL && strcasecmp(SettingManager::m_Ptr->m_sTexts[SETTXT_LANGUAGE], "Russian") == 0)
 			return CountryNamesRussian[p_index];
 		else
 			return CountryNames[p_index];
@@ -138,17 +138,17 @@ static const char* TranslateCountry(unsigned p_index)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsIpP2Country::LoadIPv4()
+void IpP2Country::LoadIPv4()
 {
-	if (clsServerManager::bUseIPv4 == false)
+	if (ServerManager::m_bUseIPv4 == false)
 	{
 		return;
 	}
 	
 #ifdef _WIN32
-	FILE * ip2country = fopen((clsServerManager::sPath + "\\cfg\\IpToCountry.csv").c_str(), "r");
+	FILE * ip2country = fopen((ServerManager::m_sPath + "\\cfg\\IpToCountry.csv").c_str(), "r");
 #else
-	FILE * ip2country = fopen((clsServerManager::sPath + "/cfg/IpToCountry.csv").c_str(), "r");
+	FILE * ip2country = fopen((ServerManager::m_sPath + "/cfg/IpToCountry.csv").c_str(), "r");
 #endif
 	
 	if (ip2country == NULL)
@@ -156,45 +156,45 @@ void clsIpP2Country::LoadIPv4()
 		return;
 	}
 	
-	if (ui32Size == 0)
+	if (m_ui32Size == 0)
 	{
-		ui32Size = 131072;
+		m_ui32Size = 131072;
 		
-		if (ui32RangeFrom == NULL)
+		if (m_ui32RangeFrom == NULL)
 		{
-			ui32RangeFrom = (uint32_t *)calloc(ui32Size, sizeof(uint32_t));
+			m_ui32RangeFrom = (uint32_t *)calloc(m_ui32Size, sizeof(uint32_t));
 			
-			if (ui32RangeFrom == NULL)
+			if (m_ui32RangeFrom == NULL)
 			{
-				AppendDebugLog("%s - [MEM] Cannot create clsIpP2Country::ui32RangeFrom\n");
+				AppendDebugLog("%s - [MEM] Cannot create IpP2Country::m_ui32RangeFrom\n");
 				fclose(ip2country);
-				ui32Size = 0;
+				m_ui32Size = 0;
 				return;
 			}
 		}
 		
-		if (ui32RangeTo == NULL)
+		if (m_ui32RangeTo == NULL)
 		{
-			ui32RangeTo = (uint32_t *)calloc(ui32Size, sizeof(uint32_t));
+			m_ui32RangeTo = (uint32_t *)calloc(m_ui32Size, sizeof(uint32_t));
 			
-			if (ui32RangeTo == NULL)
+			if (m_ui32RangeTo == NULL)
 			{
-				AppendDebugLog("%s - [MEM] Cannot create clsIpP2Country::ui32RangeTo\n");
+				AppendDebugLog("%s - [MEM] Cannot create IpP2Country::m_ui32RangeTo\n");
 				fclose(ip2country);
-				ui32Size = 0;
+				m_ui32Size = 0;
 				return;
 			}
 		}
 		
-		if (ui8RangeCI == NULL)
+		if (m_ui8RangeCI == NULL)
 		{
-			ui8RangeCI = (uint8_t *)calloc(ui32Size, sizeof(uint8_t));
+			m_ui8RangeCI = (uint8_t *)calloc(m_ui32Size, sizeof(uint8_t));
 			
-			if (ui8RangeCI == NULL)
+			if (m_ui8RangeCI == NULL)
 			{
-				AppendDebugLog("%s - [MEM] Cannot create clsIpP2Country::ui8RangeCI\n");
+				AppendDebugLog("%s - [MEM] Cannot create IpP2Country::m_ui8RangeCI\n");
 				fclose(ip2country);
-				ui32Size = 0;
+				m_ui32Size = 0;
 				return;
 			}
 		}
@@ -209,35 +209,35 @@ void clsIpP2Country::LoadIPv4()
 			continue;
 		}
 		
-		if (ui32Count == ui32Size)
+		if (m_ui32Count == m_ui32Size)
 		{
-			ui32Size += 512;
-			void * oldbuf = ui32RangeFrom;
-			ui32RangeFrom = (uint32_t *)realloc(oldbuf, ui32Size * sizeof(uint32_t));
-			if (ui32RangeFrom == NULL)
+			m_ui32Size += 512;
+			void * oldbuf = m_ui32RangeFrom;
+			m_ui32RangeFrom = (uint32_t *)realloc(oldbuf, m_ui32Size * sizeof(uint32_t));
+			if (m_ui32RangeFrom == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui32RangeFrom\n", ui32Size);
-				ui32RangeFrom = (uint32_t *)oldbuf;
+				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui32RangeFrom\n", m_ui32Size);
+				m_ui32RangeFrom = (uint32_t *)oldbuf;
 				fclose(ip2country);
 				return;
 			}
 			
-			oldbuf = ui32RangeTo;
-			ui32RangeTo = (uint32_t *)realloc(oldbuf, ui32Size * sizeof(uint32_t));
-			if (ui32RangeTo == NULL)
+			oldbuf = m_ui32RangeTo;
+			m_ui32RangeTo = (uint32_t *)realloc(oldbuf, m_ui32Size * sizeof(uint32_t));
+			if (m_ui32RangeTo == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui32RangeTo\n", ui32Size);
-				ui32RangeTo = (uint32_t *)oldbuf;
+				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui32RangeTo\n", m_ui32Size);
+				m_ui32RangeTo = (uint32_t *)oldbuf;
 				fclose(ip2country);
 				return;
 			}
 			
-			oldbuf = ui8RangeCI;
-			ui8RangeCI = (uint8_t *)realloc(oldbuf, ui32Size * sizeof(uint8_t));
-			if (ui8RangeCI == NULL)
+			oldbuf = m_ui8RangeCI;
+			m_ui8RangeCI = (uint8_t *)realloc(oldbuf, m_ui32Size * sizeof(uint8_t));
+			if (m_ui8RangeCI == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui8RangeCI\n", ui32Size);
-				ui8RangeCI = (uint8_t *)oldbuf;
+				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui8RangeCI\n", m_ui32Size);
+				m_ui8RangeCI = (uint8_t *)oldbuf;
 				fclose(ip2country);
 				return;
 			}
@@ -255,11 +255,11 @@ void clsIpP2Country::LoadIPv4()
 				sLine[szi] = '\0';
 				if (ui8d == 0)
 				{
-					ui32RangeFrom[ui32Count] = strtoul(sStart, NULL, 10);
+					m_ui32RangeFrom[m_ui32Count] = strtoul(sStart, NULL, 10);
 				}
 				else if (ui8d == 1)
 				{
-					ui32RangeTo[ui32Count] = strtoul(sStart, NULL, 10);
+					m_ui32RangeTo[m_ui32Count] = strtoul(sStart, NULL, 10);
 				}
 				else if (ui8d == 4)
 				{
@@ -267,8 +267,8 @@ void clsIpP2Country::LoadIPv4()
 					{
 						if (*((uint16_t *)CountryCodes[ui8i]) == *((uint16_t *)sStart))
 						{
-							ui8RangeCI[ui32Count] = ui8i;
-							ui32Count++;
+							m_ui8RangeCI[m_ui32Count] = ui8i;
+							m_ui32Count++;
 							break;
 						}
 					}
@@ -286,48 +286,49 @@ void clsIpP2Country::LoadIPv4()
 	
 	fclose(ip2country);
 	
-	if (ui32Count < ui32Size)
+	if (m_ui32Count < m_ui32Size)
 	{
-		ui32Size = ui32Count;
+		m_ui32Size = m_ui32Count;
 		
-		void * oldbuf = ui32RangeFrom;
-		ui32RangeFrom = (uint32_t *)realloc(oldbuf, ui32Size * sizeof(uint32_t));
-		if (ui32RangeFrom == NULL)
+		void * oldbuf = m_ui32RangeFrom;
+		m_ui32RangeFrom = (uint32_t *)realloc(oldbuf, m_ui32Size * sizeof(uint32_t));
+		if (m_ui32RangeFrom == NULL)
 		{
-			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui32RangeFrom\n", ui32Size);
-			ui32RangeFrom = (uint32_t *)oldbuf;
+			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui32RangeFrom\n", m_ui32Size);
+			m_ui32RangeFrom = (uint32_t *)oldbuf;
 		}
 		
-		oldbuf = ui32RangeTo;
-		ui32RangeTo = (uint32_t *)realloc(oldbuf, ui32Size * sizeof(uint32_t));
-		if (ui32RangeTo == NULL)
+		oldbuf = m_ui32RangeTo;
+		m_ui32RangeTo = (uint32_t *)realloc(oldbuf, m_ui32Size * sizeof(uint32_t));
+		if (m_ui32RangeTo == NULL)
 		{
-			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui32RangeTo\n", ui32Size);
-			ui32RangeTo = (uint32_t *)oldbuf;
+			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui32RangeTo\n", m_ui32Size);
+			m_ui32RangeTo = (uint32_t *)oldbuf;
 		}
 		
-		oldbuf = ui8RangeCI;
-		ui8RangeCI = (uint8_t *)realloc(oldbuf, ui32Size * sizeof(uint8_t));
-		if (ui8RangeCI == NULL)
+		oldbuf = m_ui8RangeCI;
+		m_ui8RangeCI = (uint8_t *)realloc(oldbuf, m_ui32Size * sizeof(uint8_t));
+		if (m_ui8RangeCI == NULL)
 		{
-			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui8RangeCI\n", ui32Size);
-			ui8RangeCI = (uint8_t *)oldbuf;
+			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui8RangeCI\n", m_ui32Size);
+			m_ui8RangeCI = (uint8_t *)oldbuf;
 		}
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsIpP2Country::LoadIPv6()
+void IpP2Country::LoadIPv6()
 {
-	if (clsServerManager::bUseIPv6 == false)
+#ifdef FLYLINKDC_USE_IP_TO_COUNTRY_V6
+	if (ServerManager::m_bUseIPv6 == false)
 	{
 		return;
 	}
 	
 #ifdef _WIN32
-	FILE * ip2country = fopen((clsServerManager::sPath + "\\cfg\\IpToCountry.6R.csv").c_str(), "r");
+	FILE * ip2country = fopen((ServerManager::m_sPath + "\\cfg\\IpToCountry.6R.csv").c_str(), "r");
 #else
-	FILE * ip2country = fopen((clsServerManager::sPath + "/cfg/IpToCountry.6R.csv").c_str(), "r");
+	FILE * ip2country = fopen((ServerManager::m_sPath + "/cfg/IpToCountry.6R.csv").c_str(), "r");
 #endif
 	
 	if (ip2country == NULL)
@@ -335,45 +336,45 @@ void clsIpP2Country::LoadIPv6()
 		return;
 	}
 	
-	if (ui32IPv6Size == 0)
+	if (m_ui32IPv6Size == 0)
 	{
-		ui32IPv6Size = 16384;
+		m_ui32IPv6Size = 16384;
 		
-		if (ui128IPv6RangeFrom == NULL)
+		if (m_ui128IPv6RangeFrom == NULL)
 		{
 			ui128IPv6RangeFrom = (uint8_t *)calloc(ui32IPv6Size, sizeof(uint8_t) * 16);
 			
-			if (ui128IPv6RangeFrom == NULL)
+			if (m_ui128IPv6RangeFrom == NULL)
 			{
-				AppendDebugLog("%s - [MEM] Cannot create clsIpP2Country::ui128IPv6RangeFrom\n");
+				AppendDebugLog("%s - [MEM] Cannot create IpP2Country::m_ui128IPv6RangeFrom\n");
 				fclose(ip2country);
 				ui32IPv6Size = 0;
 				return;
 			}
 		}
 		
-		if (ui128IPv6RangeTo == NULL)
+		if (m_ui128IPv6RangeTo == NULL)
 		{
 			ui128IPv6RangeTo = (uint8_t *)calloc(ui32IPv6Size, sizeof(uint8_t) * 16);
 			
-			if (ui128IPv6RangeTo == NULL)
+			if (m_ui128IPv6RangeTo == NULL)
 			{
-				AppendDebugLog("%s - [MEM] Cannot create clsIpP2Country::ui128IPv6RangeTo\n");
+				AppendDebugLog("%s - [MEM] Cannot create IpP2Country::m_ui128IPv6RangeTo\n");
 				fclose(ip2country);
-				ui32IPv6Size = 0;
+				m_ui32IPv6Size = 0;
 				return;
 			}
 		}
 		
-		if (ui8IPv6RangeCI == NULL)
+		if (m_ui8IPv6RangeCI == NULL)
 		{
 			ui8IPv6RangeCI = (uint8_t *)calloc(ui32IPv6Size, sizeof(uint8_t));
 			
-			if (ui8IPv6RangeCI == NULL)
+			if (m_ui8IPv6RangeCI == NULL)
 			{
-				AppendDebugLog("%s - [MEM] Cannot create clsIpP2Country::ui8IPv6RangeCI\n");
+				AppendDebugLog("%s - [MEM] Cannot create IpP2Country::m_ui8IPv6RangeCI\n");
 				fclose(ip2country);
-				ui32IPv6Size = 0;
+				m_ui32IPv6Size = 0;
 				return;
 			}
 		}
@@ -388,15 +389,15 @@ void clsIpP2Country::LoadIPv6()
 			continue;
 		}
 		
-		if (ui32IPv6Count == ui32IPv6Size)
+		if (m_ui32IPv6Count == m_ui32IPv6Size)
 		{
 			ui32IPv6Size += 512;
 			void * oldbuf = ui128IPv6RangeFrom;
 			ui128IPv6RangeFrom = (uint8_t *)realloc(oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
 			if (ui128IPv6RangeFrom == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui128IPv6RangeFrom\n", ui32IPv6Size);
-				ui128IPv6RangeFrom = (uint8_t *)oldbuf;
+				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for m_ui128IPv6RangeFrom\n", m_ui32IPv6Size);
+				m_ui128IPv6RangeFrom = (uint8_t *)oldbuf;
 				fclose(ip2country);
 				return;
 			}
@@ -405,7 +406,7 @@ void clsIpP2Country::LoadIPv6()
 			ui128IPv6RangeTo = (uint8_t *)realloc(oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
 			if (ui128IPv6RangeTo == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui128IPv6RangeTo\n", ui32IPv6Size);
+				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui128IPv6RangeTo\n", ui32IPv6Size);
 				ui128IPv6RangeTo = (uint8_t *)oldbuf;
 				fclose(ip2country);
 				return;
@@ -415,7 +416,7 @@ void clsIpP2Country::LoadIPv6()
 			ui8IPv6RangeCI = (uint8_t *)realloc(oldbuf, ui32IPv6Size * sizeof(uint8_t));
 			if (ui8IPv6RangeCI == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui8IPv6RangeCI\n", ui32IPv6Size);
+				AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui8IPv6RangeCI\n", ui32IPv6Size);
 				ui8IPv6RangeCI = (uint8_t *)oldbuf;
 				fclose(ip2country);
 				return;
@@ -433,9 +434,9 @@ void clsIpP2Country::LoadIPv6()
 			{
 				sLine[szi] = '\0';
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_WIN_IOT)
-				win_inet_pton(sStart, ui128IPv6RangeFrom + (ui32IPv6Count * 16));
+				win_inet_pton(sStart, m_ui128IPv6RangeFrom + (m_ui32IPv6Count * 16));
 #else
-				inet_pton(AF_INET6, sStart, ui128IPv6RangeFrom + (ui32IPv6Count * 16));
+				inet_pton(AF_INET6, sStart, m_ui128IPv6RangeFrom + (m_ui32IPv6Count * 16));
 #endif
 			}
 			else if (sLine[szi] == ',')
@@ -444,9 +445,9 @@ void clsIpP2Country::LoadIPv6()
 				if (ui8d == 1)
 				{
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_WIN_IOT)
-					win_inet_pton(sStart, ui128IPv6RangeTo + (ui32IPv6Count * 16));
+					win_inet_pton(sStart, m_ui128IPv6RangeTo + (m_ui32IPv6Count * 16));
 #else
-					inet_pton(AF_INET6, sStart, ui128IPv6RangeTo + (ui32IPv6Count * 16));
+					inet_pton(AF_INET6, sStart, m_ui128IPv6RangeTo + (m_ui32IPv6Count * 16));
 #endif
 				}
 				else
@@ -455,8 +456,8 @@ void clsIpP2Country::LoadIPv6()
 					{
 						if (*((uint16_t *)CountryCodes[ui8i]) == *((uint16_t *)sStart))
 						{
-							ui8IPv6RangeCI[ui32IPv6Count] = ui8i;
-							ui32IPv6Count++;
+							m_ui8IPv6RangeCI[m_ui32IPv6Count] = ui8i;
+							m_ui32IPv6Count++;
 							
 							break;
 						}
@@ -477,113 +478,116 @@ void clsIpP2Country::LoadIPv6()
 	
 	fclose(ip2country);
 	
-	if (ui32IPv6Count < ui32IPv6Size)
+	if (m_ui32IPv6Count < m_ui32IPv6Size)
 	{
-		ui32IPv6Size = ui32IPv6Count;
+		m_ui32IPv6Size = m_ui32IPv6Count;
 		
 		void * oldbuf = ui128IPv6RangeFrom;
 		ui128IPv6RangeFrom = (uint8_t *)realloc(oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
 		if (ui128IPv6RangeFrom == NULL)
 		{
-			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui128IPv6RangeFrom\n", ui32IPv6Size);
-			ui128IPv6RangeFrom = (uint8_t *)oldbuf;
+			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui128IPv6RangeFrom\n", m_ui32IPv6Size);
+			m_ui128IPv6RangeFrom = (uint8_t *)oldbuf;
 		}
 		
 		oldbuf = ui128IPv6RangeTo;
 		ui128IPv6RangeTo = (uint8_t *)realloc(oldbuf, ui32IPv6Size * (sizeof(uint8_t) * 16));
 		if (ui128IPv6RangeTo == NULL)
 		{
-			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui128IPv6RangeTo\n", ui32IPv6Size);
-			ui128IPv6RangeTo = (uint8_t *)oldbuf;
+			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for m_ui128IPv6RangeTo\n", m_ui32IPv6Size);
+			m_ui128IPv6RangeTo = (uint8_t *)oldbuf;
 		}
 		
 		oldbuf = ui8IPv6RangeCI;
 		ui8IPv6RangeCI = (uint8_t *)realloc(oldbuf, ui32IPv6Size * sizeof(uint8_t));
 		if (ui8IPv6RangeCI == NULL)
 		{
-			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in clsIpP2Country::clsIpP2Country for ui8IPv6RangeCI\n", ui32IPv6Size);
+			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes in IpP2Country::IpP2Country for ui8IPv6RangeCI\n", ui32IPv6Size);
 			ui8IPv6RangeCI = (uint8_t *)oldbuf;
 		}
 	}
+#else
+	AppendDebugLogFormat("[SYS] Disable load IpToCountry.6R.csv\n");
+#endif
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-clsIpP2Country::clsIpP2Country() : ui32RangeFrom(NULL), ui32RangeTo(NULL), ui8RangeCI(NULL), ui8IPv6RangeCI(NULL), ui128IPv6RangeFrom(NULL), ui128IPv6RangeTo(NULL), ui32Size(0), ui32IPv6Size(0), ui32Count(0), ui32IPv6Count(0)
+IpP2Country::IpP2Country() : m_ui32RangeFrom(NULL), m_ui32RangeTo(NULL), m_ui8RangeCI(NULL), m_ui8IPv6RangeCI(NULL), m_ui128IPv6RangeFrom(NULL), m_ui128IPv6RangeTo(NULL), m_ui32Size(0), m_ui32IPv6Size(0), m_ui32Count(0), m_ui32IPv6Count(0)
 {
 	LoadIPv4();
 	LoadIPv6();
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-clsIpP2Country::~clsIpP2Country()
+IpP2Country::~IpP2Country()
 {
-	free(ui32RangeFrom);
-	free(ui32RangeTo);
-	free(ui8RangeCI);
-	free(ui128IPv6RangeFrom);
-	free(ui128IPv6RangeTo);
-	free(ui8IPv6RangeCI);
+	free(m_ui32RangeFrom);
+	free(m_ui32RangeTo);
+	free(m_ui8RangeCI);
+	free(m_ui128IPv6RangeFrom);
+	free(m_ui128IPv6RangeTo);
+	free(m_ui8IPv6RangeCI);
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool bCountryName)
+const char * IpP2Country::Find(const uint8_t * m_ui128IpHash, const bool bCountryName)
 {
 	bool bIPv4 = false;
 	uint32_t ui32IpHash = 0;
 	
-	if (clsServerManager::bUseIPv6 == false || IN6_IS_ADDR_V4MAPPED((in6_addr *)ui128IpHash))
+	if (ServerManager::m_bUseIPv6 == false || IN6_IS_ADDR_V4MAPPED((in6_addr *)m_ui128IpHash))
 	{
 		bIPv4 = true;
 		
-		ui32IpHash = 16777216 * ui128IpHash[12] + 65536 * ui128IpHash[13] + 256 * ui128IpHash[14] + ui128IpHash[15];
+		ui32IpHash = 16777216 * m_ui128IpHash[12] + 65536 * m_ui128IpHash[13] + 256 * m_ui128IpHash[14] + m_ui128IpHash[15];
 	}
 	
 	if (bIPv4 == false)
 	{
-		if (ui128IpHash[0] == 32 && ui128IpHash[1] == 2)  // 6to4 tunnel
+		if (m_ui128IpHash[0] == 32 && m_ui128IpHash[1] == 2)  // 6to4 tunnel
 		{
 			bIPv4 = true;
 			
-			ui32IpHash = 16777216 * ui128IpHash[2] + 65536 * ui128IpHash[3] + 256 * ui128IpHash[4] + ui128IpHash[5];
+			ui32IpHash = 16777216 * m_ui128IpHash[2] + 65536 * m_ui128IpHash[3] + 256 * m_ui128IpHash[4] + m_ui128IpHash[5];
 		}
-		else if (ui128IpHash[0] == 32 && ui128IpHash[1] == 1 && ui128IpHash[2] == 0 && ui128IpHash[3] == 0)    // teredo tunnel
+		else if (m_ui128IpHash[0] == 32 && m_ui128IpHash[1] == 1 && m_ui128IpHash[2] == 0 && m_ui128IpHash[3] == 0)    // teredo tunnel
 		{
 			bIPv4 = true;
 			
-			ui32IpHash = (16777216 * ui128IpHash[12] + 65536 * ui128IpHash[13] + 256 * ui128IpHash[14] + ui128IpHash[15]) ^ 0xffffffff;
+			ui32IpHash = (16777216 * m_ui128IpHash[12] + 65536 * m_ui128IpHash[13] + 256 * m_ui128IpHash[14] + m_ui128IpHash[15]) ^ 0xffffffff;
 		}
 	}
 	
 	if (bIPv4 == true)
 	{
-		for (uint32_t ui32i = 0; ui32i < ui32Count; ui32i++)
+		for (uint32_t ui32i = 0; ui32i < m_ui32Count; ui32i++)
 		{
-			if (ui32RangeFrom[ui32i] <= ui32IpHash && ui32RangeTo[ui32i] >= ui32IpHash)
+			if (m_ui32RangeFrom[ui32i] <= ui32IpHash && m_ui32RangeTo[ui32i] >= ui32IpHash)
 			{
 				if (bCountryName == false)
 				{
-					return CountryCodes[ui8RangeCI[ui32i]];
+					return CountryCodes[m_ui8RangeCI[ui32i]];
 				}
 				else
 				{
-					return TranslateCountry(ui8RangeCI[ui32i]);
+					return TranslateCountry(m_ui8RangeCI[ui32i]);
 				}
 			}
 		}
 	}
 	else
 	{
-		for (uint32_t ui32i = 0; ui32i < ui32IPv6Count; ui32i++)
+		for (uint32_t ui32i = 0; ui32i < m_ui32IPv6Count; ui32i++)
 		{
-			if (memcmp(ui128IPv6RangeFrom + (ui32i * 16), ui128IpHash, 16) <= 0 && memcmp(ui128IPv6RangeTo + (ui32i * 16), ui128IpHash, 16) >= 0)
+			if (memcmp(m_ui128IPv6RangeFrom + (ui32i * 16), m_ui128IpHash, 16) <= 0 && memcmp(m_ui128IPv6RangeTo + (ui32i * 16), m_ui128IpHash, 16) >= 0)
 			{
 				if (bCountryName == false)
 				{
-					return CountryCodes[ui8IPv6RangeCI[ui32i]];
+					return CountryCodes[m_ui8IPv6RangeCI[ui32i]];
 				}
 				else
 				{
-					return TranslateCountry(ui8IPv6RangeCI[ui32i]);
+					return CountryNames[m_ui8IPv6RangeCI[ui32i]];
 				}
 			}
 		}
@@ -600,51 +604,51 @@ const char * clsIpP2Country::Find(const uint8_t * ui128IpHash, const bool bCount
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-uint8_t clsIpP2Country::Find(const uint8_t * ui128IpHash)
+uint8_t IpP2Country::Find(const uint8_t * m_ui128IpHash)
 {
 	bool bIPv4 = false;
 	uint32_t ui32IpHash = 0;
 	
-	if (clsServerManager::bUseIPv6 == false || IN6_IS_ADDR_V4MAPPED((in6_addr *)ui128IpHash))
+	if (ServerManager::m_bUseIPv6 == false || IN6_IS_ADDR_V4MAPPED((in6_addr *)m_ui128IpHash))
 	{
 		bIPv4 = true;
 		
-		ui32IpHash = 16777216 * ui128IpHash[12] + 65536 * ui128IpHash[13] + 256 * ui128IpHash[14] + ui128IpHash[15];
+		ui32IpHash = 16777216 * m_ui128IpHash[12] + 65536 * m_ui128IpHash[13] + 256 * m_ui128IpHash[14] + m_ui128IpHash[15];
 	}
 	
 	if (bIPv4 == false)
 	{
-		if (ui128IpHash[0] == 32 && ui128IpHash[1] == 2)  // 6to4 tunnel
+		if (m_ui128IpHash[0] == 32 && m_ui128IpHash[1] == 2)  // 6to4 tunnel
 		{
 			bIPv4 = true;
 			
-			ui32IpHash = 16777216 * ui128IpHash[2] + 65536 * ui128IpHash[3] + 256 * ui128IpHash[4] + ui128IpHash[5];
+			ui32IpHash = 16777216 * m_ui128IpHash[2] + 65536 * m_ui128IpHash[3] + 256 * m_ui128IpHash[4] + m_ui128IpHash[5];
 		}
-		else if (ui128IpHash[0] == 32 && ui128IpHash[1] == 1 && ui128IpHash[2] == 0 && ui128IpHash[3] == 0)    // teredo tunnel
+		else if (m_ui128IpHash[0] == 32 && m_ui128IpHash[1] == 1 && m_ui128IpHash[2] == 0 && m_ui128IpHash[3] == 0)    // teredo tunnel
 		{
 			bIPv4 = true;
 			
-			ui32IpHash = (16777216 * ui128IpHash[12] + 65536 * ui128IpHash[13] + 256 * ui128IpHash[14] + ui128IpHash[15]) ^ 0xffffffff;
+			ui32IpHash = (16777216 * m_ui128IpHash[12] + 65536 * m_ui128IpHash[13] + 256 * m_ui128IpHash[14] + m_ui128IpHash[15]) ^ 0xffffffff;
 		}
 	}
 	
 	if (bIPv4 == true)
 	{
-		for (uint32_t ui32i = 0; ui32i < ui32Count; ui32i++)
+		for (uint32_t ui32i = 0; ui32i < m_ui32Count; ui32i++)
 		{
-			if (ui32RangeFrom[ui32i] <= ui32IpHash && ui32RangeTo[ui32i] >= ui32IpHash)
+			if (m_ui32RangeFrom[ui32i] <= ui32IpHash && m_ui32RangeTo[ui32i] >= ui32IpHash)
 			{
-				return ui8RangeCI[ui32i];
+				return m_ui8RangeCI[ui32i];
 			}
 		}
 	}
 	else
 	{
-		for (uint32_t ui32i = 0; ui32i < ui32IPv6Count; ui32i++)
+		for (uint32_t ui32i = 0; ui32i < m_ui32IPv6Count; ui32i++)
 		{
-			if (memcmp(ui128IPv6RangeFrom + (ui32i * 16), ui128IpHash, 16) <= 0 && memcmp(ui128IPv6RangeTo + (ui32i * 16), ui128IpHash, 16) >= 0)
+			if (memcmp(m_ui128IPv6RangeFrom + (ui32i * 16), m_ui128IpHash, 16) <= 0 && memcmp(m_ui128IPv6RangeTo + (ui32i * 16), m_ui128IpHash, 16) >= 0)
 			{
-				return ui8IPv6RangeCI[ui32i];
+				return m_ui8IPv6RangeCI[ui32i];
 			}
 		}
 	}
@@ -653,7 +657,7 @@ uint8_t clsIpP2Country::Find(const uint8_t * ui128IpHash)
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const char * clsIpP2Country::GetCountry(const uint8_t ui8dx, const bool bCountryName)
+const char * IpP2Country::GetCountry(const uint8_t ui8dx, const bool bCountryName)
 {
 	if (bCountryName == false)
 	{
@@ -667,7 +671,7 @@ const char * clsIpP2Country::GetCountry(const uint8_t ui8dx, const bool bCountry
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // alex82 ... Определяем страну по коду
-const char * clsIpP2Country::GetCountryName(const char * sCode)
+const char * IpP2Country::GetCountryName(const char * sCode)
 {
 	for (uint8_t ui8i = 0; ui8i < COUNTRY_COUNT; ui8i++)
 	{
@@ -681,12 +685,12 @@ const char * clsIpP2Country::GetCountryName(const char * sCode)
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsIpP2Country::Reload()
+void IpP2Country::Reload()
 {
-	ui32Count = 0;
+	m_ui32Count = 0;
 	LoadIPv4();
 	
-	ui32IPv6Count = 0;
+	m_ui32IPv6Count = 0;
 	LoadIPv6();
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

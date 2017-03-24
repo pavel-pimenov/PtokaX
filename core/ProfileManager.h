@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -26,9 +26,9 @@ struct User;
 
 struct ProfileItem
 {
-	char * sName;
+	char * m_sName;
 	
-	bool bPermissions[256];
+	bool m_bPermissions[256];
 	
 	ProfileItem();
 	~ProfileItem();
@@ -38,7 +38,7 @@ struct ProfileItem
 };
 //---------------------------------------------------------------------------
 
-class clsProfileManager
+class ProfileManager
 {
 	private:
 	
@@ -47,11 +47,11 @@ class clsProfileManager
 		void Load();
 		void LoadXML();
 	public:
-		static clsProfileManager * mPtr;
+		static ProfileManager * m_Ptr;
 		
-		ProfileItem ** ppProfilesTable;
+		ProfileItem ** m_ppProfilesTable;
 		
-		uint16_t ui16ProfileCount;
+		uint16_t m_ui16ProfileCount;
 		
 		enum ProfilePermissions
 		{
@@ -113,22 +113,22 @@ class clsProfileManager
 			NORECONNTIME
 		};
 		
-		clsProfileManager();
-		~clsProfileManager();
+		ProfileManager();
+		~ProfileManager();
 		
-		bool IsAllowed(const User * u, const uint32_t iOption) const;
-		bool IsProfileAllowed(const int32_t iProfile, const uint32_t iOption) const;
+		bool IsAllowed(const User * pUser, const uint32_t ui32Option) const;
+		bool IsProfileAllowed(const int32_t i32Profile, const uint32_t ui32Option) const;
 		int32_t AddProfile(const char * name);
 		int32_t GetProfileIndex(const char * name);
 		int32_t RemoveProfileByName(const char * name);
-		void MoveProfileDown(const uint16_t iProfile);
-		void MoveProfileUp(const uint16_t iProfile);
-		void ChangeProfileName(const uint16_t iProfile, const char * sName, const size_t szLen);
-		void ChangeProfilePermission(const uint16_t iProfile, const size_t szId, const bool bValue);
+		void MoveProfileDown(const uint16_t ui16Profile);
+		void MoveProfileUp(const uint16_t ui16Profile);
+		void ChangeProfileName(const uint16_t ui16Profile, const char * sName, const size_t szLen);
+		void ChangeProfilePermission(const uint16_t ui16Profile, const size_t szId, const bool bValue);
 		void SaveProfiles();
-		bool RemoveProfile(const uint16_t iProfile);
+		bool RemoveProfile(const uint16_t ui16Profile);
 		
-		DISALLOW_COPY_AND_ASSIGN(clsProfileManager);
+		DISALLOW_COPY_AND_ASSIGN(ProfileManager);
 };
 //---------------------------------------------------------------------------
 

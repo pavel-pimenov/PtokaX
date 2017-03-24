@@ -1001,7 +1001,7 @@ public:
 	/// QueryFloatAttribute examines the attribute - see QueryIntAttribute().
 	int QueryFloatAttribute( const char* name, float* _value ) const {
 		double d;
-		int result = QueryDoubleAttribute( name, &d );
+		const int result = QueryDoubleAttribute( name, &d );
 		if ( result == TIXML_SUCCESS ) {
 			*_value = (float)d;
 		}
@@ -1691,13 +1691,13 @@ public:
 	TiXmlNode* ToNode() const			{ return node; } 
 	/** Return the handle as a TiXmlElement. This may return null.
 	*/
-	TiXmlElement* ToElement() const		{ return ( ( node && node->ToElement() ) ? node->ToElement() : 0 ); }
+	TiXmlElement* ToElement() const		{ return ( ( node && node->ToElement() ) ? node->ToElement() : nullptr ); }
 	/**	Return the handle as a TiXmlText. This may return null.
 	*/
-	TiXmlText* ToText() const			{ return ( ( node && node->ToText() ) ? node->ToText() : 0 ); }
+	TiXmlText* ToText() const			{ return ( ( node && node->ToText() ) ? node->ToText() : nullptr ); }
 	/** Return the handle as a TiXmlUnknown. This may return null.
 	*/
-	TiXmlUnknown* ToUnknown() const		{ return ( ( node && node->ToUnknown() ) ? node->ToUnknown() : 0 ); }
+	TiXmlUnknown* ToUnknown() const		{ return ( ( node && node->ToUnknown() ) ? node->ToUnknown() : nullptr ); }
 
 	/** @deprecated use ToNode. 
 		Return the handle as a TiXmlNode. This may return null.

@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -35,126 +35,126 @@
 #include "LuaScript.h"
 //---------------------------------------------------------------------------
 
-static int GetCountryCode(lua_State * L)
+static int GetCountryCode(lua_State * pLua)
 {
-	if (lua_gettop(L) != 1)
+	if (lua_gettop(pLua) != 1)
 	{
-		luaL_error(L, "bad argument count to 'GetCountryCode' (1 expected, got %d)", lua_gettop(L));
-		lua_settop(L, 0);
-		lua_pushnil(L);
+		luaL_error(pLua, "bad argument count to 'GetCountryCode' (1 expected, got %d)", lua_gettop(pLua));
+		lua_settop(pLua, 0);
+		lua_pushnil(pLua);
 		return 1;
 	}
 	
-	if (lua_type(L, 1) != LUA_TSTRING)
+	if (lua_type(pLua, 1) != LUA_TSTRING)
 	{
-		luaL_error(L, "bad argument to 'GetCountryCode' (string expected, got %s)", lua_typename(L, lua_type(L, 1)));
-		lua_settop(L, 0);
-		lua_pushnil(L);
+		luaL_error(pLua, "bad argument to 'GetCountryCode' (string expected, got %s)", lua_typename(pLua, lua_type(pLua, 1)));
+		lua_settop(pLua, 0);
+		lua_pushnil(pLua);
 		return 1;
 	}
 	
 	size_t szLen;
-	const char * sIP = lua_tolstring(L, 1, &szLen);
+	const char * sIP = lua_tolstring(pLua, 1, &szLen);
 	
 	Hash128 ui128Hash;
 	
 	if (szLen == 0 || HashIP(sIP, ui128Hash) == false)
 	{
-		lua_settop(L, 0);
-		lua_pushnil(L);
+		lua_settop(pLua, 0);
+		lua_pushnil(pLua);
 		return 1;
 	}
 	
-	const char * sCountry = clsIpP2Country::mPtr->Find(ui128Hash, false);
+	const char * sCountry = IpP2Country::m_Ptr->Find(ui128Hash, false);
 	
-	lua_settop(L, 0);
+	lua_settop(pLua, 0);
 	
-	lua_pushlstring(L, sCountry, 2);
+	lua_pushlstring(pLua, sCountry, 2);
 	
 	return 1;
 }
 //------------------------------------------------------------------------------
 
-static int GetCountryName(lua_State * L)
+static int GetCountryName(lua_State * pLua)
 {
-	if (lua_gettop(L) != 1)
+	if (lua_gettop(pLua) != 1)
 	{
-		luaL_error(L, "bad argument count to 'GetCountryName' (1 expected, got %d)", lua_gettop(L));
-		lua_settop(L, 0);
-		lua_pushnil(L);
+		luaL_error(pLua, "bad argument count to 'GetCountryName' (1 expected, got %d)", lua_gettop(pLua));
+		lua_settop(pLua, 0);
+		lua_pushnil(pLua);
 		return 1;
 	}
 	
 	const char * sCountry;
 	
-	if (lua_type(L, 1) == LUA_TSTRING)
+	if (lua_type(pLua, 1) == LUA_TSTRING)
 	{
 		size_t szLen;
-		const char * sIP = lua_tolstring(L, 1, &szLen);
+		const char * sIP = lua_tolstring(pLua, 1, &szLen);
 		
 		Hash128 ui128Hash;
-
+		
 		// alex82 ... Определяем страну по коду
 		if (szLen == 2)
 		{
-			lua_settop(L, 0);
-			lua_pushstring(L, clsIpP2Country::mPtr->GetCountryName(sIP));
+			lua_settop(pLua, 0);
+			lua_pushstring(pLua, IpP2Country::m_Ptr->GetCountryName(sIP));
 			
 			return 1;
 		}
 		else if (szLen == 0 || HashIP(sIP, ui128Hash) == false)
 		{
-			lua_settop(L, 0);
-			lua_pushnil(L);
+			lua_settop(pLua, 0);
+			lua_pushnil(pLua);
 			return 1;
 		}
 		
-		sCountry = clsIpP2Country::mPtr->Find(ui128Hash, true);
+		sCountry = IpP2Country::m_Ptr->Find(ui128Hash, true);
 	}
-	else if (lua_type(L, 1) == LUA_TTABLE)
+	else if (lua_type(pLua, 1) == LUA_TTABLE)
 	{
-		User * u = ScriptGetUser(L, 1, "GetCountryName");
+		User * u = ScriptGetUser(pLua, 1, "GetCountryName");
 		if (u == NULL)
 		{
-			lua_settop(L, 0);
-			lua_pushnil(L);
+			lua_settop(pLua, 0);
+			lua_pushnil(pLua);
 			return 1;
 		}
 		
-		sCountry = clsIpP2Country::mPtr->GetCountry(u->ui8Country, true);
+		sCountry = IpP2Country::m_Ptr->GetCountry(u->m_ui8Country, true);
 	}
 	else
 	{
-		luaL_error(L, "bad argument to 'GetCountryName' (string or table expected, got %s)", lua_typename(L, lua_type(L, 1)));
-		lua_settop(L, 0);
-		lua_pushnil(L);
+		luaL_error(pLua, "bad argument to 'GetCountryName' (string or table expected, got %s)", lua_typename(pLua, lua_type(pLua, 1)));
+		lua_settop(pLua, 0);
+		lua_pushnil(pLua);
 		return 1;
 	}
 	
-	lua_settop(L, 0);
+	lua_settop(pLua, 0);
 	
-	lua_pushstring(L, sCountry);
+	lua_pushstring(pLua, sCountry);
 	
 	return 1;
 }
 //------------------------------------------------------------------------------
 
-static int Reload(lua_State * L)
+static int Reload(lua_State * pLua)
 {
-	if (lua_gettop(L) != 0)
+	if (lua_gettop(pLua) != 0)
 	{
-		luaL_error(L, "bad argument count to 'IP2Country.Reload' (0 expected, got %d)", lua_gettop(L));
-		lua_settop(L, 0);
+		luaL_error(pLua, "bad argument count to 'IP2Country.Reload' (0 expected, got %d)", lua_gettop(pLua));
+		lua_settop(pLua, 0);
 		return 0;
 	}
 	
-	clsIpP2Country::mPtr->Reload();
+	IpP2Country::m_Ptr->Reload();
 	
 	return 0;
 }
 //------------------------------------------------------------------------------
 
-static const luaL_Reg ip2country[] =
+static const luaL_Reg Ip2CountryRegs[] =
 {
 	{ "GetCountryCode", GetCountryCode },
 	{ "GetCountryName", GetCountryName },
@@ -164,14 +164,14 @@ static const luaL_Reg ip2country[] =
 //---------------------------------------------------------------------------
 
 #if LUA_VERSION_NUM > 501
-int RegIP2Country(lua_State * L)
+int RegIP2Country(lua_State * pLua)
 {
-	luaL_newlib(L, ip2country);
+	luaL_newlib(pLua, Ip2CountryRegs);
 	return 1;
 #else
-void RegIP2Country(lua_State * L)
+void RegIP2Country(lua_State * pLua)
 {
-	luaL_register(L, "IP2Country", ip2country);
+	luaL_register(pLua, "IP2Country", Ip2CountryRegs);
 #endif
 }
 //---------------------------------------------------------------------------

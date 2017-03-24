@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -33,7 +33,7 @@
 #include "../gui.win/RangeBansDialog.h"
 #endif
 //---------------------------------------------------------------------------
-clsBanManager * clsBanManager::mPtr = NULL;
+BanManager * BanManager::m_Ptr = nullptr;
 //---------------------------------------------------------------------------
 static const char sPtokaXBans[] = "PtokaX Bans";
 static const size_t szPtokaXBansLen = sizeof(sPtokaXBans) - 1;
@@ -46,40 +46,40 @@ static const size_t szRangeBanIdsLen = sizeof(sRangeBanIds) - 1;
 //---------------------------------------------------------------------------
 BanItemBase::~BanItemBase()
 {
-	free(sReason);
-	free(sBy);
+	free(m_sReason);
+	free(m_sBy);
 }
 
-BanItem::BanItem(void) : sNick(NULL),  pPrev(NULL), pNext(NULL), pHashNickTablePrev(NULL), pHashNickTableNext(NULL), pHashIpTablePrev(NULL), pHashIpTableNext(NULL), ui32NickHash(0)
+BanItem::BanItem(void) : m_sNick(NULL),  m_pPrev(NULL), m_pNext(NULL), m_pHashNickTablePrev(NULL), m_pHashNickTableNext(NULL), m_pHashIpTablePrev(NULL), m_pHashIpTableNext(NULL), m_ui32NickHash(0)
 {
-	memset(ui128IpHash, 0, 16);
-	memset(sIp, 0, sizeof(sIp));
+	memset(m_ui128IpHash, 0, 16);
+	memset(m_sIp, 0, sizeof(m_sIp));
 }
 //---------------------------------------------------------------------------
 
 BanItem::~BanItem(void)
 {
-	free(sNick);
+	free(m_sNick);
 }
 //---------------------------------------------------------------------------
 
 void BanItem::initIP(const char* pIP)
 {
-	strcpy(sIp, pIP);
+	strcpy(m_sIp, pIP);
 }
 //---------------------------------------------------------------------------
 
 void BanItem::initIP(const User* u)
 {
-	strcpy(sIp,u->sIP);
-	memcpy(ui128IpHash, u->ui128IpHash, sizeof(ui128IpHash));
+	strcpy(m_sIp, u->m_sIP);
+	memcpy(m_ui128IpHash, u->m_ui128IpHash, sizeof(m_ui128IpHash));
 }
 //---------------------------------------------------------------------------
 
-RangeBanItem::RangeBanItem(void) : pPrev(NULL), pNext(NULL) 
+RangeBanItem::RangeBanItem(void) : m_pPrev(NULL), m_pNext(NULL)
 {
-	memset(sIpFrom, 0, sizeof(sIpFrom));
-	memset(sIpTo, 0, sizeof(sIpTo));
+	memset(m_sIpFrom, 0, sizeof(m_sIpFrom));
+	memset(m_sIpTo, 0, sizeof(m_sIpTo));
 }
 //---------------------------------------------------------------------------
 
@@ -89,58 +89,58 @@ RangeBanItem::~RangeBanItem(void)
 
 //---------------------------------------------------------------------------
 
-clsBanManager::clsBanManager(void) : ui32SaveCalled(0), pTempBanListS(NULL), pTempBanListE(NULL), pPermBanListS(NULL), pPermBanListE(NULL),
-	pRangeBanListS(NULL), pRangeBanListE(NULL)
+BanManager::BanManager(void) : m_ui32SaveCalled(0), m_pTempBanListS(NULL), m_pTempBanListE(NULL), m_pPermBanListS(NULL), m_pPermBanListE(NULL),
+	m_pRangeBanListS(NULL), m_pRangeBanListE(NULL)
 {
-	memset(pNickTable, 0, sizeof(pNickTable));
-	memset(pIpTable, 0, sizeof(pIpTable));
+	memset(m_pNickBanTable, 0, sizeof(m_pNickBanTable));
+	memset(m_pIpBanTable, 0, sizeof(m_pIpBanTable));
 }
 //---------------------------------------------------------------------------
 
-clsBanManager::~clsBanManager(void)
+BanManager::~BanManager(void)
 {
 	BanItem * curBan = NULL,
-	          * nextBan = pPermBanListS;
+	          * nextBan = m_pPermBanListS;
 	          
 	while (nextBan != NULL)
 	{
 		curBan = nextBan;
-		nextBan = curBan->pNext;
+		nextBan = curBan->m_pNext;
 		
 		delete curBan;
 	}
 	
-	nextBan = pTempBanListS;
+	nextBan = m_pTempBanListS;
 	
 	while (nextBan != NULL)
 	{
 		curBan = nextBan;
-		nextBan = curBan->pNext;
+		nextBan = curBan->m_pNext;
 		
 		delete curBan;
 	}
 	
 	RangeBanItem * curRangeBan = NULL,
-	               * nextRangeBan = pRangeBanListS;
+	               * nextRangeBan = m_pRangeBanListS;
 	               
 	while (nextRangeBan != NULL)
 	{
 		curRangeBan = nextRangeBan;
-		nextRangeBan = curRangeBan->pNext;
+		nextRangeBan = curRangeBan->m_pNext;
 		
 		delete curRangeBan;
 	}
 	
-	IpTableItem * cur = NULL, * next = NULL;
+	IpTableItem * cur = NULL, * next = nullptr;
 	
-	for (uint32_t ui32i = 0; ui32i < 65536; ui32i++)
+	for (uint32_t ui32i = 0; ui32i < IP_BAN_HASH_TABLE_SIZE; ui32i++)
 	{
-		next = pIpTable[ui32i];
+		next = m_pIpBanTable[ui32i];
 		
 		while (next != NULL)
 		{
 			cur = next;
-			next = cur->pNext;
+			next = cur->m_pNext;
 			
 			delete cur;
 		}
@@ -148,46 +148,46 @@ clsBanManager::~clsBanManager(void)
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::Add(BanItem * Ban)
+bool BanManager::Add(BanItem * pBan)
 {
-	if (Add2Table(Ban) == false)
+	if (Add2Table(pBan) == false)
 	{
 		return false;
 	}
 	
-	if (((Ban->ui8Bits & PERM) == PERM) == true)
+	if (((pBan->m_ui8Bits & PERM) == PERM) == true)
 	{
-		if (pPermBanListE == NULL)
+		if (m_pPermBanListE == NULL)
 		{
-			pPermBanListS = Ban;
-			pPermBanListE = Ban;
+			m_pPermBanListS = pBan;
+			m_pPermBanListE = pBan;
 		}
 		else
 		{
-			pPermBanListE->pNext = Ban;
-			Ban->pPrev = pPermBanListE;
-			pPermBanListE = Ban;
+			m_pPermBanListE->m_pNext = pBan;
+			pBan->m_pPrev = m_pPermBanListE;
+			m_pPermBanListE = pBan;
 		}
 	}
 	else
 	{
-		if (pTempBanListE == NULL)
+		if (m_pTempBanListE == NULL)
 		{
-			pTempBanListS = Ban;
-			pTempBanListE = Ban;
+			m_pTempBanListS = pBan;
+			m_pTempBanListE = pBan;
 		}
 		else
 		{
-			pTempBanListE->pNext = Ban;
-			Ban->pPrev = pTempBanListE;
-			pTempBanListE = Ban;
+			m_pTempBanListE->m_pNext = pBan;
+			pBan->m_pPrev = m_pTempBanListE;
+			m_pTempBanListE = pBan;
 		}
 	}
 	
 #ifdef _BUILD_GUI
-	if (clsBansDialog::mPtr != NULL)
+	if (BansDialog::m_Ptr != NULL)
 	{
-		clsBansDialog::mPtr->AddBan(Ban);
+		BansDialog::m_Ptr->AddBan(pBan);
 	}
 #endif
 	
@@ -195,316 +195,316 @@ bool clsBanManager::Add(BanItem * Ban)
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::Add2Table(BanItem *Ban)
+bool BanManager::Add2Table(BanItem * pBan)
 {
-	if (((Ban->ui8Bits & IP) == IP) == true)
+	if (((pBan->m_ui8Bits & IP) == IP) == true)
 	{
-		if (Add2IpTable(Ban) == false)
+		if (Add2IpTable(pBan) == false)
 		{
 			return false;
 		}
 	}
 	
-	if (((Ban->ui8Bits & NICK) == NICK) == true)
+	if (((pBan->m_ui8Bits & NICK) == NICK) == true)
 	{
-		Add2NickTable(Ban);
+		Add2NickTable(pBan);
 	}
 	
 	return true;
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::Add2NickTable(BanItem *Ban)
+void BanManager::Add2NickTable(BanItem *Ban)
 {
-	const uint16_t ui16dx = CalcHash(Ban->ui32NickHash);
+	const uint16_t ui16dx = CalcHash(Ban->m_ui32NickHash);
 	
-	if (pNickTable[ui16dx] != NULL)
+	if (m_pNickBanTable[ui16dx] != NULL)
 	{
-		pNickTable[ui16dx]->pHashNickTablePrev = Ban;
-		Ban->pHashNickTableNext = pNickTable[ui16dx];
+		m_pNickBanTable[ui16dx]->m_pHashNickTablePrev = Ban;
+		Ban->m_pHashNickTableNext = m_pNickBanTable[ui16dx];
 	}
 	
-	pNickTable[ui16dx] = Ban;
+	m_pNickBanTable[ui16dx] = Ban;
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::Add2IpTable(BanItem *Ban)
+bool BanManager::Add2IpTable(BanItem *Ban)
 {
 	uint16_t ui16IpTableIdx = 0;
 	
-	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)Ban->ui128IpHash))
+	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)Ban->m_ui128IpHash))
 	{
-		ui16IpTableIdx = Ban->ui128IpHash[14] * Ban->ui128IpHash[15];
+		ui16IpTableIdx = Ban->m_ui128IpHash[14] * Ban->m_ui128IpHash[15];
 	}
 	else
 	{
-		ui16IpTableIdx = GetIpTableIdx(Ban->ui128IpHash);
+		ui16IpTableIdx = GetIpTableIdx(Ban->m_ui128IpHash);
 	}
 	
-	if (pIpTable[ui16IpTableIdx] == NULL)
+	if (m_pIpBanTable[ui16IpTableIdx] == NULL)
 	{
-		pIpTable[ui16IpTableIdx] = new(std::nothrow) IpTableItem();
+		m_pIpBanTable[ui16IpTableIdx] = new (std::nothrow) IpTableItem();
 		
-		if (pIpTable[ui16IpTableIdx] == NULL)
+		if (m_pIpBanTable[ui16IpTableIdx] == NULL)
 		{
-			AppendDebugLog("%s - [MEM] Cannot allocate IpTableItem in clsBanManager::Add2IpTable\n");
+			AppendDebugLog("%s - [MEM] Cannot allocate IpTableItem in BanManager::Add2IpTable\n");
 			return false;
 		}
 		
-		pIpTable[ui16IpTableIdx]->pNext = NULL;
-		pIpTable[ui16IpTableIdx]->pPrev = NULL;
+		m_pIpBanTable[ui16IpTableIdx]->m_pNext = nullptr;
+		m_pIpBanTable[ui16IpTableIdx]->m_pPrev = nullptr;
 		
-		pIpTable[ui16IpTableIdx]->pFirstBan = Ban;
+		m_pIpBanTable[ui16IpTableIdx]->pFirstBan = Ban;
 		
 		return true;
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[ui16IpTableIdx];
+	              * next = m_pIpBanTable[ui16IpTableIdx];
 	              
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstBan->ui128IpHash, Ban->ui128IpHash, 16) == 0)
+		if (memcmp(cur->pFirstBan->m_ui128IpHash, Ban->m_ui128IpHash, 16) == 0)
 		{
-			cur->pFirstBan->pHashIpTablePrev = Ban;
-			Ban->pHashIpTableNext = cur->pFirstBan;
+			cur->pFirstBan->m_pHashIpTablePrev = Ban;
+			Ban->m_pHashIpTableNext = cur->pFirstBan;
 			cur->pFirstBan = Ban;
 			
 			return true;
 		}
 	}
 	
-	cur = new(std::nothrow) IpTableItem;
+	cur = new (std::nothrow) IpTableItem;
 	
 	if (cur == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate IpTableBans2 in clsBanManager::Add2IpTable\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate IpTableBans2 in BanManager::Add2IpTable\n");
 		return false;
 	}
 	
 	cur->pFirstBan = Ban;
 	
-	cur->pNext = pIpTable[ui16IpTableIdx];
-	cur->pPrev = NULL;
+	cur->m_pNext = m_pIpBanTable[ui16IpTableIdx];
+	cur->m_pPrev = nullptr;
 	
-	pIpTable[ui16IpTableIdx]->pPrev = cur;
-	pIpTable[ui16IpTableIdx] = cur;
+	m_pIpBanTable[ui16IpTableIdx]->m_pPrev = cur;
+	m_pIpBanTable[ui16IpTableIdx] = cur;
 	
 	return true;
 }
 //---------------------------------------------------------------------------
 
 #ifdef _BUILD_GUI
-void clsBanManager::Rem(BanItem * Ban, const bool bFromGui/* = false*/)
+void BanManager::Rem(BanItem * Ban, const bool bFromGui/* = false*/)
 {
 #else
-void clsBanManager::Rem(BanItem * Ban, const bool /*bFromGui = false*/)
+void BanManager::Rem(BanItem * Ban, const bool /*bFromGui = false*/)
 {
 #endif
 	RemFromTable(Ban);
 	
-	if (((Ban->ui8Bits & PERM) == PERM) == true)
+	if (((Ban->m_ui8Bits & PERM) == PERM) == true)
 	{
-		if (Ban->pPrev == NULL)
+		if (Ban->m_pPrev == NULL)
 		{
-			if (Ban->pNext == NULL)
+			if (Ban->m_pNext == NULL)
 			{
-				pPermBanListS = NULL;
-				pPermBanListE = NULL;
+				m_pPermBanListS = nullptr;
+				m_pPermBanListE = nullptr;
 			}
 			else
 			{
-				Ban->pNext->pPrev = NULL;
-				pPermBanListS = Ban->pNext;
+				Ban->m_pNext->m_pPrev = nullptr;
+				m_pPermBanListS = Ban->m_pNext;
 			}
 		}
-		else if (Ban->pNext == NULL)
+		else if (Ban->m_pNext == NULL)
 		{
-			Ban->pPrev->pNext = NULL;
-			pPermBanListE = Ban->pPrev;
+			Ban->m_pPrev->m_pNext = nullptr;
+			m_pPermBanListE = Ban->m_pPrev;
 		}
 		else
 		{
-			Ban->pPrev->pNext = Ban->pNext;
-			Ban->pNext->pPrev = Ban->pPrev;
+			Ban->m_pPrev->m_pNext = Ban->m_pNext;
+			Ban->m_pNext->m_pPrev = Ban->m_pPrev;
 		}
 	}
 	else
 	{
-		if (Ban->pPrev == NULL)
+		if (Ban->m_pPrev == NULL)
 		{
-			if (Ban->pNext == NULL)
+			if (Ban->m_pNext == NULL)
 			{
-				pTempBanListS = NULL;
-				pTempBanListE = NULL;
+				m_pTempBanListS = nullptr;
+				m_pTempBanListE = nullptr;
 			}
 			else
 			{
-				Ban->pNext->pPrev = NULL;
-				pTempBanListS = Ban->pNext;
+				Ban->m_pNext->m_pPrev = nullptr;
+				m_pTempBanListS = Ban->m_pNext;
 			}
 		}
-		else if (Ban->pNext == NULL)
+		else if (Ban->m_pNext == NULL)
 		{
-			Ban->pPrev->pNext = NULL;
-			pTempBanListE = Ban->pPrev;
+			Ban->m_pPrev->m_pNext = nullptr;
+			m_pTempBanListE = Ban->m_pPrev;
 		}
 		else
 		{
-			Ban->pPrev->pNext = Ban->pNext;
-			Ban->pNext->pPrev = Ban->pPrev;
+			Ban->m_pPrev->m_pNext = Ban->m_pNext;
+			Ban->m_pNext->m_pPrev = Ban->m_pPrev;
 		}
 	}
 	
 #ifdef _BUILD_GUI
-	if (bFromGui == false && clsBansDialog::mPtr != NULL)
+	if (bFromGui == false && clsBansDialog::m_Ptr != NULL)
 	{
-		clsBansDialog::mPtr->RemoveBan(Ban);
+		clsBansDialog::m_Ptr->RemoveBan(Ban);
 	}
 #endif
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::RemFromTable(BanItem *Ban)
+void BanManager::RemFromTable(BanItem *Ban)
 {
-	if (((Ban->ui8Bits & IP) == IP) == true)
+	if (((Ban->m_ui8Bits & IP) == IP) == true)
 	{
 		RemFromIpTable(Ban);
 	}
 	
-	if (((Ban->ui8Bits & NICK) == NICK) == true)
+	if (((Ban->m_ui8Bits & NICK) == NICK) == true)
 	{
 		RemFromNickTable(Ban);
 	}
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::RemFromNickTable(BanItem *Ban)
+void BanManager::RemFromNickTable(BanItem *Ban)
 {
-	if (Ban->pHashNickTablePrev == NULL)
+	if (Ban->m_pHashNickTablePrev == NULL)
 	{
-		const uint16_t ui16dx = CalcHash(Ban->ui32NickHash);
+		const uint16_t ui16dx = CalcHash(Ban->m_ui32NickHash);
 		
-		if (Ban->pHashNickTableNext == NULL)
+		if (Ban->m_pHashNickTableNext == NULL)
 		{
-			pNickTable[ui16dx] = NULL;
+			m_pNickBanTable[ui16dx] = nullptr;
 		}
 		else
 		{
-			Ban->pHashNickTableNext->pHashNickTablePrev = NULL;
-			pNickTable[ui16dx] = Ban->pHashNickTableNext;
+			Ban->m_pHashNickTableNext->m_pHashNickTablePrev = nullptr;
+			m_pNickBanTable[ui16dx] = Ban->m_pHashNickTableNext;
 		}
 	}
-	else if (Ban->pHashNickTableNext == NULL)
+	else if (Ban->m_pHashNickTableNext == NULL)
 	{
-		Ban->pHashNickTablePrev->pHashNickTableNext = NULL;
+		Ban->m_pHashNickTablePrev->m_pHashNickTableNext = nullptr;
 	}
 	else
 	{
-		Ban->pHashNickTablePrev->pHashNickTableNext = Ban->pHashNickTableNext;
-		Ban->pHashNickTableNext->pHashNickTablePrev = Ban->pHashNickTablePrev;
+		Ban->m_pHashNickTablePrev->m_pHashNickTableNext = Ban->m_pHashNickTableNext;
+		Ban->m_pHashNickTableNext->m_pHashNickTablePrev = Ban->m_pHashNickTablePrev;
 	}
 	
-	Ban->pHashNickTablePrev = NULL;
-	Ban->pHashNickTableNext = NULL;
+	Ban->m_pHashNickTablePrev = nullptr;
+	Ban->m_pHashNickTableNext = nullptr;
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::RemFromIpTable(BanItem *Ban)
+void BanManager::RemFromIpTable(BanItem *Ban)
 {
 	uint16_t ui16IpTableIdx = 0;
 	
-	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)Ban->ui128IpHash))
+	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)Ban->m_ui128IpHash))
 	{
-		ui16IpTableIdx = Ban->ui128IpHash[14] * Ban->ui128IpHash[15];
+		ui16IpTableIdx = Ban->m_ui128IpHash[14] * Ban->m_ui128IpHash[15];
 	}
 	else
 	{
-		ui16IpTableIdx = GetIpTableIdx(Ban->ui128IpHash);
+		ui16IpTableIdx = GetIpTableIdx(Ban->m_ui128IpHash);
 	}
 	
-	if (Ban->pHashIpTablePrev == NULL)
+	if (Ban->m_pHashIpTablePrev == NULL)
 	{
 		IpTableItem * cur = NULL,
-		              * next = pIpTable[ui16IpTableIdx];
+		              * next = m_pIpBanTable[ui16IpTableIdx];
 		              
 		while (next != NULL)
 		{
 			cur = next;
-			next = cur->pNext;
+			next = cur->m_pNext;
 			
-			if (memcmp(cur->pFirstBan->ui128IpHash, Ban->ui128IpHash, 16) == 0)
+			if (memcmp(cur->pFirstBan->m_ui128IpHash, Ban->m_ui128IpHash, 16) == 0)
 			{
-				if (Ban->pHashIpTableNext == NULL)
+				if (Ban->m_pHashIpTableNext == NULL)
 				{
-					if (cur->pPrev == NULL)
+					if (cur->m_pPrev == NULL)
 					{
-						if (cur->pNext == NULL)
+						if (cur->m_pNext == NULL)
 						{
-							pIpTable[ui16IpTableIdx] = NULL;
+							m_pIpBanTable[ui16IpTableIdx] = nullptr;
 						}
 						else
 						{
-							cur->pNext->pPrev = NULL;
-							pIpTable[ui16IpTableIdx] = cur->pNext;
+							cur->m_pNext->m_pPrev = nullptr;
+							m_pIpBanTable[ui16IpTableIdx] = cur->m_pNext;
 						}
 					}
-					else if (cur->pNext == NULL)
+					else if (cur->m_pNext == NULL)
 					{
-						cur->pPrev->pNext = NULL;
+						cur->m_pPrev->m_pNext = nullptr;
 					}
 					else
 					{
-						cur->pPrev->pNext = cur->pNext;
-						cur->pNext->pPrev = cur->pPrev;
+						cur->m_pPrev->m_pNext = cur->m_pNext;
+						cur->m_pNext->m_pPrev = cur->m_pPrev;
 					}
 					
 					delete cur;
 				}
 				else
 				{
-					Ban->pHashIpTableNext->pHashIpTablePrev = NULL;
-					cur->pFirstBan = Ban->pHashIpTableNext;
+					Ban->m_pHashIpTableNext->m_pHashIpTablePrev = nullptr;
+					cur->pFirstBan = Ban->m_pHashIpTableNext;
 				}
 				
 				break;
 			}
 		}
 	}
-	else if (Ban->pHashIpTableNext == NULL)
+	else if (Ban->m_pHashIpTableNext == NULL)
 	{
-		Ban->pHashIpTablePrev->pHashIpTableNext = NULL;
+		Ban->m_pHashIpTablePrev->m_pHashIpTableNext = nullptr;
 	}
 	else
 	{
-		Ban->pHashIpTablePrev->pHashIpTableNext = Ban->pHashIpTableNext;
-		Ban->pHashIpTableNext->pHashIpTablePrev = Ban->pHashIpTablePrev;
+		Ban->m_pHashIpTablePrev->m_pHashIpTableNext = Ban->m_pHashIpTableNext;
+		Ban->m_pHashIpTableNext->m_pHashIpTablePrev = Ban->m_pHashIpTablePrev;
 	}
 	
-	Ban->pHashIpTablePrev = NULL;
-	Ban->pHashIpTableNext = NULL;
+	Ban->m_pHashIpTablePrev = nullptr;
+	Ban->m_pHashIpTableNext = nullptr;
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::Find(BanItem *Ban)
+BanItem* BanManager::Find(BanItem *Ban)
 {
-	if (pTempBanListS != NULL)
+	if (m_pTempBanListS != NULL)
 	{
 		time_t acc_time;
 		time(&acc_time);
 		
 		BanItem * curBan = NULL,
-		          * nextBan = pTempBanListS;
+		          * nextBan = m_pTempBanListS;
 		          
 		while (nextBan != NULL)
 		{
 			curBan = nextBan;
-			nextBan = curBan->pNext;
+			nextBan = curBan->m_pNext;
 			
-			if (acc_time > curBan->tTempBanExpire)
+			if (acc_time > curBan->m_tTempBanExpire)
 			{
 				Rem(curBan);
 				delete curBan;
@@ -519,15 +519,15 @@ BanItem* clsBanManager::Find(BanItem *Ban)
 		}
 	}
 	
-	if (pPermBanListS != NULL)
+	if (m_pPermBanListS != NULL)
 	{
 		BanItem * curBan = NULL,
-		          * nextBan = pPermBanListS;
+		          * nextBan = m_pPermBanListS;
 		          
 		while (nextBan != NULL)
 		{
 			curBan = nextBan;
-			nextBan = curBan->pNext;
+			nextBan = curBan->m_pNext;
 			
 			if (curBan == Ban)
 			{
@@ -540,22 +540,22 @@ BanItem* clsBanManager::Find(BanItem *Ban)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::Remove(BanItem *Ban)
+void BanManager::Remove(BanItem *Ban)
 {
-	if (pTempBanListS != NULL)
+	if (m_pTempBanListS != NULL)
 	{
 		time_t acc_time;
 		time(&acc_time);
 		
 		BanItem * curBan = NULL,
-		          * nextBan = pTempBanListS;
+		          * nextBan = m_pTempBanListS;
 		          
 		while (nextBan != NULL)
 		{
 			curBan = nextBan;
-			nextBan = curBan->pNext;
+			nextBan = curBan->m_pNext;
 			
-			if (acc_time > curBan->tTempBanExpire)
+			if (acc_time > curBan->m_tTempBanExpire)
 			{
 				Rem(curBan);
 				delete curBan;
@@ -573,15 +573,15 @@ void clsBanManager::Remove(BanItem *Ban)
 		}
 	}
 	
-	if (pPermBanListS != NULL)
+	if (m_pPermBanListS != NULL)
 	{
 		BanItem * curBan = NULL,
-		          * nextBan = pPermBanListS;
+		          * nextBan = m_pPermBanListS;
 		          
 		while (nextBan != NULL)
 		{
 			curBan = nextBan;
-			nextBan = curBan->pNext;
+			nextBan = curBan->m_pNext;
 			
 			if (curBan == Ban)
 			{
@@ -595,85 +595,85 @@ void clsBanManager::Remove(BanItem *Ban)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::AddRange(RangeBanItem *RangeBan)
+void BanManager::AddRange(RangeBanItem *RangeBan)
 {
-	if (pRangeBanListE == NULL)
+	if (m_pRangeBanListE == NULL)
 	{
-		pRangeBanListS = RangeBan;
-		pRangeBanListE = RangeBan;
+		m_pRangeBanListS = RangeBan;
+		m_pRangeBanListE = RangeBan;
 	}
 	else
 	{
-		pRangeBanListE->pNext = RangeBan;
-		RangeBan->pPrev = pRangeBanListE;
-		pRangeBanListE = RangeBan;
+		m_pRangeBanListE->m_pNext = RangeBan;
+		RangeBan->m_pPrev = m_pRangeBanListE;
+		m_pRangeBanListE = RangeBan;
 	}
 	
 #ifdef _BUILD_GUI
-	if (clsRangeBansDialog::mPtr != NULL)
+	if (clsRangeBansDialog::m_Ptr != NULL)
 	{
-		clsRangeBansDialog::mPtr->AddRangeBan(RangeBan);
+		clsRangeBansDialog::m_Ptr->AddRangeBan(RangeBan);
 	}
 #endif
 }
 //---------------------------------------------------------------------------
 
 #ifdef _BUILD_GUI
-void clsBanManager::RemRange(RangeBanItem *RangeBan, const bool bFromGui/* = false*/)
+void BanManager::RemRange(RangeBanItem *RangeBan, const bool bFromGui/* = false*/)
 {
 #else
-void clsBanManager::RemRange(RangeBanItem *RangeBan, const bool /*bFromGui = false*/)
+void BanManager::RemRange(RangeBanItem *RangeBan, const bool /*bFromGui = false*/)
 {
 #endif
-	if (RangeBan->pPrev == NULL)
+	if (RangeBan->m_pPrev == NULL)
 	{
-		if (RangeBan->pNext == NULL)
+		if (RangeBan->m_pNext == NULL)
 		{
-			pRangeBanListS = NULL;
-			pRangeBanListE = NULL;
+			m_pRangeBanListS = nullptr;
+			m_pRangeBanListE = nullptr;
 		}
 		else
 		{
-			RangeBan->pNext->pPrev = NULL;
-			pRangeBanListS = RangeBan->pNext;
+			RangeBan->m_pNext->m_pPrev = nullptr;
+			m_pRangeBanListS = RangeBan->m_pNext;
 		}
 	}
-	else if (RangeBan->pNext == NULL)
+	else if (RangeBan->m_pNext == NULL)
 	{
-		RangeBan->pPrev->pNext = NULL;
-		pRangeBanListE = RangeBan->pPrev;
+		RangeBan->m_pPrev->m_pNext = nullptr;
+		m_pRangeBanListE = RangeBan->m_pPrev;
 	}
 	else
 	{
-		RangeBan->pPrev->pNext = RangeBan->pNext;
-		RangeBan->pNext->pPrev = RangeBan->pPrev;
+		RangeBan->m_pPrev->m_pNext = RangeBan->m_pNext;
+		RangeBan->m_pNext->m_pPrev = RangeBan->m_pPrev;
 	}
 	
 #ifdef _BUILD_GUI
-	if (bFromGui == false && clsRangeBansDialog::mPtr != NULL)
+	if (bFromGui == false && clsRangeBansDialog::m_Ptr != NULL)
 	{
-		clsRangeBansDialog::mPtr->RemoveRangeBan(RangeBan);
+		clsRangeBansDialog::m_Ptr->RemoveRangeBan(RangeBan);
 	}
 #endif
 }
 //---------------------------------------------------------------------------
 
-RangeBanItem* clsBanManager::FindRange(RangeBanItem *RangeBan)
+RangeBanItem* BanManager::FindRange(RangeBanItem *RangeBan)
 {
-	if (pRangeBanListS != NULL)
+	if (m_pRangeBanListS != NULL)
 	{
 		time_t acc_time;
 		time(&acc_time);
 		
 		RangeBanItem * curBan = NULL,
-		               * nextBan = pRangeBanListS;
+		               * nextBan = m_pRangeBanListS;
 		               
 		while (nextBan != NULL)
 		{
 			curBan = nextBan;
-			nextBan = curBan->pNext;
+			nextBan = curBan->m_pNext;
 			
-			if (((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true && acc_time > curBan->tTempBanExpire)
+			if (((curBan->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true && acc_time > curBan->m_tTempBanExpire)
 			{
 				RemRange(curBan);
 				delete curBan;
@@ -692,22 +692,22 @@ RangeBanItem* clsBanManager::FindRange(RangeBanItem *RangeBan)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::RemoveRange(RangeBanItem *RangeBan)
+void BanManager::RemoveRange(RangeBanItem *RangeBan)
 {
-	if (pRangeBanListS != NULL)
+	if (m_pRangeBanListS != NULL)
 	{
 		time_t acc_time;
 		time(&acc_time);
 		
 		RangeBanItem * curBan = NULL,
-		               * nextBan = pRangeBanListS;
+		               * nextBan = m_pRangeBanListS;
 		               
 		while (nextBan != NULL)
 		{
 			curBan = nextBan;
-			nextBan = curBan->pNext;
+			nextBan = curBan->m_pNext;
 			
-			if (((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true && acc_time > curBan->tTempBanExpire)
+			if (((curBan->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true && acc_time > curBan->m_tTempBanExpire)
 			{
 				RemRange(curBan);
 				delete curBan;
@@ -727,27 +727,27 @@ void clsBanManager::RemoveRange(RangeBanItem *RangeBan)
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindNick(User* u)
+BanItem* BanManager::FindNick(User* pUser)
 {
-	const uint16_t ui16dx = CalcHash(u->ui32NickHash);
+	const uint16_t ui16dx = CalcHash(pUser->m_ui32NickHash);
 	
 	time_t acc_time;
 	time(&acc_time);
 	
 	BanItem * cur = NULL,
-	          * next = pNickTable[ui16dx];
+	          * next = m_pNickBanTable[ui16dx];
 	          
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pHashNickTableNext;
+		next = cur->m_pHashNickTableNext;
 		
-		if (cur->ui32NickHash == u->ui32NickHash && strcasecmp(cur->sNick, u->sNick) == 0)
+		if (cur->m_ui32NickHash == pUser->m_ui32NickHash && strcasecmp(cur->m_sNick, pUser->m_sNick) == 0)
 		{
 			// PPK ... check if temban expired
-			if (((cur->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true)
+			if (((cur->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true)
 			{
-				if (acc_time >= cur->tTempBanExpire)
+				if (acc_time >= cur->m_tTempBanExpire)
 				{
 					Rem(cur);
 					delete cur;
@@ -763,34 +763,34 @@ BanItem* clsBanManager::FindNick(User* u)
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindIP(User* u)
+BanItem* BanManager::FindIP(User* u)
 {
 	time_t acc_time;
 	time(&acc_time);
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[u->ui16IpTableIdx];
+	              * next = m_pIpBanTable[u->m_ui16IpTableIdx];
 	              
-	BanItem * curBan = NULL, * nextBan = NULL;
+	BanItem * curBan = NULL, * nextBan = nullptr;
 	
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstBan->ui128IpHash, u->ui128IpHash, 16) == 0)
+		if (memcmp(cur->pFirstBan->m_ui128IpHash, u->m_ui128IpHash, 16) == 0)
 		{
 			nextBan = cur->pFirstBan;
 			
 			while (nextBan != NULL)
 			{
 				curBan = nextBan;
-				nextBan = curBan->pHashIpTableNext;
+				nextBan = curBan->m_pHashIpTableNext;
 				
 				// PPK ... check if temban expired
-				if (((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true)
+				if (((curBan->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true)
 				{
-					if (acc_time >= curBan->tTempBanExpire)
+					if (acc_time >= curBan->m_tTempBanExpire)
 					{
 						Rem(curBan);
 						delete curBan;
@@ -808,25 +808,25 @@ BanItem* clsBanManager::FindIP(User* u)
 }
 //---------------------------------------------------------------------------
 
-RangeBanItem* clsBanManager::FindRange(User* u)
+RangeBanItem* BanManager::FindRange(User* u)
 {
 	time_t acc_time;
 	time(&acc_time);
 	
 	RangeBanItem * cur = NULL,
-	               * next = pRangeBanListS;
+	               * next = m_pRangeBanListS;
 	               
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->ui128FromIpHash, u->ui128IpHash, 16) <= 0 && memcmp(cur->ui128ToIpHash, u->ui128IpHash, 16) >= 0)
+		if (memcmp(cur->m_ui128FromIpHash, u->m_ui128IpHash, 16) <= 0 && memcmp(cur->m_ui128ToIpHash, u->m_ui128IpHash, 16) >= 0)
 		{
 			// PPK ... check if temban expired
-			if (((cur->ui8Bits & TEMP) == TEMP) == true)
+			if (((cur->m_ui8Bits & TEMP) == TEMP) == true)
 			{
-				if (acc_time >= cur->tTempBanExpire)
+				if (acc_time >= cur->m_tTempBanExpire)
 				{
 					RemRange(cur);
 					delete cur;
@@ -842,51 +842,51 @@ RangeBanItem* clsBanManager::FindRange(User* u)
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindFull(const uint8_t * ui128IpHash)
+BanItem* BanManager::FindFull(const uint8_t * m_ui128IpHash)
 {
 	time_t acc_time;
 	time(&acc_time);
 	
-	return FindFull(ui128IpHash, acc_time);
+	return FindFull(m_ui128IpHash, acc_time);
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindFull(const uint8_t * ui128IpHash, const time_t &acc_time)
+BanItem* BanManager::FindFull(const uint8_t * m_ui128IpHash, const time_t &acc_time)
 {
 	uint16_t ui16IpTableIdx = 0;
 	
-	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)ui128IpHash))
+	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)m_ui128IpHash))
 	{
-		ui16IpTableIdx = ui128IpHash[14] * ui128IpHash[15];
+		ui16IpTableIdx = m_ui128IpHash[14] * m_ui128IpHash[15];
 	}
 	else
 	{
-		ui16IpTableIdx = GetIpTableIdx(ui128IpHash);
+		ui16IpTableIdx = GetIpTableIdx(m_ui128IpHash);
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[ui16IpTableIdx];
+	              * next = m_pIpBanTable[ui16IpTableIdx];
 	              
-	BanItem * curBan = NULL, * nextBan = NULL, * fnd = NULL;
+	BanItem * curBan = NULL, * nextBan = NULL, * fnd = nullptr;
 	
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0)
+		if (memcmp(cur->pFirstBan->m_ui128IpHash, m_ui128IpHash, 16) == 0)
 		{
 			nextBan = cur->pFirstBan;
 			
 			while (nextBan != NULL)
 			{
 				curBan = nextBan;
-				nextBan = curBan->pHashIpTableNext;
+				nextBan = curBan->m_pHashIpTableNext;
 				
 				// PPK ... check if temban expired
-				if (((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true)
+				if (((curBan->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true)
 				{
-					if (acc_time >= curBan->tTempBanExpire)
+					if (acc_time >= curBan->m_tTempBanExpire)
 					{
 						Rem(curBan);
 						delete curBan;
@@ -895,7 +895,7 @@ BanItem* clsBanManager::FindFull(const uint8_t * ui128IpHash, const time_t &acc_
 					}
 				}
 				
-				if (((curBan->ui8Bits & clsBanManager::FULL) == clsBanManager::FULL) == true)
+				if (((curBan->m_ui8Bits & BanManager::FULL) == BanManager::FULL) == true)
 				{
 					return curBan;
 				}
@@ -911,22 +911,22 @@ BanItem* clsBanManager::FindFull(const uint8_t * ui128IpHash, const time_t &acc_
 }
 //---------------------------------------------------------------------------
 
-RangeBanItem* clsBanManager::FindFullRange(const uint8_t * ui128IpHash, const time_t &acc_time)
+RangeBanItem* BanManager::FindFullRange(const uint8_t * m_ui128IpHash, const time_t &acc_time)
 {
 	RangeBanItem * cur = NULL, * fnd = NULL,
-	               * next = pRangeBanListS;
+	               * next = m_pRangeBanListS;
 	               
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->ui128FromIpHash, ui128IpHash, 16) <= 0 && memcmp(cur->ui128ToIpHash, ui128IpHash, 16) >= 0)
+		if (memcmp(cur->m_ui128FromIpHash, m_ui128IpHash, 16) <= 0 && memcmp(cur->m_ui128ToIpHash, m_ui128IpHash, 16) >= 0)
 		{
 			// PPK ... check if temban expired
-			if (((cur->ui8Bits & TEMP) == TEMP) == true)
+			if (((cur->m_ui8Bits & TEMP) == TEMP) == true)
 			{
-				if (acc_time >= cur->tTempBanExpire)
+				if (acc_time >= cur->m_tTempBanExpire)
 				{
 					RemRange(cur);
 					delete cur;
@@ -935,7 +935,7 @@ RangeBanItem* clsBanManager::FindFullRange(const uint8_t * ui128IpHash, const ti
 				}
 			}
 			
-			if (((cur->ui8Bits & FULL) == FULL) == true)
+			if (((cur->m_ui8Bits & FULL) == FULL) == true)
 			{
 				return cur;
 			}
@@ -950,7 +950,7 @@ RangeBanItem* clsBanManager::FindFullRange(const uint8_t * ui128IpHash, const ti
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindNick(const char * sNick, const size_t szNickLen)
+BanItem* BanManager::FindNick(const char * sNick, const size_t szNickLen)
 {
 	uint32_t hash = HashNick(sNick, szNickLen);
 	
@@ -961,24 +961,24 @@ BanItem* clsBanManager::FindNick(const char * sNick, const size_t szNickLen)
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindNick(const uint32_t ui32Hash, const time_t &acc_time, const char * sNick)
+BanItem* BanManager::FindNick(const uint32_t ui32Hash, const time_t &acc_time, const char * sNick)
 {
 	const uint16_t ui16dx = CalcHash(ui32Hash);
 	
 	BanItem * cur = NULL,
-	          * next = pNickTable[ui16dx];
+	          * next = m_pNickBanTable[ui16dx];
 	          
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pHashNickTableNext;
+		next = cur->m_pHashNickTableNext;
 		
-		if (cur->ui32NickHash == ui32Hash && strcasecmp(cur->sNick, sNick) == 0)
+		if (cur->m_ui32NickHash == ui32Hash && strcasecmp(cur->m_sNick, sNick) == 0)
 		{
 			// PPK ... check if temban expired
-			if (((cur->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true)
+			if (((cur->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true)
 			{
-				if (acc_time >= cur->tTempBanExpire)
+				if (acc_time >= cur->m_tTempBanExpire)
 				{
 					Rem(cur);
 					delete cur;
@@ -994,42 +994,42 @@ BanItem* clsBanManager::FindNick(const uint32_t ui32Hash, const time_t &acc_time
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindIP(const uint8_t * ui128IpHash, const time_t &acc_time)
+BanItem* BanManager::FindIP(const uint8_t * m_ui128IpHash, const time_t &acc_time)
 {
 	uint16_t ui16IpTableIdx = 0;
 	
-	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)ui128IpHash))
+	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)m_ui128IpHash))
 	{
-		ui16IpTableIdx = ui128IpHash[14] * ui128IpHash[15];
+		ui16IpTableIdx = m_ui128IpHash[14] * m_ui128IpHash[15];
 	}
 	else
 	{
-		ui16IpTableIdx = GetIpTableIdx(ui128IpHash);
+		ui16IpTableIdx = GetIpTableIdx(m_ui128IpHash);
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[ui16IpTableIdx];
+	              * next = m_pIpBanTable[ui16IpTableIdx];
 	              
-	BanItem * curBan = NULL, * nextBan = NULL;
+	BanItem * curBan = NULL, * nextBan = nullptr;
 	
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0)
+		if (memcmp(cur->pFirstBan->m_ui128IpHash, m_ui128IpHash, 16) == 0)
 		{
 			nextBan = cur->pFirstBan;
 			
 			while (nextBan != NULL)
 			{
 				curBan = nextBan;
-				nextBan = curBan->pHashIpTableNext;
+				nextBan = curBan->m_pHashIpTableNext;
 				
 				// PPK ... check if temban expired
-				if (((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true)
+				if (((curBan->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true)
 				{
-					if (acc_time >= curBan->tTempBanExpire)
+					if (acc_time >= curBan->m_tTempBanExpire)
 					{
 						Rem(curBan);
 						delete curBan;
@@ -1047,20 +1047,20 @@ BanItem* clsBanManager::FindIP(const uint8_t * ui128IpHash, const time_t &acc_ti
 }
 //---------------------------------------------------------------------------
 
-RangeBanItem* clsBanManager::FindRange(const uint8_t * ui128IpHash, const time_t &acc_time)
+RangeBanItem* BanManager::FindRange(const uint8_t * m_ui128IpHash, const time_t &acc_time)
 {
 	RangeBanItem * cur = NULL,
-	               * next = pRangeBanListS;
+	               * next = m_pRangeBanListS;
 	               
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
 		// PPK ... check if temban expired
-		if (((cur->ui8Bits & TEMP) == TEMP) == true)
+		if (((cur->m_ui8Bits & TEMP) == TEMP) == true)
 		{
-			if (acc_time >= cur->tTempBanExpire)
+			if (acc_time >= cur->m_tTempBanExpire)
 			{
 				RemRange(cur);
 				delete cur;
@@ -1069,7 +1069,7 @@ RangeBanItem* clsBanManager::FindRange(const uint8_t * ui128IpHash, const time_t
 			}
 		}
 		
-		if (memcmp(cur->ui128FromIpHash, ui128IpHash, 16) <= 0 && memcmp(cur->ui128ToIpHash, ui128IpHash, 16) >= 0)
+		if (memcmp(cur->m_ui128FromIpHash, m_ui128IpHash, 16) <= 0 && memcmp(cur->m_ui128ToIpHash, m_ui128IpHash, 16) >= 0)
 		{
 			return cur;
 		}
@@ -1079,22 +1079,22 @@ RangeBanItem* clsBanManager::FindRange(const uint8_t * ui128IpHash, const time_t
 }
 //---------------------------------------------------------------------------
 
-RangeBanItem* clsBanManager::FindRange(const uint8_t * ui128FromHash, const uint8_t * ui128ToHash, const time_t &acc_time)
+RangeBanItem* BanManager::FindRange(const uint8_t * ui128FromHash, const uint8_t * ui128ToHash, const time_t &acc_time)
 {
 	RangeBanItem * cur = NULL,
-	               * next = pRangeBanListS;
+	               * next = m_pRangeBanListS;
 	               
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->ui128FromIpHash, ui128FromHash, 16) == 0 && memcmp(cur->ui128ToIpHash, ui128ToHash, 16) == 0)
+		if (memcmp(cur->m_ui128FromIpHash, ui128FromHash, 16) == 0 && memcmp(cur->m_ui128ToIpHash, ui128ToHash, 16) == 0)
 		{
 			// PPK ... check if temban expired
-			if (((cur->ui8Bits & TEMP) == TEMP) == true)
+			if (((cur->m_ui8Bits & TEMP) == TEMP) == true)
 			{
-				if (acc_time >= cur->tTempBanExpire)
+				if (acc_time >= cur->m_tTempBanExpire)
 				{
 					RemRange(cur);
 					delete cur;
@@ -1111,7 +1111,7 @@ RangeBanItem* clsBanManager::FindRange(const uint8_t * ui128FromHash, const uint
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindTempNick(const char * sNick, const size_t szNickLen)
+BanItem* BanManager::FindTempNick(const char * sNick, const size_t szNickLen)
 {
 	uint32_t hash = HashNick(sNick, szNickLen);
 	
@@ -1122,24 +1122,24 @@ BanItem* clsBanManager::FindTempNick(const char * sNick, const size_t szNickLen)
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindTempNick(const uint32_t ui32Hash,  const time_t &acc_time, const char * sNick)
+BanItem* BanManager::FindTempNick(const uint32_t ui32Hash,  const time_t &acc_time, const char * sNick)
 {
 	const uint16_t ui16dx = CalcHash(ui32Hash);
 	
 	BanItem * cur = NULL,
-	          * next = pNickTable[ui16dx];
+	          * next = m_pNickBanTable[ui16dx];
 	          
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pHashNickTableNext;
+		next = cur->m_pHashNickTableNext;
 		
-		if (cur->ui32NickHash == ui32Hash && strcasecmp(cur->sNick, sNick) == 0)
+		if (cur->m_ui32NickHash == ui32Hash && strcasecmp(cur->m_sNick, sNick) == 0)
 		{
 			// PPK ... check if temban expired
-			if (((cur->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true)
+			if (((cur->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true)
 			{
-				if (acc_time >= cur->tTempBanExpire)
+				if (acc_time >= cur->m_tTempBanExpire)
 				{
 					Rem(cur);
 					delete cur;
@@ -1155,42 +1155,42 @@ BanItem* clsBanManager::FindTempNick(const uint32_t ui32Hash,  const time_t &acc
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindTempIP(const uint8_t * ui128IpHash, const time_t &acc_time)
+BanItem* BanManager::FindTempIP(const uint8_t * m_ui128IpHash, const time_t &acc_time)
 {
 	uint16_t ui16IpTableIdx = 0;
 	
-	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)ui128IpHash))
+	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)m_ui128IpHash))
 	{
-		ui16IpTableIdx = ui128IpHash[14] * ui128IpHash[15];
+		ui16IpTableIdx = m_ui128IpHash[14] * m_ui128IpHash[15];
 	}
 	else
 	{
-		ui16IpTableIdx = GetIpTableIdx(ui128IpHash);
+		ui16IpTableIdx = GetIpTableIdx(m_ui128IpHash);
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[ui16IpTableIdx];
+	              * next = m_pIpBanTable[ui16IpTableIdx];
 	              
-	BanItem * curBan = NULL, * nextBan = NULL;
+	BanItem * curBan = NULL, * nextBan = nullptr;
 	
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0)
+		if (memcmp(cur->pFirstBan->m_ui128IpHash, m_ui128IpHash, 16) == 0)
 		{
 			nextBan = cur->pFirstBan;
 			
 			while (nextBan != NULL)
 			{
 				curBan = nextBan;
-				nextBan = curBan->pHashIpTableNext;
+				nextBan = curBan->m_pHashIpTableNext;
 				
 				// PPK ... check if temban expired
-				if (((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true)
+				if (((curBan->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true)
 				{
-					if (acc_time >= curBan->tTempBanExpire)
+					if (acc_time >= curBan->m_tTempBanExpire)
 					{
 						Rem(curBan);
 						delete curBan;
@@ -1208,7 +1208,7 @@ BanItem* clsBanManager::FindTempIP(const uint8_t * ui128IpHash, const time_t &ac
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindPermNick(const char * sNick, const size_t szNickLen)
+BanItem* BanManager::FindPermNick(const char * sNick, const size_t szNickLen)
 {
 	uint32_t hash = HashNick(sNick, szNickLen);
 	
@@ -1216,21 +1216,21 @@ BanItem* clsBanManager::FindPermNick(const char * sNick, const size_t szNickLen)
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindPermNick(const uint32_t ui32Hash, const char * sNick)
+BanItem* BanManager::FindPermNick(const uint32_t ui32Hash, const char * sNick)
 {
 	const uint16_t ui16dx = CalcHash(ui32Hash);
 	
 	BanItem * cur = NULL,
-	          * next = pNickTable[ui16dx];
+	          * next = m_pNickBanTable[ui16dx];
 	          
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pHashNickTableNext;
+		next = cur->m_pHashNickTableNext;
 		
-		if (cur->ui32NickHash == ui32Hash && strcasecmp(cur->sNick, sNick) == 0)
+		if (cur->m_ui32NickHash == ui32Hash && strcasecmp(cur->m_sNick, sNick) == 0)
 		{
-			if (((cur->ui8Bits & clsBanManager::PERM) == clsBanManager::PERM) == true)
+			if (((cur->m_ui8Bits & BanManager::PERM) == BanManager::PERM) == true)
 			{
 				return cur;
 			}
@@ -1241,39 +1241,39 @@ BanItem* clsBanManager::FindPermNick(const uint32_t ui32Hash, const char * sNick
 }
 //---------------------------------------------------------------------------
 
-BanItem* clsBanManager::FindPermIP(const uint8_t * ui128IpHash)
+BanItem* BanManager::FindPermIP(const uint8_t * m_ui128IpHash)
 {
 	uint16_t ui16IpTableIdx = 0;
 	
-	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)ui128IpHash))
+	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)m_ui128IpHash))
 	{
-		ui16IpTableIdx = ui128IpHash[14] * ui128IpHash[15];
+		ui16IpTableIdx = m_ui128IpHash[14] * m_ui128IpHash[15];
 	}
 	else
 	{
-		ui16IpTableIdx = GetIpTableIdx(ui128IpHash);
+		ui16IpTableIdx = GetIpTableIdx(m_ui128IpHash);
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[ui16IpTableIdx];
+	              * next = m_pIpBanTable[ui16IpTableIdx];
 	              
-	BanItem * curBan = NULL, * nextBan = NULL;
+	BanItem * curBan = NULL, * nextBan = nullptr;
 	
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0)
+		if (memcmp(cur->pFirstBan->m_ui128IpHash, m_ui128IpHash, 16) == 0)
 		{
 			nextBan = cur->pFirstBan;
 			
 			while (nextBan != NULL)
 			{
 				curBan = nextBan;
-				nextBan = curBan->pHashIpTableNext;
+				nextBan = curBan->m_pHashIpTableNext;
 				
-				if (((curBan->ui8Bits & clsBanManager::PERM) == clsBanManager::PERM) == true)
+				if (((curBan->m_ui8Bits & BanManager::PERM) == BanManager::PERM) == true)
 				{
 					return curBan;
 				}
@@ -1285,13 +1285,13 @@ BanItem* clsBanManager::FindPermIP(const uint8_t * ui128IpHash)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::Load()
+void BanManager::Load()
 {
 #ifdef _WIN32
-	if (FileExist((clsServerManager::sPath + "\\cfg\\Bans.pxb").c_str()) == false)
+	if (FileExist((ServerManager::m_sPath + "\\cfg\\Bans.pxb").c_str()) == false)
 	{
 #else
-	if (FileExist((clsServerManager::sPath + "/cfg/Bans.pxb").c_str()) == false)
+	if (FileExist((ServerManager::m_sPath + "/cfg/Bans.pxb").c_str()) == false)
 	{
 #endif
 		LoadXML();
@@ -1302,10 +1302,10 @@ void clsBanManager::Load()
 	
 	// Open regs file
 #ifdef _WIN32
-	if (pxbBans.OpenFileRead((clsServerManager::sPath + "\\cfg\\Bans.pxb").c_str(), 9) == false)
+	if (pxbBans.OpenFileRead((ServerManager::m_sPath + "\\cfg\\Bans.pxb").c_str(), 9) == false)
 	{
 #else
-	if (pxbBans.OpenFileRead((clsServerManager::sPath + "/cfg/Bans.pxb").c_str(), 9) == false)
+	if (pxbBans.OpenFileRead((ServerManager::m_sPath + "/cfg/Bans.pxb").c_str(), 9) == false)
 	{
 #endif
 		return;
@@ -1322,13 +1322,13 @@ void clsBanManager::Load()
 	}
 	
 	// Check header if we have correct file
-	if (pxbBans.ui16ItemLengths[0] != szPtokaXBansLen || strncmp((char *)pxbBans.pItemDatas[0], sPtokaXBans, szPtokaXBansLen) != 0)
+	if (pxbBans.m_ui16ItemLengths[0] != szPtokaXBansLen || strncmp((char *)pxbBans.m_pItemDatas[0], sPtokaXBans, szPtokaXBansLen) != 0)
 	{
 		return;
 	}
 	
 	{
-		uint32_t ui32FileVersion = ntohl(*((uint32_t *)(pxbBans.pItemDatas[1])));
+		uint32_t ui32FileVersion = ntohl(*((uint32_t *)(pxbBans.m_pItemDatas[1])));
 		
 		if (ui32FileVersion < 1)
 		{
@@ -1346,139 +1346,139 @@ void clsBanManager::Load()
 	
 	while (bSuccess == true)
 	{
-		BanItem * pBan = new(std::nothrow) BanItem();
+		BanItem * pBan = new (std::nothrow) BanItem();
 		if (pBan == NULL)
 		{
-			AppendDebugLog("%s - [MEM] Cannot allocate pBan in clsBanManager::Load\n");
+			AppendDebugLog("%s - [MEM] Cannot allocate pBan in BanManager::Load\n");
 			exit(EXIT_FAILURE);
 		}
 		
 		// Permanent or temporary ban?
-		pBan->ui8Bits |= (((char *)pxbBans.pItemDatas[0])[0] == '0' ? PERM : TEMP);
+		pBan->m_ui8Bits |= (((char *)pxbBans.m_pItemDatas[0])[0] == '0' ? PERM : TEMP);
 		
 		// Do we have some nick?
-		if (pxbBans.ui16ItemLengths[1] != 0)
+		if (pxbBans.m_ui16ItemLengths[1] != 0)
 		{
-			if (pxbBans.ui16ItemLengths[1] > 64)
+			if (pxbBans.m_ui16ItemLengths[1] > 64)
 			{
-				AppendDebugLogFormat("[ERR] sNick too long %hu in clsBanManager::Load\n", pxbBans.ui16ItemLengths[1]);
+				AppendDebugLogFormat("[ERR] sNick too long %hu in BanManager::Load\n", pxbBans.m_ui16ItemLengths[1]);
 				
 				exit(EXIT_FAILURE);
 			}
-			pBan->sNick = (char *)malloc(pxbBans.ui16ItemLengths[1] + 1);
-			if (pBan->sNick == NULL)
+			pBan->m_sNick = (char *)malloc(pxbBans.m_ui16ItemLengths[1] + 1);
+			if (pBan->m_sNick == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sNick in clsBanManager::Load\n", pxbBans.ui16ItemLengths[1] + 1);
+				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sNick in BanManager::Load\n", pxbBans.m_ui16ItemLengths[1] + 1);
 				
 				exit(EXIT_FAILURE);
 			}
 			
-			memcpy(pBan->sNick, pxbBans.pItemDatas[1], pxbBans.ui16ItemLengths[1]);
-			pBan->sNick[pxbBans.ui16ItemLengths[1]] = '\0';
-			pBan->ui32NickHash = HashNick(pBan->sNick, pxbBans.ui16ItemLengths[1]);
+			memcpy(pBan->m_sNick, pxbBans.m_pItemDatas[1], pxbBans.m_ui16ItemLengths[1]);
+			pBan->m_sNick[pxbBans.m_ui16ItemLengths[1]] = '\0';
+			pBan->m_ui32NickHash = HashNick(pBan->m_sNick, pxbBans.m_ui16ItemLengths[1]);
 			
 			// it is nick ban?
-			if (((char *)pxbBans.pItemDatas[2])[0] != '0')
+			if (((char *)pxbBans.m_pItemDatas[2])[0] != '0')
 			{
-				pBan->ui8Bits |= NICK;
+				pBan->m_ui8Bits |= NICK;
 			}
 		}
 		
 		// Do we have some IP address?
-		if (pxbBans.ui16ItemLengths[3] != 0 && IN6_IS_ADDR_UNSPECIFIED((const in6_addr *)pxbBans.pItemDatas[3]) == 0)
+		if (pxbBans.m_ui16ItemLengths[3] != 0 && IN6_IS_ADDR_UNSPECIFIED((const in6_addr *)pxbBans.m_pItemDatas[3]) == 0)
 		{
-			if (pxbBans.ui16ItemLengths[3] != 16)
+			if (pxbBans.m_ui16ItemLengths[3] != 16)
 			{
-				AppendDebugLogFormat("[ERR] Ban IP address have incorrect length %hu in clsBanManager::Load\n", pxbBans.ui16ItemLengths[3]);
+				AppendDebugLogFormat("[ERR] Ban IP address have incorrect length %hu in BanManager::Load\n", pxbBans.m_ui16ItemLengths[3]);
 				
 				exit(EXIT_FAILURE);
 			}
 			
-			memcpy(pBan->ui128IpHash, pxbBans.pItemDatas[3], 16);
+			memcpy(pBan->m_ui128IpHash, pxbBans.m_pItemDatas[3], 16);
 			
-			if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pBan->ui128IpHash))
+			if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pBan->m_ui128IpHash))
 			{
 				in_addr ipv4addr;
-				memcpy(&ipv4addr, pBan->ui128IpHash + 12, 4);
+				memcpy(&ipv4addr, pBan->m_ui128IpHash + 12, 4);
 				pBan->initIP(inet_ntoa(ipv4addr));
 			}
 			else
 			{
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_WIN_IOT)
-				win_inet_ntop(pBan->ui128IpHash, pBan->sIp, 40);
+				win_inet_ntop(pBan->m_ui128IpHash, pBan->m_sIp, 40);
 #else
-				inet_ntop(AF_INET6, pBan->ui128IpHash, pBan->sIp, 40);
+				inet_ntop(AF_INET6, pBan->m_ui128IpHash, pBan->m_sIp, 40);
 #endif
 			}
 			
 			// it is IP ban?
-			if (((char *)pxbBans.pItemDatas[4])[0] != '0')
+			if (((char *)pxbBans.m_pItemDatas[4])[0] != '0')
 			{
-				pBan->ui8Bits |= IP;
+				pBan->m_ui8Bits |= IP;
 			}
 			
 			// it is full ban ?
-			if (((char *)pxbBans.pItemDatas[5])[0] != '0')
+			if (((char *)pxbBans.m_pItemDatas[5])[0] != '0')
 			{
-				pBan->ui8Bits |= FULL;
+				pBan->m_ui8Bits |= FULL;
 			}
 		}
 		
 		// Do we have reason?
-		if (pxbBans.ui16ItemLengths[6] != 0)
+		if (pxbBans.m_ui16ItemLengths[6] != 0)
 		{
-			if (pxbBans.ui16ItemLengths[6] > 511)
+			if (pxbBans.m_ui16ItemLengths[6] > 511)
 			{
-				pxbBans.ui16ItemLengths[6] = 511;
+				pxbBans.m_ui16ItemLengths[6] = 511;
 			}
 			
-			pBan->sReason = (char *)malloc(pxbBans.ui16ItemLengths[6] + 1);
-			if (pBan->sReason == NULL)
+			pBan->m_sReason = (char *)malloc(pxbBans.m_ui16ItemLengths[6] + 1);
+			if (pBan->m_sReason == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sReason in clsBanManager::Load\n", pxbBans.ui16ItemLengths[6] + 1);
+				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sReason in BanManager::Load\n", pxbBans.m_ui16ItemLengths[6] + 1);
 				
 				exit(EXIT_FAILURE);
 			}
 			
-			memcpy(pBan->sReason, pxbBans.pItemDatas[6], pxbBans.ui16ItemLengths[6]);
-			pBan->sReason[pxbBans.ui16ItemLengths[6]] = '\0';
+			memcpy(pBan->m_sReason, pxbBans.m_pItemDatas[6], pxbBans.m_ui16ItemLengths[6]);
+			pBan->m_sReason[pxbBans.m_ui16ItemLengths[6]] = '\0';
 		}
 		
 		// Do we have who created ban?
-		if (pxbBans.ui16ItemLengths[7] != 0)
+		if (pxbBans.m_ui16ItemLengths[7] != 0)
 		{
-			if (pxbBans.ui16ItemLengths[7] > 64)
+			if (pxbBans.m_ui16ItemLengths[7] > 64)
 			{
-				pxbBans.ui16ItemLengths[7] = 64;
+				pxbBans.m_ui16ItemLengths[7] = 64;
 			}
 			
-			pBan->sBy = (char *)malloc(pxbBans.ui16ItemLengths[7] + 1);
-			if (pBan->sBy == NULL)
+			pBan->m_sBy = (char *)malloc(pxbBans.m_ui16ItemLengths[7] + 1);
+			if (pBan->m_sBy == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sBy in clsBanManager::Load\n", pxbBans.ui16ItemLengths[7] + 1);
+				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sBy in BanManager::Load\n", pxbBans.m_ui16ItemLengths[7] + 1);
 				
 				exit(EXIT_FAILURE);
 			}
 			
-			memcpy(pBan->sBy, pxbBans.pItemDatas[7], pxbBans.ui16ItemLengths[7]);
-			pBan->sBy[pxbBans.ui16ItemLengths[7]] = '\0';
+			memcpy(pBan->m_sBy, pxbBans.m_pItemDatas[7], pxbBans.m_ui16ItemLengths[7]);
+			pBan->m_sBy[pxbBans.m_ui16ItemLengths[7]] = '\0';
 		}
 		
 		// it is temporary ban?
-		if (((pBan->ui8Bits & TEMP) == TEMP) == true)
+		if (((pBan->m_ui8Bits & TEMP) == TEMP) == true)
 		{
-			if (pxbBans.ui16ItemLengths[8] != 8)
+			if (pxbBans.m_ui16ItemLengths[8] != 8)
 			{
-				AppendDebugLogFormat("[ERR] Temp ban expire time have incorrect length %hu in clsBanManager::Load\n", pxbBans.ui16ItemLengths[8]);
+				AppendDebugLogFormat("[ERR] Temp ban expire time have incorrect length %hu in BanManager::Load\n", pxbBans.m_ui16ItemLengths[8]);
 				
 				exit(EXIT_FAILURE);
 			}
 			else
 			{
 				// Temporary ban expiration datetime
-				pBan->tTempBanExpire = (time_t)be64toh(*((uint64_t *)(pxbBans.pItemDatas[8])));
+				pBan->m_tTempBanExpire = (time_t)be64toh(*((uint64_t *)(pxbBans.m_pItemDatas[8])));
 				
-				if (tmAccTime >= pBan->tTempBanExpire)
+				if (tmAccTime >= pBan->m_tTempBanExpire)
 				{
 					delete pBan;
 				}
@@ -1486,7 +1486,7 @@ void clsBanManager::Load()
 				{
 					if (Add(pBan) == false)
 					{
-						AppendDebugLog("%s [ERR] Add ban failed in clsBanManager::Load\n");
+						AppendDebugLog("%s [ERR] Add ban failed in BanManager::Load\n");
 						
 						exit(EXIT_FAILURE);
 					}
@@ -1497,7 +1497,7 @@ void clsBanManager::Load()
 		{
 			if (Add(pBan) == false)
 			{
-				AppendDebugLog("%s [ERR] Add2 ban failed in clsBanManager::Load\n");
+				AppendDebugLog("%s [ERR] Add2 ban failed in BanManager::Load\n");
 				
 				exit(EXIT_FAILURE);
 			}
@@ -1510,10 +1510,10 @@ void clsBanManager::Load()
 	
 	// Open regs file
 #ifdef _WIN32
-	if (pxbRangeBans.OpenFileRead((clsServerManager::sPath + "\\cfg\\RangeBans.pxb").c_str(), 7) == false)
+	if (pxbRangeBans.OpenFileRead((ServerManager::m_sPath + "\\cfg\\RangeBans.pxb").c_str(), 7) == false)
 	{
 #else
-	if (pxbRangeBans.OpenFileRead((clsServerManager::sPath + "/cfg/RangeBans.pxb").c_str(), 7) == false)
+	if (pxbRangeBans.OpenFileRead((ServerManager::m_sPath + "/cfg/RangeBans.pxb").c_str(), 7) == false)
 	{
 #endif
 		return;
@@ -1529,13 +1529,13 @@ void clsBanManager::Load()
 	}
 	
 	// Check header if we have correct file
-	if (pxbRangeBans.ui16ItemLengths[0] != szPtokaXRangeBansLen || strncmp((char *)pxbRangeBans.pItemDatas[0], sPtokaXRangeBans, szPtokaXRangeBansLen) != 0)
+	if (pxbRangeBans.m_ui16ItemLengths[0] != szPtokaXRangeBansLen || strncmp((char *)pxbRangeBans.m_pItemDatas[0], sPtokaXRangeBans, szPtokaXRangeBansLen) != 0)
 	{
 		return;
 	}
 	
 	{
-		uint32_t ui32FileVersion = ntohl(*((uint32_t *)(pxbRangeBans.pItemDatas[1])));
+		uint32_t ui32FileVersion = ntohl(*((uint32_t *)(pxbRangeBans.m_pItemDatas[1])));
 		
 		if (ui32FileVersion < 1)
 		{
@@ -1550,127 +1550,127 @@ void clsBanManager::Load()
 	
 	while (bSuccess == true)
 	{
-		RangeBanItem * pRangeBan = new(std::nothrow) RangeBanItem();
+		RangeBanItem * pRangeBan = new (std::nothrow) RangeBanItem();
 		if (pRangeBan == NULL)
 		{
-			AppendDebugLog("%s - [MEM] Cannot allocate pRangeBan in clsBanManager::Load\n");
+			AppendDebugLog("%s - [MEM] Cannot allocate pRangeBan in BanManager::Load\n");
 			exit(EXIT_FAILURE);
 		}
 		
 		// Permanent or temporary ban?
-		pRangeBan->ui8Bits |= (((char *)pxbRangeBans.pItemDatas[0])[0] == '0' ? PERM : TEMP);
+		pRangeBan->m_ui8Bits |= (((char *)pxbRangeBans.m_pItemDatas[0])[0] == '0' ? PERM : TEMP);
 		
 		// Do we have first IP address?
-		if (pxbRangeBans.ui16ItemLengths[1] != 16)
+		if (pxbRangeBans.m_ui16ItemLengths[1] != 16)
 		{
-			AppendDebugLogFormat("[ERR] Range Ban first IP address have incorrect length %hu in clsBanManager::Load\n", pxbBans.ui16ItemLengths[1]);
+			AppendDebugLogFormat("[ERR] Range Ban first IP address have incorrect length %hu in BanManager::Load\n", pxbBans.m_ui16ItemLengths[1]);
 			
 			exit(EXIT_FAILURE);
 		}
 		
-		memcpy(pRangeBan->ui128FromIpHash, pxbRangeBans.pItemDatas[1], 16);
+		memcpy(pRangeBan->m_ui128FromIpHash, pxbRangeBans.m_pItemDatas[1], 16);
 		
-		if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pRangeBan->ui128FromIpHash.data()))
+		if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pRangeBan->m_ui128FromIpHash.data()))
 		{
 			in_addr ipv4addr;
-			memcpy(&ipv4addr, pRangeBan->ui128FromIpHash + 12, 4);
-			strcpy(pRangeBan->sIpFrom, inet_ntoa(ipv4addr));
+			memcpy(&ipv4addr, pRangeBan->m_ui128FromIpHash + 12, 4);
+			strcpy(pRangeBan->m_sIpFrom, inet_ntoa(ipv4addr));
 		}
 		else
 		{
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_WIN_IOT)
-			win_inet_ntop(pRangeBan->ui128FromIpHash, pRangeBan->sIpFrom, 40);
+			win_inet_ntop(pRangeBan->m_ui128FromIpHash, pRangeBan->m_sIpFrom, 40);
 #else
-			inet_ntop(AF_INET6, pRangeBan->ui128FromIpHash, pRangeBan->sIpFrom, 40);
+			inet_ntop(AF_INET6, pRangeBan->m_ui128FromIpHash, pRangeBan->m_sIpFrom, 40);
 #endif
 		}
 		
 		// Do we have second IP address?
-		if (pxbRangeBans.ui16ItemLengths[2] != 16)
+		if (pxbRangeBans.m_ui16ItemLengths[2] != 16)
 		{
-			AppendDebugLogFormat("[ERR] Range Ban second IP address have incorrect length %hu in clsBanManager::Load\n", pxbBans.ui16ItemLengths[2]);
+			AppendDebugLogFormat("[ERR] Range Ban second IP address have incorrect length %hu in BanManager::Load\n", pxbBans.m_ui16ItemLengths[2]);
 			
 			exit(EXIT_FAILURE);
 		}
 		
-		memcpy(pRangeBan->ui128ToIpHash, pxbRangeBans.pItemDatas[2], 16);
+		memcpy(pRangeBan->m_ui128ToIpHash, pxbRangeBans.m_pItemDatas[2], 16);
 		
-		if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pRangeBan->ui128ToIpHash.data()))
+		if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)pRangeBan->m_ui128ToIpHash.data()))
 		{
 			in_addr ipv4addr;
-			memcpy(&ipv4addr, pRangeBan->ui128ToIpHash + 12, 4);
-			strcpy(pRangeBan->sIpTo, inet_ntoa(ipv4addr));
+			memcpy(&ipv4addr, pRangeBan->m_ui128ToIpHash + 12, 4);
+			strcpy(pRangeBan->m_sIpTo, inet_ntoa(ipv4addr));
 		}
 		else
 		{
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_WIN_IOT)
-			win_inet_ntop(pRangeBan->ui128ToIpHash, pRangeBan->sIpTo, 40);
+			win_inet_ntop(pRangeBan->m_ui128ToIpHash, pRangeBan->m_sIpTo, 40);
 #else
-			inet_ntop(AF_INET6, pRangeBan->ui128ToIpHash, pRangeBan->sIpTo, 40);
+			inet_ntop(AF_INET6, pRangeBan->m_ui128ToIpHash, pRangeBan->m_sIpTo, 40);
 #endif
 		}
 		
 		// it is full ban ?
-		if (((char *)pxbRangeBans.pItemDatas[3])[0] != '0')
+		if (((char *)pxbRangeBans.m_pItemDatas[3])[0] != '0')
 		{
-			pRangeBan->ui8Bits |= FULL;
+			pRangeBan->m_ui8Bits |= FULL;
 		}
 		
 		// Do we have reason?
-		if (pxbRangeBans.ui16ItemLengths[4] != 0)
+		if (pxbRangeBans.m_ui16ItemLengths[4] != 0)
 		{
-			if (pxbRangeBans.ui16ItemLengths[4] > 511)
+			if (pxbRangeBans.m_ui16ItemLengths[4] > 511)
 			{
-				pxbRangeBans.ui16ItemLengths[4] = 511;
+				pxbRangeBans.m_ui16ItemLengths[4] = 511;
 			}
 			
-			pRangeBan->sReason = (char *)malloc(pxbRangeBans.ui16ItemLengths[4] + 1);
-			if (pRangeBan->sReason == NULL)
+			pRangeBan->m_sReason = (char *)malloc(pxbRangeBans.m_ui16ItemLengths[4] + 1);
+			if (pRangeBan->m_sReason == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sReason2 in clsBanManager::Load\n", pxbRangeBans.ui16ItemLengths[4] + 1);
+				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sReason2 in BanManager::Load\n", pxbRangeBans.m_ui16ItemLengths[4] + 1);
 				
 				exit(EXIT_FAILURE);
 			}
 			
-			memcpy(pRangeBan->sReason, pxbRangeBans.pItemDatas[4], pxbRangeBans.ui16ItemLengths[4]);
-			pRangeBan->sReason[pxbRangeBans.ui16ItemLengths[4]] = '\0';
+			memcpy(pRangeBan->m_sReason, pxbRangeBans.m_pItemDatas[4], pxbRangeBans.m_ui16ItemLengths[4]);
+			pRangeBan->m_sReason[pxbRangeBans.m_ui16ItemLengths[4]] = '\0';
 		}
 		
 		// Do we have who created ban?
-		if (pxbRangeBans.ui16ItemLengths[5] != 0)
+		if (pxbRangeBans.m_ui16ItemLengths[5] != 0)
 		{
-			if (pxbRangeBans.ui16ItemLengths[5] > 64)
+			if (pxbRangeBans.m_ui16ItemLengths[5] > 64)
 			{
-				pxbRangeBans.ui16ItemLengths[5] = 64;
+				pxbRangeBans.m_ui16ItemLengths[5] = 64;
 			}
 			
-			pRangeBan->sBy = (char *)malloc(pxbRangeBans.ui16ItemLengths[5] + 1);
-			if (pRangeBan->sBy == NULL)
+			pRangeBan->m_sBy = (char *)malloc(pxbRangeBans.m_ui16ItemLengths[5] + 1);
+			if (pRangeBan->m_sBy == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sBy2 in clsBanManager::Load\n", pxbRangeBans.ui16ItemLengths[5] + 1);
+				AppendDebugLogFormat("[MEM] Cannot allocate %hu bytes for sBy2 in BanManager::Load\n", pxbRangeBans.m_ui16ItemLengths[5] + 1);
 				
 				exit(EXIT_FAILURE);
 			}
 			
-			memcpy(pRangeBan->sBy, pxbRangeBans.pItemDatas[5], pxbRangeBans.ui16ItemLengths[5]);
-			pRangeBan->sBy[pxbRangeBans.ui16ItemLengths[5]] = '\0';
+			memcpy(pRangeBan->m_sBy, pxbRangeBans.m_pItemDatas[5], pxbRangeBans.m_ui16ItemLengths[5]);
+			pRangeBan->m_sBy[pxbRangeBans.m_ui16ItemLengths[5]] = '\0';
 		}
 		
 		// it is temporary ban?
-		if (((pRangeBan->ui8Bits & TEMP) == TEMP) == true)
+		if (((pRangeBan->m_ui8Bits & TEMP) == TEMP) == true)
 		{
-			if (pxbRangeBans.ui16ItemLengths[6] != 8)
+			if (pxbRangeBans.m_ui16ItemLengths[6] != 8)
 			{
-				AppendDebugLogFormat("[ERR] Temp range ban expire time have incorrect lenght %hu in clsBanManager::Load\n", pxbRangeBans.ui16ItemLengths[6]);
+				AppendDebugLogFormat("[ERR] Temp range ban expire time have incorrect lenght %hu in BanManager::Load\n", pxbRangeBans.m_ui16ItemLengths[6]);
 				
 				exit(EXIT_FAILURE);
 			}
 			else
 			{
 				// Temporary ban expiration datetime
-				pRangeBan->tTempBanExpire = (time_t)be64toh(*((uint64_t *)(pxbRangeBans.pItemDatas[6])));
+				pRangeBan->m_tTempBanExpire = (time_t)be64toh(*((uint64_t *)(pxbRangeBans.m_pItemDatas[6])));
 				
-				if (tmAccTime >= pRangeBan->tTempBanExpire)
+				if (tmAccTime >= pRangeBan->m_tTempBanExpire)
 				{
 					delete pRangeBan;
 				}
@@ -1691,27 +1691,29 @@ void clsBanManager::Load()
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::LoadXML()
+void BanManager::LoadXML()
 {
 	double dVer;
 	
 #ifdef _WIN32
-	TiXmlDocument doc((clsServerManager::sPath + "\\cfg\\BanList.xml").c_str());
+	TiXmlDocument doc((ServerManager::m_sPath + "\\cfg\\BanList.xml").c_str());
 #else
-	TiXmlDocument doc((clsServerManager::sPath + "/cfg/BanList.xml").c_str());
+	TiXmlDocument doc((ServerManager::m_sPath + "/cfg/BanList.xml").c_str());
 #endif
 	
 	if (doc.LoadFile() == false)
 	{
 		if (doc.ErrorId() != TiXmlBase::TIXML_ERROR_OPENING_FILE && doc.ErrorId() != TiXmlBase::TIXML_ERROR_DOCUMENT_EMPTY)
 		{
-			int imsgLen = sprintf(clsServerManager::pGlobalBuffer, "Error loading file BanList.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
-			CheckSprintf(imsgLen, clsServerManager::szGlobalBufferSize, "clsBanManager::LoadXML");
+			int iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "Error loading file BanList.xml. %s (Col: %d, Row: %d)", doc.ErrorDesc(), doc.Column(), doc.Row());
+			if (iMsgLen > 0)
+			{
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, clsServerManager::pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-			AppendLog(clsServerManager::pGlobalBuffer);
+			AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
+			}
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -1732,10 +1734,10 @@ void clsBanManager::LoadXML()
 			TiXmlNode *bans = banlist->FirstChild("Bans");
 			if (bans != NULL)
 			{
-				TiXmlNode *child = NULL;
+				TiXmlNode *child = nullptr;
 				while ((child = bans->IterateChildren(child)) != NULL)
 				{
-					const char *ip = NULL, *nick = NULL, *reason = NULL, *by = NULL;
+					const char *ip = NULL, *nick = NULL, *reason = NULL, *by = nullptr;
 					TiXmlNode *ban = child->FirstChild("Type");
 					
 					if (ban == NULL || (ban = ban->FirstChild()) == NULL)
@@ -1793,33 +1795,33 @@ void clsBanManager::LoadXML()
 					
 					bool fullipban = (atoi(ban->Value()) == 0 ? false : true);
 					
-					BanItem * Ban = new(std::nothrow) BanItem();
+					BanItem * Ban = new (std::nothrow) BanItem();
 					if (Ban == NULL)
 					{
-						AppendDebugLog("%s - [MEM] Cannot allocate Ban in clsBanManager::LoadXML\n");
+						AppendDebugLog("%s - [MEM] Cannot allocate Ban in BanManager::LoadXML\n");
 						exit(EXIT_FAILURE);
 					}
 					
 					if (type == 0)
 					{
-						Ban->ui8Bits |= PERM;
+						Ban->m_ui8Bits |= PERM;
 					}
 					else
 					{
-						Ban->ui8Bits |= TEMP;
+						Ban->m_ui8Bits |= TEMP;
 					}
 					
 					// PPK ... ipban
 					if (ipban == true)
 					{
-						if (ip != NULL && HashIP(ip, Ban->ui128IpHash) == true)
+						if (ip != NULL && HashIP(ip, Ban->m_ui128IpHash) == true)
 						{
-							strcpy(Ban->sIp, ip);
-							Ban->ui8Bits |= IP;
+							strcpy(Ban->m_sIp, ip);
+							Ban->m_ui8Bits |= IP;
 							
 							if (fullipban == true)
 							{
-								Ban->ui8Bits |= FULL;
+								Ban->m_ui8Bits |= FULL;
 							}
 						}
 						else
@@ -1836,18 +1838,18 @@ void clsBanManager::LoadXML()
 						if (nick != NULL)
 						{
 							size_t szNickLen = strlen(nick);
-							Ban->sNick = (char *)malloc(szNickLen + 1);
-							if (Ban->sNick == NULL)
+							Ban->m_sNick = (char *)malloc(szNickLen + 1);
+							if (Ban->m_sNick == NULL)
 							{
-								AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsBanManager::LoadXML\n", (uint64_t)(szNickLen + 1));
+								AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in BanManager::LoadXML\n", (uint64_t)(szNickLen + 1));
 								
 								exit(EXIT_FAILURE);
 							}
 							
-							memcpy(Ban->sNick, nick, szNickLen);
-							Ban->sNick[szNickLen] = '\0';
-							Ban->ui32NickHash = HashNick(Ban->sNick, strlen(Ban->sNick));
-							Ban->ui8Bits |= NICK;
+							memcpy(Ban->m_sNick, nick, szNickLen);
+							Ban->m_sNick[szNickLen] = '\0';
+							Ban->m_ui32NickHash = HashNick(Ban->m_sNick, strlen(Ban->m_sNick));
+							Ban->m_ui8Bits |= NICK;
 						}
 						else
 						{
@@ -1864,16 +1866,16 @@ void clsBanManager::LoadXML()
 						{
 							szReasonLen = 255;
 						}
-						Ban->sReason = (char *)malloc(szReasonLen + 1);
-						if (Ban->sReason == NULL)
+						Ban->m_sReason = (char *)malloc(szReasonLen + 1);
+						if (Ban->m_sReason == NULL)
 						{
-							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::LoadXML\n", (uint64_t)(szReasonLen + 1));
+							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in BanManager::LoadXML\n", (uint64_t)(szReasonLen + 1));
 							
 							exit(EXIT_FAILURE);
 						}
 						
-						memcpy(Ban->sReason, reason, szReasonLen);
-						Ban->sReason[szReasonLen] = '\0';
+						memcpy(Ban->m_sReason, reason, szReasonLen);
+						Ban->m_sReason[szReasonLen] = '\0';
 					}
 					
 					if (by != NULL)
@@ -1883,19 +1885,19 @@ void clsBanManager::LoadXML()
 						{
 							szByLen = 63;
 						}
-						Ban->sBy = (char *)malloc(szByLen + 1);
-						if (Ban->sBy == NULL)
+						Ban->m_sBy = (char *)malloc(szByLen + 1);
+						if (Ban->m_sBy == NULL)
 						{
-							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy1 in clsBanManager::LoadXML\n", (uint64_t)(szByLen + 1));
+							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy1 in BanManager::LoadXML\n", (uint64_t)(szByLen + 1));
 							exit(EXIT_FAILURE);
 						}
 						
-						memcpy(Ban->sBy, by, szByLen);
-						Ban->sBy[szByLen] = '\0';
+						memcpy(Ban->m_sBy, by, szByLen);
+						Ban->m_sBy[szByLen] = '\0';
 					}
 					
 					// PPK ... temp ban
-					if (((Ban->ui8Bits & TEMP) == TEMP) == true)
+					if (((Ban->m_ui8Bits & TEMP) == TEMP) == true)
 					{
 						if ((ban = child->FirstChild("Expire")) == NULL ||
 						        (ban = ban->FirstChild()) == NULL)
@@ -1914,12 +1916,12 @@ void clsBanManager::LoadXML()
 						}
 						
 						// PPK ... temp ban expiration
-						Ban->tTempBanExpire = expire;
+						Ban->m_tTempBanExpire = expire;
 					}
 					
 					if (fullipban == true)
 					{
-						Ban->ui8Bits |= FULL;
+						Ban->m_ui8Bits |= FULL;
 					}
 					
 					if (Add(Ban) == false)
@@ -1932,10 +1934,10 @@ void clsBanManager::LoadXML()
 			TiXmlNode *rangebans = banlist->FirstChild("RangeBans");
 			if (rangebans != NULL)
 			{
-				TiXmlNode *child = NULL;
+				TiXmlNode *child = nullptr;
 				while ((child = rangebans->IterateChildren(child)) != NULL)
 				{
-					const char *reason = NULL, *by = NULL;
+					const char *reason = NULL, *by = nullptr;
 					TiXmlNode *rangeban = child->FirstChild("Type");
 					
 					if (rangeban == NULL ||
@@ -1982,26 +1984,26 @@ void clsBanManager::LoadXML()
 					
 					bool fullipban = (atoi(rangeban->Value()) == 0 ? false : true);
 					
-					RangeBanItem * RangeBan = new(std::nothrow) RangeBanItem();
+					RangeBanItem * RangeBan = new (std::nothrow) RangeBanItem();
 					if (RangeBan == NULL)
 					{
-						AppendDebugLog("%s - [MEM] Cannot allocate RangeBan in clsBanManager::LoadXML\n");
+						AppendDebugLog("%s - [MEM] Cannot allocate RangeBan in BanManager::LoadXML\n");
 						exit(EXIT_FAILURE);
 					}
 					
 					if (type == 0)
 					{
-						RangeBan->ui8Bits |= PERM;
+						RangeBan->m_ui8Bits |= PERM;
 					}
 					else
 					{
-						RangeBan->ui8Bits |= TEMP;
+						RangeBan->m_ui8Bits |= TEMP;
 					}
 					
 					// PPK ... fromip
-					if (HashIP(ipfrom, RangeBan->ui128FromIpHash) == true)
+					if (HashIP(ipfrom, RangeBan->m_ui128FromIpHash) == true)
 					{
-						strcpy(RangeBan->sIpFrom, ipfrom);
+						strcpy(RangeBan->m_sIpFrom, ipfrom);
 					}
 					else
 					{
@@ -2011,9 +2013,9 @@ void clsBanManager::LoadXML()
 					}
 					
 					// PPK ... toip
-					if (HashIP(ipto, RangeBan->ui128ToIpHash) == true && memcmp(RangeBan->ui128ToIpHash, RangeBan->ui128FromIpHash, 16) > 0)
+					if (HashIP(ipto, RangeBan->m_ui128ToIpHash) == true && memcmp(RangeBan->m_ui128ToIpHash, RangeBan->m_ui128FromIpHash, 16) > 0)
 					{
-						strcpy(RangeBan->sIpTo, ipto);
+						strcpy(RangeBan->m_sIpTo, ipto);
 					}
 					else
 					{
@@ -2029,15 +2031,15 @@ void clsBanManager::LoadXML()
 						{
 							szReasonLen = 255;
 						}
-						RangeBan->sReason = (char *)malloc(szReasonLen + 1);
-						if (RangeBan->sReason == NULL)
+						RangeBan->m_sReason = (char *)malloc(szReasonLen + 1);
+						if (RangeBan->m_sReason == NULL)
 						{
-							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason3 in clsBanManager::LoadXML\n", (uint64_t)(szReasonLen + 1));
+							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason3 in BanManager::LoadXML\n", (uint64_t)(szReasonLen + 1));
 							exit(EXIT_FAILURE);
 						}
 						
-						memcpy(RangeBan->sReason, reason, szReasonLen);
-						RangeBan->sReason[szReasonLen] = '\0';
+						memcpy(RangeBan->m_sReason, reason, szReasonLen);
+						RangeBan->m_sReason[szReasonLen] = '\0';
 					}
 					
 					if (by != NULL)
@@ -2047,19 +2049,19 @@ void clsBanManager::LoadXML()
 						{
 							szByLen = 63;
 						}
-						RangeBan->sBy = (char *)malloc(szByLen + 1);
-						if (RangeBan->sBy == NULL)
+						RangeBan->m_sBy = (char *)malloc(szByLen + 1);
+						if (RangeBan->m_sBy == NULL)
 						{
-							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy3 in clsBanManager::LoadXML\n", (uint64_t)(szByLen + 1));
+							AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy3 in BanManager::LoadXML\n", (uint64_t)(szByLen + 1));
 							exit(EXIT_FAILURE);
 						}
 						
-						memcpy(RangeBan->sBy, by, szByLen);
-						RangeBan->sBy[szByLen] = '\0';
+						memcpy(RangeBan->m_sBy, by, szByLen);
+						RangeBan->m_sBy[szByLen] = '\0';
 					}
 					
 					// PPK ... temp ban
-					if (((RangeBan->ui8Bits & TEMP) == TEMP) == true)
+					if (((RangeBan->m_ui8Bits & TEMP) == TEMP) == true)
 					{
 						if ((rangeban = child->FirstChild("Expire")) == NULL ||
 						        (rangeban = rangeban->FirstChild()) == NULL)
@@ -2077,12 +2079,12 @@ void clsBanManager::LoadXML()
 						}
 						
 						// PPK ... temp ban expiration
-						RangeBan->tTempBanExpire = expire;
+						RangeBan->m_tTempBanExpire = expire;
 					}
 					
 					if (fullipban == true)
 					{
-						RangeBan->ui8Bits |= FULL;
+						RangeBan->m_ui8Bits |= FULL;
 					}
 					
 					AddRange(RangeBan);
@@ -2093,46 +2095,46 @@ void clsBanManager::LoadXML()
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::Save(bool bForce/* = false*/)
+void BanManager::Save(bool bForce/* = false*/)
 {
 	if (bForce == false)
 	{
 		// we don't want waste resources with save after every change in bans
-		if (ui32SaveCalled < 100)
+		if (m_ui32SaveCalled < 100)
 		{
-			ui32SaveCalled++;
+			m_ui32SaveCalled++;
 			return;
 		}
 	}
 	
-	ui32SaveCalled = 0;
+	m_ui32SaveCalled = 0;
 	
 	PXBReader pxbBans;
 	
 	// Open bans file
 #ifdef _WIN32
-	if (pxbBans.OpenFileSave((clsServerManager::sPath + "\\cfg\\Bans.pxb").c_str(), 9) == false)
+	if (pxbBans.OpenFileSave((ServerManager::m_sPath + "\\cfg\\Bans.pxb").c_str(), 9) == false)
 	{
 #else
-	if (pxbBans.OpenFileSave((clsServerManager::sPath + "/cfg/Bans.pxb").c_str(), 9) == false)
+	if (pxbBans.OpenFileSave((ServerManager::m_sPath + "/cfg/Bans.pxb").c_str(), 9) == false)
 	{
 #endif
 		return;
 	}
 	
 	// Write file header
-	pxbBans.sItemIdentifiers[0] = 'F';
-	pxbBans.sItemIdentifiers[1] = 'I';
-	pxbBans.ui16ItemLengths[0] = (uint16_t)szPtokaXBansLen;
-	pxbBans.pItemDatas[0] = (void *)sPtokaXBans;
-	pxbBans.ui8ItemValues[0] = PXBReader::PXB_STRING;
+	pxbBans.m_sItemIdentifiers[0] = 'F';
+	pxbBans.m_sItemIdentifiers[1] = 'I';
+	pxbBans.m_ui16ItemLengths[0] = (uint16_t)szPtokaXBansLen;
+	pxbBans.m_pItemDatas[0] = (void *)sPtokaXBans;
+	pxbBans.m_ui8ItemValues[0] = PXBReader::PXB_STRING;
 	
-	pxbBans.sItemIdentifiers[2] = 'F';
-	pxbBans.sItemIdentifiers[3] = 'V';
-	pxbBans.ui16ItemLengths[1] = 4;
+	pxbBans.m_sItemIdentifiers[2] = 'F';
+	pxbBans.m_sItemIdentifiers[3] = 'V';
+	pxbBans.m_ui16ItemLengths[1] = 4;
 	uint32_t ui32Version = 1;
-	pxbBans.pItemDatas[1] = (void *)&ui32Version;
-	pxbBans.ui8ItemValues[1] = PXBReader::PXB_FOUR_BYTES;
+	pxbBans.m_pItemDatas[1] = (void *)&ui32Version;
+	pxbBans.m_ui8ItemValues[1] = PXBReader::PXB_FOUR_BYTES;
 	
 	if (pxbBans.WriteNextItem(szPtokaXBansLen + 4, 2) == false)
 	{
@@ -2140,104 +2142,104 @@ void clsBanManager::Save(bool bForce/* = false*/)
 	}
 	
 	// "BT" "NI" "NB" "IP" "IB" "FB" "RE" "BY" "EX"
-	memcpy(pxbBans.sItemIdentifiers, sBanIds, szBanIdsLen);
+	memcpy(pxbBans.m_sItemIdentifiers, sBanIds, szBanIdsLen);
 	
-	pxbBans.ui8ItemValues[0] = PXBReader::PXB_BYTE;
-	pxbBans.ui8ItemValues[1] = PXBReader::PXB_STRING;
-	pxbBans.ui8ItemValues[2] = PXBReader::PXB_BYTE;
-	pxbBans.ui8ItemValues[3] = PXBReader::PXB_STRING;
-	pxbBans.ui8ItemValues[4] = PXBReader::PXB_BYTE;
-	pxbBans.ui8ItemValues[5] = PXBReader::PXB_BYTE;
-	pxbBans.ui8ItemValues[6] = PXBReader::PXB_STRING;
-	pxbBans.ui8ItemValues[7] = PXBReader::PXB_STRING;
-	pxbBans.ui8ItemValues[8] = PXBReader::PXB_EIGHT_BYTES;
+	pxbBans.m_ui8ItemValues[0] = PXBReader::PXB_BYTE;
+	pxbBans.m_ui8ItemValues[1] = PXBReader::PXB_STRING;
+	pxbBans.m_ui8ItemValues[2] = PXBReader::PXB_BYTE;
+	pxbBans.m_ui8ItemValues[3] = PXBReader::PXB_STRING;
+	pxbBans.m_ui8ItemValues[4] = PXBReader::PXB_BYTE;
+	pxbBans.m_ui8ItemValues[5] = PXBReader::PXB_BYTE;
+	pxbBans.m_ui8ItemValues[6] = PXBReader::PXB_STRING;
+	pxbBans.m_ui8ItemValues[7] = PXBReader::PXB_STRING;
+	pxbBans.m_ui8ItemValues[8] = PXBReader::PXB_EIGHT_BYTES;
 	
 	uint64_t ui64TempBanExpire = 0;
 	
-	if (pTempBanListS != NULL)
+	if (m_pTempBanListS != NULL)
 	{
 		BanItem * pCur = NULL,
-		          * pNext = pTempBanListS;
+		          * m_pNext = m_pTempBanListS;
 		          
-		while (pNext != NULL)
+		while (m_pNext != NULL)
 		{
-			pCur = pNext;
-			pNext = pCur->pNext;
+			pCur = m_pNext;
+			m_pNext = pCur->m_pNext;
 			
-			pxbBans.ui16ItemLengths[0] = 1;
-			pxbBans.pItemDatas[0] = (((pCur->ui8Bits & PERM) == PERM) == true ? 0 : (void *)1);
+			pxbBans.m_ui16ItemLengths[0] = 1;
+			pxbBans.m_pItemDatas[0] = (((pCur->m_ui8Bits & PERM) == PERM) == true ? 0 : (void *)1);
 			
-			pxbBans.ui16ItemLengths[1] = pCur->sNick == NULL ? 0 : (uint16_t)strlen(pCur->sNick);
-			pxbBans.pItemDatas[1] = pCur->sNick == NULL ? (void *)"" : (void *)pCur->sNick;
+			pxbBans.m_ui16ItemLengths[1] = pCur->m_sNick == NULL ? 0 : (uint16_t)strlen(pCur->m_sNick);
+			pxbBans.m_pItemDatas[1] = pCur->m_sNick == NULL ? (void *)"" : (void *)pCur->m_sNick;
 			
-			pxbBans.ui16ItemLengths[2] = 1;
-			pxbBans.pItemDatas[2] = (((pCur->ui8Bits & NICK) == NICK) == true ? (void *)1 : 0);
+			pxbBans.m_ui16ItemLengths[2] = 1;
+			pxbBans.m_pItemDatas[2] = (((pCur->m_ui8Bits & NICK) == NICK) == true ? (void *)1 : 0);
 			
-			pxbBans.ui16ItemLengths[3] = 16;
-			pxbBans.pItemDatas[3] = (void *)pCur->ui128IpHash;
+			pxbBans.m_ui16ItemLengths[3] = 16;
+			pxbBans.m_pItemDatas[3] = (void *)pCur->m_ui128IpHash;
 			
-			pxbBans.ui16ItemLengths[4] = 1;
-			pxbBans.pItemDatas[4] = (((pCur->ui8Bits & IP) == IP) == true ? (void *)1 : 0);
+			pxbBans.m_ui16ItemLengths[4] = 1;
+			pxbBans.m_pItemDatas[4] = (((pCur->m_ui8Bits & IP) == IP) == true ? (void *)1 : 0);
 			
-			pxbBans.ui16ItemLengths[5] = 1;
-			pxbBans.pItemDatas[5] = (((pCur->ui8Bits & FULL) == FULL) == true ? (void *)1 : 0);
+			pxbBans.m_ui16ItemLengths[5] = 1;
+			pxbBans.m_pItemDatas[5] = (((pCur->m_ui8Bits & FULL) == FULL) == true ? (void *)1 : 0);
 			
-			pxbBans.ui16ItemLengths[6] = pCur->sReason == NULL ? 0 : (uint16_t)strlen(pCur->sReason);
-			pxbBans.pItemDatas[6] = pCur->sReason == NULL ? (void *)"" : (void *)pCur->sReason;
+			pxbBans.m_ui16ItemLengths[6] = pCur->m_sReason == NULL ? 0 : (uint16_t)strlen(pCur->m_sReason);
+			pxbBans.m_pItemDatas[6] = pCur->m_sReason == NULL ? (void *)"" : (void *)pCur->m_sReason;
 			
-			pxbBans.ui16ItemLengths[7] = pCur->sBy == NULL ? 0 : (uint16_t)strlen(pCur->sBy);
-			pxbBans.pItemDatas[7] = pCur->sBy == NULL ? (void *)"" : (void *)pCur->sBy;
+			pxbBans.m_ui16ItemLengths[7] = pCur->m_sBy == NULL ? 0 : (uint16_t)strlen(pCur->m_sBy);
+			pxbBans.m_pItemDatas[7] = pCur->m_sBy == NULL ? (void *)"" : (void *)pCur->m_sBy;
 			
-			pxbBans.ui16ItemLengths[8] = 8;
-			ui64TempBanExpire = (uint64_t)pCur->tTempBanExpire;
-			pxbBans.pItemDatas[8] = (void *)&ui64TempBanExpire;
+			pxbBans.m_ui16ItemLengths[8] = 8;
+			ui64TempBanExpire = (uint64_t)pCur->m_tTempBanExpire;
+			pxbBans.m_pItemDatas[8] = (void *)&ui64TempBanExpire;
 			
-			if (pxbBans.WriteNextItem(pxbBans.ui16ItemLengths[0] + pxbBans.ui16ItemLengths[1] + pxbBans.ui16ItemLengths[2] + pxbBans.ui16ItemLengths[3] + pxbBans.ui16ItemLengths[4] + pxbBans.ui16ItemLengths[5] + pxbBans.ui16ItemLengths[6] + pxbBans.ui16ItemLengths[7] + pxbBans.ui16ItemLengths[8], 9) == false)
+			if (pxbBans.WriteNextItem(pxbBans.m_ui16ItemLengths[0] + pxbBans.m_ui16ItemLengths[1] + pxbBans.m_ui16ItemLengths[2] + pxbBans.m_ui16ItemLengths[3] + pxbBans.m_ui16ItemLengths[4] + pxbBans.m_ui16ItemLengths[5] + pxbBans.m_ui16ItemLengths[6] + pxbBans.m_ui16ItemLengths[7] + pxbBans.m_ui16ItemLengths[8], 9) == false)
 			{
 				break;
 			}
 		}
 	}
 	
-	if (pPermBanListS != NULL)
+	if (m_pPermBanListS != NULL)
 	{
 		BanItem * pCur = NULL,
-		          * pNext = pPermBanListS;
+		          * m_pNext = m_pPermBanListS;
 		          
-		while (pNext != NULL)
+		while (m_pNext != NULL)
 		{
-			pCur = pNext;
-			pNext = pCur->pNext;
+			pCur = m_pNext;
+			m_pNext = pCur->m_pNext;
 			
-			pxbBans.ui16ItemLengths[0] = 1;
-			pxbBans.pItemDatas[0] = (((pCur->ui8Bits & PERM) == PERM) == true ? 0 : (void *)1);
+			pxbBans.m_ui16ItemLengths[0] = 1;
+			pxbBans.m_pItemDatas[0] = (((pCur->m_ui8Bits & PERM) == PERM) == true ? 0 : (void *)1);
 			
-			pxbBans.ui16ItemLengths[1] = pCur->sNick == NULL ? 0 : (uint16_t)strlen(pCur->sNick);
-			pxbBans.pItemDatas[1] = pCur->sNick == NULL ? (void *)"" : (void *)pCur->sNick;
+			pxbBans.m_ui16ItemLengths[1] = pCur->m_sNick == NULL ? 0 : (uint16_t)strlen(pCur->m_sNick);
+			pxbBans.m_pItemDatas[1] = pCur->m_sNick == NULL ? (void *)"" : (void *)pCur->m_sNick;
 			
-			pxbBans.ui16ItemLengths[2] = 1;
-			pxbBans.pItemDatas[2] = (((pCur->ui8Bits & NICK) == NICK) == true ? (void *)1 : 0);
+			pxbBans.m_ui16ItemLengths[2] = 1;
+			pxbBans.m_pItemDatas[2] = (((pCur->m_ui8Bits & NICK) == NICK) == true ? (void *)1 : 0);
 			
-			pxbBans.ui16ItemLengths[3] = 16;
-			pxbBans.pItemDatas[3] = (void *)pCur->ui128IpHash;
+			pxbBans.m_ui16ItemLengths[3] = 16;
+			pxbBans.m_pItemDatas[3] = (void *)pCur->m_ui128IpHash;
 			
-			pxbBans.ui16ItemLengths[4] = 1;
-			pxbBans.pItemDatas[4] = (((pCur->ui8Bits & IP) == IP) == true ? (void *)1 : 0);
+			pxbBans.m_ui16ItemLengths[4] = 1;
+			pxbBans.m_pItemDatas[4] = (((pCur->m_ui8Bits & IP) == IP) == true ? (void *)1 : 0);
 			
-			pxbBans.ui16ItemLengths[5] = 1;
-			pxbBans.pItemDatas[5] = (((pCur->ui8Bits & FULL) == FULL) == true ? (void *)1 : 0);
+			pxbBans.m_ui16ItemLengths[5] = 1;
+			pxbBans.m_pItemDatas[5] = (((pCur->m_ui8Bits & FULL) == FULL) == true ? (void *)1 : 0);
 			
-			pxbBans.ui16ItemLengths[6] = pCur->sReason == NULL ? 0 : (uint16_t)strlen(pCur->sReason);
-			pxbBans.pItemDatas[6] = pCur->sReason == NULL ? (void *)"" : (void *)pCur->sReason;
+			pxbBans.m_ui16ItemLengths[6] = pCur->m_sReason == NULL ? 0 : (uint16_t)strlen(pCur->m_sReason);
+			pxbBans.m_pItemDatas[6] = pCur->m_sReason == NULL ? (void *)"" : (void *)pCur->m_sReason;
 			
-			pxbBans.ui16ItemLengths[7] = pCur->sBy == NULL ? 0 : (uint16_t)strlen(pCur->sBy);
-			pxbBans.pItemDatas[7] = pCur->sBy == NULL ? (void *)"" : (void *)pCur->sBy;
+			pxbBans.m_ui16ItemLengths[7] = pCur->m_sBy == NULL ? 0 : (uint16_t)strlen(pCur->m_sBy);
+			pxbBans.m_pItemDatas[7] = pCur->m_sBy == NULL ? (void *)"" : (void *)pCur->m_sBy;
 			
-			pxbBans.ui16ItemLengths[8] = 8;
-			ui64TempBanExpire = (uint64_t)pCur->tTempBanExpire;
-			pxbBans.pItemDatas[8] = (void *)&ui64TempBanExpire;
+			pxbBans.m_ui16ItemLengths[8] = 8;
+			ui64TempBanExpire = (uint64_t)pCur->m_tTempBanExpire;
+			pxbBans.m_pItemDatas[8] = (void *)&ui64TempBanExpire;
 			
-			if (pxbBans.WriteNextItem(pxbBans.ui16ItemLengths[0] + pxbBans.ui16ItemLengths[1] + pxbBans.ui16ItemLengths[2] + pxbBans.ui16ItemLengths[3] + pxbBans.ui16ItemLengths[4] + pxbBans.ui16ItemLengths[5] + pxbBans.ui16ItemLengths[6] + pxbBans.ui16ItemLengths[7] + pxbBans.ui16ItemLengths[8], 9) == false)
+			if (pxbBans.WriteNextItem(pxbBans.m_ui16ItemLengths[0] + pxbBans.m_ui16ItemLengths[1] + pxbBans.m_ui16ItemLengths[2] + pxbBans.m_ui16ItemLengths[3] + pxbBans.m_ui16ItemLengths[4] + pxbBans.m_ui16ItemLengths[5] + pxbBans.m_ui16ItemLengths[6] + pxbBans.m_ui16ItemLengths[7] + pxbBans.m_ui16ItemLengths[8], 9) == false)
 			{
 				break;
 			}
@@ -2250,27 +2252,27 @@ void clsBanManager::Save(bool bForce/* = false*/)
 	
 	// Open range bans file
 #ifdef _WIN32
-	if (pxbRangeBans.OpenFileSave((clsServerManager::sPath + "\\cfg\\RangeBans.pxb").c_str(), 7) == false)
+	if (pxbRangeBans.OpenFileSave((ServerManager::m_sPath + "\\cfg\\RangeBans.pxb").c_str(), 7) == false)
 	{
 #else
-	if (pxbRangeBans.OpenFileSave((clsServerManager::sPath + "/cfg/RangeBans.pxb").c_str(), 7) == false)
+	if (pxbRangeBans.OpenFileSave((ServerManager::m_sPath + "/cfg/RangeBans.pxb").c_str(), 7) == false)
 	{
 #endif
 		return;
 	}
 	
 	// Write file header
-	pxbRangeBans.sItemIdentifiers[0] = 'F';
-	pxbRangeBans.sItemIdentifiers[1] = 'I';
-	pxbRangeBans.ui16ItemLengths[0] = (uint16_t)szPtokaXRangeBansLen;
-	pxbRangeBans.pItemDatas[0] = (void *)sPtokaXRangeBans;
-	pxbRangeBans.ui8ItemValues[0] = PXBReader::PXB_STRING;
+	pxbRangeBans.m_sItemIdentifiers[0] = 'F';
+	pxbRangeBans.m_sItemIdentifiers[1] = 'I';
+	pxbRangeBans.m_ui16ItemLengths[0] = (uint16_t)szPtokaXRangeBansLen;
+	pxbRangeBans.m_pItemDatas[0] = (void *)sPtokaXRangeBans;
+	pxbRangeBans.m_ui8ItemValues[0] = PXBReader::PXB_STRING;
 	
-	pxbRangeBans.sItemIdentifiers[2] = 'F';
-	pxbRangeBans.sItemIdentifiers[3] = 'V';
-	pxbRangeBans.ui16ItemLengths[1] = 4;
-	pxbRangeBans.pItemDatas[1] = (void *)&ui32Version;
-	pxbRangeBans.ui8ItemValues[1] = PXBReader::PXB_FOUR_BYTES;
+	pxbRangeBans.m_sItemIdentifiers[2] = 'F';
+	pxbRangeBans.m_sItemIdentifiers[3] = 'V';
+	pxbRangeBans.m_ui16ItemLengths[1] = 4;
+	pxbRangeBans.m_pItemDatas[1] = (void *)&ui32Version;
+	pxbRangeBans.m_ui8ItemValues[1] = PXBReader::PXB_FOUR_BYTES;
 	
 	if (pxbRangeBans.WriteNextItem(szPtokaXRangeBansLen + 4, 2) == false)
 	{
@@ -2278,49 +2280,49 @@ void clsBanManager::Save(bool bForce/* = false*/)
 	}
 	
 	// "BT" "RF" "RT" "FB" "RE" "BY" "EX"
-	memcpy(pxbRangeBans.sItemIdentifiers, sRangeBanIds, szRangeBanIdsLen);
+	memcpy(pxbRangeBans.m_sItemIdentifiers, sRangeBanIds, szRangeBanIdsLen);
 	
-	pxbRangeBans.ui8ItemValues[0] = PXBReader::PXB_BYTE;
-	pxbRangeBans.ui8ItemValues[1] = PXBReader::PXB_STRING;
-	pxbRangeBans.ui8ItemValues[2] = PXBReader::PXB_STRING;
-	pxbRangeBans.ui8ItemValues[3] = PXBReader::PXB_BYTE;
-	pxbRangeBans.ui8ItemValues[4] = PXBReader::PXB_STRING;
-	pxbRangeBans.ui8ItemValues[5] = PXBReader::PXB_STRING;
-	pxbRangeBans.ui8ItemValues[6] = PXBReader::PXB_EIGHT_BYTES;
+	pxbRangeBans.m_ui8ItemValues[0] = PXBReader::PXB_BYTE;
+	pxbRangeBans.m_ui8ItemValues[1] = PXBReader::PXB_STRING;
+	pxbRangeBans.m_ui8ItemValues[2] = PXBReader::PXB_STRING;
+	pxbRangeBans.m_ui8ItemValues[3] = PXBReader::PXB_BYTE;
+	pxbRangeBans.m_ui8ItemValues[4] = PXBReader::PXB_STRING;
+	pxbRangeBans.m_ui8ItemValues[5] = PXBReader::PXB_STRING;
+	pxbRangeBans.m_ui8ItemValues[6] = PXBReader::PXB_EIGHT_BYTES;
 	
-	if (pRangeBanListS != NULL)
+	if (m_pRangeBanListS != NULL)
 	{
 		RangeBanItem * pCur = NULL,
-		               * pNext = pRangeBanListS;
+		               * m_pNext = m_pRangeBanListS;
 		               
-		while (pNext != NULL)
+		while (m_pNext != NULL)
 		{
-			pCur = pNext;
-			pNext = pCur->pNext;
+			pCur = m_pNext;
+			m_pNext = pCur->m_pNext;
 			
-			pxbRangeBans.ui16ItemLengths[0] = 1;
-			pxbRangeBans.pItemDatas[0] = (((pCur->ui8Bits & PERM) == PERM) == true ? 0 : (void *)1);
+			pxbRangeBans.m_ui16ItemLengths[0] = 1;
+			pxbRangeBans.m_pItemDatas[0] = (((pCur->m_ui8Bits & PERM) == PERM) == true ? 0 : (void *)1);
 			
-			pxbRangeBans.ui16ItemLengths[1] = 16;
-			pxbRangeBans.pItemDatas[1] = (void *)pCur->ui128FromIpHash;
+			pxbRangeBans.m_ui16ItemLengths[1] = 16;
+			pxbRangeBans.m_pItemDatas[1] = (void *)pCur->m_ui128FromIpHash;
 			
-			pxbRangeBans.ui16ItemLengths[2] = 16;
-			pxbRangeBans.pItemDatas[2] = (void *)pCur->ui128ToIpHash;
+			pxbRangeBans.m_ui16ItemLengths[2] = 16;
+			pxbRangeBans.m_pItemDatas[2] = (void *)pCur->m_ui128ToIpHash;
 			
-			pxbRangeBans.ui16ItemLengths[3] = 1;
-			pxbRangeBans.pItemDatas[3] = (((pCur->ui8Bits & FULL) == FULL) == true ? (void *)1 : 0);
+			pxbRangeBans.m_ui16ItemLengths[3] = 1;
+			pxbRangeBans.m_pItemDatas[3] = (((pCur->m_ui8Bits & FULL) == FULL) == true ? (void *)1 : 0);
 			
-			pxbRangeBans.ui16ItemLengths[4] = pCur->sReason == NULL ? 0 : (uint16_t)strlen(pCur->sReason);
-			pxbRangeBans.pItemDatas[4] = pCur->sReason == NULL ? (void *)"" : (void *)pCur->sReason;
+			pxbRangeBans.m_ui16ItemLengths[4] = pCur->m_sReason == NULL ? 0 : (uint16_t)strlen(pCur->m_sReason);
+			pxbRangeBans.m_pItemDatas[4] = pCur->m_sReason == NULL ? (void *)"" : (void *)pCur->m_sReason;
 			
-			pxbRangeBans.ui16ItemLengths[5] = pCur->sBy == NULL ? 0 : (uint16_t)strlen(pCur->sBy);
-			pxbRangeBans.pItemDatas[5] = pCur->sBy == NULL ? (void *)"" : (void *)pCur->sBy;
+			pxbRangeBans.m_ui16ItemLengths[5] = pCur->m_sBy == NULL ? 0 : (uint16_t)strlen(pCur->m_sBy);
+			pxbRangeBans.m_pItemDatas[5] = pCur->m_sBy == NULL ? (void *)"" : (void *)pCur->m_sBy;
 			
-			pxbRangeBans.ui16ItemLengths[6] = 8;
-			ui64TempBanExpire = (uint64_t)pCur->tTempBanExpire;
-			pxbRangeBans.pItemDatas[6] = (void *)&ui64TempBanExpire;
+			pxbRangeBans.m_ui16ItemLengths[6] = 8;
+			ui64TempBanExpire = (uint64_t)pCur->m_tTempBanExpire;
+			pxbRangeBans.m_pItemDatas[6] = (void *)&ui64TempBanExpire;
 			
-			if (pxbRangeBans.WriteNextItem(pxbRangeBans.ui16ItemLengths[0] + pxbRangeBans.ui16ItemLengths[1] + pxbRangeBans.ui16ItemLengths[2] + pxbRangeBans.ui16ItemLengths[3] + pxbRangeBans.ui16ItemLengths[4] + pxbRangeBans.ui16ItemLengths[5] + pxbRangeBans.ui16ItemLengths[6], 7) == false)
+			if (pxbRangeBans.WriteNextItem(pxbRangeBans.m_ui16ItemLengths[0] + pxbRangeBans.m_ui16ItemLengths[1] + pxbRangeBans.m_ui16ItemLengths[2] + pxbRangeBans.m_ui16ItemLengths[3] + pxbRangeBans.m_ui16ItemLengths[4] + pxbRangeBans.m_ui16ItemLengths[5] + pxbRangeBans.m_ui16ItemLengths[6], 7) == false)
 			{
 				break;
 			}
@@ -2331,15 +2333,15 @@ void clsBanManager::Save(bool bForce/* = false*/)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::ClearTemp(void)
+void BanManager::ClearTemp(void)
 {
 	BanItem * curBan = NULL,
-	          * nextBan = pTempBanListS;
+	          * nextBan = m_pTempBanListS;
 	          
 	while (nextBan != NULL)
 	{
 		curBan = nextBan;
-		nextBan = curBan->pNext;
+		nextBan = curBan->m_pNext;
 		
 		Rem(curBan);
 		delete curBan;
@@ -2349,15 +2351,15 @@ void clsBanManager::ClearTemp(void)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::ClearPerm(void)
+void BanManager::ClearPerm(void)
 {
 	BanItem * curBan = NULL,
-	          * nextBan = pPermBanListS;
+	          * nextBan = m_pPermBanListS;
 	          
 	while (nextBan != NULL)
 	{
 		curBan = nextBan;
-		nextBan = curBan->pNext;
+		nextBan = curBan->m_pNext;
 		
 		Rem(curBan);
 		delete curBan;
@@ -2367,15 +2369,15 @@ void clsBanManager::ClearPerm(void)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::ClearRange(void)
+void BanManager::ClearRange(void)
 {
 	RangeBanItem * curBan = NULL,
-	               * nextBan = pRangeBanListS;
+	               * nextBan = m_pRangeBanListS;
 	               
 	while (nextBan != NULL)
 	{
 		curBan = nextBan;
-		nextBan = curBan->pNext;
+		nextBan = curBan->m_pNext;
 		
 		RemRange(curBan);
 		delete curBan;
@@ -2385,17 +2387,17 @@ void clsBanManager::ClearRange(void)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::ClearTempRange(void)
+void BanManager::ClearTempRange(void)
 {
 	RangeBanItem * curBan = NULL,
-	               * nextBan = pRangeBanListS;
+	               * nextBan = m_pRangeBanListS;
 	               
 	while (nextBan != NULL)
 	{
 		curBan = nextBan;
-		nextBan = curBan->pNext;
+		nextBan = curBan->m_pNext;
 		
-		if (((curBan->ui8Bits & TEMP) == TEMP) == true)
+		if (((curBan->m_ui8Bits & TEMP) == TEMP) == true)
 		{
 			RemRange(curBan);
 			delete curBan;
@@ -2406,17 +2408,17 @@ void clsBanManager::ClearTempRange(void)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::ClearPermRange(void)
+void BanManager::ClearPermRange(void)
 {
 	RangeBanItem * curBan = NULL,
-	               * nextBan = pRangeBanListS;
+	               * nextBan = m_pRangeBanListS;
 	               
 	while (nextBan != NULL)
 	{
 		curBan = nextBan;
-		nextBan = curBan->pNext;
+		nextBan = curBan->m_pNext;
 		
-		if (((curBan->ui8Bits & PERM) == PERM) == true)
+		if (((curBan->m_ui8Bits & PERM) == PERM) == true)
 		{
 			RemRange(curBan);
 			delete curBan;
@@ -2427,58 +2429,58 @@ void clsBanManager::ClearPermRange(void)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const bool bFull)
+void BanManager::Ban(User * pUser, const char * sReason, const char * sBy, const bool bFull)
 {
-	BanItem * pBan = new(std::nothrow) BanItem();
+	BanItem * pBan = new (std::nothrow) BanItem();
 	if (pBan == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pBan in clsBanManager::Ban\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pBan in BanManager::Ban\n");
 		return;
 	}
 	
-	pBan->ui8Bits |= PERM;
+	pBan->m_ui8Bits |= PERM;
 	
-	pBan->initIP(u);
-	pBan->ui8Bits |= IP;
+	pBan->initIP( pUser);
+	pBan->m_ui8Bits |= IP;
 	
 	if (bFull == true)
 	{
-		pBan->ui8Bits |= FULL;
+		pBan->m_ui8Bits |= FULL;
 	}
 	
 	time_t acc_time;
 	time(&acc_time);
 	
 	// PPK ... check for <unknown> nick -> bad ban from script
-	if (u->sNick[0] != '<')
+	if (pUser->m_sNick[0] != '<')
 	{
-		pBan->sNick = (char *)malloc(u->ui8NickLen + 1);
-		if (pBan->sNick == NULL)
+		pBan->m_sNick = (char *)malloc(pUser->m_ui8NickLen + 1);
+		if (pBan->m_sNick == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu8 " bytes for sNick in clsBanManager::Ban\n", u->ui8NickLen + 1);
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu8 " bytes for sNick in BanManager::Ban\n", pUser->m_ui8NickLen + 1);
 			
 			return;
 		}
 		
-		memcpy(pBan->sNick, u->sNick, u->ui8NickLen);
-		pBan->sNick[u->ui8NickLen] = '\0';
-		pBan->ui32NickHash = u->ui32NickHash;
-		pBan->ui8Bits |= NICK;
+		memcpy(pBan->m_sNick, pUser->m_sNick, pUser->m_ui8NickLen);
+		pBan->m_sNick[pUser->m_ui8NickLen] = '\0';
+		pBan->m_ui32NickHash = pUser->m_ui32NickHash;
+		pBan->m_ui8Bits |= NICK;
 		
 		// PPK ... not allow same nickbans ! i don't want this check here, but lame scripter find way to ban same nick/ip multiple times :(
-		BanItem * nxtBan = FindNick(pBan->ui32NickHash, acc_time, pBan->sNick);
+		BanItem * nxtBan = FindNick(pBan->m_ui32NickHash, acc_time, pBan->m_sNick);
 		
 		if (nxtBan != NULL)
 		{
-			if (((nxtBan->ui8Bits & PERM) == PERM) == true)
+			if (((nxtBan->m_ui8Bits & PERM) == PERM) == true)
 			{
-				if (((nxtBan->ui8Bits & IP) == IP) == true)
+				if (((nxtBan->m_ui8Bits & IP) == IP) == true)
 				{
-					if (memcmp(pBan->ui128IpHash, nxtBan->ui128IpHash, 16) == 0)
+					if (memcmp(pBan->m_ui128IpHash, nxtBan->m_ui128IpHash, 16) == 0)
 					{
-						if (((pBan->ui8Bits & FULL) == FULL) == false)
+						if (((pBan->m_ui8Bits & FULL) == FULL) == false)
 						{
 							// PPK ... same ban and new is not full, delete new
 							delete pBan;
@@ -2487,7 +2489,7 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 						}
 						else
 						{
-							if (((nxtBan->ui8Bits & FULL) == FULL) == true)
+							if (((nxtBan->m_ui8Bits & FULL) == FULL) == true)
 							{
 								// PPK ... same ban and both full, delete new
 								delete pBan;
@@ -2504,7 +2506,7 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 					}
 					else
 					{
-						pBan->ui8Bits &= ~NICK;
+						pBan->m_ui8Bits &= ~NICK;
 					}
 				}
 				else
@@ -2516,11 +2518,11 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 			}
 			else
 			{
-				if (((nxtBan->ui8Bits & IP) == IP) == true)
+				if (((nxtBan->m_ui8Bits & IP) == IP) == true)
 				{
-					if (memcmp(pBan->ui128IpHash, nxtBan->ui128IpHash, 16) == 0)
+					if (memcmp(pBan->m_ui128IpHash, nxtBan->m_ui128IpHash, 16) == 0)
 					{
-						if (((nxtBan->ui8Bits & FULL) == FULL) == false)
+						if (((nxtBan->m_ui8Bits & FULL) == FULL) == false)
 						{
 							// PPK ... same ban and old is only temp, delete old
 							Rem(nxtBan);
@@ -2528,7 +2530,7 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 						}
 						else
 						{
-							if (((pBan->ui8Bits & FULL) == FULL) == true)
+							if (((pBan->m_ui8Bits & FULL) == FULL) == true)
 							{
 								// PPK ... same full ban and old is only temp, delete old
 								Rem(nxtBan);
@@ -2538,7 +2540,7 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 							{
 								// PPK ... old ban is full, new not... set old ban to only ipban
 								RemFromNickTable(nxtBan);
-								nxtBan->ui8Bits &= ~NICK;
+								nxtBan->m_ui8Bits &= ~NICK;
 							}
 						}
 					}
@@ -2546,7 +2548,7 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 					{
 						// PPK ... set old ban to ip ban only
 						RemFromNickTable(nxtBan);
-						nxtBan->ui8Bits &= ~NICK;
+						nxtBan->m_ui8Bits &= ~NICK;
 					}
 				}
 				else
@@ -2561,19 +2563,19 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 	
 	// PPK ... clear bans with same ip without nickban and fullban if new ban is fullban
 	BanItem * curBan = NULL,
-	          * nxtBan = FindIP(pBan->ui128IpHash, acc_time);
+	          * nxtBan = FindIP(pBan->m_ui128IpHash, acc_time);
 	          
 	while (nxtBan != NULL)
 	{
 		curBan = nxtBan;
-		nxtBan = curBan->pHashIpTableNext;
+		nxtBan = curBan->m_pHashIpTableNext;
 		
-		if (((curBan->ui8Bits & NICK) == NICK) == true)
+		if (((curBan->m_ui8Bits & NICK) == NICK) == true)
 		{
 			continue;
 		}
 		
-		if (((curBan->ui8Bits & FULL) == FULL) == true && ((pBan->ui8Bits & FULL) == FULL) == false)
+		if (((curBan->m_ui8Bits & FULL) == FULL) == true && ((pBan->m_ui8Bits & FULL) == FULL) == false)
 		{
 			continue;
 		}
@@ -2585,29 +2587,29 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->sReason == NULL)
+		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
+		if (pBan->m_sReason == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::Ban\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in BanManager::Ban\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
 			
 			return;
 		}
 		
 		if (szReasonLen > 511)
 		{
-			memcpy(pBan->sReason, sReason, 508);
-			pBan->sReason[510] = '.';
-			pBan->sReason[509] = '.';
-			pBan->sReason[508] = '.';
+			memcpy(pBan->m_sReason, sReason, 508);
+			pBan->m_sReason[510] = '.';
+			pBan->m_sReason[509] = '.';
+			pBan->m_sReason[508] = '.';
 			szReasonLen = 511;
 		}
 		else
 		{
-			memcpy(pBan->sReason, sReason, szReasonLen);
+			memcpy(pBan->m_sReason, sReason, szReasonLen);
 		}
-		pBan->sReason[szReasonLen] = '\0';
+		pBan->m_sReason[szReasonLen] = '\0';
 	}
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
@@ -2618,11 +2620,11 @@ void clsBanManager::Ban(User * u, const char * sReason, const char * sBy, const 
 		delete pBan;
 		return;
 	}
-
+	
 	Save();
 }
 //---------------------------------------------------------------------------
-bool clsBanManager::AddBanInternal(const char * sBy, BanItemBase * pBan, const char* sFunction)
+bool BanManager::AddBanInternal(const char * sBy, BanItemBase * pBan, const char* sFunction)
 {
 	if (sBy != NULL)
 	{
@@ -2631,41 +2633,41 @@ bool clsBanManager::AddBanInternal(const char * sBy, BanItemBase * pBan, const c
 		{
 			szByLen = 63;
 		}
-		pBan->sBy = (char *)malloc(szByLen + 1);
-		if (pBan->sBy == NULL)
+		pBan->m_sBy = (char *)malloc(szByLen + 1);
+		if (pBan->m_sBy == NULL)
 		{
 			delete pBan;
-
+			
 			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sBy in %s\n", (uint64_t)(szByLen + 1), sFunction);
-
+			
 			return false;
 		}
-		memcpy(pBan->sBy, sBy, szByLen);
-		pBan->sBy[szByLen] = '\0';
+		memcpy(pBan->m_sBy, sBy, szByLen);
+		pBan->m_sBy[szByLen] = '\0';
 	}
 	return true;
 }
 
 //---------------------------------------------------------------------------
 
-char clsBanManager::BanIp(User * u, const char * sIp, const char * sReason, const char * sBy, const bool bFull)
+char BanManager::BanIp(User * pUser, const char * sIp, const char * sReason, const char * sBy, const bool bFull)
 {
-	BanItem * pBan = new(std::nothrow) BanItem();
+	BanItem * pBan = new (std::nothrow) BanItem();
 	if (pBan == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pBan in clsBanManager::BanIp\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pBan in BanManager::BanIp\n");
 		return 1;
 	}
 	
-	pBan->ui8Bits |= PERM;
+	pBan->m_ui8Bits |= PERM;
 	
-	if (u != NULL)
+	if (pUser)
 	{
-		pBan->initIP(u);
+		pBan->initIP( pUser);
 	}
 	else
 	{
-		if (sIp != NULL && HashIP(sIp, pBan->ui128IpHash) == true)
+		if (sIp != NULL && HashIP(sIp, pBan->m_ui128IpHash) == true)
 		{
 			pBan->initIP(sIp);
 		}
@@ -2677,30 +2679,30 @@ char clsBanManager::BanIp(User * u, const char * sIp, const char * sReason, cons
 		}
 	}
 	
-	pBan->ui8Bits |= IP;
+	pBan->m_ui8Bits |= IP;
 	
 	if (bFull == true)
 	{
-		pBan->ui8Bits |= FULL;
+		pBan->m_ui8Bits |= FULL;
 	}
 	
 	time_t acc_time;
 	time(&acc_time);
 	
 	BanItem * curBan = NULL,
-	          * nxtBan = FindIP(pBan->ui128IpHash, acc_time);
+	          * nxtBan = FindIP(pBan->m_ui128IpHash, acc_time);
 	          
 	// PPK ... don't add ban if is already here perm (full) ban for same ip
 	while (nxtBan != NULL)
 	{
 		curBan = nxtBan;
-		nxtBan = curBan->pHashIpTableNext;
+		nxtBan = curBan->m_pHashIpTableNext;
 		
-		if (((curBan->ui8Bits & TEMP) == TEMP) == true)
+		if (((curBan->m_ui8Bits & TEMP) == TEMP) == true)
 		{
-			if (((curBan->ui8Bits & FULL) == FULL) == false || ((pBan->ui8Bits & FULL) == FULL) == true)
+			if (((curBan->m_ui8Bits & FULL) == FULL) == false || ((pBan->m_ui8Bits & FULL) == FULL) == true)
 			{
-				if (((curBan->ui8Bits & NICK) == NICK) == false)
+				if (((curBan->m_ui8Bits & NICK) == NICK) == false)
 				{
 					Rem(curBan);
 					delete curBan;
@@ -2712,9 +2714,9 @@ char clsBanManager::BanIp(User * u, const char * sIp, const char * sReason, cons
 			continue;
 		}
 		
-		if (((curBan->ui8Bits & FULL) == FULL) == false && ((pBan->ui8Bits & FULL) == FULL) == true)
+		if (((curBan->m_ui8Bits & FULL) == FULL) == false && ((pBan->m_ui8Bits & FULL) == FULL) == true)
 		{
-			if (((curBan->ui8Bits & NICK) == NICK) == false)
+			if (((curBan->m_ui8Bits & NICK) == NICK) == false)
 			{
 				Rem(curBan);
 				delete curBan;
@@ -2730,29 +2732,29 @@ char clsBanManager::BanIp(User * u, const char * sIp, const char * sReason, cons
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->sReason == NULL)
+		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
+		if (pBan->m_sReason == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::BanIp\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in BanManager::BanIp\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
 			
 			return 1;
 		}
 		
 		if (szReasonLen > 511)
 		{
-			memcpy(pBan->sReason, sReason, 508);
-			pBan->sReason[510] = '.';
-			pBan->sReason[509] = '.';
-			pBan->sReason[508] = '.';
+			memcpy(pBan->m_sReason, sReason, 508);
+			pBan->m_sReason[510] = '.';
+			pBan->m_sReason[509] = '.';
+			pBan->m_sReason[508] = '.';
 			szReasonLen = 511;
 		}
 		else
 		{
-			memcpy(pBan->sReason, sReason, szReasonLen);
+			memcpy(pBan->m_sReason, sReason, szReasonLen);
 		}
-		pBan->sReason[szReasonLen] = '\0';
+		pBan->m_sReason[szReasonLen] = '\0';
 	}
 	
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
@@ -2764,25 +2766,25 @@ char clsBanManager::BanIp(User * u, const char * sIp, const char * sReason, cons
 		delete pBan;
 		return 1;
 	}
-
+	
 	Save();
 	
 	return 0;
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::NickBan(User * u, const char * sNick, const char * sReason, const char * sBy)
+bool BanManager::NickBan(User * pUser, const char * sNick, const char * sReason, const char * sBy)
 {
-	BanItem * pBan = new(std::nothrow) BanItem();
+	BanItem * pBan = new (std::nothrow) BanItem();
 	if (pBan == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pBan in clsBanManager::NickBan\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pBan in BanManager::NickBan\n");
 		return false;
 	}
 	
-	pBan->ui8Bits |= PERM;
+	pBan->m_ui8Bits |= PERM;
 	
-	if (u == NULL)
+	if (pUser)
 	{
 		// PPK ... this should never happen, but to be sure ;)
 		if (sNick == NULL)
@@ -2801,58 +2803,58 @@ bool clsBanManager::NickBan(User * u, const char * sNick, const char * sReason, 
 		}
 		
 		size_t szNickLen = strlen(sNick);
-		pBan->sNick = (char *)malloc(szNickLen + 1);
-		if (pBan->sNick == NULL)
+		pBan->m_sNick = (char *)malloc(szNickLen + 1);
+		if (pBan->m_sNick == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsBanManager::NickBan\n", (uint64_t)(szNickLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in BanManager::NickBan\n", (uint64_t)(szNickLen + 1));
 			
 			return false;
 		}
 		
-		memcpy(pBan->sNick, sNick, szNickLen);
-		pBan->sNick[szNickLen] = '\0';
-		pBan->ui32NickHash = HashNick(sNick, szNickLen);
+		memcpy(pBan->m_sNick, sNick, szNickLen);
+		pBan->m_sNick[szNickLen] = '\0';
+		pBan->m_ui32NickHash = HashNick(sNick, szNickLen);
 	}
 	else
 	{
 		// PPK ... bad script ban check
-		if (u->sNick[0] == '<')
+		if (pUser->m_sNick[0] == '<')
 		{
 			delete pBan;
 			
 			return false;
 		}
 		
-		pBan->sNick = (char *)malloc(u->ui8NickLen + 1);
-		if (pBan->sNick == NULL)
+		pBan->m_sNick = (char *)malloc(pUser->m_ui8NickLen + 1);
+		if (pBan->m_sNick == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu8 " bytes for sNick1 in clsBanManager::NickBan\n", u->ui8NickLen + 1);
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu8 " bytes for sNick1 in BanManager::NickBan\n", pUser->m_ui8NickLen + 1);
 			
 			return false;
 		}
 		
-		memcpy(pBan->sNick, u->sNick, u->ui8NickLen);
-		pBan->sNick[u->ui8NickLen] = '\0';
-		pBan->ui32NickHash = u->ui32NickHash;
+		memcpy(pBan->m_sNick, pUser->m_sNick, pUser->m_ui8NickLen);
+		pBan->m_sNick[pUser->m_ui8NickLen] = '\0';
+		pBan->m_ui32NickHash = pUser->m_ui32NickHash;
 		
-		pBan->initIP(u);
+		pBan->initIP( pUser);
 	}
 	
-	pBan->ui8Bits |= NICK;
+	pBan->m_ui8Bits |= NICK;
 	
 	time_t acc_time;
 	time(&acc_time);
 	
-	BanItem *nxtBan = FindNick(pBan->ui32NickHash, acc_time, pBan->sNick);
+	BanItem *nxtBan = FindNick(pBan->m_ui32NickHash, acc_time, pBan->m_sNick);
 	
 	// PPK ... not allow same nickbans !
 	if (nxtBan != NULL)
 	{
-		if (((nxtBan->ui8Bits & PERM) == PERM) == true)
+		if (((nxtBan->m_ui8Bits & PERM) == PERM) == true)
 		{
 			delete pBan;
 			
@@ -2860,11 +2862,11 @@ bool clsBanManager::NickBan(User * u, const char * sNick, const char * sReason, 
 		}
 		else
 		{
-			if (((nxtBan->ui8Bits & IP) == IP) == true)
+			if (((nxtBan->m_ui8Bits & IP) == IP) == true)
 			{
 				// PPK ... set old ban to ip ban only
 				RemFromNickTable(nxtBan);
-				nxtBan->ui8Bits &= ~NICK;
+				nxtBan->m_ui8Bits &= ~NICK;
 			}
 			else
 			{
@@ -2878,29 +2880,29 @@ bool clsBanManager::NickBan(User * u, const char * sNick, const char * sReason, 
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->sReason == NULL)
+		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
+		if (pBan->m_sReason == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::NickBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in BanManager::NickBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
 			
 			return false;
 		}
 		
 		if (szReasonLen > 511)
 		{
-			memcpy(pBan->sReason, sReason, 508);
-			pBan->sReason[510] = '.';
-			pBan->sReason[509] = '.';
-			pBan->sReason[508] = '.';
+			memcpy(pBan->m_sReason, sReason, 508);
+			pBan->m_sReason[510] = '.';
+			pBan->m_sReason[509] = '.';
+			pBan->m_sReason[508] = '.';
 			szReasonLen = 511;
 		}
 		else
 		{
-			memcpy(pBan->sReason, sReason, szReasonLen);
+			memcpy(pBan->m_sReason, sReason, szReasonLen);
 		}
-		pBan->sReason[szReasonLen] = '\0';
+		pBan->m_sReason[szReasonLen] = '\0';
 	}
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
@@ -2911,31 +2913,31 @@ bool clsBanManager::NickBan(User * u, const char * sNick, const char * sReason, 
 		delete pBan;
 		return false;
 	}
-
+	
 	Save();
 	
 	return true;
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
+void BanManager::TempBan(User * pUser, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
 {
-	BanItem * pBan = new(std::nothrow) BanItem();
+	BanItem * pBan = new (std::nothrow) BanItem();
 	if (pBan == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pBan in clsBanManager::TempBan\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pBan in BanManager::TempBan\n");
 		return;
 	}
 	
-	pBan->ui8Bits |= TEMP;
+	pBan->m_ui8Bits |= TEMP;
 	
-	pBan->initIP(u);
-
-	pBan->ui8Bits |= IP;
+	pBan->initIP( pUser);
+	
+	pBan->m_ui8Bits |= IP;
 	
 	if (bFull == true)
 	{
-		pBan->ui8Bits |= FULL;
+		pBan->m_ui8Bits |= FULL;
 	}
 	
 	time_t acc_time;
@@ -2943,51 +2945,51 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 	
 	if (expiretime > 0)
 	{
-		pBan->tTempBanExpire = expiretime;
+		pBan->m_tTempBanExpire = expiretime;
 	}
 	else
 	{
 		if (minutes > 0)
 		{
-			pBan->tTempBanExpire = acc_time + (minutes * 60);
+			pBan->m_tTempBanExpire = acc_time + (minutes * 60);
 		}
 		else
 		{
-			pBan->tTempBanExpire = acc_time + (clsSettingManager::mPtr->i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME] * 60);
+			pBan->m_tTempBanExpire = acc_time + (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME] * 60);
 		}
 	}
 	
 	// PPK ... check for <unknown> nick -> bad ban from script
-	if (u->sNick[0] != '<')
+	if (pUser->m_sNick[0] != '<')
 	{
-		size_t szNickLen = strlen(u->sNick);
-		pBan->sNick = (char *)malloc(szNickLen + 1);
-		if (pBan->sNick == NULL)
+		size_t szNickLen = strlen(pUser->m_sNick);
+		pBan->m_sNick = (char *)malloc(szNickLen + 1);
+		if (pBan->m_sNick == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsBanManager::TempBan\n", (uint64_t)(szNickLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in BanManager::TempBan\n", (uint64_t)(szNickLen + 1));
 			
 			return;
 		}
 		
-		memcpy(pBan->sNick, u->sNick, szNickLen);
-		pBan->sNick[szNickLen] = '\0';
-		pBan->ui32NickHash = u->ui32NickHash;
-		pBan->ui8Bits |= NICK;
+		memcpy(pBan->m_sNick, pUser->m_sNick, szNickLen);
+		pBan->m_sNick[szNickLen] = '\0';
+		pBan->m_ui32NickHash = pUser->m_ui32NickHash;
+		pBan->m_ui8Bits |= NICK;
 		
 		// PPK ... not allow same nickbans ! i don't want this check here, but lame scripter find way to ban same nick multiple times :(
-		BanItem *nxtBan = FindNick(pBan->ui32NickHash, acc_time, pBan->sNick);
+		BanItem *nxtBan = FindNick(pBan->m_ui32NickHash, acc_time, pBan->m_sNick);
 		
 		if (nxtBan != NULL)
 		{
-			if (((nxtBan->ui8Bits & PERM) == PERM) == true)
+			if (((nxtBan->m_ui8Bits & PERM) == PERM) == true)
 			{
-				if (((nxtBan->ui8Bits & IP) == IP) == true)
+				if (((nxtBan->m_ui8Bits & IP) == IP) == true)
 				{
-					if (memcmp(pBan->ui128IpHash, nxtBan->ui128IpHash, 16) == 0)
+					if (memcmp(pBan->m_ui128IpHash, nxtBan->m_ui128IpHash, 16) == 0)
 					{
-						if (((pBan->ui8Bits & FULL) == FULL) == false)
+						if (((pBan->m_ui8Bits & FULL) == FULL) == false)
 						{
 							// PPK ... same ban and old is perm, delete new
 							delete pBan;
@@ -2996,7 +2998,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 						}
 						else
 						{
-							if (((nxtBan->ui8Bits & FULL) == FULL) == true)
+							if (((nxtBan->m_ui8Bits & FULL) == FULL) == true)
 							{
 								// PPK ... same ban and old is full perm, delete new
 								delete pBan;
@@ -3006,7 +3008,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 							else
 							{
 								// PPK ... same ban and only new is full, set new to ipban only
-								pBan->ui8Bits &= ~NICK;
+								pBan->m_ui8Bits &= ~NICK;
 							}
 						}
 					}
@@ -3014,18 +3016,18 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 				else
 				{
 					// PPK ... perm ban to same nick already exist, set new to ipban only
-					pBan->ui8Bits &= ~NICK;
+					pBan->m_ui8Bits &= ~NICK;
 				}
 			}
 			else
 			{
-				if (nxtBan->tTempBanExpire < pBan->tTempBanExpire)
+				if (nxtBan->m_tTempBanExpire < pBan->m_tTempBanExpire)
 				{
-					if (((nxtBan->ui8Bits & IP) == IP) == true)
+					if (((nxtBan->m_ui8Bits & IP) == IP) == true)
 					{
-						if (memcmp(pBan->ui128IpHash, nxtBan->ui128IpHash, 16) == 0)
+						if (memcmp(pBan->m_ui128IpHash, nxtBan->m_ui128IpHash, 16) == 0)
 						{
-							if (((nxtBan->ui8Bits & FULL) == FULL) == false)
+							if (((nxtBan->m_ui8Bits & FULL) == FULL) == false)
 							{
 								// PPK ... same bans, but old with lower expiration -> delete old
 								Rem(nxtBan);
@@ -3033,11 +3035,11 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 							}
 							else
 							{
-								if (((pBan->ui8Bits & FULL) == FULL) == false)
+								if (((pBan->m_ui8Bits & FULL) == FULL) == false)
 								{
 									// PPK ... old ban with lower expiration is full ban, set old to ipban only
 									RemFromNickTable(nxtBan);
-									nxtBan->ui8Bits &= ~NICK;
+									nxtBan->m_ui8Bits &= ~NICK;
 								}
 								else
 								{
@@ -3051,7 +3053,7 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 						{
 							// PPK ... set old ban to ipban only
 							RemFromNickTable(nxtBan);
-							nxtBan->ui8Bits &= ~NICK;
+							nxtBan->m_ui8Bits &= ~NICK;
 						}
 					}
 					else
@@ -3063,11 +3065,11 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 				}
 				else
 				{
-					if (((nxtBan->ui8Bits & IP) == IP) == true)
+					if (((nxtBan->m_ui8Bits & IP) == IP) == true)
 					{
-						if (memcmp(pBan->ui128IpHash, nxtBan->ui128IpHash, 16) == 0)
+						if (memcmp(pBan->m_ui128IpHash, nxtBan->m_ui128IpHash, 16) == 0)
 						{
-							if (((pBan->ui8Bits & FULL) == FULL) == false)
+							if (((pBan->m_ui8Bits & FULL) == FULL) == false)
 							{
 								// PPK ... same bans, but new with lower expiration -> delete new
 								delete pBan;
@@ -3076,10 +3078,10 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 							}
 							else
 							{
-								if (((nxtBan->ui8Bits & FULL) == FULL) == false)
+								if (((nxtBan->m_ui8Bits & FULL) == FULL) == false)
 								{
 									// PPK ... new ban with lower expiration is full ban, set new to ipban only
-									pBan->ui8Bits &= ~NICK;
+									pBan->m_ui8Bits &= ~NICK;
 								}
 								else
 								{
@@ -3093,13 +3095,13 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 						else
 						{
 							// PPK ... set new ban to ipban only
-							pBan->ui8Bits &= ~NICK;
+							pBan->m_ui8Bits &= ~NICK;
 						}
 					}
 					else
 					{
 						// PPK ... old ban is only nickban with higher bantime, set new to ipban only
-						pBan->ui8Bits &= ~NICK;
+						pBan->m_ui8Bits &= ~NICK;
 					}
 				}
 			}
@@ -3108,29 +3110,29 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 	
 	// PPK ... clear bans with lower timeban and same ip without nickban and fullban if new ban is fullban
 	BanItem * curBan = NULL,
-	          * nxtBan = FindIP(pBan->ui128IpHash, acc_time);
+	          * nxtBan = FindIP(pBan->m_ui128IpHash, acc_time);
 	          
 	while (nxtBan != NULL)
 	{
 		curBan = nxtBan;
-		nxtBan = curBan->pHashIpTableNext;
+		nxtBan = curBan->m_pHashIpTableNext;
 		
-		if (((curBan->ui8Bits & PERM) == PERM) == true)
+		if (((curBan->m_ui8Bits & PERM) == PERM) == true)
 		{
 			continue;
 		}
 		
-		if (((curBan->ui8Bits & NICK) == NICK) == true)
+		if (((curBan->m_ui8Bits & NICK) == NICK) == true)
 		{
 			continue;
 		}
 		
-		if (((curBan->ui8Bits & FULL) == FULL) == true && ((pBan->ui8Bits & FULL) == FULL) == false)
+		if (((curBan->m_ui8Bits & FULL) == FULL) == true && ((pBan->m_ui8Bits & FULL) == FULL) == false)
 		{
 			continue;
 		}
 		
-		if (curBan->tTempBanExpire > pBan->tTempBanExpire)
+		if (curBan->m_tTempBanExpire > pBan->m_tTempBanExpire)
 		{
 			continue;
 		}
@@ -3142,31 +3144,31 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->sReason == NULL)
+		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
+		if (pBan->m_sReason == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::TempBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in BanManager::TempBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
 			
 			return;
 		}
 		
 		if (szReasonLen > 511)
 		{
-			memcpy(pBan->sReason, sReason, 508);
-			pBan->sReason[510] = '.';
-			pBan->sReason[509] = '.';
-			pBan->sReason[508] = '.';
+			memcpy(pBan->m_sReason, sReason, 508);
+			pBan->m_sReason[510] = '.';
+			pBan->m_sReason[509] = '.';
+			pBan->m_sReason[508] = '.';
 			szReasonLen = 511;
 		}
 		else
 		{
-			memcpy(pBan->sReason, sReason, szReasonLen);
+			memcpy(pBan->m_sReason, sReason, szReasonLen);
 		}
-		pBan->sReason[szReasonLen] = '\0';
+		pBan->m_sReason[szReasonLen] = '\0';
 	}
-
+	
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
 		return;
@@ -3176,29 +3178,29 @@ void clsBanManager::TempBan(User * u, const char * sReason, const char * sBy, co
 		delete pBan;
 		return;
 	}
-
+	
 	Save();
 }
 //---------------------------------------------------------------------------
 
-char clsBanManager::TempBanIp(User * u, const char * sIp, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
+char BanManager::TempBanIp(User * pUser, const char * sIp, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime, const bool bFull)
 {
-	BanItem * pBan = new(std::nothrow) BanItem();
+	BanItem * pBan = new (std::nothrow) BanItem();
 	if (pBan == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pBan in clsBanManager::TempBanIp\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pBan in BanManager::TempBanIp\n");
 		return 1;
 	}
 	
-	pBan->ui8Bits |= TEMP;
+	pBan->m_ui8Bits |= TEMP;
 	
-	if (u != NULL)
+	if (pUser != NULL)
 	{
-		pBan->initIP(u);
+		pBan->initIP( pUser);
 	}
 	else
 	{
-		if (sIp != NULL && HashIP(sIp, pBan->ui128IpHash) == true)
+		if (sIp != NULL && HashIP(sIp, pBan->m_ui128IpHash) == true)
 		{
 			pBan->initIP(sIp);
 		}
@@ -3210,11 +3212,11 @@ char clsBanManager::TempBanIp(User * u, const char * sIp, const char * sReason, 
 		}
 	}
 	
-	pBan->ui8Bits |= IP;
+	pBan->m_ui8Bits |= IP;
 	
 	if (bFull == true)
 	{
-		pBan->ui8Bits |= FULL;
+		pBan->m_ui8Bits |= FULL;
 	}
 	
 	time_t acc_time;
@@ -3222,34 +3224,34 @@ char clsBanManager::TempBanIp(User * u, const char * sIp, const char * sReason, 
 	
 	if (expiretime > 0)
 	{
-		pBan->tTempBanExpire = expiretime;
+		pBan->m_tTempBanExpire = expiretime;
 	}
 	else
 	{
 		if (minutes == 0)
 		{
-			pBan->tTempBanExpire = acc_time + (clsSettingManager::mPtr->i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME] * 60);
+			pBan->m_tTempBanExpire = acc_time + (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME] * 60);
 		}
 		else
 		{
-			pBan->tTempBanExpire = acc_time + (minutes * 60);
+			pBan->m_tTempBanExpire = acc_time + (minutes * 60);
 		}
 	}
 	
 	BanItem * curBan = NULL,
-	          * nxtBan = FindIP(pBan->ui128IpHash, acc_time);
+	          * nxtBan = FindIP(pBan->m_ui128IpHash, acc_time);
 	          
 	// PPK ... don't add ban if is already here perm (full) ban or longer temp ban for same ip
 	while (nxtBan != NULL)
 	{
 		curBan = nxtBan;
-		nxtBan = curBan->pHashIpTableNext;
+		nxtBan = curBan->m_pHashIpTableNext;
 		
-		if (((curBan->ui8Bits & TEMP) == TEMP) == true && curBan->tTempBanExpire < pBan->tTempBanExpire)
+		if (((curBan->m_ui8Bits & TEMP) == TEMP) == true && curBan->m_tTempBanExpire < pBan->m_tTempBanExpire)
 		{
-			if (((curBan->ui8Bits & FULL) == FULL) == false || ((pBan->ui8Bits & FULL) == FULL) == true)
+			if (((curBan->m_ui8Bits & FULL) == FULL) == false || ((pBan->m_ui8Bits & FULL) == FULL) == true)
 			{
-				if (((curBan->ui8Bits & NICK) == NICK) == false)
+				if (((curBan->m_ui8Bits & NICK) == NICK) == false)
 				{
 					Rem(curBan);
 					delete curBan;
@@ -3261,7 +3263,7 @@ char clsBanManager::TempBanIp(User * u, const char * sIp, const char * sReason, 
 			continue;
 		}
 		
-		if (((curBan->ui8Bits & FULL) == FULL) == false && ((pBan->ui8Bits & FULL) == FULL) == true) continue;
+		if (((curBan->m_ui8Bits & FULL) == FULL) == false && ((pBan->m_ui8Bits & FULL) == FULL) == true) continue;
 		
 		delete pBan;
 		
@@ -3271,31 +3273,31 @@ char clsBanManager::TempBanIp(User * u, const char * sIp, const char * sReason, 
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->sReason == NULL)
+		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
+		if (pBan->m_sReason == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::TempBanIp\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in BanManager::TempBanIp\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
 			
 			return 1;
 		}
 		
 		if (szReasonLen > 511)
 		{
-			memcpy(pBan->sReason, sReason, 508);
-			pBan->sReason[510] = '.';
-			pBan->sReason[509] = '.';
-			pBan->sReason[508] = '.';
+			memcpy(pBan->m_sReason, sReason, 508);
+			pBan->m_sReason[510] = '.';
+			pBan->m_sReason[509] = '.';
+			pBan->m_sReason[508] = '.';
 			szReasonLen = 511;
 		}
 		else
 		{
-			memcpy(pBan->sReason, sReason, szReasonLen);
+			memcpy(pBan->m_sReason, sReason, szReasonLen);
 		}
-		pBan->sReason[szReasonLen] = '\0';
+		pBan->m_sReason[szReasonLen] = '\0';
 	}
-
+	
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
 		return 1;
@@ -3305,25 +3307,25 @@ char clsBanManager::TempBanIp(User * u, const char * sIp, const char * sReason, 
 		delete pBan;
 		return 1;
 	}
-
+	
 	Save();
 	
 	return 0;
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::NickTempBan(User * u, const char * sNick, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime)
+bool BanManager::NickTempBan(User * pUser, const char * sNick, const char * sReason, const char * sBy, const uint32_t minutes, const time_t &expiretime)
 {
-	BanItem * pBan = new(std::nothrow) BanItem();
+	BanItem * pBan = new (std::nothrow) BanItem();
 	if (pBan == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pBan in clsBanManager::NickTempBan\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pBan in BanManager::NickTempBan\n");
 		return false;
 	}
 	
-	pBan->ui8Bits |= TEMP;
+	pBan->m_ui8Bits |= TEMP;
 	
-	if (u == NULL)
+	if (pUser)
 	{
 		// PPK ... this should never happen, but to be sure ;)
 		if (sNick == NULL)
@@ -3342,73 +3344,73 @@ bool clsBanManager::NickTempBan(User * u, const char * sNick, const char * sReas
 		}
 		
 		size_t szNickLen = strlen(sNick);
-		pBan->sNick = (char *)malloc(szNickLen + 1);
-		if (pBan->sNick == NULL)
+		pBan->m_sNick = (char *)malloc(szNickLen + 1);
+		if (pBan->m_sNick == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in clsBanManager::NickTempBan\n", (uint64_t)(szNickLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in BanManager::NickTempBan\n", (uint64_t)(szNickLen + 1));
 			
 			return false;
 		}
-		memcpy(pBan->sNick, sNick, szNickLen);
-		pBan->sNick[szNickLen] = '\0';
-		pBan->ui32NickHash = HashNick(sNick, szNickLen);
+		memcpy(pBan->m_sNick, sNick, szNickLen);
+		pBan->m_sNick[szNickLen] = '\0';
+		pBan->m_ui32NickHash = HashNick(sNick, szNickLen);
 	}
 	else
 	{
 		// PPK ... bad script ban check
-		if (u->sNick[0] == '<')
+		if (pUser->m_sNick[0] == '<')
 		{
 			delete pBan;
 			
 			return false;
 		}
 		
-		pBan->sNick = (char *)malloc(u->ui8NickLen + 1);
-		if (pBan->sNick == NULL)
+		pBan->m_sNick = (char *)malloc(pUser->m_ui8NickLen + 1);
+		if (pBan->m_sNick == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu8 " bytes for sNick1 in clsBanManager::NickTempBan\n", u->ui8NickLen + 1);
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu8 " bytes for sNick1 in BanManager::NickTempBan\n", pUser->m_ui8NickLen + 1);
 			
 			return false;
 		}
-		memcpy(pBan->sNick, u->sNick, u->ui8NickLen);
-		pBan->sNick[u->ui8NickLen] = '\0';
-		pBan->ui32NickHash = u->ui32NickHash;
+		memcpy(pBan->m_sNick, pUser->m_sNick, pUser->m_ui8NickLen);
+		pBan->m_sNick[pUser->m_ui8NickLen] = '\0';
+		pBan->m_ui32NickHash = pUser->m_ui32NickHash;
 		
-		pBan->initIP(u);
-
+		pBan->initIP( pUser);
+		
 	}
 	
-	pBan->ui8Bits |= NICK;
+	pBan->m_ui8Bits |= NICK;
 	
 	time_t acc_time;
 	time(&acc_time);
 	
 	if (expiretime > 0)
 	{
-		pBan->tTempBanExpire = expiretime;
+		pBan->m_tTempBanExpire = expiretime;
 	}
 	else
 	{
 		if (minutes > 0)
 		{
-			pBan->tTempBanExpire = acc_time + (minutes * 60);
+			pBan->m_tTempBanExpire = acc_time + (minutes * 60);
 		}
 		else
 		{
-			pBan->tTempBanExpire = acc_time + (clsSettingManager::mPtr->i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME] * 60);
+			pBan->m_tTempBanExpire = acc_time + (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME] * 60);
 		}
 	}
 	
-	BanItem *nxtBan = FindNick(pBan->ui32NickHash, acc_time, pBan->sNick);
+	BanItem *nxtBan = FindNick(pBan->m_ui32NickHash, acc_time, pBan->m_sNick);
 	
 	// PPK ... not allow same nickbans !
 	if (nxtBan != NULL)
 	{
-		if (((nxtBan->ui8Bits & PERM) == PERM) == true)
+		if (((nxtBan->m_ui8Bits & PERM) == PERM) == true)
 		{
 			delete pBan;
 			
@@ -3416,13 +3418,13 @@ bool clsBanManager::NickTempBan(User * u, const char * sNick, const char * sReas
 		}
 		else
 		{
-			if (nxtBan->tTempBanExpire < pBan->tTempBanExpire)
+			if (nxtBan->m_tTempBanExpire < pBan->m_tTempBanExpire)
 			{
-				if (((nxtBan->ui8Bits & IP) == IP) == true)
+				if (((nxtBan->m_ui8Bits & IP) == IP) == true)
 				{
 					// PPK ... set old ban to ip ban only
 					RemFromNickTable(nxtBan);
-					nxtBan->ui8Bits &= ~NICK;
+					nxtBan->m_ui8Bits &= ~NICK;
 				}
 				else
 				{
@@ -3443,31 +3445,31 @@ bool clsBanManager::NickTempBan(User * u, const char * sNick, const char * sReas
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-		pBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->sReason == NULL)
+		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
+		if (pBan->m_sReason == NULL)
 		{
 			delete pBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::NickTempBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in BanManager::NickTempBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
 			
 			return false;
 		}
 		
 		if (szReasonLen > 511)
 		{
-			memcpy(pBan->sReason, sReason, 508);
-			pBan->sReason[510] = '.';
-			pBan->sReason[509] = '.';
-			pBan->sReason[508] = '.';
+			memcpy(pBan->m_sReason, sReason, 508);
+			pBan->m_sReason[510] = '.';
+			pBan->m_sReason[509] = '.';
+			pBan->m_sReason[508] = '.';
 			szReasonLen = 511;
 		}
 		else
 		{
-			memcpy(pBan->sReason, sReason, szReasonLen);
+			memcpy(pBan->m_sReason, sReason, szReasonLen);
 		}
-		pBan->sReason[szReasonLen] = '\0';
+		pBan->m_sReason[szReasonLen] = '\0';
 	}
-
+	
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
 		return false;
@@ -3477,14 +3479,14 @@ bool clsBanManager::NickTempBan(User * u, const char * sNick, const char * sReas
 		delete pBan;
 		return false;
 	}
-
+	
 	Save();
 	
 	return true;
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::Unban(const char * sWhat)
+bool BanManager::Unban(const char * sWhat)
 {
 	uint32_t hash = HashNick(sWhat, strlen(sWhat));
 	
@@ -3518,7 +3520,7 @@ bool clsBanManager::Unban(const char * sWhat)
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::PermUnban(const char * sWhat)
+bool BanManager::PermUnban(const char * sWhat)
 {
 	uint32_t hash = HashNick(sWhat, strlen(sWhat));
 	
@@ -3549,7 +3551,7 @@ bool clsBanManager::PermUnban(const char * sWhat)
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::TempUnban(const char * sWhat)
+bool BanManager::TempUnban(const char * sWhat)
 {
 	uint32_t hash = HashNick(sWhat, strlen(sWhat));
 	
@@ -3583,37 +3585,37 @@ bool clsBanManager::TempUnban(const char * sWhat)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::RemoveAllIP(const uint8_t * ui128IpHash)
+void BanManager::RemoveAllIP(const uint8_t * m_ui128IpHash)
 {
 	uint16_t ui16IpTableIdx = 0;
 	
-	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)ui128IpHash))
+	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)m_ui128IpHash))
 	{
-		ui16IpTableIdx = ui128IpHash[14] * ui128IpHash[15];
+		ui16IpTableIdx = m_ui128IpHash[14] * m_ui128IpHash[15];
 	}
 	else
 	{
-		ui16IpTableIdx = GetIpTableIdx(ui128IpHash);
+		ui16IpTableIdx = GetIpTableIdx(m_ui128IpHash);
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[ui16IpTableIdx];
+	              * next = m_pIpBanTable[ui16IpTableIdx];
 	              
-	BanItem * curBan = NULL, * nextBan = NULL;
+	BanItem * curBan = NULL, * nextBan = nullptr;
 	
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0)
+		if (memcmp(cur->pFirstBan->m_ui128IpHash, m_ui128IpHash, 16) == 0)
 		{
 			nextBan = cur->pFirstBan;
 			
 			while (nextBan != NULL)
 			{
 				curBan = nextBan;
-				nextBan = curBan->pHashIpTableNext;
+				nextBan = curBan->m_pHashIpTableNext;
 				
 				Rem(curBan);
 				delete curBan;
@@ -3625,39 +3627,39 @@ void clsBanManager::RemoveAllIP(const uint8_t * ui128IpHash)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::RemovePermAllIP(const uint8_t * ui128IpHash)
+void BanManager::RemovePermAllIP(const uint8_t * m_ui128IpHash)
 {
 	uint16_t ui16IpTableIdx = 0;
 	
-	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)ui128IpHash))
+	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)m_ui128IpHash))
 	{
-		ui16IpTableIdx = ui128IpHash[14] * ui128IpHash[15];
+		ui16IpTableIdx = m_ui128IpHash[14] * m_ui128IpHash[15];
 	}
 	else
 	{
-		ui16IpTableIdx = GetIpTableIdx(ui128IpHash);
+		ui16IpTableIdx = GetIpTableIdx(m_ui128IpHash);
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[ui16IpTableIdx];
+	              * next = m_pIpBanTable[ui16IpTableIdx];
 	              
-	BanItem * curBan = NULL, * nextBan = NULL;
+	BanItem * curBan = NULL, * nextBan = nullptr;
 	
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0)
+		if (memcmp(cur->pFirstBan->m_ui128IpHash, m_ui128IpHash, 16) == 0)
 		{
 			nextBan = cur->pFirstBan;
 			
 			while (nextBan != NULL)
 			{
 				curBan = nextBan;
-				nextBan = curBan->pHashIpTableNext;
+				nextBan = curBan->m_pHashIpTableNext;
 				
-				if (((curBan->ui8Bits & clsBanManager::PERM) == clsBanManager::PERM) == true)
+				if (((curBan->m_ui8Bits & BanManager::PERM) == BanManager::PERM) == true)
 				{
 					Rem(curBan);
 					delete curBan;
@@ -3670,39 +3672,39 @@ void clsBanManager::RemovePermAllIP(const uint8_t * ui128IpHash)
 }
 //---------------------------------------------------------------------------
 
-void clsBanManager::RemoveTempAllIP(const uint8_t * ui128IpHash)
+void BanManager::RemoveTempAllIP(const uint8_t * m_ui128IpHash)
 {
 	uint16_t ui16IpTableIdx = 0;
 	
-	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)ui128IpHash))
+	if (IN6_IS_ADDR_V4MAPPED((const in6_addr *)m_ui128IpHash))
 	{
-		ui16IpTableIdx = ui128IpHash[14] * ui128IpHash[15];
+		ui16IpTableIdx = m_ui128IpHash[14] * m_ui128IpHash[15];
 	}
 	else
 	{
-		ui16IpTableIdx = GetIpTableIdx(ui128IpHash);
+		ui16IpTableIdx = GetIpTableIdx(m_ui128IpHash);
 	}
 	
 	IpTableItem * cur = NULL,
-	              * next = pIpTable[ui16IpTableIdx];
+	              * next = m_pIpBanTable[ui16IpTableIdx];
 	              
-	BanItem * curBan = NULL, * nextBan = NULL;
+	BanItem * curBan = NULL, * nextBan = nullptr;
 	
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->pFirstBan->ui128IpHash, ui128IpHash, 16) == 0)
+		if (memcmp(cur->pFirstBan->m_ui128IpHash, m_ui128IpHash, 16) == 0)
 		{
 			nextBan = cur->pFirstBan;
 			
 			while (nextBan != NULL)
 			{
 				curBan = nextBan;
-				nextBan = curBan->pHashIpTableNext;
+				nextBan = curBan->m_pHashIpTableNext;
 				
-				if (((curBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP) == true)
+				if (((curBan->m_ui8Bits & BanManager::TEMP) == BanManager::TEMP) == true)
 				{
 					Rem(curBan);
 					delete curBan;
@@ -3715,48 +3717,49 @@ void clsBanManager::RemoveTempAllIP(const uint8_t * ui128IpHash)
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, const char * sIpTo, const uint8_t * ui128ToIpHash, const char * sReason, const char * sBy, const bool bFull)
+bool BanManager::RangeBan(const char * m_sIpFrom, const uint8_t * ui128FromIpHash, const char * m_sIpTo, const uint8_t * ui128ToIpHash, const char * sReason, const char * sBy, const bool bFull)
 {
-	RangeBanItem * pRangeBan = new(std::nothrow) RangeBanItem();
+	RangeBanItem * pRangeBan = new (std::nothrow) RangeBanItem();
 	if (pRangeBan == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pRangeBan in clsBanManager::RangeBan\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pRangeBan in BanManager::RangeBan\n");
 		return false;
 	}
 	
-	pRangeBan->ui8Bits |= PERM;
+	pRangeBan->m_ui8Bits |= PERM;
 	
-	strcpy(pRangeBan->sIpFrom, sIpFrom);
-	memcpy(pRangeBan->ui128FromIpHash, ui128FromIpHash, 16);
+	strcpy(pRangeBan->m_sIpFrom, m_sIpFrom);
+	memcpy(pRangeBan->m_ui128FromIpHash, ui128FromIpHash, 16);
 	
-	strcpy(pRangeBan->sIpTo, sIpTo);
-	memcpy(pRangeBan->ui128ToIpHash, ui128ToIpHash, 16);
+	strcpy(pRangeBan->m_sIpTo, m_sIpTo);
+	memcpy(pRangeBan->m_ui128ToIpHash, ui128ToIpHash, 16);
 	
 	if (bFull == true)
 	{
-		pRangeBan->ui8Bits |= FULL;
+		pRangeBan->m_ui8Bits |= FULL;
 	}
 	
 	RangeBanItem * curBan = NULL,
-	               * nxtBan = pRangeBanListS;
+	               * nxtBan = m_pRangeBanListS;
 	               
 	// PPK ... don't add range ban if is already here same perm (full) range ban
 	while (nxtBan != NULL)
 	{
 		curBan = nxtBan;
-		nxtBan = curBan->pNext;
+		nxtBan = curBan->m_pNext;
 		
-		if (memcmp(curBan->ui128FromIpHash, pRangeBan->ui128FromIpHash, 16) != 0 || memcmp(curBan->ui128ToIpHash, pRangeBan->ui128ToIpHash, 16) != 0)
+		if (memcmp(curBan->m_ui128FromIpHash, pRangeBan->m_ui128FromIpHash, 16) != 0 || 
+			memcmp(curBan->m_ui128ToIpHash, pRangeBan->m_ui128ToIpHash, 16) != 0)
 		{
 			continue;
 		}
 		
-		if ((curBan->ui8Bits & TEMP) == TEMP)
+		if ((curBan->m_ui8Bits & TEMP) == TEMP)
 		{
 			continue;
 		}
 		
-		if (((curBan->ui8Bits & FULL) == FULL) == false && ((pRangeBan->ui8Bits & FULL) == FULL) == true)
+		if (((curBan->m_ui8Bits & FULL) == FULL) == false && ((pRangeBan->m_ui8Bits & FULL) == FULL) == true)
 		{
 			RemRange(curBan);
 			delete curBan;
@@ -3772,29 +3775,29 @@ bool clsBanManager::RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHa
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-		pRangeBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pRangeBan->sReason == NULL)
+		pRangeBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
+		if (pRangeBan->m_sReason == NULL)
 		{
 			delete pRangeBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::RangeBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in BanManager::RangeBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
 			
 			return false;
 		}
 		
 		if (szReasonLen > 511)
 		{
-			memcpy(pRangeBan->sReason, sReason, 508);
-			pRangeBan->sReason[510] = '.';
-			pRangeBan->sReason[509] = '.';
-			pRangeBan->sReason[508] = '.';
+			memcpy(pRangeBan->m_sReason, sReason, 508);
+			pRangeBan->m_sReason[510] = '.';
+			pRangeBan->m_sReason[509] = '.';
+			pRangeBan->m_sReason[508] = '.';
 			szReasonLen = 511;
 		}
 		else
 		{
-			memcpy(pRangeBan->sReason, sReason, szReasonLen);
+			memcpy(pRangeBan->m_sReason, sReason, szReasonLen);
 		}
-		pRangeBan->sReason[szReasonLen] = '\0';
+		pRangeBan->m_sReason[szReasonLen] = '\0';
 	}
 	
 	if (AddBanInternal(sBy, pRangeBan, __FUNCTION__) == false)
@@ -3809,27 +3812,27 @@ bool clsBanManager::RangeBan(const char * sIpFrom, const uint8_t * ui128FromIpHa
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::RangeTempBan(const char * sIpFrom, const uint8_t * ui128FromIpHash, const char * sIpTo, const uint8_t * ui128ToIpHash, const char * sReason, const char * sBy, const uint32_t minutes,
+bool BanManager::RangeTempBan(const char * m_sIpFrom, const uint8_t * ui128FromIpHash, const char * m_sIpTo, const uint8_t * ui128ToIpHash, const char * sReason, const char * sBy, const uint32_t minutes,
                                  const time_t &expiretime, const bool bFull)
 {
-	RangeBanItem * pRangeBan = new(std::nothrow) RangeBanItem();
+	RangeBanItem * pRangeBan = new (std::nothrow) RangeBanItem();
 	if (pRangeBan == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pRangeBan in clsBanManager::RangeTempBan\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pRangeBan in BanManager::RangeTempBan\n");
 		return false;
 	}
 	
-	pRangeBan->ui8Bits |= TEMP;
+	pRangeBan->m_ui8Bits |= TEMP;
 	
-	strcpy(pRangeBan->sIpFrom, sIpFrom);
-	memcpy(pRangeBan->ui128FromIpHash, ui128FromIpHash, 16);
+	strcpy(pRangeBan->m_sIpFrom, m_sIpFrom);
+	memcpy(pRangeBan->m_ui128FromIpHash, ui128FromIpHash, 16);
 	
-	strcpy(pRangeBan->sIpTo, sIpTo);
-	memcpy(pRangeBan->ui128ToIpHash, ui128ToIpHash, 16);
+	strcpy(pRangeBan->m_sIpTo, m_sIpTo);
+	memcpy(pRangeBan->m_ui128ToIpHash, ui128ToIpHash, 16);
 	
 	if (bFull == true)
 	{
-		pRangeBan->ui8Bits |= FULL;
+		pRangeBan->m_ui8Bits |= FULL;
 	}
 	
 	time_t acc_time;
@@ -3837,37 +3840,37 @@ bool clsBanManager::RangeTempBan(const char * sIpFrom, const uint8_t * ui128From
 	
 	if (expiretime > 0)
 	{
-		pRangeBan->tTempBanExpire = expiretime;
+		pRangeBan->m_tTempBanExpire = expiretime;
 	}
 	else
 	{
 		if (minutes > 0)
 		{
-			pRangeBan->tTempBanExpire = acc_time + (minutes * 60);
+			pRangeBan->m_tTempBanExpire = acc_time + (minutes * 60);
 		}
 		else
 		{
-			pRangeBan->tTempBanExpire = acc_time + (clsSettingManager::mPtr->i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME] * 60);
+			pRangeBan->m_tTempBanExpire = acc_time + (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_DEFAULT_TEMP_BAN_TIME] * 60);
 		}
 	}
 	
 	RangeBanItem * curBan = NULL,
-	               * nxtBan = pRangeBanListS;
+	               * nxtBan = m_pRangeBanListS;
 	               
 	// PPK ... don't add range ban if is already here same perm (full) range ban or longer temp ban for same range
 	while (nxtBan != NULL)
 	{
 		curBan = nxtBan;
-		nxtBan = curBan->pNext;
+		nxtBan = curBan->m_pNext;
 		
-		if (memcmp(curBan->ui128FromIpHash, pRangeBan->ui128FromIpHash, 16) != 0 || memcmp(curBan->ui128ToIpHash, pRangeBan->ui128ToIpHash, 16) != 0)
+		if (memcmp(curBan->m_ui128FromIpHash, pRangeBan->m_ui128FromIpHash, 16) != 0 || memcmp(curBan->m_ui128ToIpHash, pRangeBan->m_ui128ToIpHash, 16) != 0)
 		{
 			continue;
 		}
 		
-		if (((curBan->ui8Bits & TEMP) == TEMP) == true && curBan->tTempBanExpire < pRangeBan->tTempBanExpire)
+		if (((curBan->m_ui8Bits & TEMP) == TEMP) == true && curBan->m_tTempBanExpire < pRangeBan->m_tTempBanExpire)
 		{
-			if (((curBan->ui8Bits & FULL) == FULL) == false || ((pRangeBan->ui8Bits & FULL) == FULL) == true)
+			if (((curBan->m_ui8Bits & FULL) == FULL) == false || ((pRangeBan->m_ui8Bits & FULL) == FULL) == true)
 			{
 				RemRange(curBan);
 				delete curBan;
@@ -3878,7 +3881,7 @@ bool clsBanManager::RangeTempBan(const char * sIpFrom, const uint8_t * ui128From
 			continue;
 		}
 		
-		if (((curBan->ui8Bits & FULL) == FULL) == false && ((pRangeBan->ui8Bits & FULL) == FULL) == true)
+		if (((curBan->m_ui8Bits & FULL) == FULL) == false && ((pRangeBan->m_ui8Bits & FULL) == FULL) == true)
 		{
 			continue;
 		}
@@ -3891,29 +3894,29 @@ bool clsBanManager::RangeTempBan(const char * sIpFrom, const uint8_t * ui128From
 	if (sReason != NULL)
 	{
 		size_t szReasonLen = strlen(sReason);
-		pRangeBan->sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pRangeBan->sReason == NULL)
+		pRangeBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
+		if (pRangeBan->m_sReason == NULL)
 		{
 			delete pRangeBan;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in clsBanManager::RangeTempBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sReason in BanManager::RangeTempBan\n", (uint64_t)(szReasonLen > 511 ? 512 : szReasonLen + 1));
 			
 			return false;
 		}
 		
 		if (szReasonLen > 511)
 		{
-			memcpy(pRangeBan->sReason, sReason, 508);
-			pRangeBan->sReason[510] = '.';
-			pRangeBan->sReason[509] = '.';
-			pRangeBan->sReason[508] = '.';
+			memcpy(pRangeBan->m_sReason, sReason, 508);
+			pRangeBan->m_sReason[510] = '.';
+			pRangeBan->m_sReason[509] = '.';
+			pRangeBan->m_sReason[508] = '.';
 			szReasonLen = 511;
 		}
 		else
 		{
-			memcpy(pRangeBan->sReason, sReason, szReasonLen);
+			memcpy(pRangeBan->m_sReason, sReason, szReasonLen);
 		}
-		pRangeBan->sReason[szReasonLen] = '\0';
+		pRangeBan->m_sReason[szReasonLen] = '\0';
 	}
 	
 	if (AddBanInternal(sBy, pRangeBan, __FUNCTION__) == false)
@@ -3928,17 +3931,17 @@ bool clsBanManager::RangeTempBan(const char * sIpFrom, const uint8_t * ui128From
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * ui128ToIpHash)
+bool BanManager::RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * ui128ToIpHash)
 {
 	RangeBanItem * cur = NULL,
-	               * next = pRangeBanListS;
+	               * next = m_pRangeBanListS;
 	               
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (memcmp(cur->ui128FromIpHash, ui128FromIpHash, 16) == 0 && memcmp(cur->ui128ToIpHash, ui128ToIpHash, 16) == 0)
+		if (memcmp(cur->m_ui128FromIpHash, ui128FromIpHash, 16) == 0 && memcmp(cur->m_ui128ToIpHash, ui128ToIpHash, 16) == 0)
 		{
 			RemRange(cur);
 			delete cur;
@@ -3952,17 +3955,17 @@ bool clsBanManager::RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * 
 }
 //---------------------------------------------------------------------------
 
-bool clsBanManager::RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * ui128ToIpHash, unsigned char cType)
+bool BanManager::RangeUnban(const uint8_t * ui128FromIpHash, const uint8_t * ui128ToIpHash, unsigned char cType)
 {
 	RangeBanItem * cur = NULL,
-	               * next = pRangeBanListS;
+	               * next = m_pRangeBanListS;
 	               
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if ((cur->ui8Bits & cType) == cType && memcmp(cur->ui128FromIpHash, ui128FromIpHash, 16) == 0 && memcmp(cur->ui128ToIpHash, ui128ToIpHash, 16) == 0)
+		if ((cur->m_ui8Bits & cType) == cType && memcmp(cur->m_ui128FromIpHash, ui128FromIpHash, 16) == 0 && memcmp(cur->m_ui128ToIpHash, ui128ToIpHash, 16) == 0)
 		{
 			RemRange(cur);
 			delete cur;

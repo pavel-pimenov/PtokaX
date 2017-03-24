@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -221,8 +221,8 @@ static void WINAPI CtrlHandler(DWORD dwCtrl)
 		case SERVICE_CONTROL_SHUTDOWN:
 		case SERVICE_CONTROL_STOP:
 			ss.dwCurrentState = SERVICE_STOP_PENDING;
-			clsServerManager::bIsClose = true;
-			clsServerManager::Stop();
+			ServerManager::m_bIsClose = true;
+			ServerManager::Stop();
 		case SERVICE_CONTROL_INTERROGATE:
 			// Fall through to send current status.
 			break;
@@ -242,9 +242,9 @@ static void MainLoop()
 #ifdef _WIN_IOT
 	while (true)
 	{
-		clsServiceLoop::mPtr->Looper();
+		ServiceLoop::m_Ptr->Looper();
 		
-		if (clsServerManager::bServerTerminated == true)
+		if (ServerManager::m_bServerTerminated == true)
 		{
 			break;
 		}
@@ -263,24 +263,22 @@ static void MainLoop()
 		}
 		else
 		{
-			if (msg.message == WM_USER + 1)
+			if (msg.message == WM_PX_DO_LOOP)
 			{
-				break;
+				ServiceLoop::m_Ptr->Looper();
 			}
 			else if (msg.message == WM_TIMER)
 			{
-				if (msg.wParam == clsServerManager::sectimer)
+				if (msg.wParam == ServerManager::m_upSecTimer)
 				{
-					clsServerManager::OnSecTimer();
+					ServerManager::OnSecTimer();
 				}
-				else if (msg.wParam == clsServiceLoop::srvLoopTimer)
+#ifdef FLYLINKDC_REMOVE_REGISTER_THREAD
+				else if (msg.wParam == ServerManager::m_upRegTimer)
 				{
-					clsServiceLoop::mPtr->Looper();
+					ServerManager::OnRegTimer();
 				}
-				else if (msg.wParam == clsServerManager::regtimer)
-				{
-					clsServerManager::OnRegTimer();
-				}
+#endif
 				else
 				{
 					//Must be script timer
@@ -321,9 +319,9 @@ static void WINAPI StartService(DWORD /*argc*/, char* argv[])
 		return;
 	}
 	
-	clsServerManager::Initialize();
+	ServerManager::Initialize();
 	
-	if (clsServerManager::Start() == false)
+	if (ServerManager::Start() == false)
 	{
 		AppendLog("Server start failed!");
 		ss.dwCurrentState = SERVICE_STOPPED;
@@ -396,11 +394,11 @@ int __cdecl main(int argc, char* argv[])
 	char * sPath = strrchr(sBuf, '\\');
 	if (sPath != NULL)
 	{
-		clsServerManager::sPath = string(sBuf, sPath - sBuf);
+		ServerManager::m_sPath = string(sBuf, sPath - sBuf);
 	}
 	else
 	{
-		clsServerManager::sPath = sBuf;
+		ServerManager::m_sPath = sBuf;
 	}
 	
 	char * sServiceName = NULL;
@@ -417,7 +415,7 @@ int __cdecl main(int argc, char* argv[])
 				return EXIT_FAILURE;
 			}
 			sServiceName = argv[i];
-			clsServerManager::bService = true;
+			ServerManager::m_bService = true;
 		}
 		else if (stricmp(argv[i], "-c") == 0)
 		{
@@ -439,16 +437,16 @@ int __cdecl main(int argc, char* argv[])
 			
 			if (argv[i][szLen - 1] == '/' || argv[i][szLen - 1] == '\\')
 			{
-				clsServerManager::sPath = string(argv[i], szLen - 1);
+				ServerManager::m_sPath = string(argv[i], szLen - 1);
 			}
 			else
 			{
-				clsServerManager::sPath = string(argv[i], szLen);
+				ServerManager::m_sPath = string(argv[i], szLen);
 			}
 			
-			if (DirExist(clsServerManager::sPath.c_str()) == false)
+			if (DirExist(ServerManager::m_sPath.c_str()) == false)
 			{
-				if (CreateDirectory(clsServerManager::sPath.c_str(), NULL) == 0)
+				if (CreateDirectory(ServerManager::m_sPath.c_str(), NULL) == 0)
 				{
 					printf("Config directory not exist and can't be created!");
 					return EXIT_FAILURE;
@@ -494,7 +492,7 @@ int __cdecl main(int argc, char* argv[])
 		}
 		else if (stricmp(argv[i], "/generatexmllanguage") == NULL)
 		{
-			clsLanguageManager::GenerateXmlExample();
+			LanguageManager::GenerateXmlExample();
 			return EXIT_SUCCESS;
 		}
 		// else if(strcmp(argv[i], "/crash-test-doctor-dump") == NULL)
@@ -521,36 +519,36 @@ int __cdecl main(int argc, char* argv[])
 	
 	if (bSetup == true)
 	{
-		clsServerManager::Initialize();
+		ServerManager::Initialize();
 		
-		clsServerManager::CommandLineSetup();
+		ServerManager::CommandLineSetup();
 		
-		clsServerManager::FinalClose();
+		ServerManager::FinalClose();
 		
 		return EXIT_SUCCESS;
 	}
 	
 	if (bInstallService == true)
 	{
-		if (sPath == NULL && strcmp(clsServerManager::sPath.c_str(), sBuf) == 0)
+		if (sPath == NULL && strcmp(ServerManager::m_sPath.c_str(), sBuf) == 0)
 		{
 			return InstallService(sServiceName, NULL);
 		}
 		else
 		{
-			return InstallService(sServiceName, clsServerManager::sPath.c_str());
+			return InstallService(sServiceName, ServerManager::m_sPath.c_str());
 		}
 	}
 	
 #ifndef _WIN_IOT
-	ExceptionHandlingInitialize(clsServerManager::sPath, sBuf);
+	ExceptionHandlingInitialize(ServerManager::m_sPath, sBuf);
 #endif
 	
-	if (clsServerManager::bService == false)
+	if (ServerManager::m_bService == false)
 	{
-		clsServerManager::Initialize();
+		ServerManager::Initialize();
 		
-		if (clsServerManager::Start() == false)
+		if (ServerManager::Start() == false)
 		{
 			printf("Server start failed!");
 #ifndef _WIN_IOT
@@ -583,6 +581,7 @@ int __cdecl main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 	}
+	
 	return EXIT_SUCCESS;
 }
 //---------------------------------------------------------------------------

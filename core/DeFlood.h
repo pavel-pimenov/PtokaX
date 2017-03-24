@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -43,14 +43,14 @@ enum DefloodTypes
 };
 //---------------------------------------------------------------------------
 
-bool DeFloodCheckForFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, const char * sOtherNick = NULL);
-bool DeFloodCheckForSameFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, const uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, const char * sNewData,
+bool DeFloodCheckForFlood(User * pUser, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, const char * sOtherNick = NULL);
+bool DeFloodCheckForSameFlood(User * pUser, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, const uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, const char * sNewData,
                               const size_t ui32NewDataLen, const char * sOldData, const uint16_t ui16OldDataLen, bool &bNewData, const char * sOtherNick = NULL);
-bool DeFloodCheckForDataFlood(User * u, const uint8_t ui8DefloodType, const int16_t ui16Action, uint32_t &ui16Count, uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime);
+bool DeFloodCheckForDataFlood(User * pUser, const uint8_t ui8DefloodType, const int16_t ui16Action, uint32_t &ui16Count, uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime);
 void DeFloodDoAction(User * pUser, const uint8_t ui8DefloodType, const int16_t ui16Action, uint16_t &ui16Count, const char * sOtherNick);
 bool DeFloodCheckForWarn(User * pUser, const uint8_t ui8DefloodType, const char * sOtherNick);
 const char * DeFloodGetMessage(const uint8_t ui8DefloodType, const uint8_t ui8MsgId);
-void DeFloodReport(User * u, const uint8_t ui8DefloodType, const char *sAction);
+void DeFloodReport(User * pUser, const uint8_t ui8DefloodType, const char *sAction);
 bool DeFloodCheckInterval(User * pUser, const uint8_t ui8DefloodType, uint16_t &ui16Count, uint64_t &ui64LastOkTick, const int16_t ui16DefloodCount, const uint32_t ui32DefloodTime, const char * sOtherNick = NULL);
 //---------------------------------------------------------------------------
 

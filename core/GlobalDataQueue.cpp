@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -32,355 +32,385 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #ifdef _WIN32
 #pragma hdrstop
+#else
+#define _countof(a) (sizeof(a)/sizeof(*(a)))
 #endif
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-clsGlobalDataQueue * clsGlobalDataQueue::mPtr = NULL;
+GlobalDataQueue * GlobalDataQueue::m_Ptr = NULL;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-clsGlobalDataQueue::clsGlobalDataQueue() : pCreatedGlobalQueues(NULL), pQueueItems(NULL), pSingleItems(NULL), bHaveItems(false)
-{
+GlobalDataQueue::GlobalDataQueue() : m_pCreatedGlobalQueues(NULL), m_pQueueItems(NULL), m_pSingleItems(NULL), m_bHaveItems(false)
+	{
 	// OpList buffer
-	OpListQueue.pBuffer = (char *)calloc(256, 1);
-	if (OpListQueue.pBuffer == NULL)
-	{
-		AppendDebugLog("%s - [MEM] Cannot create OpListQueue\n");
-		exit(EXIT_FAILURE);
-	}
-	OpListQueue.szLen = 0;
-	OpListQueue.szSize = 255;
-	
-	// UserIP buffer
-	UserIPQueue.pBuffer = (char *)calloc(256, 1);
-	if (UserIPQueue.pBuffer == NULL)
-	{
-		AppendDebugLog("%s - [MEM] Cannot create UserIPQueue\n");
-		exit(EXIT_FAILURE);
-	}
-	UserIPQueue.szLen = 0;
-	UserIPQueue.szSize = 255;
-	UserIPQueue.bHaveDollars = false;
-	
-	pNewQueueItems[0] = NULL;
-	pNewQueueItems[1] = NULL;
-	
-	pNewSingleItems[0] = NULL;
-	pNewSingleItems[1] = NULL;
-	
-	for (uint8_t ui8i = 0; ui8i < 144; ui8i++)
-	{
-		GlobalQueues[ui8i].szLen = 0;
-		GlobalQueues[ui8i].szSize = 255;
-		GlobalQueues[ui8i].szZlen = 0;
-		GlobalQueues[ui8i].szZsize = 255;
-		
-		GlobalQueues[ui8i].pBuffer = (char *)calloc(256, 1);
-		GlobalQueues[ui8i].pZbuffer = (char *)calloc(256, 1);
-		if (GlobalQueues[ui8i].pBuffer == NULL || GlobalQueues[ui8i].pZbuffer == NULL)
+	m_OpListQueue.m_pBuffer = (char *)calloc(256, 1);
+	if (m_OpListQueue.m_pBuffer == NULL)
 		{
-			AppendDebugLog("%s - [MEM] Cannot create GlobalQueues[ui8i]\n");
+		AppendDebugLog("%s - [MEM] Cannot create m_OpListQueue\n");
 			exit(EXIT_FAILURE);
 		}
+	m_OpListQueue.m_szLen = 0;
+	m_OpListQueue.m_szSize = 255;
+	
+	// UserIP buffer
+	m_UserIPQueue.m_pBuffer = (char *)calloc(256, 1);
+	if (m_UserIPQueue.m_pBuffer == NULL)
+	{
+		AppendDebugLog("%s - [MEM] Cannot create m_UserIPQueue\n");
+		exit(EXIT_FAILURE);
+}
+	m_UserIPQueue.m_szLen = 0;
+	m_UserIPQueue.m_szSize = 255;
+	m_UserIPQueue.m_bHaveDollars = false;
+			
+	m_pNewQueueItems[0] = NULL;
+	m_pNewQueueItems[1] = NULL;
+			
+	m_pNewSingleItems[0] = NULL;
+	m_pNewSingleItems[1] = NULL;
+	
+	for (uint8_t ui8i = 0; ui8i < _countof(m_GlobalQueues); ui8i++)
+{
+		m_GlobalQueues[ui8i].m_szLen = 0;
+		m_GlobalQueues[ui8i].m_szSize = 255;
+		m_GlobalQueues[ui8i].m_szZlen = 0;
+		m_GlobalQueues[ui8i].m_szZsize = 255;
 		
-		GlobalQueues[ui8i].pNext = NULL;
-		GlobalQueues[ui8i].bCreated = false;
-		GlobalQueues[ui8i].bZlined = false;
+		m_GlobalQueues[ui8i].m_pBuffer = (char *)calloc(256, 1);
+		m_GlobalQueues[ui8i].m_pZbuffer = (char *)calloc(256, 1);
+		if (m_GlobalQueues[ui8i].m_pBuffer == NULL || m_GlobalQueues[ui8i].m_pZbuffer == NULL)
+{
+			AppendDebugLog("%s - [MEM] Cannot create m_GlobalQueues[ui8i]\n");
+			exit(EXIT_FAILURE);
+}
+	
+		m_GlobalQueues[ui8i].m_pNext = NULL;
+		m_GlobalQueues[ui8i].m_bCreated = false;
+		m_GlobalQueues[ui8i].m_bZlined = false;
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-clsGlobalDataQueue::~clsGlobalDataQueue()
+GlobalDataQueue::~GlobalDataQueue()
 {
-	free(OpListQueue.pBuffer);
-	free(UserIPQueue.pBuffer);
+	free(m_OpListQueue.m_pBuffer);
+	free(m_UserIPQueue.m_pBuffer);
 	
-	if (pNewSingleItems[0] != NULL)
+	if (m_pNewSingleItems[0] != NULL)
 	{
 		SingleDataItem * pCur = NULL,
-		                 * pNext = pNewSingleItems[0];
+		                 * pNext = m_pNewSingleItems[0];
 		                 
 		while (pNext != NULL)
 		{
 			pCur = pNext;
-			pNext = pCur->pNext;
+			pNext = pCur->m_pNext;
 			
-			free(pCur->pData);
+			free(pCur->m_pData);
 			delete pCur;
 		}
 	}
 	
-	if (pSingleItems != NULL)
+	if (m_pSingleItems != NULL)
 	{
 		SingleDataItem * pCur = NULL,
-		                 * pNext = pSingleItems;
+		                 * pNext = m_pSingleItems;
 		                 
 		while (pNext != NULL)
 		{
 			pCur = pNext;
-			pNext = pCur->pNext;
+			pNext = pCur->m_pNext;
 			
-			free(pCur->pData);
+			free(pCur->m_pData);
 			delete pCur;
 		}
 	}
 	
-	if (pNewQueueItems[0] != NULL)
+	if (m_pNewQueueItems[0] != NULL)
 	{
 		QueueItem * pCur = NULL,
-		            * pNext = pNewQueueItems[0];
+		            * pNext = m_pNewQueueItems[0];
 		            
 		while (pNext != NULL)
 		{
 			pCur = pNext;
-			pNext = pCur->pNext;
+			pNext = pCur->m_pNext;
 			delete pCur;
 		}
 	}
 	
-	if (pQueueItems != NULL)
+	if (m_pQueueItems != NULL)
 	{
 		QueueItem * pCur = NULL,
-		            * pNext = pQueueItems;
+		            * pNext = m_pQueueItems;
 		            
 		while (pNext != NULL)
 		{
 			pCur = pNext;
-			pNext = pCur->pNext;
+			pNext = pCur->m_pNext;
 			delete pCur;
 		}
 	}
 	
-	for (uint8_t ui8i = 0; ui8i < 144; ui8i++)
+	for (uint8_t ui8i = 0; ui8i < _countof(m_GlobalQueues); ui8i++)
 	{
-		free(GlobalQueues[ui8i].pBuffer);
-		free(GlobalQueues[ui8i].pZbuffer);
+		free(m_GlobalQueues[ui8i].m_pBuffer);
+		free(m_GlobalQueues[ui8i].m_pZbuffer);
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::AddQueueItem(const char * sCommand1, const size_t szLen1, const char * sCommand2, const size_t szLen2, const uint8_t ui8CmdType)
+void GlobalDataQueue::AddQueueItem(const char * sCommand1, const size_t szLen1, const char * sCommand2, const size_t szLen2, const uint8_t ui8CmdType)
 {
-	QueueItem * pNewItem = new(std::nothrow) QueueItem;
+	QueueItem * pNewItem = new (std::nothrow) QueueItem;
 	if (pNewItem == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in clsGlobalDataQueue::AddQueueItem\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in GlobalDataQueue::AddQueueItem\n");
 		return;
 	}
 	
 	if (sCommand1 && szLen1)
 	{
-		pNewItem->pCommand[0] = sCommand1;
+		pNewItem->m_pCommand[0] = std::string(sCommand1, szLen1);
 	}
 	if (sCommand2 != NULL && szLen2)
 	{
-		pNewItem->pCommand[1] = sCommand2;
+		pNewItem->m_pCommand[1] = std::string(sCommand2, szLen2);
 	}
 	
-	pNewItem->ui8CommandType = ui8CmdType;
+	pNewItem->m_ui8CommandType = ui8CmdType;
 	
-	pNewItem->pNext = NULL;
+	pNewItem->m_pNext = nullptr;
 	
-	if (pNewQueueItems[0] == NULL)
+	if (m_pNewQueueItems[0] == NULL)
 	{
-		pNewQueueItems[0] = pNewItem;
-		pNewQueueItems[1] = pNewItem;
+		m_pNewQueueItems[0] = pNewItem;
+		m_pNewQueueItems[1] = pNewItem;
 	}
 	else
 	{
-		pNewQueueItems[1]->pNext = pNewItem;
-		pNewQueueItems[1] = pNewItem;
+		m_pNewQueueItems[1]->m_pNext = pNewItem;
+		m_pNewQueueItems[1] = pNewItem;
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-// appends data to the OpListQueue
-void clsGlobalDataQueue::OpListStore(const char * sNick)
+// appends data to the m_OpListQueue
+void GlobalDataQueue::OpListStore(const char * sNick)
 {
-	if (OpListQueue.szLen == 0)
+	if (m_OpListQueue.m_szLen == 0)
 	{
-		OpListQueue.szLen = sprintf(OpListQueue.pBuffer, "$OpList %s$$|", sNick);
+		int iLen = snprintf(m_OpListQueue.m_pBuffer, m_OpListQueue.m_szSize, "$OpList %s$$|", sNick);
+		if (iLen <= 0)
+		{
+			m_OpListQueue.m_szLen = 0;
 	}
 	else
 	{
-		int iDataLen = sprintf(clsServerManager::pGlobalBuffer, "%s$$|", sNick);
-		if (CheckSprintf(iDataLen, clsServerManager::szGlobalBufferSize, "clsGlobalDataQueue::OpListStore2") == true)
+			m_OpListQueue.m_szLen = iLen;
+		}
+	}
+	else
 		{
-			if (OpListQueue.szSize < OpListQueue.szLen + iDataLen)
+		size_t szNickLen = strlen(sNick) + 3;
+		if (m_OpListQueue.m_szSize < m_OpListQueue.m_szLen + szNickLen)
 			{
-				size_t szAllignLen = Allign256(OpListQueue.szLen + iDataLen);
-				char * pOldBuf = OpListQueue.pBuffer;
-				OpListQueue.pBuffer = (char *)realloc(pOldBuf, szAllignLen);
-				if (OpListQueue.pBuffer == NULL)
+			size_t szAllignLen = Allign256(m_OpListQueue.m_szLen + szNickLen);
+				char * pOldBuf = m_OpListQueue.m_pBuffer;
+				m_OpListQueue.m_pBuffer = (char *)realloc(pOldBuf, szAllignLen);
+				if (m_OpListQueue.m_pBuffer == NULL)
 				{
-					OpListQueue.pBuffer = pOldBuf;
+					m_OpListQueue.m_pBuffer = pOldBuf;
 					
-					AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in clsGlobalDataQueue::OpListStore\n", (uint64_t)szAllignLen);
+					AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in GlobalDataQueue::OpListStore\n", (uint64_t)szAllignLen);
 					
 					return;
 				}
-				OpListQueue.szSize = (uint32_t)(szAllignLen - 1);
+				m_OpListQueue.m_szSize = (uint32_t)(szAllignLen - 1);
 			}
-			memcpy(OpListQueue.pBuffer + OpListQueue.szLen - 1, clsServerManager::pGlobalBuffer, iDataLen);
-			OpListQueue.szLen += iDataLen - 1;
-			OpListQueue.pBuffer[OpListQueue.szLen] = '\0';
+		
+		int iDataLen = snprintf(m_OpListQueue.m_pBuffer + m_OpListQueue.m_szLen - 1, m_OpListQueue.m_szSize - (m_OpListQueue.m_szLen - 1), "%s$$|", sNick);
+		if (iDataLen <= 0)
+		{
+			m_OpListQueue.m_pBuffer[m_OpListQueue.m_szLen - 1] = '|';
+			m_OpListQueue.m_pBuffer[m_OpListQueue.m_szLen] = '\0';
+		}
+		else
+		{
+			m_OpListQueue.m_szLen += iDataLen - 1;
 		}
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // appends data to the UserIPQueue
-void clsGlobalDataQueue::UserIPStore(User * pUser)
+void GlobalDataQueue::UserIPStore(User * pUser)
 {
-	if (UserIPQueue.szLen == 0)
+	if (m_UserIPQueue.m_szLen == 0)
 	{
-		UserIPQueue.szLen = sprintf(UserIPQueue.pBuffer, "$UserIP %s %s|", pUser->sNick, pUser->sIP);
-		UserIPQueue.bHaveDollars = false;
+		m_UserIPQueue.m_szLen = snprintf(m_UserIPQueue.m_pBuffer, m_UserIPQueue.m_szSize, "$UserIP %s %s|", pUser->m_sNick, pUser->m_sIP);
+		if (m_UserIPQueue.m_szLen > 0)
+		{
+		m_UserIPQueue.m_bHaveDollars = false;
 	}
 	else
 	{
-		int iDataLen = sprintf(clsServerManager::pGlobalBuffer, "%s %s$$|", pUser->sNick, pUser->sIP);
-		if (CheckSprintf(iDataLen, clsServerManager::szGlobalBufferSize, "clsGlobalDataQueue::UserIPStore") == true)
-		{
-			if (UserIPQueue.bHaveDollars == false)
-			{
-				UserIPQueue.pBuffer[UserIPQueue.szLen - 1] = '$';
-				UserIPQueue.pBuffer[UserIPQueue.szLen] = '$';
-				UserIPQueue.bHaveDollars = true;
-				UserIPQueue.szLen += 2;
+			m_UserIPQueue.m_szLen = 0;
+		}
 			}
-			if (UserIPQueue.szSize < UserIPQueue.szLen + iDataLen)
+	else
 			{
-				size_t szAllignLen = Allign256(UserIPQueue.szLen + iDataLen);
-				char * pOldBuf = UserIPQueue.pBuffer;
-				UserIPQueue.pBuffer = (char *)realloc(pOldBuf, szAllignLen);
-				if (UserIPQueue.pBuffer == NULL)
+		size_t szLen = pUser->m_ui8NickLen + pUser->m_ui8IpLen + 4;
+		if (m_UserIPQueue.m_szSize < m_UserIPQueue.m_szLen + szLen)
+		{
+			size_t szAllignLen = Allign256(m_UserIPQueue.m_szLen + szLen);
+				char * pOldBuf = m_UserIPQueue.m_pBuffer;
+				m_UserIPQueue.m_pBuffer = (char *)realloc(pOldBuf, szAllignLen);
+				if (m_UserIPQueue.m_pBuffer == NULL)
 				{
-					UserIPQueue.pBuffer = pOldBuf;
+					m_UserIPQueue.m_pBuffer = pOldBuf;
 					
-					AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in clsGlobalDataQueue::UserIPStore\n", (uint64_t)szAllignLen);
+					AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in GlobalDataQueue::UserIPStore\n", (uint64_t)szAllignLen);
 					
 					return;
 				}
-				UserIPQueue.szSize = (uint32_t)(szAllignLen - 1);
+				m_UserIPQueue.m_szSize = (uint32_t)(szAllignLen - 1);
 			}
-			memcpy(UserIPQueue.pBuffer + UserIPQueue.szLen - 1, clsServerManager::pGlobalBuffer, iDataLen);
-			UserIPQueue.szLen += iDataLen - 1;
-			UserIPQueue.pBuffer[UserIPQueue.szLen] = '\0';
+		
+		if (m_UserIPQueue.m_bHaveDollars == false)
+		{
+			m_UserIPQueue.m_pBuffer[m_UserIPQueue.m_szLen - 1] = '$';
+			m_UserIPQueue.m_pBuffer[m_UserIPQueue.m_szLen] = '$';
+			m_UserIPQueue.m_bHaveDollars = true;
+			m_UserIPQueue.m_szLen += 2;
+		}
+		
+		int iDataLen = snprintf(m_UserIPQueue.m_pBuffer + m_UserIPQueue.m_szLen - 1, m_UserIPQueue.m_szSize - (m_UserIPQueue.m_szLen - 1), "%s %s$$|", pUser->m_sNick, pUser->m_sIP);
+		if (iDataLen <= 0)
+		{
+			m_UserIPQueue.m_pBuffer[m_UserIPQueue.m_szLen - 1] = '|';
+			m_UserIPQueue.m_pBuffer[m_UserIPQueue.m_szLen] = '\0';
+		}
+		else
+		{
+			m_UserIPQueue.m_szLen += iDataLen - 1;
 		}
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::PrepareQueueItems()
+void GlobalDataQueue::PrepareQueueItems()
 {
-	pQueueItems = pNewQueueItems[0];
+	m_pQueueItems = m_pNewQueueItems[0];
 	
-	pNewQueueItems[0] = NULL;
-	pNewQueueItems[1] = NULL;
+	m_pNewQueueItems[0] = NULL;
+	m_pNewQueueItems[1] = NULL;
 	
-	if (pQueueItems != NULL || OpListQueue.szLen != 0 || UserIPQueue.szLen != 0)
+	if (m_pQueueItems != NULL || m_OpListQueue.m_szLen != 0 || m_UserIPQueue.m_szLen != 0)
 	{
-		bHaveItems = true;
+		m_bHaveItems = true;
 	}
 	
-	pSingleItems = pNewSingleItems[0];
+	m_pSingleItems = m_pNewSingleItems[0];
 	
-	pNewSingleItems[0] = NULL;
-	pNewSingleItems[1] = NULL;
+	m_pNewSingleItems[0] = NULL;
+	m_pNewSingleItems[1] = NULL;
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::ClearQueues()
+void GlobalDataQueue::ClearQueues()
 {
-	bHaveItems = false;
+	m_bHaveItems = false;
 	
-	if (pCreatedGlobalQueues != NULL)
+	if (m_pCreatedGlobalQueues != NULL)
 	{
 		GlobalQueue * pCur = NULL,
-		              * pNext = pCreatedGlobalQueues;
+		              * pNext = m_pCreatedGlobalQueues;
 		              
 		while (pNext != NULL)
 		{
 			pCur = pNext;
-			pNext = pCur->pNext;
+			pNext = pCur->m_pNext;
 			
-			pCur->szLen = 0;
-			pCur->szZlen = 0;
-			pCur->pNext = NULL;
-			pCur->bCreated = false;
-			pCur->bZlined = false;
+            pCur->m_szLen = 0;
+            pCur->clean(); // [+]FlylilinkDC++
+            pCur->m_szZlen = 0;
+            pCur->m_pNext = NULL;
+			pCur->m_bCreated = false;
+			pCur->m_bZlined = false;
 		}
 	}
 	
-	pCreatedGlobalQueues = NULL;
+	m_pCreatedGlobalQueues = NULL;
 	
-	OpListQueue.pBuffer[0] = '\0';
-	OpListQueue.szLen = 0;
+	m_OpListQueue.m_pBuffer[0] = '\0';
+	m_OpListQueue.m_szLen = 0;
 	
-	UserIPQueue.pBuffer[0] = '\0';
-	UserIPQueue.szLen = 0;
+	m_UserIPQueue.m_pBuffer[0] = '\0';
+	m_UserIPQueue.m_szLen = 0;
 	
-	if (pQueueItems != NULL)
+	if (m_pQueueItems != NULL)
 	{
 		QueueItem * pCur = NULL,
-		            * pNext = pQueueItems;
+		            * pNext = m_pQueueItems;
 		            
 		while (pNext != NULL)
 		{
 			pCur = pNext;
-			pNext = pCur->pNext;
+			pNext = pCur->m_pNext;
 			
 			delete pCur;
 		}
 	}
 	
-	pQueueItems = NULL;
+	m_pQueueItems = NULL;
 	
-	if (pSingleItems != NULL)
+	if (m_pSingleItems != NULL)
 	{
 		SingleDataItem * pCur = NULL,
-		                 * pNext = pSingleItems;
+		                 * pNext = m_pSingleItems;
 		                 
 		while (pNext != NULL)
 		{
 			pCur = pNext;
-			pNext = pCur->pNext;
+			pNext = pCur->m_pNext;
 			
-			free(pCur->pData);
+			free(pCur->m_pData);
 			delete pCur;
 		}
 	}
 	
-	pSingleItems = NULL;
+	m_pSingleItems = nullptr;
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-void clsGlobalDataQueue::AddSearchDataToQueue(const User * pUser, uint32_t ui32QueueType, const QueueItem * pCur) // FlylinkDC++
+void GlobalDataQueue::AddSearchDataToQueue(const User * pUser, uint32_t ui32QueueType, const QueueItem * pCur) // FlylinkDC++
 {
-	if (pUser->ui64SharedSize)
+	if (pUser->m_ui64SharedSize)
 	{
-		AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
+		AddDataToQueue(m_GlobalQueues[ui32QueueType], pCur->m_pCommand[0]);
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-void clsGlobalDataQueue::ProcessQueues(User * pUser)
+
+void GlobalDataQueue::ProcessQueues(User * pUser)
 {
 	uint32_t ui32QueueType = 0; // short myinfos
 	uint16_t ui16QueueBits = 0;
 	
-	if (clsSettingManager::mPtr->ui8FullMyINFOOption == 1 && clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::SENDFULLMYINFOS))
+	if (SettingManager::m_Ptr->m_ui8FullMyINFOOption == 1 && ProfileManager::m_Ptr->IsAllowed(pUser, ProfileManager::SENDFULLMYINFOS))
 	{
 		ui32QueueType = 1; // full myinfos
 		ui16QueueBits |= BIT_LONG_MYINFO;
 	}
 	
-	if (pUser->ui64SharedSize != 0)
+	if (pUser->m_ui64SharedSize != 0)
 	{
-		if (((pUser->ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6) == true)
+		if (((pUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6) == true)
 		{
-			if (((pUser->ui32BoolBits & User::BIT_IPV4) == User::BIT_IPV4) == true)
+			if (((pUser->m_ui32BoolBits & User::BIT_IPV4) == User::BIT_IPV4) == true)
 			{
-				if (((pUser->ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE) == true)
+				if (((pUser->m_ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE) == true)
 				{
-					if (((pUser->ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE) == true)
+					if (((pUser->m_ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE) == true)
 					{
 						ui32QueueType += 6; // all searches both ipv4 and ipv6
 						ui16QueueBits |= BIT_ALL_SEARCHES_IPV64;
@@ -393,7 +423,7 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 				}
 				else
 				{
-					if (((pUser->ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE) == true)
+					if (((pUser->m_ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE) == true)
 					{
 						ui32QueueType += 16; // active searches ipv6 + all searches ipv4
 						ui16QueueBits |= BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4;
@@ -407,7 +437,7 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 			}
 			else
 			{
-				if (((pUser->ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE) == true)
+				if (((pUser->m_ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE) == true)
 				{
 					ui32QueueType += 4; // all searches ipv6 only
 					ui16QueueBits |= BIT_ALL_SEARCHES_IPV6;
@@ -421,7 +451,7 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 		}
 		else
 		{
-			if (((pUser->ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE) == true)
+			if (((pUser->m_ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE) == true)
 			{
 				ui32QueueType += 2; // all searches ipv4 only
 				ui16QueueBits |= BIT_ALL_SEARCHES_IPV4;
@@ -434,52 +464,52 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 		}
 	}
 	
-	if (((pUser->ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO) == false)
+	if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO) == false)
 	{
 		ui32QueueType += 14; // send hellos
 		ui16QueueBits |= BIT_HELLO;
 	}
 	
-	if (((pUser->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true)
+	if (((pUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true)
 	{
 		ui32QueueType += 28; // send operator data
 		ui16QueueBits |= BIT_OPERATOR;
 	}
 	
-	if (pUser->i32Profile != -1 && ((pUser->ui32SupportBits & User::SUPPORTBIT_USERIP2) == User::SUPPORTBIT_USERIP2) == true &&
-	        clsProfileManager::mPtr->IsAllowed(pUser, clsProfileManager::SENDALLUSERIP) == true)
+	if (pUser->m_i32Profile != -1 && ((pUser->m_ui32SupportBits & User::SUPPORTBIT_USERIP2) == User::SUPPORTBIT_USERIP2) == true &&
+	        ProfileManager::m_Ptr->IsAllowed(pUser, ProfileManager::SENDALLUSERIP) == true)
 	{
 		ui32QueueType += 56; // send userips
 		ui16QueueBits |= BIT_USERIP;
 	}
 	
-	if (GlobalQueues[ui32QueueType].bCreated == false)
+	if (m_GlobalQueues[ui32QueueType].m_bCreated == false)
 	{
-		if (pQueueItems != NULL)
+		if (m_pQueueItems != NULL)
 		{
 			QueueItem * pCur = NULL,
-			            * pNext = pQueueItems;
+			            * pNext = m_pQueueItems;
 			            
 			while (pNext != NULL)
 			{
 				pCur = pNext;
-				pNext = pCur->pNext;
+				pNext = pCur->m_pNext;
 				
-				switch (pCur->ui8CommandType)
+				switch (pCur->m_ui8CommandType)
 				{
 					case CMD_HELLO:
 						if ((ui16QueueBits & BIT_HELLO) == BIT_HELLO)
 						{
-							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
+							AddDataToQueue(m_GlobalQueues[ui32QueueType], pCur->m_pCommand[0]);
 						}
 						break;
 #ifdef USE_FLYLINKDC_EXT_JSON
 					case CMD_EXTJSON:
-						if (!pCur->pCommand[0].empty())
+						if (!pCur->m_pCommand[0].empty())
 						{
 							if (pUser->isSupportExtJSON())
 							{
-								AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
+								AddDataToQueue(m_GlobalQueues[ui32QueueType], pCur->m_pCommand[0]);
 							}
 #ifdef _DEBUG
 							else
@@ -494,28 +524,28 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 					case CMD_MYINFO:
 						if ((ui16QueueBits & BIT_LONG_MYINFO) == BIT_LONG_MYINFO)
 						{
-							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[1]);
+							AddDataToQueue(m_GlobalQueues[ui32QueueType], pCur->m_pCommand[1]);
 							break;
 						}
 						
-						AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
+						AddDataToQueue(m_GlobalQueues[ui32QueueType], pCur->m_pCommand[0]);
 						
 						break;
 					case CMD_OPS:
 						if ((ui16QueueBits & BIT_OPERATOR) == BIT_OPERATOR)
 						{
-							AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
+							AddDataToQueue(m_GlobalQueues[ui32QueueType], pCur->m_pCommand[0]);
 						}
 						break;
 					case CMD_ACTIVE_SEARCH_V6:
-						if (((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4) == false &&
+						if (pUser->m_ui64SharedSize != 0 &&((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4) == false &&
 						        ((ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV4) == BIT_ACTIVE_SEARCHES_IPV4) == false)
 						{
 							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
 						}
 						break;
 					case CMD_ACTIVE_SEARCH_V64:
-						if (((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4) == false &&
+						if (pUser->m_ui64SharedSize != 0 &&((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4) == false &&
 						        ((ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV4) == BIT_ACTIVE_SEARCHES_IPV4) == false)
 						{
 							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
@@ -527,53 +557,53 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 						}
 						break;
 					case CMD_ACTIVE_SEARCH_V4:
-						if (((ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6) == false &&
+						if (pUser->m_ui64SharedSize != 0 &&((ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6) == false &&
 						        ((ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV6) == BIT_ACTIVE_SEARCHES_IPV6) == false)
 						{
 							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
 						}
 						break;
 					case CMD_PASSIVE_SEARCH_V6:
-						if ((ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6 || (ui16QueueBits & BIT_ALL_SEARCHES_IPV64) == BIT_ALL_SEARCHES_IPV64 ||
-						        (ui16QueueBits & BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4) == BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4)
+						if (pUser->m_ui64SharedSize != 0 &&((ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6 || (ui16QueueBits & BIT_ALL_SEARCHES_IPV64) == BIT_ALL_SEARCHES_IPV64 ||
+						        (ui16QueueBits & BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4) == BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4))
 						{
 							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
 						}
 						break;
 					case CMD_PASSIVE_SEARCH_V64:
-						if ((ui16QueueBits & BIT_ALL_SEARCHES_IPV64) == BIT_ALL_SEARCHES_IPV64 || (ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6 ||
+						if (pUser->m_ui64SharedSize != 0 &&((ui16QueueBits & BIT_ALL_SEARCHES_IPV64) == BIT_ALL_SEARCHES_IPV64 || (ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6 ||
 						        (ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4 || (ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4) == BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4 ||
-						        (ui16QueueBits & BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4) == BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4)
+						        (ui16QueueBits & BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4) == BIT_ALL_SEARCHES_IPV6_ACTIVE_IPV4))
 						{
 							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
 						}
 						break;
 					case CMD_PASSIVE_SEARCH_V4:
-						if ((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4 || (ui16QueueBits & BIT_ALL_SEARCHES_IPV64) == BIT_ALL_SEARCHES_IPV64 ||
-						        (ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4) == BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4)
+						if (pUser->m_ui64SharedSize != 0 &&((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4 || (ui16QueueBits & BIT_ALL_SEARCHES_IPV64) == BIT_ALL_SEARCHES_IPV64 ||
+						        (ui16QueueBits & BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4) == BIT_ACTIVE_SEARCHES_IPV6_ALL_IPV4))
 						{
 							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
 						}
 						break;
 					case CMD_PASSIVE_SEARCH_V4_ONLY:
-						if ((ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4)
+						if (pUser->m_ui64SharedSize != 0 &&(ui16QueueBits & BIT_ALL_SEARCHES_IPV4) == BIT_ALL_SEARCHES_IPV4)
 						{
 							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
 						}
 						break;
 					case CMD_PASSIVE_SEARCH_V6_ONLY:
-						if ((ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6)
+						if (pUser->m_ui64SharedSize != 0 &&(ui16QueueBits & BIT_ALL_SEARCHES_IPV6) == BIT_ALL_SEARCHES_IPV6)
 						{
 							AddSearchDataToQueue(pUser, ui32QueueType, pCur); // [+]FlylinkDC++
 						}
 						break;
 					case CMD_CHAT:
-						AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
+						AddDataToQueue(m_GlobalQueues[ui32QueueType], pCur->m_pCommand[0]);
 						break;
 					case CMD_HUBNAME:
 					case CMD_QUIT:
 					case CMD_LUA:
-						AddDataToQueue(GlobalQueues[ui32QueueType], pCur->pCommand[0]);
+						AddDataToQueue(m_GlobalQueues[ui32QueueType], pCur->m_pCommand[0]);
 						break;
 					default:
 						break; // should not happen ;)
@@ -581,239 +611,317 @@ void clsGlobalDataQueue::ProcessQueues(User * pUser)
 			}
 		}
 		
-		if (OpListQueue.szLen != 0)
+		if (m_OpListQueue.m_szLen != 0)
 		{
-			AddDataToQueue(GlobalQueues[ui32QueueType], OpListQueue.pBuffer, OpListQueue.szLen);
+			AddDataToQueue(m_GlobalQueues[ui32QueueType], m_OpListQueue.m_pBuffer, m_OpListQueue.m_szLen);
 		}
 		
-		if (UserIPQueue.szLen != 0 && (ui16QueueBits & BIT_USERIP) == BIT_USERIP)
+		if (m_UserIPQueue.m_szLen != 0 && (ui16QueueBits & BIT_USERIP) == BIT_USERIP)
 		{
-			AddDataToQueue(GlobalQueues[ui32QueueType], UserIPQueue.pBuffer, UserIPQueue.szLen);
+			AddDataToQueue(m_GlobalQueues[ui32QueueType], m_UserIPQueue.m_pBuffer, m_UserIPQueue.m_szLen);
 		}
 		
-		GlobalQueues[ui32QueueType].bCreated = true;
-		GlobalQueues[ui32QueueType].pNext = pCreatedGlobalQueues;
-		pCreatedGlobalQueues = &GlobalQueues[ui32QueueType];
+		m_GlobalQueues[ui32QueueType].m_bCreated = true;
+		m_GlobalQueues[ui32QueueType].m_pNext = m_pCreatedGlobalQueues;
+		m_pCreatedGlobalQueues = &m_GlobalQueues[ui32QueueType];
 	}
 	
-	if (GlobalQueues[ui32QueueType].szLen == 0)
+	if (m_GlobalQueues[ui32QueueType].m_szLen == 0)
 	{
-		if (clsServerManager::ui8SrCntr == 0)
+		if (ServerManager::m_ui8SrCntr == 0)
 		{
-			User::DeletePrcsdUsrCmd(pUser->pCmdActive6Search);
-			User::DeletePrcsdUsrCmd(pUser->pCmdActive4Search);
+			User::DeletePrcsdUsrCmd(pUser->m_pCmdActive6Search);
+			User::DeletePrcsdUsrCmd(pUser->m_pCmdActive4Search);
 		}
 		
 		return;
 	}
 	
-	if (clsServerManager::ui8SrCntr == 0)
+	if (ServerManager::m_ui8SrCntr == 0)
 	{
-		PrcsdUsrCmd * cmdActiveSearch = NULL;
-		
-		if ((pUser->ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
+		if (pUser->m_ui64SharedSize == 0)
 		{
-			cmdActiveSearch = pUser->pCmdActive6Search;
-			pUser->pCmdActive6Search = NULL;
-			
-			User::DeletePrcsdUsrCmd(pUser->pCmdActive4Search);
+			if (pUser->m_pCmdActive6Search != NULL)
+			{
+				User::DeletePrcsdUsrCmd(pUser->m_pCmdActive6Search);
+				pUser->m_pCmdActive6Search = NULL;
+			}
+		
+			if (pUser->m_pCmdActive4Search != NULL)
+			{
+				User::DeletePrcsdUsrCmd(pUser->m_pCmdActive4Search);
+				pUser->m_pCmdActive4Search = NULL;
+			}
 		}
 		else
 		{
-			cmdActiveSearch = pUser->pCmdActive4Search;
-			pUser->pCmdActive4Search = NULL;
-		}
-		
-		if (cmdActiveSearch != NULL)
+		if ((pUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
 		{
-			if (pUser->ui64SharedSize == 0)
-			{
-				User::DeletePrcsdUsrCmd(cmdActiveSearch);
-			}
-			else
-			{
-				if (((pUser->ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == true)
+				if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == true)
 				{
-					if (GlobalQueues[ui32QueueType].bZlined == false)
+					if (m_GlobalQueues[ui32QueueType].m_bZlined == false)
 					{
-						GlobalQueues[ui32QueueType].bZlined = true;
-						GlobalQueues[ui32QueueType].pZbuffer = clsZlibUtility::mPtr->CreateZPipe(GlobalQueues[ui32QueueType].pBuffer, GlobalQueues[ui32QueueType].szLen,
-						                                                                         GlobalQueues[ui32QueueType].pZbuffer, GlobalQueues[ui32QueueType].szZlen, GlobalQueues[ui32QueueType].szZsize);
+						m_GlobalQueues[ui32QueueType].m_bZlined = true;
+						m_GlobalQueues[ui32QueueType].m_pZbuffer = ZlibUtility::m_Ptr->CreateZPipe(m_GlobalQueues[ui32QueueType].m_pBuffer, m_GlobalQueues[ui32QueueType].m_szLen,
+						                                                                           m_GlobalQueues[ui32QueueType].m_pZbuffer, m_GlobalQueues[ui32QueueType].m_szZlen, m_GlobalQueues[ui32QueueType].m_szZsize);
 					}
 					
-					if (GlobalQueues[ui32QueueType].szZlen != 0 && (GlobalQueues[ui32QueueType].szZlen <= (GlobalQueues[ui32QueueType].szLen - cmdActiveSearch->ui32Len)))
+					size_t szSearchLens = 0;
+					if (pUser->m_pCmdActive6Search != NULL)
 					{
-						pUser->PutInSendBuf(GlobalQueues[ui32QueueType].pZbuffer, GlobalQueues[ui32QueueType].szZlen);
-						clsServerManager::ui64BytesSentSaved += (GlobalQueues[ui32QueueType].szLen - GlobalQueues[ui32QueueType].szZlen);
+						szSearchLens += pUser->m_pCmdActive6Search->m_ui32Len;
+					}
+					if (pUser->m_pCmdActive4Search != NULL)
+					{
+						szSearchLens += pUser->m_pCmdActive4Search->m_ui32Len;
+					}
+					
+					if (m_GlobalQueues[ui32QueueType].m_szZlen != 0 && (m_GlobalQueues[ui32QueueType].m_szZlen <= (m_GlobalQueues[ui32QueueType].m_szLen - szSearchLens)))
+					{
+						pUser->PutInSendBuf(m_GlobalQueues[ui32QueueType].m_pZbuffer, m_GlobalQueues[ui32QueueType].m_szZlen);
+						ServerManager::m_ui64BytesSentSaved += (m_GlobalQueues[ui32QueueType].m_szLen - m_GlobalQueues[ui32QueueType].m_szZlen);
+			
+						if (pUser->m_pCmdActive6Search != NULL)
+						{
+							User::DeletePrcsdUsrCmd(pUser->m_pCmdActive6Search);
+							pUser->m_pCmdActive6Search = NULL;
+						}
 						
-						User::DeletePrcsdUsrCmd(cmdActiveSearch);
+						if (pUser->m_pCmdActive4Search != NULL)
+						{
+			User::DeletePrcsdUsrCmd(pUser->m_pCmdActive4Search);
+							pUser->m_pCmdActive4Search = NULL;
+		}
 						
 						return;
 					}
 				}
 				
-				uint32_t ui32SbLen = pUser->ui32SendBufDataLen;
-				pUser->PutInSendBuf(GlobalQueues[ui32QueueType].pBuffer, GlobalQueues[ui32QueueType].szLen);
+				uint32_t ui32SbLen = pUser->m_ui32SendBufDataLen;
+				pUser->PutInSendBuf(m_GlobalQueues[ui32QueueType].m_pBuffer, m_GlobalQueues[ui32QueueType].m_szLen);
 				
 				// PPK ... check if adding of searchs not cause buffer overflow !
-				if (pUser->ui32SendBufDataLen <= ui32SbLen)
+				if (pUser->m_ui32SendBufDataLen <= ui32SbLen)
+		{
+					ui32SbLen = 0;
+		}
+		
+				if (pUser->m_pCmdActive6Search != NULL)
+		{
+					pUser->RemFromSendBuf(pUser->m_pCmdActive6Search->m_sCommand, pUser->m_pCmdActive6Search->m_ui32Len, ui32SbLen);
+					
+					User::DeletePrcsdUsrCmd(pUser->m_pCmdActive6Search);
+					pUser->m_pCmdActive6Search = NULL;
+				}
+				
+				if (pUser->m_pCmdActive4Search != NULL)
+			{
+					pUser->RemFromSendBuf(pUser->m_pCmdActive4Search->m_sCommand, pUser->m_pCmdActive4Search->m_ui32Len, ui32SbLen);
+					
+					User::DeletePrcsdUsrCmd(pUser->m_pCmdActive4Search);
+					pUser->m_pCmdActive4Search = NULL;
+				}
+				
+				return;
+			}
+			else
+			{
+				if (pUser->m_pCmdActive4Search != NULL)
+				{
+				if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == true)
+				{
+					if (m_GlobalQueues[ui32QueueType].m_bZlined == false)
+					{
+						m_GlobalQueues[ui32QueueType].m_bZlined = true;
+						m_GlobalQueues[ui32QueueType].m_pZbuffer = ZlibUtility::m_Ptr->CreateZPipe(m_GlobalQueues[ui32QueueType].m_pBuffer, m_GlobalQueues[ui32QueueType].m_szLen,
+						                                                                               m_GlobalQueues[ui32QueueType].m_pZbuffer, m_GlobalQueues[ui32QueueType].m_szZlen, m_GlobalQueues[ui32QueueType].m_szZsize);
+					}
+					
+						if (m_GlobalQueues[ui32QueueType].m_szZlen != 0 && (m_GlobalQueues[ui32QueueType].m_szZlen <= (m_GlobalQueues[ui32QueueType].m_szLen - pUser->m_pCmdActive4Search->m_ui32Len)))
+					{
+						pUser->PutInSendBuf(m_GlobalQueues[ui32QueueType].m_pZbuffer, m_GlobalQueues[ui32QueueType].m_szZlen);
+						ServerManager::m_ui64BytesSentSaved += (m_GlobalQueues[ui32QueueType].m_szLen - m_GlobalQueues[ui32QueueType].m_szZlen);
+						
+							User::DeletePrcsdUsrCmd(pUser->m_pCmdActive4Search);
+							pUser->m_pCmdActive4Search = NULL;
+						
+						return;
+					}
+				}
+				
+				uint32_t ui32SbLen = pUser->m_ui32SendBufDataLen;
+				pUser->PutInSendBuf(m_GlobalQueues[ui32QueueType].m_pBuffer, m_GlobalQueues[ui32QueueType].m_szLen);
+				
+				// PPK ... check if adding of searchs not cause buffer overflow !
+				if (pUser->m_ui32SendBufDataLen <= ui32SbLen)
 				{
 					ui32SbLen = 0;
 				}
 				
-				pUser->RemFromSendBuf(cmdActiveSearch->sCommand, cmdActiveSearch->ui32Len, ui32SbLen);
+					pUser->RemFromSendBuf(pUser->m_pCmdActive4Search->m_sCommand, pUser->m_pCmdActive4Search->m_ui32Len, ui32SbLen);
 				
-				User::DeletePrcsdUsrCmd(cmdActiveSearch);
+					User::DeletePrcsdUsrCmd(pUser->m_pCmdActive4Search);
+					pUser->m_pCmdActive4Search = NULL;
 				
 				return;
 			}
 		}
 	}
+	}
 	
-	if (((pUser->ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == true)
+	if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == true)
 	{
-		if (GlobalQueues[ui32QueueType].bZlined == false)
+		if (m_GlobalQueues[ui32QueueType].m_bZlined == false)
 		{
-			GlobalQueues[ui32QueueType].bZlined = true;
-			GlobalQueues[ui32QueueType].pZbuffer = clsZlibUtility::mPtr->CreateZPipe(GlobalQueues[ui32QueueType].pBuffer, GlobalQueues[ui32QueueType].szLen, GlobalQueues[ui32QueueType].pZbuffer,
-			                                                                         GlobalQueues[ui32QueueType].szZlen, GlobalQueues[ui32QueueType].szZsize);
+			m_GlobalQueues[ui32QueueType].m_bZlined = true;
+			m_GlobalQueues[ui32QueueType].m_pZbuffer = ZlibUtility::m_Ptr->CreateZPipe(m_GlobalQueues[ui32QueueType].m_pBuffer, m_GlobalQueues[ui32QueueType].m_szLen, m_GlobalQueues[ui32QueueType].m_pZbuffer,
+			                                                                         m_GlobalQueues[ui32QueueType].m_szZlen, m_GlobalQueues[ui32QueueType].m_szZsize);
 		}
 		
-		if (GlobalQueues[ui32QueueType].szZlen != 0)
+		if (m_GlobalQueues[ui32QueueType].m_szZlen != 0)
 		{
-			pUser->PutInSendBuf(GlobalQueues[ui32QueueType].pZbuffer, GlobalQueues[ui32QueueType].szZlen);
-			clsServerManager::ui64BytesSentSaved += (GlobalQueues[ui32QueueType].szLen - GlobalQueues[ui32QueueType].szZlen);
+			pUser->PutInSendBuf(m_GlobalQueues[ui32QueueType].m_pZbuffer, m_GlobalQueues[ui32QueueType].m_szZlen);
+			ServerManager::m_ui64BytesSentSaved += (m_GlobalQueues[ui32QueueType].m_szLen - m_GlobalQueues[ui32QueueType].m_szZlen);
 			
 			return;
 		}
 	}
 	
-	pUser->PutInSendBuf(GlobalQueues[ui32QueueType].pBuffer, GlobalQueues[ui32QueueType].szLen);
+	pUser->PutInSendBuf(m_GlobalQueues[ui32QueueType].m_pBuffer, m_GlobalQueues[ui32QueueType].m_szLen);
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::ProcessSingleItems(User * u) const
+void GlobalDataQueue::ProcessSingleItems(User * pUser) const
 {
 	size_t szLen = 0, szWanted = 0;
-	int iret = 0;
+	int iRet = 0;
 	
 	SingleDataItem * pCur = NULL,
-	                 * pNext = pSingleItems;
+	                 * pNext = m_pSingleItems;
 	                 
 	while (pNext != NULL)
 	{
 		pCur = pNext;
-		pNext = pCur->pNext;
+		pNext = pCur->m_pNext;
 		
-		if (pCur->pFromUser != u)
+		if (pCur->m_pFromUser != pUser)
 		{
-			switch (pCur->ui8Type)
+			switch (pCur->m_ui8Type)
 			{
 				case SI_PM2ALL:   // send PM to ALL
 				{
-					szWanted = szLen + pCur->szDataLen + u->ui8NickLen + 13;
-					if (clsServerManager::szGlobalBufferSize < szWanted)
+					szWanted = szLen + pCur->m_szDataLen + pUser->m_ui8NickLen + 13;
+					if (ServerManager::m_szGlobalBufferSize < szWanted)
 					{
 						if (CheckAndResizeGlobalBuffer(szWanted) == false)
 						{
-							AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in clsGlobalDataQueue::ProcessSingleItems\n", (uint64_t)Allign128K(szWanted));
+							AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in GlobalDataQueue::ProcessSingleItems\n", (uint64_t)Allign128K(szWanted));
 							break;
 						}
 					}
-					iret = sprintf(clsServerManager::pGlobalBuffer + szLen, "$To: %s From: ", u->sNick);
-					szLen += iret;
-					CheckSprintf1(iret, szLen, clsServerManager::szGlobalBufferSize, "clsGlobalDataQueue::ProcessSingleItems1");
+					iRet = snprintf(ServerManager::m_pGlobalBuffer + szLen, ServerManager::m_szGlobalBufferSize - szLen, "$To: %s From: ", pUser->m_sNick);
+					if (iRet > 0)
+					{
+						szLen += iRet;
 					
-					memcpy(clsServerManager::pGlobalBuffer + szLen, pCur->pData, pCur->szDataLen);
-					szLen += pCur->szDataLen;
-					clsServerManager::pGlobalBuffer[szLen] = '\0';
+					memcpy(ServerManager::m_pGlobalBuffer + szLen, pCur->m_pData, pCur->m_szDataLen);
+					szLen += pCur->m_szDataLen;
+					ServerManager::m_pGlobalBuffer[szLen] = '\0';
+					}
 					
 					break;
 				}
 				case SI_PM2OPS:   // send PM only to operators
 				{
-					if (((u->ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true)
+					if (((pUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true)
 					{
-						szWanted = szLen + pCur->szDataLen + u->ui8NickLen + 13;
-						if (clsServerManager::szGlobalBufferSize < szWanted)
+						szWanted = szLen + pCur->m_szDataLen + pUser->m_ui8NickLen + 13;
+						if (ServerManager::m_szGlobalBufferSize < szWanted)
 						{
 							if (CheckAndResizeGlobalBuffer(szWanted) == false)
 							{
-								AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in clsGlobalDataQueue::ProcessSingleItems1\n", (uint64_t)Allign128K(szWanted));
+								AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in GlobalDataQueue::ProcessSingleItems1\n", (uint64_t)Allign128K(szWanted));
 								break;
 							}
 						}
-						iret = sprintf(clsServerManager::pGlobalBuffer + szLen, "$To: %s From: ", u->sNick);
-						szLen += iret;
-						CheckSprintf1(iret, szLen, clsServerManager::szGlobalBufferSize, "clsGlobalDataQueue::ProcessSingleItems2");
+						iRet = snprintf(ServerManager::m_pGlobalBuffer + szLen, ServerManager::m_szGlobalBufferSize - szLen, "$To: %s From: ", pUser->m_sNick);
+						if (iRet > 0)
+						{
+							szLen += iRet;
 						
-						memcpy(clsServerManager::pGlobalBuffer + szLen, pCur->pData, pCur->szDataLen);
-						szLen += pCur->szDataLen;
-						clsServerManager::pGlobalBuffer[szLen] = '\0';
+						memcpy(ServerManager::m_pGlobalBuffer + szLen, pCur->m_pData, pCur->m_szDataLen);
+						szLen += pCur->m_szDataLen;
+						ServerManager::m_pGlobalBuffer[szLen] = '\0';
+					}
 					}
 					break;
 				}
 				case SI_OPCHAT:   // send OpChat only to allowed users...
 				{
-					if (clsProfileManager::mPtr->IsAllowed(u, clsProfileManager::ALLOWEDOPCHAT) == true)
+					if (ProfileManager::m_Ptr->IsAllowed(pUser, ProfileManager::ALLOWEDOPCHAT) == true)
 					{
-						szWanted = szLen + pCur->szDataLen + u->ui8NickLen + 13;
-						if (clsServerManager::szGlobalBufferSize < szWanted)
+						szWanted = szLen + pCur->m_szDataLen + pUser->m_ui8NickLen + 13;
+						if (ServerManager::m_szGlobalBufferSize < szWanted)
 						{
 							if (CheckAndResizeGlobalBuffer(szWanted) == false)
 							{
-								AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in clsGlobalDataQueue::ProcessSingleItems2\n", (uint64_t)Allign128K(szWanted));
+								AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in GlobalDataQueue::ProcessSingleItems2\n", (uint64_t)Allign128K(szWanted));
 								break;
 							}
 						}
-						iret = sprintf(clsServerManager::pGlobalBuffer + szLen, "$To: %s From: ", u->sNick);
-						szLen += iret;
-						CheckSprintf1(iret, szLen, clsServerManager::szGlobalBufferSize, "clsGlobalDataQueue::ProcessSingleItems3");
+						iRet = snprintf(ServerManager::m_pGlobalBuffer + szLen, ServerManager::m_szGlobalBufferSize - szLen, "$To: %s From: ", pUser->m_sNick);
+						if (iRet > 0)
+						{
+							szLen += iRet;
 						
-						memcpy(clsServerManager::pGlobalBuffer + szLen, pCur->pData, pCur->szDataLen);
-						szLen += pCur->szDataLen;
-						clsServerManager::pGlobalBuffer[szLen] = '\0';
+						memcpy(ServerManager::m_pGlobalBuffer + szLen, pCur->m_pData, pCur->m_szDataLen);
+						szLen += pCur->m_szDataLen;
+						ServerManager::m_pGlobalBuffer[szLen] = '\0';
+					}
 					}
 					break;
 				}
 				case SI_TOPROFILE:   // send data only to given profile...
 				{
-					if (u->i32Profile == pCur->i32Profile)
+					if (pUser->m_i32Profile == pCur->m_i32Profile)
 					{
-						szWanted = szLen + pCur->szDataLen;
-						if (clsServerManager::szGlobalBufferSize < szWanted)
+						szWanted = szLen + pCur->m_szDataLen;
+						if (ServerManager::m_szGlobalBufferSize < szWanted)
 						{
 							if (CheckAndResizeGlobalBuffer(szWanted) == false)
 							{
-								AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in clsGlobalDataQueue::ProcessSingleItems3\n", (uint64_t)Allign128K(szWanted));
+								AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in GlobalDataQueue::ProcessSingleItems3\n", (uint64_t)Allign128K(szWanted));
 								break;
 							}
 						}
-						memcpy(clsServerManager::pGlobalBuffer + szLen, pCur->pData, pCur->szDataLen);
-						szLen += pCur->szDataLen;
-						clsServerManager::pGlobalBuffer[szLen] = '\0';
+						memcpy(ServerManager::m_pGlobalBuffer + szLen, pCur->m_pData, pCur->m_szDataLen);
+						szLen += pCur->m_szDataLen;
+						ServerManager::m_pGlobalBuffer[szLen] = '\0';
 					}
 					break;
 				}
 				case SI_PM2PROFILE:   // send pm only to given profile...
 				{
-					if (u->i32Profile == pCur->i32Profile)
+					if (pUser->m_i32Profile == pCur->m_i32Profile)
 					{
-						szWanted = szLen + pCur->szDataLen + u->ui8NickLen + 13;
-						if (clsServerManager::szGlobalBufferSize < szWanted)
+						szWanted = szLen + pCur->m_szDataLen + pUser->m_ui8NickLen + 13;
+						if (ServerManager::m_szGlobalBufferSize < szWanted)
 						{
 							if (CheckAndResizeGlobalBuffer(szWanted) == false)
 							{
-								AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in clsGlobalDataQueue::ProcessSingleItems4\n", (uint64_t)Allign128K(szWanted));
+								AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in GlobalDataQueue::ProcessSingleItems4\n", (uint64_t)Allign128K(szWanted));
 								break;
 							}
 						}
-						iret = sprintf(clsServerManager::pGlobalBuffer + szLen, "$To: %s From: ", u->sNick);
-						szLen += iret;
-						CheckSprintf1(iret, szLen, clsServerManager::szGlobalBufferSize, "clsGlobalDataQueue::ProcessSingleItems4");
-						memcpy(clsServerManager::pGlobalBuffer + szLen, pCur->pData, pCur->szDataLen);
-						szLen += pCur->szDataLen;
-						clsServerManager::pGlobalBuffer[szLen] = '\0';
+						iRet = snprintf(ServerManager::m_pGlobalBuffer + szLen, ServerManager::m_szGlobalBufferSize - szLen, "$To: %s From: ", pUser->m_sNick);
+						if (iRet > 0)
+						{
+							szLen += iRet;
+							
+						memcpy(ServerManager::m_pGlobalBuffer + szLen, pCur->m_pData, pCur->m_szDataLen);
+						szLen += pCur->m_szDataLen;
+						ServerManager::m_pGlobalBuffer[szLen] = '\0';
+					}
 					}
 					break;
 				}
@@ -825,85 +933,85 @@ void clsGlobalDataQueue::ProcessSingleItems(User * u) const
 	
 	if (szLen != 0)
 	{
-		u->SendCharDelayed(clsServerManager::pGlobalBuffer, szLen);
+		pUser->SendCharDelayed(ServerManager::m_pGlobalBuffer, szLen);
 	}
 	
 	ReduceGlobalBuffer();
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::SingleItemStore(const char * sData, const size_t szDataLen, User * pFromUser, const int32_t i32Profile, const uint8_t ui8Type)
+void GlobalDataQueue::SingleItemStore(const char * sData, const size_t szDataLen, User * pFromUser, const int32_t i32Profile, const uint8_t ui8Type)
 {
-	SingleDataItem * pNewItem = new(std::nothrow) SingleDataItem;
+	SingleDataItem * pNewItem = new (std::nothrow) SingleDataItem;
 	if (pNewItem == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in clsGlobalDataQueue::SingleItemStore\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in GlobalDataQueue::SingleItemStore\n");
 		return;
 	}
 	
 	if (sData != NULL)
 	{
-		pNewItem->pData = (char *)malloc(szDataLen + 1);
-		if (pNewItem->pData == NULL)
+		pNewItem->m_pData = (char *)malloc(szDataLen + 1);
+		if (pNewItem->m_pData == NULL)
 		{
 			delete pNewItem;
 			
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes in clsGlobalDataQueue::SingleItemStore\n", (uint64_t)(szDataLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes in GlobalDataQueue::SingleItemStore\n", (uint64_t)(szDataLen + 1));
 			
 			return;
 		}
 		
-		memcpy(pNewItem->pData, sData, szDataLen);
-		pNewItem->pData[szDataLen] = '\0';
+		memcpy(pNewItem->m_pData, sData, szDataLen);
+		pNewItem->m_pData[szDataLen] = '\0';
 	}
 	else
 	{
-		pNewItem->pData = NULL;
+		pNewItem->m_pData = NULL;
 	}
 	
-	pNewItem->szDataLen = szDataLen;
+	pNewItem->m_szDataLen = szDataLen;
 	
-	pNewItem->pFromUser = pFromUser;
+	pNewItem->m_pFromUser = pFromUser;
 	
-	pNewItem->ui8Type = ui8Type;
+	pNewItem->m_ui8Type = ui8Type;
 	
-	pNewItem->pPrev = NULL;
-	pNewItem->pNext = NULL;
+	pNewItem->m_pPrev = NULL;
+	pNewItem->m_pNext = NULL;
 	
-	pNewItem->i32Profile = i32Profile;
+	pNewItem->m_i32Profile = i32Profile;
 	
-	if (pNewSingleItems[0] == NULL)
+	if (m_pNewSingleItems[0] == NULL)
 	{
-		pNewSingleItems[0] = pNewItem;
-		pNewSingleItems[1] = pNewItem;
+		m_pNewSingleItems[0] = pNewItem;
+		m_pNewSingleItems[1] = pNewItem;
 	}
 	else
 	{
-		pNewItem->pPrev = pNewSingleItems[1];
-		pNewSingleItems[1]->pNext = pNewItem;
-		pNewSingleItems[1] = pNewItem;
+		pNewItem->m_pPrev = m_pNewSingleItems[1];
+		m_pNewSingleItems[1]->m_pNext = pNewItem;
+		m_pNewSingleItems[1] = pNewItem;
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::SendFinalQueue()
+void GlobalDataQueue::SendFinalQueue()
 {
-	if (pQueueItems != NULL)
+	if (m_pQueueItems != NULL)
 	{
 		QueueItem * pCur = NULL,
-		            * pNext = pQueueItems;
+		            * pNext = m_pQueueItems;
 		            
 		while (pNext != NULL)
 		{
 			pCur = pNext;
-			pNext = pCur->pNext;
+			pNext = pCur->m_pNext;
 			
-			switch (pCur->ui8CommandType)
+			switch (pCur->m_ui8CommandType)
 			{
 				case CMD_OPS:
 				case CMD_CHAT:
 				case CMD_LUA:
-					AddDataToQueue(GlobalQueues[0], pCur->pCommand[0]);
+					AddDataToQueue(m_GlobalQueues[0], pCur->m_pCommand[0]);
 					break;
 				default:
 					break;
@@ -911,22 +1019,22 @@ void clsGlobalDataQueue::SendFinalQueue()
 		}
 	}
 	
-	if (pNewQueueItems[0] != NULL)
+	if (m_pNewQueueItems[0] != NULL)
 	{
 		QueueItem * pCur = NULL,
-		            * pNext = pNewQueueItems[0];
+		            * pNext = m_pNewQueueItems[0];
 		            
 		while (pNext != NULL)
 		{
 			pCur = pNext;
-			pNext = pCur->pNext;
+			pNext = pCur->m_pNext;
 			
-			switch (pCur->ui8CommandType)
+			switch (pCur->m_ui8CommandType)
 			{
 				case CMD_OPS:
 				case CMD_CHAT:
 				case CMD_LUA:
-					AddDataToQueue(GlobalQueues[0], pCur->pCommand[0]);
+					AddDataToQueue(m_GlobalQueues[0], pCur->m_pCommand[0]);
 					break;
 				default:
 					break;
@@ -934,34 +1042,34 @@ void clsGlobalDataQueue::SendFinalQueue()
 		}
 	}
 	
-	if (GlobalQueues[0].szLen == 0)
+	if (m_GlobalQueues[0].m_szLen == 0)
 	{
 		return;
 	}
 	
-	GlobalQueues[0].pZbuffer = clsZlibUtility::mPtr->CreateZPipe(GlobalQueues[0].pBuffer, GlobalQueues[0].szLen, GlobalQueues[0].pZbuffer, GlobalQueues[0].szZlen, GlobalQueues[0].szZsize);
-	
+	m_GlobalQueues[0].m_pZbuffer = ZlibUtility::m_Ptr->CreateZPipe(m_GlobalQueues[0].m_pBuffer, m_GlobalQueues[0].m_szLen, m_GlobalQueues[0].m_pZbuffer, m_GlobalQueues[0].m_szZlen, m_GlobalQueues[0].m_szZsize);
+	                                                                   
 	User * pCur = NULL,
-	       * pNext = clsUsers::mPtr->pListS;
+	       * pNext = Users::m_Ptr->m_pUserListS;
 	       
 	while (pNext != NULL)
 	{
 		pCur = pNext;
-		pNext = pCur->pNext;
+		pNext = pCur->m_pNext;
 		
-		if (GlobalQueues[0].szZlen != 0)
+		if (m_GlobalQueues[0].m_szZlen != 0)
 		{
-			pCur->PutInSendBuf(GlobalQueues[0].pZbuffer, GlobalQueues[0].szZlen);
-			clsServerManager::ui64BytesSentSaved += (GlobalQueues[0].szLen - GlobalQueues[0].szZlen);
+			pCur->PutInSendBuf(m_GlobalQueues[0].m_pZbuffer, m_GlobalQueues[0].m_szZlen);
+			ServerManager::m_ui64BytesSentSaved += (m_GlobalQueues[0].m_szLen - m_GlobalQueues[0].m_szZlen);
 		}
 		else
 		{
-			pCur->PutInSendBuf(GlobalQueues[0].pBuffer, GlobalQueues[0].szLen);
+			pCur->PutInSendBuf(m_GlobalQueues[0].m_pBuffer, m_GlobalQueues[0].m_szLen);
 		}
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-void clsGlobalDataQueue::AddDataToQueue(GlobalQueue &pQueue, const std::string& sData)
+void GlobalDataQueue::AddDataToQueue(GlobalQueue &pQueue, const std::string& sData)
 {
 	if (!sData.empty())
 	{
@@ -969,159 +1077,149 @@ void clsGlobalDataQueue::AddDataToQueue(GlobalQueue &pQueue, const std::string& 
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-void clsGlobalDataQueue::AddDataToQueue(GlobalQueue &pQueue, const char * sData, const size_t szLen)
+void GlobalDataQueue::AddDataToQueue(GlobalQueue &rQueue, const char * sData, const size_t szLen)
 {
-	if (pQueue.szSize < (pQueue.szLen + szLen))
+	if (rQueue.m_szSize < (rQueue.m_szLen + szLen))
 	{
-		size_t szAllignLen = Allign256(pQueue.szLen + szLen);
-		char * pOldBuf = pQueue.pBuffer;
+		size_t szAllignLen = Allign256(rQueue.m_szLen + szLen);
+		char * pOldBuf = rQueue.m_pBuffer;
 		
-		pQueue.pBuffer = (char *)realloc(pOldBuf, szAllignLen);
-		if (pQueue.pBuffer == NULL)
+		rQueue.m_pBuffer = (char *)realloc(pOldBuf, szAllignLen);
+		if (rQueue.m_pBuffer == NULL)
 		{
-			pQueue.pBuffer = pOldBuf;
+			rQueue.m_pBuffer = pOldBuf;
 			
-			AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in clsGlobalDataQueue::AddDataToQueue\n", (uint64_t)szAllignLen);
+			AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in GlobalDataQueue::AddDataToQueue\n", (uint64_t)szAllignLen);
 			return;
 		}
 		
-		pQueue.szSize = szAllignLen - 1;
+		rQueue.m_szSize = szAllignLen - 1;
 	}
 	
-	memcpy(pQueue.pBuffer + pQueue.szLen, sData, szLen);
-	pQueue.szLen += szLen;
-	pQueue.pBuffer[pQueue.szLen] = '\0';
+	memcpy(rQueue.m_pBuffer + rQueue.m_szLen, sData, szLen);
+	rQueue.m_szLen += szLen;
+	rQueue.m_pBuffer[rQueue.m_szLen] = '\0';
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void * clsGlobalDataQueue::GetLastQueueItem()
+void * GlobalDataQueue::GetLastQueueItem()
 {
-	return pNewQueueItems[1];
+	return m_pNewQueueItems[1];
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void * clsGlobalDataQueue::GetFirstQueueItem()
+void * GlobalDataQueue::GetFirstQueueItem()
 {
-	return pNewQueueItems[0];
+	return m_pNewQueueItems[0];
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void * clsGlobalDataQueue::InsertBlankQueueItem(void * pAfterItem, const uint8_t ui8CmdType)
+void * GlobalDataQueue::InsertBlankQueueItem(void * pAfterItem, const uint8_t ui8CmdType)
 {
-	QueueItem * pNewItem = new(std::nothrow) QueueItem;
+	QueueItem * pNewItem = new (std::nothrow) QueueItem;
 	if (pNewItem == NULL)
 	{
-		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in clsGlobalDataQueue::InsertBlankQueueItem\n");
+		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem in GlobalDataQueue::InsertBlankQueueItem\n");
 		return NULL;
 	}
 	
-	pNewItem->ui8CommandType = ui8CmdType;
+	pNewItem->m_ui8CommandType = ui8CmdType;
 	
-	if (pAfterItem == pNewQueueItems[0])
+	if (pAfterItem == m_pNewQueueItems[0])
 	{
-		pNewItem->pNext = pNewQueueItems[0];
-		pNewQueueItems[0] = pNewItem;
+		pNewItem->m_pNext = m_pNewQueueItems[0];
+		m_pNewQueueItems[0] = pNewItem;
 		return pNewItem;
 	}
 	
 	QueueItem * pCur = NULL,
-	            * pNext = pNewQueueItems[0];
+	            * pNext = m_pNewQueueItems[0];
 	            
 	while (pNext != NULL)
 	{
 		pCur = pNext;
-		pNext = pCur->pNext;
+		pNext = pCur->m_pNext;
 		
 		if (pCur == pAfterItem)
 		{
-			if (pCur->pNext == NULL)
+			if (pCur->m_pNext == NULL)
 			{
-				pNewQueueItems[1] = pNewItem;
+				m_pNewQueueItems[1] = pNewItem;
 			}
 			
-			pNewItem->pNext = pCur->pNext;
-			pCur->pNext = pNewItem;
+			pNewItem->m_pNext = pCur->m_pNext;
+			pCur->m_pNext = pNewItem;
 			return pNewItem;
 		}
 	}
 	
-	pNewItem->pNext = NULL;
+	pNewItem->m_pNext = NULL;
 	
-	if (pNewQueueItems[0] == NULL)
+	if (m_pNewQueueItems[0] == NULL)
 	{
-		pNewQueueItems[0] = pNewItem;
-		pNewQueueItems[1] = pNewItem;
+		m_pNewQueueItems[0] = pNewItem;
+		m_pNewQueueItems[1] = pNewItem;
 	}
 	else
 	{
-		pNewQueueItems[1]->pNext = pNewItem;
-		pNewQueueItems[1] = pNewItem;
+		m_pNewQueueItems[1]->m_pNext = pNewItem;
+		m_pNewQueueItems[1] = pNewItem;
 	}
 	
 	return pNewItem;
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::FillBlankQueueItem(const char * sCommand, const size_t szLen, void * pQueueItem)
+void GlobalDataQueue::FillBlankQueueItem(const char * sCommand, const size_t szLen, void * pVoidQueueItem)
 {
+    QueueItem * pQueueItem = reinterpret_cast<QueueItem *>(pVoidQueueItem);
 	if (szLen)
 	{
-		reinterpret_cast<QueueItem *>(pQueueItem)->pCommand[0] = sCommand;
+		pQueueItem->m_pCommand[0] = std::string(sCommand,szLen);
 	}
 	else
 	{
-		reinterpret_cast<QueueItem *>(pQueueItem)->pCommand[0].clear();
+		pQueueItem->m_pCommand[0].clear();
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void clsGlobalDataQueue::StatusMessageFormat(const char * sFrom, const char * sFormatMsg, ...)
+void GlobalDataQueue::StatusMessageFormat(const char * sFrom, const char * sFormatMsg, ...)
 {
-	if (clsSettingManager::mPtr->bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true)
+	int iMsgLen = 0;
+	
+	if (SettingManager::m_Ptr->m_bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true)
 	{
-		int iMsgLen = sprintf(clsServerManager::pGlobalBuffer, "%s $", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC]);
-		if (iMsgLen < 0)
+		iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "%s $", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC]);
+		if (iMsgLen <= 0)
 		{
-			AppendDebugLogFormat("[ERR] sprintf wrong value %d in clsGlobalDataQueue::StatusMessageFormat from: %s\n", iMsgLen, sFrom);
-			
+			AppendDebugLogFormat("[ERR] snprintf wrong value %d in GlobalDataQueue::StatusMessageFormat from: %s\n", iMsgLen, sFrom);
 			return;
 		}
+	}
 		
 		va_list vlArgs;
 		va_start(vlArgs, sFormatMsg);
 		
-		int iRet = vsprintf(clsServerManager::pGlobalBuffer + iMsgLen, sFormatMsg, vlArgs);
+	int iRet = vsnprintf(ServerManager::m_pGlobalBuffer + iMsgLen, ServerManager::m_szGlobalBufferSize - iMsgLen, sFormatMsg, vlArgs);
 		
 		va_end(vlArgs);
 		
-		if (iRet < 0 || size_t(iRet + iMsgLen) >= clsServerManager::szGlobalBufferSize)
+	if (iRet <= 0)
 		{
-			AppendDebugLogFormat("[ERR] vsprintf wrong value %d in clsGlobalDataQueue::StatusMessageFormat1 from: %s\n", iRet, sFrom);
-			
+		AppendDebugLogFormat("[ERR] vsnprintf wrong value %d in GlobalDataQueue::StatusMessageFormat from: %s\n", iRet, sFrom);
 			return;
 		}
 		
 		iMsgLen += iRet;
 		
-		SingleItemStore(clsServerManager::pGlobalBuffer, iMsgLen, NULL, 0, clsGlobalDataQueue::SI_PM2OPS);
+	if (SettingManager::m_Ptr->m_bBools[SETBOOL_SEND_STATUS_MESSAGES_AS_PM] == true)
+	{
+		SingleItemStore(ServerManager::m_pGlobalBuffer, iMsgLen, NULL, 0, GlobalDataQueue::SI_PM2OPS);
 	}
 	else
 	{
-		va_list vlArgs;
-		va_start(vlArgs, sFormatMsg);
-		
-		int iRet = vsprintf(clsServerManager::pGlobalBuffer, sFormatMsg, vlArgs);
-		
-		va_end(vlArgs);
-		
-		if (iRet < 0 || (size_t)iRet >= clsServerManager::szGlobalBufferSize)
-		{
-			AppendDebugLogFormat("[ERR] vsprintf wrong value %d in clsGlobalDataQueue::StatusMessageFormat2 from: %s\n", iRet, sFrom);
-			
-			return;
-		}
-		
-		AddQueueItem(clsServerManager::pGlobalBuffer, iRet, NULL, 0, clsGlobalDataQueue::CMD_OPS);
+		AddQueueItem(ServerManager::m_pGlobalBuffer, iMsgLen, NULL, 0, GlobalDataQueue::CMD_OPS);
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

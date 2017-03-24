@@ -28,7 +28,6 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{34750F97-E9AE-4D1D-9240-24C4A85ED070}</ProjectGuid>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Testing|x64'" Label="Configuration">
@@ -126,7 +125,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>lua\src;tinyxml;zlib\src;skein\Optimized_32bit;sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_PtokaX_TESTING_;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FLYLINKDC_USE_DB;_PtokaX_TESTING_;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -146,6 +145,8 @@
       <OpenMPSupport>false</OpenMPSupport>
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>CompileAsCpp</CompileAs>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
     </ClCompile>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -313,7 +314,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>lua\src;tinyxml;zlib\src;skein\Optimized_32bit;sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_PtokaX_TESTING_;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FLYLINKDC_USE_DB;_PtokaX_TESTING_;_CRT_SECURE_NO_WARNINGS;_WITH_SQLITE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -332,6 +333,8 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAs>CompileAsCpp</CompileAs>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
     </ClCompile>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -605,6 +608,10 @@
     <ClCompile Include="core\hashBanManager.cpp" />
     <ClCompile Include="core\hashRegManager.cpp" />
     <ClCompile Include="core\hashUsrManager.cpp" />
+    <ClCompile Include="core\HubCommands-AE.cpp" />
+    <ClCompile Include="core\HubCommands-FH.cpp" />
+    <ClCompile Include="core\HubCommands-IQ.cpp" />
+    <ClCompile Include="core\HubCommands-RZ.cpp" />
     <ClCompile Include="core\HubCommands.cpp" />
     <ClCompile Include="core\IP2Country.cpp" />
     <ClCompile Include="core\LanguageManager.cpp" />

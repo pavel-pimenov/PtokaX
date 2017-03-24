@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -40,8 +40,8 @@ class BasicSplitter
 		BasicSplitter(const BasicSplitter&);
 		const BasicSplitter& operator=(const BasicSplitter&);
 		
-		virtual HWND GetWindowHandle() = NULL;
-		virtual void UpdateSplitterParts() = NULL;
+		virtual HWND GetWindowHandle() = 0;
+		virtual void UpdateSplitterParts() = 0;
 		
 		bool OnMouseMove(WPARAM wParam, LPARAM lParam);
 		void OnLButtonDown(LPARAM lParam);

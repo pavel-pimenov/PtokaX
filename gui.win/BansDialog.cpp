@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -33,7 +33,7 @@
 #include "GuiSettingManager.h"
 #include "BanDialog.h"
 //---------------------------------------------------------------------------
-clsBansDialog * clsBansDialog::mPtr = NULL;
+clsBansDialog * clsBansDialog::mPtr = nullptr;
 //---------------------------------------------------------------------------
 #define IDC_CHANGE_BAN      1000
 #define IDC_REMOVE_BANS     1001
@@ -43,13 +43,13 @@ static ATOM atomBansDialog = 0;
 
 clsBansDialog::clsBansDialog() : iFilterColumn(0), iSortColumn(0), bSortAscending(true)
 {
-	memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
+	memset(&m_hWndWindowItems, 0, sizeof(m_hWndWindowItems));
 }
 //---------------------------------------------------------------------------
 
 clsBansDialog::~clsBansDialog()
 {
-	clsBansDialog::mPtr = NULL;
+	clsBansDialog::mPtr = nullptr;
 }
 //---------------------------------------------------------------------------
 
@@ -73,30 +73,30 @@ LRESULT clsBansDialog::BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_WINDOWPOSCHANGED:
 		{
 			RECT rcParent;
-			::GetClientRect(hWndWindowItems[WINDOW_HANDLE], &rcParent);
+			::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
 			
-			::SetWindowPos(hWndWindowItems[BTN_CLEAR_PERM_BANS], NULL, (rcParent.right / 2) + 1, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
+			::SetWindowPos(m_hWndWindowItems[BTN_CLEAR_PERM_BANS], NULL, (rcParent.right / 2) + 1, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
 			               rcParent.right - (rcParent.right / 2) - 3, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[BTN_CLEAR_TEMP_BANS], NULL, 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 2) - 2, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[CB_FILTER], NULL, (rcParent.right / 2) + 3, (rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6) + clsGuiSettingManager::iGroupBoxMargin,
+			::SetWindowPos(m_hWndWindowItems[BTN_CLEAR_TEMP_BANS], NULL, 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 2) - 2, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+			::SetWindowPos(m_hWndWindowItems[CB_FILTER], NULL, (rcParent.right / 2) + 3, (rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6) + clsGuiSettingManager::iGroupBoxMargin,
 			               rcParent.right - (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[EDT_FILTER], NULL, 11, (rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6) + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[GB_FILTER], NULL, 3, rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[LV_BANS], NULL, 0, 0, rcParent.right - 6, rcParent.bottom - clsGuiSettingManager::iOneLineGB - (2 * clsGuiSettingManager::iEditHeight) - 14, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[BTN_ADD_BAN], NULL, 0, 0, rcParent.right - 4, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
+			::SetWindowPos(m_hWndWindowItems[EDT_FILTER], NULL, 11, (rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6) + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+			::SetWindowPos(m_hWndWindowItems[GB_FILTER], NULL, 3, rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, SWP_NOZORDER);
+			::SetWindowPos(m_hWndWindowItems[LV_BANS], NULL, 0, 0, rcParent.right - 6, rcParent.bottom - clsGuiSettingManager::iOneLineGB - (2 * clsGuiSettingManager::iEditHeight) - 14, SWP_NOMOVE | SWP_NOZORDER);
+			::SetWindowPos(m_hWndWindowItems[BTN_ADD_BAN], NULL, 0, 0, rcParent.right - 4, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
 			
 			return 0;
 		}
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
-				case(BTN_ADD_BAN+100):
+				case (BTN_ADD_BAN+100):
 				{
-					clsBanDialog * pBanDialog = new(std::nothrow) clsBanDialog();
+					clsBanDialog * pBanDialog = new (std::nothrow) clsBanDialog();
 					
 					if (pBanDialog != NULL)
 					{
-						pBanDialog->DoModal(hWndWindowItems[WINDOW_HANDLE]);
+						pBanDialog->DoModal(m_hWndWindowItems[WINDOW_HANDLE]);
 					}
 					
 					return 0;
@@ -112,7 +112,7 @@ LRESULT clsBansDialog::BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case CB_FILTER:
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						if (::GetWindowTextLength(hWndWindowItems[EDT_FILTER]) != 0)
+						if (::GetWindowTextLength(m_hWndWindowItems[EDT_FILTER]) != 0)
 						{
 							FilterBans();
 						}
@@ -120,7 +120,7 @@ LRESULT clsBansDialog::BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					
 					break;
 				case BTN_CLEAR_TEMP_BANS:
-					if (::MessageBox(hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+					if (::MessageBox(m_hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
 					{
 						return 0;
 					}
@@ -130,7 +130,7 @@ LRESULT clsBansDialog::BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					
 					return 0;
 				case BTN_CLEAR_PERM_BANS:
-					if (::MessageBox(hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+					if (::MessageBox(m_hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
 					{
 						return 0;
 					}
@@ -143,12 +143,12 @@ LRESULT clsBansDialog::BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					HWND hWndFocus = ::GetFocus();
 					
-					if (hWndFocus == hWndWindowItems[LV_BANS])
+					if (hWndFocus == m_hWndWindowItems[LV_BANS])
 					{
 						ChangeBan();
 						return 0;
 					}
-					else if (hWndFocus == hWndWindowItems[EDT_FILTER])
+					else if (hWndFocus == m_hWndWindowItems[EDT_FILTER])
 					{
 						FilterBans();
 						return 0;
@@ -157,7 +157,7 @@ LRESULT clsBansDialog::BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					break;
 				}
 				case IDCANCEL:
-					::PostMessage(hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
+					::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
 					return 0;
 			}
 			
@@ -166,7 +166,7 @@ LRESULT clsBansDialog::BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			OnContextMenu((HWND)wParam, lParam);
 			break;
 		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == hWndWindowItems[LV_BANS])
+			if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[LV_BANS])
 			{
 				if (((LPNMHDR)lParam)->code == LVN_COLUMNCLICK)
 				{
@@ -179,13 +179,13 @@ LRESULT clsBansDialog::BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						break;
 					}
 					
-					BanItem * pBan = reinterpret_cast<BanItem *>(ListViewGetItem(hWndWindowItems[LV_BANS], ((LPNMITEMACTIVATE)lParam)->iItem));
+					BanItem * pBan = reinterpret_cast<BanItem *>(ListViewGetItem(m_hWndWindowItems[LV_BANS], ((LPNMITEMACTIVATE)lParam)->iItem));
 					
-					clsBanDialog * pBanDialog = new(std::nothrow) clsBanDialog();
+					clsBanDialog * pBanDialog = new (std::nothrow) clsBanDialog();
 					
 					if (pBanDialog != NULL)
 					{
-						pBanDialog->DoModal(hWndWindowItems[WINDOW_HANDLE], pBan);
+						pBanDialog->DoModal(m_hWndWindowItems[WINDOW_HANDLE], pBan);
 					}
 					
 					return 0;
@@ -209,49 +209,49 @@ LRESULT clsBansDialog::BansDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_CLOSE:
 		{
 			RECT rcBans;
-			::GetWindowRect(hWndWindowItems[WINDOW_HANDLE], &rcBans);
+			::GetWindowRect(m_hWndWindowItems[WINDOW_HANDLE], &rcBans);
 			
 			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_WINDOW_WIDTH, rcBans.right - rcBans.left);
 			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_WINDOW_HEIGHT, rcBans.bottom - rcBans.top);
 			
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_NICK, (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 0, 0));
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_IP, (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 1, 0));
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_REASON, (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 2, 0));
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_EXPIRE, (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 3, 0));
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_BY, (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 4, 0));
+			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_NICK, (int)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 0, 0));
+			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_IP, (int)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 1, 0));
+			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_REASON, (int)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 2, 0));
+			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_EXPIRE, (int)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 3, 0));
+			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_BANS_BY, (int)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_GETCOLUMNWIDTH, 4, 0));
 			
-			::EnableWindow(::GetParent(hWndWindowItems[WINDOW_HANDLE]), TRUE);
-			clsServerManager::hWndActiveDialog = NULL;
+			::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
+			clsServerManager::hWndActiveDialog = nullptr;
 			
 			break;
 		}
 		case WM_NCDESTROY:
 		{
-			HWND hWnd = hWndWindowItems[WINDOW_HANDLE];
+			HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
 			delete this;
 			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
 		case WM_SETFOCUS:
-			if ((UINT)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETSELECTEDCOUNT, 0, 0) != 0)
+			if ((UINT)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_GETSELECTEDCOUNT, 0, 0) != 0)
 			{
-				::SetFocus(hWndWindowItems[LV_BANS]);
+				::SetFocus(m_hWndWindowItems[LV_BANS]);
 			}
 			else
 			{
-				::SetFocus(hWndWindowItems[EDT_FILTER]);
+				::SetFocus(m_hWndWindowItems[EDT_FILTER]);
 			}
 			
 			return 0;
 		case WM_ACTIVATE:
 			if (LOWORD(wParam) != WA_INACTIVE)
 			{
-				clsServerManager::hWndActiveDialog = hWndWindowItems[WINDOW_HANDLE];
+				clsServerManager::hWndActiveDialog = m_hWndWindowItems[WINDOW_HANDLE];
 			}
 			
 			break;
 	}
 	
-	return ::DefWindowProc(hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
+	return ::DefWindowProc(m_hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
 }
 //------------------------------------------------------------------------------
 
@@ -278,60 +278,60 @@ void clsBansDialog::DoModal(HWND hWndParent)
 	int iX = (rcParent.left + (((rcParent.right - rcParent.left)) / 2)) - (ScaleGuiDefaultsOnly(GUISETINT_BANS_WINDOW_WIDTH) / 2);
 	int iY = (rcParent.top + ((rcParent.bottom - rcParent.top) / 2)) - (ScaleGuiDefaultsOnly(GUISETINT_BANS_WINDOW_HEIGHT) / 2);
 	
-	hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomBansDialog), clsLanguageManager::mPtr->sTexts[LAN_BANS],
+	m_hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomBansDialog), clsLanguageManager::mPtr->sTexts[LAN_BANS],
 	                                                  WS_POPUP | WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	                                                  iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGuiDefaultsOnly(GUISETINT_BANS_WINDOW_WIDTH), ScaleGuiDefaultsOnly(GUISETINT_BANS_WINDOW_HEIGHT),
 	                                                  hWndParent, NULL, clsServerManager::hInstance, NULL);
 	                                                  
-	if (hWndWindowItems[WINDOW_HANDLE] == NULL)
+	if (m_hWndWindowItems[WINDOW_HANDLE] == NULL)
 	{
 		return;
 	}
 	
-	clsServerManager::hWndActiveDialog = hWndWindowItems[WINDOW_HANDLE];
+	clsServerManager::hWndActiveDialog = m_hWndWindowItems[WINDOW_HANDLE];
 	
-	::SetWindowLongPtr(hWndWindowItems[WINDOW_HANDLE], GWLP_USERDATA, (LONG_PTR)this);
-	::SetWindowLongPtr(hWndWindowItems[WINDOW_HANDLE], GWLP_WNDPROC, (LONG_PTR)StaticBansDialogProc);
+	::SetWindowLongPtr(m_hWndWindowItems[WINDOW_HANDLE], GWLP_USERDATA, (LONG_PTR)this);
+	::SetWindowLongPtr(m_hWndWindowItems[WINDOW_HANDLE], GWLP_WNDPROC, (LONG_PTR)StaticBansDialogProc);
 	
-	::GetClientRect(hWndWindowItems[WINDOW_HANDLE], &rcParent);
+	::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
 	
-	hWndWindowItems[BTN_ADD_BAN] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_ADD_NEW_BAN], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                2, 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_ADD_BAN + 100), clsServerManager::hInstance, NULL);
+	m_hWndWindowItems[BTN_ADD_BAN] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_ADD_NEW_BAN], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+	                                                2, 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_ADD_BAN + 100), clsServerManager::hInstance, NULL);
 	                                                
-	hWndWindowItems[LV_BANS] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_REPORT | LVS_SHOWSELALWAYS,
-	                                            3, clsGuiSettingManager::iEditHeight + 6, rcParent.right - 6, rcParent.bottom - clsGuiSettingManager::iOneLineGB - (2 * clsGuiSettingManager::iEditHeight) - 14, hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
-	::SendMessage(hWndWindowItems[LV_BANS], LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | LVS_EX_LABELTIP);
+	m_hWndWindowItems[LV_BANS] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_REPORT | LVS_SHOWSELALWAYS,
+	                                            3, clsGuiSettingManager::iEditHeight + 6, rcParent.right - 6, rcParent.bottom - clsGuiSettingManager::iOneLineGB - (2 * clsGuiSettingManager::iEditHeight) - 14, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	::SendMessage(m_hWndWindowItems[LV_BANS], LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | LVS_EX_LABELTIP);
 	
-	hWndWindowItems[GB_FILTER] = ::CreateWindowEx(WS_EX_TRANSPARENT, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_FILTER_BANS], WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	                                              3, rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	m_hWndWindowItems[GB_FILTER] = ::CreateWindowEx(WS_EX_TRANSPARENT, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_FILTER_BANS], WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+	                                              3, rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
 	                                              
-	hWndWindowItems[EDT_FILTER] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_EDIT, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL,
-	                                               11, (rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6) + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, hWndWindowItems[WINDOW_HANDLE], (HMENU)EDT_FILTER, clsServerManager::hInstance, NULL);
-	::SendMessage(hWndWindowItems[EDT_FILTER], EM_SETLIMITTEXT, 64, 0);
+	m_hWndWindowItems[EDT_FILTER] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_EDIT, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL,
+	                                               11, (rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6) + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)EDT_FILTER, clsServerManager::hInstance, NULL);
+	::SendMessage(m_hWndWindowItems[EDT_FILTER], EM_SETLIMITTEXT, 64, 0);
 	
-	hWndWindowItems[CB_FILTER] = ::CreateWindowEx(0, WC_COMBOBOX, "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST,
+	m_hWndWindowItems[CB_FILTER] = ::CreateWindowEx(0, WC_COMBOBOX, "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST,
 	                                              (rcParent.right / 2) + 3, (rcParent.bottom - clsGuiSettingManager::iEditHeight - clsGuiSettingManager::iOneLineGB - 6) + clsGuiSettingManager::iGroupBoxMargin, rcParent.right - (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight,
-	                                              hWndWindowItems[WINDOW_HANDLE], (HMENU)CB_FILTER, clsServerManager::hInstance, NULL);
+	                                              m_hWndWindowItems[WINDOW_HANDLE], (HMENU)CB_FILTER, clsServerManager::hInstance, NULL);
 	                                              
-	hWndWindowItems[BTN_CLEAR_TEMP_BANS] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_CLEAR_TEMP_BANS], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                        2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 2) - 2, clsGuiSettingManager::iEditHeight, hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CLEAR_TEMP_BANS, clsServerManager::hInstance, NULL);
+	m_hWndWindowItems[BTN_CLEAR_TEMP_BANS] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_CLEAR_TEMP_BANS], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+	                                                        2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 2) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CLEAR_TEMP_BANS, clsServerManager::hInstance, NULL);
 	                                                        
-	hWndWindowItems[BTN_CLEAR_PERM_BANS] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_CLEAR_PERM_BANS], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+	m_hWndWindowItems[BTN_CLEAR_PERM_BANS] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_CLEAR_PERM_BANS], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
 	                                                        (rcParent.right / 2) + 1, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, rcParent.right - (rcParent.right / 2) - 3, clsGuiSettingManager::iEditHeight,
-	                                                        hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CLEAR_PERM_BANS, clsServerManager::hInstance, NULL);
+	                                                        m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CLEAR_PERM_BANS, clsServerManager::hInstance, NULL);
 	                                                        
-	for (uint8_t ui8i = 0; ui8i < (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])); ui8i++)
+	for (uint8_t ui8i = 0; ui8i < (sizeof(m_hWndWindowItems) / sizeof(m_hWndWindowItems[0])); ui8i++)
 	{
-		if (hWndWindowItems[ui8i] == NULL)
+		if (m_hWndWindowItems[ui8i] == NULL)
 		{
 			return;
 		}
 		
-		::SendMessage(hWndWindowItems[ui8i], WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
+		::SendMessage(m_hWndWindowItems[ui8i], WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
 	}
 	
 	RECT rcBans;
-	::GetClientRect(hWndWindowItems[LV_BANS], &rcBans);
+	::GetClientRect(m_hWndWindowItems[LV_BANS], &rcBans);
 	
 	LVCOLUMN lvColumn = { 0 };
 	lvColumn.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
@@ -346,28 +346,28 @@ void clsBansDialog::DoModal(HWND hWndParent)
 		lvColumn.pszText = clsLanguageManager::mPtr->sTexts[iBansStrings[ui8i]];
 		lvColumn.iSubItem = ui8i;
 		
-		::SendMessage(hWndWindowItems[LV_BANS], LVM_INSERTCOLUMN, ui8i, (LPARAM)&lvColumn);
+		::SendMessage(m_hWndWindowItems[LV_BANS], LVM_INSERTCOLUMN, ui8i, (LPARAM)&lvColumn);
 		
-		::SendMessage(hWndWindowItems[CB_FILTER], CB_ADDSTRING, 0, (LPARAM)clsLanguageManager::mPtr->sTexts[iBansStrings[ui8i]]);
+		::SendMessage(m_hWndWindowItems[CB_FILTER], CB_ADDSTRING, 0, (LPARAM)clsLanguageManager::mPtr->sTexts[iBansStrings[ui8i]]);
 	}
 	
-	ListViewUpdateArrow(hWndWindowItems[LV_BANS], bSortAscending, iSortColumn);
+	ListViewUpdateArrow(m_hWndWindowItems[LV_BANS], bSortAscending, iSortColumn);
 	
-	::SendMessage(hWndWindowItems[CB_FILTER], CB_SETCURSEL, 0, 0);
+	::SendMessage(m_hWndWindowItems[CB_FILTER], CB_SETCURSEL, 0, 0);
 	
 	AddAllBans();
 	
 	::EnableWindow(hWndParent, FALSE);
 	
-	::ShowWindow(hWndWindowItems[WINDOW_HANDLE], SW_SHOW);
+	::ShowWindow(m_hWndWindowItems[WINDOW_HANDLE], SW_SHOW);
 }
 //------------------------------------------------------------------------------
 
 void clsBansDialog::AddAllBans()
 {
-	::SendMessage(hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
+	::SendMessage(m_hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 	
-	::SendMessage(hWndWindowItems[LV_BANS], LVM_DELETEALLITEMS, 0, 0);
+	::SendMessage(m_hWndWindowItems[LV_BANS], LVM_DELETEALLITEMS, 0, 0);
 	
 	time_t acc_time;
 	time(&acc_time);
@@ -401,9 +401,9 @@ void clsBansDialog::AddAllBans()
 		AddBan(curBan);
 	}
 	
-	ListViewSelectFirstItem(hWndWindowItems[LV_BANS]);
+	ListViewSelectFirstItem(m_hWndWindowItems[LV_BANS]);
 	
-	::SendMessage(hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)TRUE, 0);
+	::SendMessage(m_hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)TRUE, 0);
 }
 //------------------------------------------------------------------------------
 
@@ -411,7 +411,7 @@ void clsBansDialog::AddBan(const BanItem * pBan)
 {
 	LVITEM lvItem = { 0 };
 	lvItem.mask = LVIF_PARAM | LVIF_TEXT;
-	lvItem.iItem = ListViewGetInsertPosition(hWndWindowItems[LV_BANS], pBan, bSortAscending, CompareBans);
+	lvItem.iItem = ListViewGetInsertPosition(m_hWndWindowItems[LV_BANS], pBan, bSortAscending, CompareBans);
 	
 	string sTxt = (pBan->sNick == NULL ? "" : pBan->sNick);
 	if ((pBan->ui8Bits & clsBanManager::NICK) == clsBanManager::NICK)
@@ -423,7 +423,7 @@ void clsBansDialog::AddBan(const BanItem * pBan)
 	lvItem.pszText = (char*) sTxt.c_str();
 	lvItem.lParam = (LPARAM)pBan;
 	
-	int i = (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_INSERTITEM, 0, (LPARAM)&lvItem);
+	int i = (int)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_INSERTITEM, 0, (LPARAM)&lvItem);
 	
 	if (i == -1)
 	{
@@ -450,30 +450,30 @@ void clsBansDialog::AddBan(const BanItem * pBan)
 	}
 	lvItem.pszText = (char*) sTxt.c_str();
 	
-	::SendMessage(hWndWindowItems[LV_BANS], LVM_SETITEM, 0, (LPARAM)&lvItem);
+	::SendMessage(m_hWndWindowItems[LV_BANS], LVM_SETITEM, 0, (LPARAM)&lvItem);
 	
 	lvItem.iSubItem = 2;
 	lvItem.pszText = (pBan->sReason == NULL ? "" : pBan->sReason);
 	
-	::SendMessage(hWndWindowItems[LV_BANS], LVM_SETITEM, 0, (LPARAM)&lvItem);
+	::SendMessage(m_hWndWindowItems[LV_BANS], LVM_SETITEM, 0, (LPARAM)&lvItem);
 	
+	char msg[256];
+	msg[0] = 0;
 	if ((pBan->ui8Bits & clsBanManager::TEMP) == clsBanManager::TEMP)
 	{
-		char msg[256];
-		msg[0] = 0;
 		struct tm *tm = localtime(&pBan->tTempBanExpire);
 		strftime(msg, 256, "%c", tm);
 		
 		lvItem.iSubItem = 3;
 		lvItem.pszText = msg;
 		
-		::SendMessage(hWndWindowItems[LV_BANS], LVM_SETITEM, 0, (LPARAM)&lvItem);
+		::SendMessage(m_hWndWindowItems[LV_BANS], LVM_SETITEM, 0, (LPARAM)&lvItem);
 	}
 	
 	lvItem.iSubItem = 4;
 	lvItem.pszText = (pBan->sBy == NULL ? "" : pBan->sBy);
 	
-	::SendMessage(hWndWindowItems[LV_BANS], LVM_SETITEM, 0, (LPARAM)&lvItem);
+	::SendMessage(m_hWndWindowItems[LV_BANS], LVM_SETITEM, 0, (LPARAM)&lvItem);
 }
 //------------------------------------------------------------------------------
 
@@ -530,9 +530,9 @@ void clsBansDialog::OnColumnClick(const LPNMLISTVIEW &pListView)
 		bSortAscending = !bSortAscending;
 	}
 	
-	ListViewUpdateArrow(hWndWindowItems[LV_BANS], bSortAscending, iSortColumn);
+	ListViewUpdateArrow(m_hWndWindowItems[LV_BANS], bSortAscending, iSortColumn);
 	
-	::SendMessage(hWndWindowItems[LV_BANS], LVM_SORTITEMS, 0, (LPARAM)&SortCompareBans);
+	::SendMessage(m_hWndWindowItems[LV_BANS], LVM_SORTITEMS, 0, (LPARAM)&SortCompareBans);
 }
 //------------------------------------------------------------------------------
 
@@ -546,31 +546,31 @@ int CALLBACK clsBansDialog::SortCompareBans(LPARAM lParam1, LPARAM lParam2, LPAR
 
 void clsBansDialog::RemoveBans()
 {
-	if (::MessageBox(hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+	if (::MessageBox(m_hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
 	{
 		return;
 	}
 	
-	::SendMessage(hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
+	::SendMessage(m_hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 	
 	int iSel = -1;
 	
-	while ((iSel = (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED)) != -1)
+	while ((iSel = (int)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED)) != -1)
 	{
-		BanItem *pBan = reinterpret_cast<BanItem *>(ListViewGetItem(hWndWindowItems[LV_BANS], iSel));
+		BanItem *pBan = reinterpret_cast<BanItem *>(ListViewGetItem(m_hWndWindowItems[LV_BANS], iSel));
 		
 		clsBanManager::mPtr->Rem(pBan, true);
 		
-		::SendMessage(hWndWindowItems[LV_BANS], LVM_DELETEITEM, iSel, 0);
+		::SendMessage(m_hWndWindowItems[LV_BANS], LVM_DELETEITEM, iSel, 0);
 	}
 	
-	::SendMessage(hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)TRUE, 0);
+	::SendMessage(m_hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)TRUE, 0);
 }
 //------------------------------------------------------------------------------
 
 void clsBansDialog::FilterBans()
 {
-	int iTextLength = ::GetWindowTextLength(hWndWindowItems[EDT_FILTER]);
+	int iTextLength = ::GetWindowTextLength(m_hWndWindowItems[EDT_FILTER]);
 	
 	if (iTextLength == 0)
 	{
@@ -580,11 +580,11 @@ void clsBansDialog::FilterBans()
 	}
 	else
 	{
-		iFilterColumn = (int)::SendMessage(hWndWindowItems[CB_FILTER], CB_GETCURSEL, 0, 0);
+		iFilterColumn = (int)::SendMessage(m_hWndWindowItems[CB_FILTER], CB_GETCURSEL, 0, 0);
 		
 		char buf[65];
 		
-		int iLen = ::GetWindowText(hWndWindowItems[EDT_FILTER], buf, 65);
+		int iLen = ::GetWindowText(m_hWndWindowItems[EDT_FILTER], buf, 65);
 		
 		for (int i = 0; i < iLen; i++)
 		{
@@ -593,9 +593,9 @@ void clsBansDialog::FilterBans()
 		
 		sFilterString = buf;
 		
-		::SendMessage(hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
+		::SendMessage(m_hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)FALSE, 0);
 		
-		::SendMessage(hWndWindowItems[LV_BANS], LVM_DELETEALLITEMS, 0, 0);
+		::SendMessage(m_hWndWindowItems[LV_BANS], LVM_DELETEALLITEMS, 0, 0);
 		
 		time_t acc_time;
 		time(&acc_time);
@@ -635,9 +635,9 @@ void clsBansDialog::FilterBans()
 			}
 		}
 		
-		ListViewSelectFirstItem(hWndWindowItems[LV_BANS]);
+		ListViewSelectFirstItem(m_hWndWindowItems[LV_BANS]);
 		
-		::SendMessage(hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)TRUE, 0);
+		::SendMessage(m_hWndWindowItems[LV_BANS], WM_SETREDRAW, (WPARAM)TRUE, 0);
 	}
 }
 //------------------------------------------------------------------------------
@@ -691,23 +691,23 @@ bool clsBansDialog::FilterBan(const BanItem * pBan)
 
 void clsBansDialog::RemoveBan(const BanItem * pBan)
 {
-	int iPos = ListViewGetItemPosition(hWndWindowItems[LV_BANS], (void *)pBan);
+	int iPos = ListViewGetItemPosition(m_hWndWindowItems[LV_BANS], (void *)pBan);
 	
 	if (iPos != -1)
 	{
-		::SendMessage(hWndWindowItems[LV_BANS], LVM_DELETEITEM, iPos, 0);
+		::SendMessage(m_hWndWindowItems[LV_BANS], LVM_DELETEITEM, iPos, 0);
 	}
 }
 //------------------------------------------------------------------------------
 
 void clsBansDialog::OnContextMenu(HWND hWindow, LPARAM lParam)
 {
-	if (hWindow != hWndWindowItems[LV_BANS])
+	if (hWindow != m_hWndWindowItems[LV_BANS])
 	{
 		return;
 	}
 	
-	UINT UISelectedCount = (UINT)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETSELECTEDCOUNT, 0, 0);
+	UINT UISelectedCount = (UINT)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_GETSELECTEDCOUNT, 0, 0);
 	
 	if (UISelectedCount == 0)
 	{
@@ -727,9 +727,9 @@ void clsBansDialog::OnContextMenu(HWND hWindow, LPARAM lParam)
 	int iX = GET_X_LPARAM(lParam);
 	int iY = GET_Y_LPARAM(lParam);
 	
-	ListViewGetMenuPos(hWndWindowItems[LV_BANS], iX, iY);
+	ListViewGetMenuPos(m_hWndWindowItems[LV_BANS], iX, iY);
 	
-	::TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, iX, iY, hWndWindowItems[WINDOW_HANDLE], NULL);
+	::TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, iX, iY, m_hWndWindowItems[WINDOW_HANDLE], NULL);
 	
 	::DestroyMenu(hMenu);
 }
@@ -737,20 +737,20 @@ void clsBansDialog::OnContextMenu(HWND hWindow, LPARAM lParam)
 
 void clsBansDialog::ChangeBan()
 {
-	int iSel = (int)::SendMessage(hWndWindowItems[LV_BANS], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+	int iSel = (int)::SendMessage(m_hWndWindowItems[LV_BANS], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	
 	if (iSel == -1)
 	{
 		return;
 	}
 	
-	BanItem * pBan = (BanItem *)ListViewGetItem(hWndWindowItems[LV_BANS], iSel);
+	BanItem * pBan = (BanItem *)ListViewGetItem(m_hWndWindowItems[LV_BANS], iSel);
 	
-	clsBanDialog * pBanDialog = new(std::nothrow) clsBanDialog();
+	clsBanDialog * pBanDialog = new (std::nothrow) clsBanDialog();
 	
 	if (pBanDialog != NULL)
 	{
-		pBanDialog->DoModal(hWndWindowItems[WINDOW_HANDLE], pBan);
+		pBanDialog->DoModal(m_hWndWindowItems[WINDOW_HANDLE], pBan);
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -112,7 +112,7 @@
 #include "pxstring.h"
 //---------------------------------------------------------------------------
 #define PtokaXVersionString "0.5.2.1"
-#define BUILD_NUMBER "533"
+#define BUILD_NUMBER "552"
 #ifdef USE_FLYLINKDC_EXT_JSON
 const char g_sPtokaXTitle[] = "PtokaX DC Hub for FlylinkDC++ " PtokaXVersionString
 #else
@@ -130,6 +130,60 @@ const char g_sPtokaXTitle[] = "PtokaX++ DC Hub " PtokaXVersionString
 	private:                   \
 	TypeName(const TypeName&);                 \
 	void operator=(const TypeName&)
+
+/*
 //---------------------------------------------------------------------------
+inline void ptokax_mem_log(const char *log)
+{
+    FILE * fw = fopen("ptokax_mem.log", "a");
+    if (fw)
+    {
+        time_t acc_time;
+        time(&acc_time);
+        struct tm * acc_tm;
+        acc_tm = localtime(&acc_time);
+        char sBuf[64];
+        strftime(sBuf, 64, "%c", acc_tm);
+        fprintf(fw, "%s\t%s", sBuf, log);
+        fclose(fw);
+    }
+}
+//---------------------------------------------------------------------------
+inline void* ptokax_malloc(size_t size, const char *file, int line, const char *func)
+{
+    void *p = malloc(size);
+    char log[1024];
+    snprintf(log, sizeof(log), "ptokax_malloc = %s, %i, %s, %p, %li\r\n", file, line, func, p, size);
+    ptokax_mem_log(log);
+    return p;
+}
+inline void* ptokax_calloc(size_t num, size_t size, const char *file, int line, const char *func)
+{
+    void *p = calloc(num,size);
+    char log[1024];
+    snprintf(log, sizeof(log), "ptokax_calloc = %s, %i, %s, %p, %li, %li\r\n", file, line, func, p, num,  size);
+    ptokax_mem_log(log);
+    return p;
+}
+inline void ptokax_free(void *ptr, const char *file, int line, const char *func)
+{
+    free(ptr);
+    char log[1024];
+    snprintf(log, sizeof(log), "ptokax_free = %s, %i, %s, %p\r\n", file, line, func, ptr);
+    ptokax_mem_log(log);
+}
+inline void *ptokax_realloc(void *ptr, size_t size, const char *file, int line, const char *func)
+{
+    void *p = realloc(ptr,size);
+    char log[1024];
+    snprintf(log, sizeof(log), "ptokax_realloc = %s, %i, %s, %p -> %p, %li\r\n", file, line, func, ptr, p, size);
+    ptokax_mem_log(log);
+    return p;
+}
+#define malloc(X) ptokax_malloc( (X), __FILE__, __LINE__, __FUNCTION__)
+#define calloc(X,Y) ptokax_calloc( (X), (Y), __FILE__, __LINE__, __FUNCTION__)
+#define free(X) ptokax_free( (X), __FILE__, __LINE__, __func__)
+#define realloc(X,Y) ptokax_realloc( (X), (Y), __FILE__, __LINE__, __FUNCTION__)
+*/
 
 #endif

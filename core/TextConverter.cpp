@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -20,6 +20,7 @@
 #include "stdinc.h"
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #include "TextConverter.h"
+#ifdef FLYLINKDC_USE_DB
 #if defined(_WITH_SQLITE)
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #include "ServerManager.h"
@@ -27,7 +28,7 @@
 #include "UdpDebug.h"
 #include "utility.h"
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-TextConverter * TextConverter::mPtr = NULL;
+TextConverter * TextConverter::m_Ptr = nullptr;
 #ifdef _WIN32
 static wchar_t wcTempBuf[2048];
 #else
@@ -44,23 +45,23 @@ static wchar_t wcTempBuf[2048];
 TextConverter::TextConverter()
 {
 #ifndef _WIN32
-	if (clsSettingManager::mPtr->sTexts[SETTXT_ENCODING] == NULL)
+	if (SettingManager::m_Ptr->m_sTexts[SETTXT_ENCODING] == NULL)
 	{
 		AppendLog("TextConverter failed to initialize - TextEncoding not set!");
 		exit(EXIT_FAILURE);
 	}
 	
-	iconvUtfCheck = iconv_open("utf-8", "utf-8");
-	if (iconvUtfCheck == (iconv_t) - 1)
+	m_iconvUtfCheck = iconv_open("utf-8", "utf-8");
+	if (m_iconvUtfCheck == (iconv_t) - 1)
 	{
-		AppendLog("TextConverter iconv_open for iconvUtfCheck failed!");
+		AppendLog("TextConverter iconv_open for m_iconvUtfCheck failed!");
 		exit(EXIT_FAILURE);
 	}
 	
-	iconvAsciiToUtf = iconv_open("utf-8//TRANSLIT//IGNORE", clsSettingManager::mPtr->sTexts[SETTXT_ENCODING]);
-	if (iconvAsciiToUtf == (iconv_t) - 1)
+	m_iconvAsciiToUtf = iconv_open("utf-8//TRANSLIT//IGNORE", SettingManager::m_Ptr->m_sTexts[SETTXT_ENCODING]);
+	if (m_iconvAsciiToUtf == (iconv_t) - 1)
 	{
-		AppendLog("TextConverter iconv_open for iconvAsciiToUtf failed!");
+		AppendLog("TextConverter iconv_open for m_iconvAsciiToUtf failed!");
 		exit(EXIT_FAILURE);
 	}
 #endif
@@ -70,8 +71,8 @@ TextConverter::TextConverter()
 TextConverter::~TextConverter()
 {
 #ifndef _WIN32
-	iconv_close(iconvUtfCheck);
-	iconv_close(iconvAsciiToUtf);
+	iconv_close(m_iconvUtfCheck);
+	iconv_close(m_iconvAsciiToUtf);
 #endif
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -91,7 +92,7 @@ bool TextConverter::CheckUtf8Validity(const char * sInput, const uint8_t ui8Inpu
 	char * sOutBuf = sOutput;
 	size_t szOutbufLeft = ui8OutputSize - 1;
 		
-	size_t szRet = iconv(iconvUtfCheck, (ICONV_CONST char**)&sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
+	size_t szRet = iconv(m_iconvUtfCheck, (ICONV_CONST char**)&sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
 	if (szRet == (size_t) - 1)
 	{
 		return false;
@@ -207,62 +208,27 @@ size_t TextConverter::CheckUtf8AndConvert(const char * sInput, const uint8_t ui8
 	char * sOutBuf = sOutput;
 	size_t szOutbufLeft = ui8OutputSize - 1;
 	
-	size_t szRet = iconv(iconvAsciiToUtf, (ICONV_CONST char**)&sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
+	size_t szRet = iconv(m_iconvAsciiToUtf, (ICONV_CONST char**)&sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
 	if (szRet == (size_t) - 1)
 	{
 		if (errno == E2BIG)
 		{
 			string sMsg = "[LOG] TextConverter::DoIconv iconv E2BIG for param: " + string(sInput, ui8InputLen);
-			clsUdpDebug::mPtr->Broadcast(sMsg.c_str(), sMsg.size());
+			UdpDebug::m_Ptr->Broadcast(sMsg.c_str(), sMsg.size());
 		}
 		else if (errno == EILSEQ)
 		{
-			sInBuf++;
-			szInbufLeft--;
-	
-			while (szInbufLeft != 0)
-			{
-				szRet = iconv(iconvAsciiToUtf, (ICONV_CONST char**)&sInBuf, &szInbufLeft, &sOutBuf, &szOutbufLeft);
-				if (szRet == (size_t) - 1)
-				{
-					if (errno == E2BIG)
-					{
-						string sMsg = "[LOG] TextConverter::DoIconv iconv E2BIG in EILSEQ for param: " + string(sInput, ui8InputLen);
-						clsUdpDebug::mPtr->Broadcast(sMsg.c_str(), sMsg.size());
-					}
-					else if (errno == EINVAL)
-					{
-						string sMsg = "[LOG] TextConverter::DoIconv iconv EINVAL in EILSEQ for param: " + string(sInput, ui8InputLen);
-						clsUdpDebug::mPtr->Broadcast(sMsg.c_str(), sMsg.size());
-						sOutput[0] = '\0';
-						return 0;
-					}
-					else if (errno == EILSEQ)
-					{
-						sInBuf++;
-						szInbufLeft--;
-	
-						continue;
-					}
-				}
-			}
-	
-			if (szOutbufLeft == size_t(ui8OutputSize - 1))
-			{
 				string sMsg = "[LOG] TextConverter::DoIconv iconv EILSEQ for param: " + string(sInput, ui8InputLen);
-				clsUdpDebug::mPtr->Broadcast(sMsg.c_str(), sMsg.size());
-				sOutput[0] = '\0';
-				return 0;
-			}
+				UdpDebug::m_Ptr->Broadcast(sMsg.c_str(), sMsg.size());
 		}
 		else if (errno == EINVAL)
 		{
 			string sMsg = "[LOG] TextConverter::DoIconv iconv EINVAL for param: " + string(sInput, ui8InputLen);
-			clsUdpDebug::mPtr->Broadcast(sMsg.c_str(), sMsg.size());
+			UdpDebug::m_Ptr->Broadcast(sMsg.c_str(), sMsg.size());
+		}
 			sOutput[0] = '\0';
 			return 0;
 		}
-	}
 	
 	sOutput[(ui8OutputSize - szOutbufLeft) - 1] = '\0';
 	return (ui8OutputSize - szOutbufLeft) - 1;
@@ -270,3 +236,4 @@ size_t TextConverter::CheckUtf8AndConvert(const char * sInput, const uint8_t ui8
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #endif // _WITH_SQLITE
+#endif // FLYLINKDC_USE_DB

@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -27,16 +27,26 @@
 #include "serviceLoop.h"
 #include "SettingManager.h"
 #include "utility.h"
+
+//#include <mcheck.h>
+#include <execinfo.h>
+#include <signal.h>
+#include <sstream>
+#include <cxxabi.h>
+
+using std::endl;
+using std::ostringstream;
+
 //---------------------------------------------------------------------------
 static bool bTerminatedBySignal = false;
 static int iSignal = 0;
 //---------------------------------------------------------------------------
 
-static void SigHandler(int sig)
+static void SigHandler(int iSig)
 {
 	bTerminatedBySignal = true;
 	
-	iSignal = sig;
+	iSignal = iSig;
 	
 	// restore to default...
 	struct sigaction sigact;
@@ -44,24 +54,112 @@ static void SigHandler(int sig)
 	sigemptyset(&sigact.sa_mask);
 	sigact.sa_flags = 0;
 	
-	sigaction(sig, &sigact, NULL);
+	sigaction(iSig, &sigact, NULL);
 }
+
+//--------------------------------------------------------------------------
+// http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes
+//--------------------------------------------------------------------------
+void handler_crash(int sig)
+{
+	/*
+	  void *array[60];
+	  size_t size;
+	
+	  // get void*'s for all entries on the stack
+	  size = backtrace(array, 60);
+	
+	  // print out all the frames to stderr
+	  fprintf(stderr, "Error: signal %d:\n", sig);
+	  backtrace_symbols_fd(array, size, STDERR_FILENO);
+	  exit(1);
+	*/
+	void* addrlist[64];
+	int addrlen = backtrace(addrlist, sizeof(addrlist) / sizeof(void*));
+	
+	if (!addrlen)
+	{
+		std::cout << "Stack backtrace is empty, possibly corrupt" << endl;
+		exit(1);
+		return;
+	}
+	
+	char** symbollist = backtrace_symbols(addrlist, addrlen);
+	size_t funcnamesize = 256;
+	char* funcname = (char*)malloc(funcnamesize);
+	ostringstream bt;
+	
+	for (int i = 1; i < addrlen; i++)
+	{
+		char *begin_name = 0, *begin_offset = 0, *end_offset = 0;
+		
+		for (char *p = symbollist[i]; *p; ++p)
+		{
+			if (*p == '(')
+			{
+				begin_name = p;
+			}
+			else if (*p == '+')
+			{
+				begin_offset = p;
+			}
+			else if ((*p == ')') && begin_offset)
+			{
+				end_offset = p;
+				break;
+			}
+		}
+		
+		if (begin_name && begin_offset && end_offset && (begin_name < begin_offset))
+		{
+			*begin_name++ = '\0';
+			*begin_offset++ = '\0';
+			*end_offset = '\0';
+			int status;
+			char* ret = abi::__cxa_demangle(begin_name, funcname, &funcnamesize, &status);
+			
+			if (!status)
+			{
+				funcname = ret;
+				bt << symbollist[i] << ": " << funcname << " +" << begin_offset << endl;
+			}
+			else
+			{
+				bt << symbollist[i] << ": " << begin_name << "() +" << begin_offset << endl;
+			}
+		}
+		else
+		{
+			bt << symbollist[i] << endl;
+		}
+	}
+	
+	free(funcname);
+	free(symbollist);
+	std::cout << "Stack backtrace:" << endl << endl << bt.str() << endl;
+	exit(1);
+}
+
 //---------------------------------------------------------------------------
 static void showUsage()
 {
-  printf("Usage: PtokaX [-d] [-v] [-m] [-c configdir] [-p pidfile]\n\n"
-         "Options:\n"
-         "\t-d\t\t- run as daemon.\n"
-         "\t-c configdir\t- absolute path to PtokaX configuration directory.\n"
-         "\t-p pidfile\t-p <pidfile>	- path with filename where PtokaX PID will be stored.\n"
-         "\t-v\t\t- show PtokaX version with build date and time.\n"
-         "\t-m\t\t- show PtokaX configuration menu.\n"
-         "\t-use-syslog\t\t- Use syslog.\n"
-        );
+	printf("Usage: PtokaX [-d] [-v] [-m] [-c configdir] [-p pidfile]\n\n"
+	       "Options:\n"
+	       "\t-d\t\t- run as daemon.\n"
+	       "\t-c configdir\t- absolute path to PtokaX configuration directory.\n"
+	       "\t-p pidfile\t-p <pidfile>	- path with filename where PtokaX PID will be stored.\n"
+	       "\t-v\t\t- show PtokaX version with build date and time.\n"
+	       "\t-m\t\t- show PtokaX configuration menu.\n"
+	       "\t-use-syslog\t\t- Use syslog.\n"
+	       "\t-use-log\t\t- Use log.\n"
+	      );
 }
 //---------------------------------------------------------------------------
+
 int main(int argc, char* argv[])
 {
+	signal(SIGSEGV, handler_crash);
+//	mtrace();
 	bool bSetup = false;
 	
 	char * sPidFile = NULL;
@@ -70,7 +168,7 @@ int main(int argc, char* argv[])
 	{
 		if (strcasecmp(argv[i], "-d") == 0)
 		{
-			clsServerManager::bDaemon = true;
+			ServerManager::m_bDaemon = true;
 		}
 		else if (strcasecmp(argv[i], "-c") == 0)
 		{
@@ -89,18 +187,18 @@ int main(int argc, char* argv[])
 			size_t szLen = strlen(argv[i]);
 			if (argv[i][szLen - 1] == '/')
 			{
-				clsServerManager::sPath = string(argv[i], szLen - 1);
+				ServerManager::m_sPath = string(argv[i], szLen - 1);
 			}
 			else
 			{
-				clsServerManager::sPath = string(argv[i], szLen);
+				ServerManager::m_sPath = string(argv[i], szLen);
 			}
 			
-			if (DirExist(clsServerManager::sPath.c_str()) == false)
+			if (DirExist(ServerManager::m_sPath.c_str()) == false)
 			{
-				if (mkdir(clsServerManager::sPath.c_str(), 0755) == -1)
+				if (mkdir(ServerManager::m_sPath.c_str(), 0755) == -1)
 				{
-					if (clsServerManager::bDaemon == true)
+					if (ServerManager::m_bDaemon == true)
 					{
 						syslog(LOG_USER | LOG_ERR, "Config directory not exist and can't be created!\n");
 					}
@@ -131,15 +229,21 @@ int main(int argc, char* argv[])
 			
 			sPidFile = argv[i];
 		}
-		 else if(strcmp(argv[i], "-use-syslog") == 0)
+		else if (strcmp(argv[i], "-use-syslog") == 0)
 		{
-			 extern bool g_isUseSyslog;
-			 g_isUseSyslog = true;
-			 printf("\r\n[+] Use syslog for debug\r\n");
+			extern bool g_isUseSyslog;
+			g_isUseSyslog = true;
+			printf("\r\n[+] Use syslog for debug\r\n");
+		}
+		else if (strcmp(argv[i], "-use-log") == 0)
+		{
+			extern bool g_isUseLog;
+			g_isUseLog = true;
+			printf("\r\n[+] Use log for debug\r\n");
 		}
 		else if (strcasecmp(argv[i], "/generatexmllanguage") == 0)
 		{
-			clsLanguageManager::GenerateXmlExample();
+			LanguageManager::GenerateXmlExample();
 			return EXIT_SUCCESS;
 		}
 		else if (strcasecmp(argv[i], "-m") == 0)
@@ -148,23 +252,23 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			printf("Unknown parameter %s.\n",argv[i]);
+			printf("Unknown parameter %s.\n", argv[i]);
 			showUsage();
 			return EXIT_SUCCESS;
 		}
 	}
 	
-	if (clsServerManager::sPath.size() == 0)
+	if (ServerManager::m_sPath.size() == 0)
 	{
 		char* home;
 		char curdir[PATH_MAX];
-		if (clsServerManager::bDaemon == true && (home = getenv("HOME")) != NULL)
+		if (ServerManager::m_bDaemon == true && (home = getenv("HOME")) != NULL)
 		{
-			clsServerManager::sPath = string(home) + "/.PtokaX";
+			ServerManager::m_sPath = string(home) + "/.PtokaX";
 			
-			if (DirExist(clsServerManager::sPath.c_str()) == false)
+			if (DirExist(ServerManager::m_sPath.c_str()) == false)
 			{
-				if (mkdir(clsServerManager::sPath.c_str(), 0755) == -1)
+				if (mkdir(ServerManager::m_sPath.c_str(), 0755) == -1)
 				{
 					syslog(LOG_USER | LOG_ERR, "Config directory not exist and can't be created!\n");
 				}
@@ -172,28 +276,28 @@ int main(int argc, char* argv[])
 		}
 		else if (getcwd(curdir, PATH_MAX) != NULL)
 		{
-			clsServerManager::sPath = curdir;
+			ServerManager::m_sPath = curdir;
 		}
 		else
 		{
-			clsServerManager::sPath = ".";
+			ServerManager::m_sPath = ".";
 		}
 	}
 	
 	if (bSetup == true)
 	{
-		clsServerManager::Initialize();
+		ServerManager::Initialize();
 		
-		clsServerManager::CommandLineSetup();
+		ServerManager::CommandLineSetup();
 		
-		clsServerManager::FinalClose();
+		ServerManager::FinalClose();
 		
 		return EXIT_SUCCESS;
 	}
 	
-	if (clsServerManager::bDaemon == true)
+	if (ServerManager::m_bDaemon == true)
 	{
-		printf("Starting %s as daemon using %s as config directory.\n", g_sPtokaXTitle, clsServerManager::sPath.c_str());
+		printf("Starting %s as daemon using %s as config directory.\n", g_sPtokaXTitle, ServerManager::m_sPath.c_str());
 		
 		pid_t pid1 = fork();
 		if (pid1 == -1)
@@ -271,7 +375,7 @@ int main(int argc, char* argv[])
 	sigaddset(&sst, SIGURG);
 	sigaddset(&sst, SIGALRM);
 	
-	if (clsServerManager::bDaemon == true)
+	if (ServerManager::m_bDaemon == true)
 	{
 		sigaddset(&sst, SIGHUP);
 	}
@@ -301,17 +405,21 @@ int main(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 	
-	if (clsServerManager::bDaemon == false && sigaction(SIGHUP, &sigact, NULL) == -1)
+	if (ServerManager::m_bDaemon == false && sigaction(SIGHUP, &sigact, NULL) == -1)
 	{
 		AppendDebugLog("%s - [ERR] Cannot create sigaction SIGHUP in main\n");
 		exit(EXIT_FAILURE);
 	}
 	
-	clsServerManager::Initialize();
 	
-	if (clsServerManager::Start() == false)
+//    int *foo = (int*)-1; // make a bad pointer
+//    printf("%d\n", *foo);       // causes segfault
+
+	ServerManager::Initialize();
+	
+	if (ServerManager::Start() == false)
 	{
-		if (clsServerManager::bDaemon == false)
+		if (ServerManager::m_bDaemon == false)
 		{
 			printf("Server start failed!\n");
 		}
@@ -321,7 +429,7 @@ int main(int argc, char* argv[])
 		}
 		return EXIT_FAILURE;
 	}
-	else if (clsServerManager::bDaemon == false)
+	else if (ServerManager::m_bDaemon == false)
 	{
 		printf("%s running...\n", g_sPtokaXTitle);
 	}
@@ -332,21 +440,21 @@ int main(int argc, char* argv[])
 	
 	while (true)
 	{
-		clsServiceLoop::mPtr->Looper();
+		ServiceLoop::m_Ptr->Looper();
 		
-		if (clsServerManager::bServerTerminated == true)
+		if (ServerManager::m_bServerTerminated == true)
 		{
 			break;
 		}
 		
 		if (bTerminatedBySignal == true)
 		{
-			if (clsServerManager::bIsClose == true)
+			if (ServerManager::m_bIsClose == true)
 			{
 				break;
 			}
 			
-			string str = "Received signal ";
+			string str("Received signal ");
 			
 			if (iSignal == SIGINT)
 			{
@@ -373,16 +481,16 @@ int main(int argc, char* argv[])
 			
 			AppendLog(str.c_str());
 			
-			clsServerManager::bIsClose = true;
-			clsServerManager::Stop();
+			ServerManager::m_bIsClose = true;
+			ServerManager::Stop();
 			
 			// tell the scripts about the end
-			clsScriptManager::mPtr->OnExit();
+			ScriptManager::m_Ptr->OnExit();
 			
 			// send last possible global data
-			clsGlobalDataQueue::mPtr->SendFinalQueue();
+			GlobalDataQueue::m_Ptr->SendFinalQueue();
 			
-			clsServerManager::FinalStop(true);
+			ServerManager::FinalStop(true);
 			
 			break;
 		}
@@ -390,7 +498,7 @@ int main(int argc, char* argv[])
 		nanosleep(&sleeptime, NULL);
 	}
 	
-	if (clsServerManager::bDaemon == false)
+	if (ServerManager::m_bDaemon == false)
 	{
 		printf("%s ending...\n", g_sPtokaXTitle);
 	}

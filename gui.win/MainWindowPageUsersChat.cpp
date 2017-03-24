@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -43,9 +43,9 @@
 #include "RegisteredUserDialog.h"
 #include "Resources.h"
 //---------------------------------------------------------------------------
-clsMainWindowPageUsersChat * clsMainWindowPageUsersChat::mPtr = NULL;
+clsMainWindowPageUsersChat * clsMainWindowPageUsersChat::mPtr = nullptr;
 //---------------------------------------------------------------------------
-static WNDPROC wpOldMultiEditProc = NULL;
+static WNDPROC wpOldMultiEditProc = nullptr;
 //---------------------------------------------------------------------------
 
 static LRESULT CALLBACK MultiRichEditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -75,7 +75,7 @@ clsMainWindowPageUsersChat::clsMainWindowPageUsersChat()
 
 clsMainWindowPageUsersChat::~clsMainWindowPageUsersChat()
 {
-	clsMainWindowPageUsersChat::mPtr = NULL;
+	clsMainWindowPageUsersChat::mPtr = nullptr;
 }
 //---------------------------------------------------------------------------
 
@@ -258,7 +258,7 @@ LRESULT clsMainWindowPageUsersChat::MainWindowPageProc(UINT uMsg, WPARAM wParam,
 					
 					::SendMessage(hWndPageItems[LV_USERS], LVM_GETITEM, 0, (LPARAM)&lvItem);
 					
-					clsRegisteredUserDialog::mPtr = new(std::nothrow) clsRegisteredUserDialog();
+					clsRegisteredUserDialog::mPtr = new (std::nothrow) clsRegisteredUserDialog();
 					
 					if (clsRegisteredUserDialog::mPtr != NULL)
 					{
@@ -368,7 +368,7 @@ static LRESULT CALLBACK ListProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			}
 			else
 			{
-				::SetFocus(clsMainWindow::mPtr->hWndWindowItems[clsMainWindow::TC_TABS]);
+				::SetFocus(clsMainWindow::SettingDialog::m_Ptr->m_hWndWindowItems[clsMainWindow::TC_TABS]);
 			}
 			
 			return 0;
@@ -750,7 +750,7 @@ void OnKickOk(const char * sLine, const int iLen)
 			sLine[510] = '.';
 		}
 #endif
-
+		
 		pUser->SendFormat("OnKickOk2", false, "<%s> %s: %s|", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsLanguageManager::mPtr->sTexts[LAN_YOU_BEING_KICKED_BCS], sLine);
 	}
 	
@@ -781,7 +781,7 @@ void clsMainWindowPageUsersChat::KickUser()
 		return;
 	}
 	
-	LineDialog * pKickDlg = new(std::nothrow) LineDialog(&OnKickOk);
+	LineDialog * pKickDlg = new (std::nothrow) LineDialog(&OnKickOk);
 	
 	if (pKickDlg != NULL)
 	{
@@ -850,7 +850,7 @@ void clsMainWindowPageUsersChat::BanUser()
 		return;
 	}
 	
-	LineDialog * pBanDlg = new(std::nothrow) LineDialog(&OnBanOk);
+	LineDialog * pBanDlg = new (std::nothrow) LineDialog(&OnBanOk);
 	
 	if (pBanDlg != NULL)
 	{
@@ -899,7 +899,7 @@ void clsMainWindowPageUsersChat::RedirectUser()
 		return;
 	}
 	
-	LineDialog * pRedirectDlg = new(std::nothrow) LineDialog(&OnRedirectOk);
+	LineDialog * pRedirectDlg = new (std::nothrow) LineDialog(&OnRedirectOk);
 	
 	if (pRedirectDlg != NULL)
 	{

@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -65,7 +65,7 @@ LRESULT MainWindowPageStats::MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM
 					else
 					{
 						clsServerManager::Stop();
-						::SetFocus(clsMainWindow::mPtr->hWndWindowItems[clsMainWindow::TC_TABS]);
+						::SetFocus(clsMainWindow::SettingDialog::m_Ptr->m_hWndWindowItems[clsMainWindow::TC_TABS]);
 					}
 					
 					return 0;
@@ -123,7 +123,7 @@ LRESULT CALLBACK SSButtonProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 			}
 		}
 		
-		::SetFocus(clsMainWindow::mPtr->hWndWindowItems[clsMainWindow::TC_TABS]);
+		::SetFocus(clsMainWindow::SettingDialog::m_Ptr->m_hWndWindowItems[clsMainWindow::TC_TABS]);
 		return 0;
 	}
 	
@@ -299,7 +299,7 @@ void MainWindowPageStats::OnRedirectAll()
 	const char sRedirectAll[] = "[SYS] Redirect All.";
 	clsUdpDebug::mPtr->Broadcast(sRedirectAll, sizeof(sRedirectAll) - 1);
 	
-	LineDialog * pRedirectAllDlg = new(std::nothrow) LineDialog(&OnRedirectAllOk);
+	LineDialog * pRedirectAllDlg = new (std::nothrow) LineDialog(&OnRedirectAllOk);
 	
 	if (pRedirectAllDlg != NULL)
 	{
@@ -335,7 +335,7 @@ void OnMassMessageOk(const char * sLine, const int iLen)
 
 void MainWindowPageStats::OnMassMessage()
 {
-	LineDialog * pMassMsgDlg = new(std::nothrow) LineDialog(&OnMassMessageOk);
+	LineDialog * pMassMsgDlg = new (std::nothrow) LineDialog(&OnMassMessageOk);
 	
 	if (pMassMsgDlg != NULL)
 	{

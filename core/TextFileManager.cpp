@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -30,81 +30,81 @@
 #pragma hdrstop
 #endif
 //---------------------------------------------------------------------------
-clsTextFilesManager * clsTextFilesManager::mPtr = NULL;
+TextFilesManager * TextFilesManager::m_Ptr = NULL;
 //---------------------------------------------------------------------------
 
-clsTextFilesManager::TextFile::TextFile() : pPrev(NULL), pNext(NULL), sCommand(NULL), sText(NULL)
+TextFilesManager::TextFile::TextFile() : m_pPrev(NULL), m_pNext(NULL), m_sCommand(NULL), m_sText(NULL)
 {
 	// ...
 }
 //---------------------------------------------------------------------------
 
-clsTextFilesManager::TextFile::~TextFile()
+TextFilesManager::TextFile::~TextFile()
 {
-	free(sCommand);
-	free(sText);
+	free(m_sCommand);
+	free(m_sText);
 }
 //---------------------------------------------------------------------------
 
-clsTextFilesManager::clsTextFilesManager() : pTextFiles(NULL)
+TextFilesManager::TextFilesManager() : m_pTextFiles(NULL)
 {
 	// ...
 }
 //---------------------------------------------------------------------------
 
-clsTextFilesManager::~clsTextFilesManager()
+TextFilesManager::~TextFilesManager()
 {
 	TextFile * cur = NULL,
-	           * next = pTextFiles;
+	           * next = m_pTextFiles;
 	           
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
 		delete cur;
 	}
 }
 //---------------------------------------------------------------------------
 
-bool clsTextFilesManager::ProcessTextFilesCmd(User * u, const char * cmd, bool fromPM/* = false*/) const
+bool TextFilesManager::ProcessTextFilesCmd(User * pUser, char * sCommand, const bool bFromPM/* = false*/) const
 {
 	TextFile * cur = NULL,
-	           * next = pTextFiles;
+	           * next = m_pTextFiles;
 	           
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
-		if (strcasecmp(cur->sCommand, cmd) == 0)
+		if (strcasecmp(cur->m_sCommand, sCommand) == 0)
 		{
-			bool bInPM = (clsSettingManager::mPtr->bBools[SETBOOL_SEND_TEXT_FILES_AS_PM] == true || fromPM);
-			size_t szHubSecLen = (size_t)clsSettingManager::mPtr->ui16PreTextsLens[clsSettingManager::SETPRETXT_HUB_SEC];
+			bool bInPM = (SettingManager::m_Ptr->m_bBools[SETBOOL_SEND_TEXT_FILES_AS_PM] == true || bFromPM);
+			size_t szHubSecLen = (size_t)SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_HUB_SEC];
 			size_t szChatLen = 0;
 			
 			// PPK ... to chat or to PM ???
 			if (bInPM == true)
 			{
-				szChatLen = 18 + u->ui8NickLen + (2 * szHubSecLen) + strlen(cur->sText);
+				szChatLen = 18 + pUser->m_ui8NickLen + (2 * szHubSecLen) + strlen(cur->m_sText);
 			}
 			else
 			{
-				szChatLen = 4 + szHubSecLen + strlen(cur->sText);
+				szChatLen = 4 + szHubSecLen + strlen(cur->m_sText);
 			}
 			
 			char * sMSG = (char *)malloc(szChatLen);
 			if (sMSG == NULL)
 			{
-				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sMsg in clsTextFilesManager::ProcessTextFilesCmd\n", (uint64_t)szChatLen);
+				AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sMsg in TextFilesManager::ProcessTextFilesCmd\n", (uint64_t)szChatLen);
 				
 				return true;
 			}
 			
 			if (bInPM == true)
 			{
-				int iret = sprintf(sMSG, "$To: %s From: %s $<%s> %s", u->sNick, clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], cur->sText);
-				if (CheckSprintf(iret, szChatLen, "clsTextFilesManager::ProcessTextFilesCmd1") == false)
+				int iRet = snprintf(sMSG, szChatLen, "$To: %s From: %s $<%s> %s", pUser->m_sNick, SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], cur->m_sText);
+				if (iRet <= 0)
 				{
 					free(sMSG);
 					return true;
@@ -112,15 +112,16 @@ bool clsTextFilesManager::ProcessTextFilesCmd(User * u, const char * cmd, bool f
 			}
 			else
 			{
-				int iret = sprintf(sMSG, "<%s> %s", clsSettingManager::mPtr->sPreTexts[clsSettingManager::SETPRETXT_HUB_SEC], cur->sText);
-				if (CheckSprintf(iret, szChatLen, "clsTextFilesManager::ProcessTextFilesCmd2") == false)
+				int iRet = snprintf(sMSG, szChatLen, "<%s> %s", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], cur->m_sText);
+				if (iRet <= 0)
 				{
 					free(sMSG);
 					return true;
 				}
 			}
 			
-			u->SendCharDelayed(sMSG, szChatLen - 1);
+			pUser->SendCharDelayed(sMSG, szChatLen - 1);
+			
 			free(sMSG);
 			
 			return true;
@@ -131,27 +132,27 @@ bool clsTextFilesManager::ProcessTextFilesCmd(User * u, const char * cmd, bool f
 }
 //---------------------------------------------------------------------------
 
-void clsTextFilesManager::RefreshTextFiles()
+void TextFilesManager::RefreshTextFiles()
 {
-	if (clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_TEXT_FILES] == false)
+	if (SettingManager::m_Ptr->m_bBools[SETBOOL_ENABLE_TEXT_FILES] == false)
 		return;
 		
 	TextFile * cur = NULL,
-	           * next = pTextFiles;
+	           * next = m_pTextFiles;
 	           
 	while (next != NULL)
 	{
 		cur = next;
-		next = cur->pNext;
+		next = cur->m_pNext;
 		
 		delete cur;
 	}
 	
-	pTextFiles = NULL;
+	m_pTextFiles = NULL;
 	
 #ifdef _WIN32
 	struct _finddata_t textfile;
-	intptr_t hFile = _findfirst((clsServerManager::sPath + "\\texts\\*.txt").c_str(), &textfile);
+	intptr_t hFile = _findfirst((ServerManager::m_sPath + "\\texts\\*.txt").c_str(), &textfile);
 	
 	if (hFile != -1)
 	{
@@ -163,15 +164,15 @@ void clsTextFilesManager::RefreshTextFiles()
 				continue;
 			}
 			
-			FILE *f = fopen((clsServerManager::sPath + "\\texts\\" + textfile.name).c_str(), "rb");
+			FILE *f = fopen((ServerManager::m_sPath + "\\texts\\" + textfile.name).c_str(), "rb");
 			if (f != NULL)
 			{
 				if (textfile.size != 0)
 				{
-					TextFile * pNewTxtFile = new(std::nothrow) TextFile();
+					TextFile * pNewTxtFile = new (std::nothrow) TextFile();
 					if (pNewTxtFile == NULL)
 					{
-						AppendDebugLog("%s - [MEM] Cannot allocate pNewTxtFile in clsTextFilesManager::RefreshTextFiles\n");
+						AppendDebugLog("%s - [MEM] Cannot allocate pNewTxtFile in TextFilesManager::RefreshTextFiles\n");
 						
 						fclose(f);
 						_findclose(hFile);
@@ -179,29 +180,11 @@ void clsTextFilesManager::RefreshTextFiles()
 						return;
 					}
 					
-					pNewTxtFile->sText = (char *)malloc(textfile.size + 2);
+					pNewTxtFile->m_sText = (char *)malloc(textfile.size + 2);
 					
-					if (pNewTxtFile->sText == NULL)
+					if (pNewTxtFile->m_sText == NULL)
 					{
-						AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sText in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(textfile.size + 2));
-						
-						fclose(f);
-						_findclose(hFile);
-						
-						delete pNewTxtFile;
-						
-						return;
-					}
-					
-					size_t size = fread(pNewTxtFile->sText, 1, textfile.size, f);
-					
-					pNewTxtFile->sText[size] = '|';
-					pNewTxtFile->sText[size + 1] = '\0';
-					
-					pNewTxtFile->sCommand = (char *)malloc(strlen(textfile.name) - 3);
-					if (pNewTxtFile->sCommand == NULL)
-					{
-						AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sCommand in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(strlen(textfile.name) - 3));
+						AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for m_sText in TextFilesManager::RefreshTextFiles\n", (uint64_t)(textfile.size + 2));
 						
 						fclose(f);
 						_findclose(hFile);
@@ -211,22 +194,40 @@ void clsTextFilesManager::RefreshTextFiles()
 						return;
 					}
 					
-					memcpy(pNewTxtFile->sCommand, textfile.name, strlen(textfile.name) - 4);
-					pNewTxtFile->sCommand[strlen(textfile.name) - 4] = '\0';
+					size_t size = fread(pNewTxtFile->m_sText, 1, textfile.size, f);
 					
-					pNewTxtFile->pPrev = NULL;
+					pNewTxtFile->m_sText[size] = '|';
+					pNewTxtFile->m_sText[size + 1] = '\0';
 					
-					if (pTextFiles == NULL)
+					pNewTxtFile->m_sCommand = (char *)malloc(strlen(textfile.name) - 3);
+					if (pNewTxtFile->m_sCommand == NULL)
 					{
-						pNewTxtFile->pNext = NULL;
+						AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for m_sCommand in TextFilesManager::RefreshTextFiles\n", (uint64_t)(strlen(textfile.name) - 3));
+						
+						fclose(f);
+						_findclose(hFile);
+						
+						delete pNewTxtFile;
+						
+						return;
+					}
+					
+					memcpy(pNewTxtFile->m_sCommand, textfile.name, strlen(textfile.name) - 4);
+					pNewTxtFile->m_sCommand[strlen(textfile.name) - 4] = '\0';
+					
+					pNewTxtFile->m_pPrev = NULL;
+					
+					if (m_pTextFiles == NULL)
+					{
+						pNewTxtFile->m_pNext = NULL;
 					}
 					else
 					{
-						pTextFiles->pPrev = pNewTxtFile;
-						pNewTxtFile->pNext = pTextFiles;
+						m_pTextFiles->m_pPrev = pNewTxtFile;
+						pNewTxtFile->m_pNext = m_pTextFiles;
 					}
 					
-					pTextFiles = pNewTxtFile;
+					m_pTextFiles = pNewTxtFile;
 				}
 				
 				fclose(f);
@@ -237,7 +238,7 @@ void clsTextFilesManager::RefreshTextFiles()
 		_findclose(hFile);
 	}
 #else
-	string txtdir = clsServerManager::sPath + "/texts/";
+	string txtdir = ServerManager::m_sPath + "/texts/";
 	
 	DIR * p_txtdir = opendir(txtdir.c_str());
 	
@@ -265,10 +266,10 @@ void clsTextFilesManager::RefreshTextFiles()
 		{
 			if (s_buf.st_size != 0)
 			{
-				TextFile * pNewTxtFile = new(std::nothrow) TextFile();
+				TextFile * pNewTxtFile = new (std::nothrow) TextFile();
 				if (pNewTxtFile == NULL)
 				{
-					AppendDebugLog("%s - [MEM] Cannot allocate pNewTxtFile in clsTextFilesManager::RefreshTextFiles1\n");
+					AppendDebugLog("%s - [MEM] Cannot allocate pNewTxtFile in TextFilesManager::RefreshTextFiles1\n");
 	
 					fclose(f);
 					closedir(p_txtdir);
@@ -276,26 +277,10 @@ void clsTextFilesManager::RefreshTextFiles()
 					return;
 				}
 	
-				pNewTxtFile->sText = (char *)malloc(s_buf.st_size + 2);
-				if (pNewTxtFile->sText == NULL)
+				pNewTxtFile->m_sText = (char *)malloc(s_buf.st_size + 2);
+				if (pNewTxtFile->m_sText == NULL)
 				{
-					AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sText in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(s_buf.st_size + 2));
-	
-					fclose(f);
-					closedir(p_txtdir);
-	
-					delete pNewTxtFile;
-	
-					return;
-				}
-				size_t size = fread(pNewTxtFile->sText, 1, s_buf.st_size, f);
-				pNewTxtFile->sText[size] = '|';
-				pNewTxtFile->sText[size + 1] = '\0';
-	
-				pNewTxtFile->sCommand = (char *)malloc(strlen(p_dirent->d_name) - 3);
-				if (pNewTxtFile->sCommand == NULL)
-				{
-					AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sCommand in clsTextFilesManager::RefreshTextFiles\n", (uint64_t)(strlen(p_dirent->d_name) - 3));
+					AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for m_sText in TextFilesManager::RefreshTextFiles\n", (uint64_t)(s_buf.st_size + 2));
 	
 					fclose(f);
 					closedir(p_txtdir);
@@ -304,23 +289,39 @@ void clsTextFilesManager::RefreshTextFiles()
 	
 					return;
 				}
+				size_t size = fread(pNewTxtFile->m_sText, 1, s_buf.st_size, f);
+				pNewTxtFile->m_sText[size] = '|';
+				pNewTxtFile->m_sText[size + 1] = '\0';
 	
-				memcpy(pNewTxtFile->sCommand, p_dirent->d_name, strlen(p_dirent->d_name) - 4);
-				pNewTxtFile->sCommand[strlen(p_dirent->d_name) - 4] = '\0';
-	
-				pNewTxtFile->pPrev = NULL;
-	
-				if (pTextFiles == NULL)
+				pNewTxtFile->m_sCommand = (char *)malloc(strlen(p_dirent->d_name) - 3);
+				if (pNewTxtFile->m_sCommand == NULL)
 				{
-					pNewTxtFile->pNext = NULL;
+					AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for m_sCommand in TextFilesManager::RefreshTextFiles\n", (uint64_t)(strlen(p_dirent->d_name) - 3));
+	
+					fclose(f);
+					closedir(p_txtdir);
+	
+					delete pNewTxtFile;
+	
+					return;
+				}
+	
+				memcpy(pNewTxtFile->m_sCommand, p_dirent->d_name, strlen(p_dirent->d_name) - 4);
+				pNewTxtFile->m_sCommand[strlen(p_dirent->d_name) - 4] = '\0';
+	
+				pNewTxtFile->m_pPrev = NULL;
+	
+				if (m_pTextFiles == NULL)
+				{
+					pNewTxtFile->m_pNext = NULL;
 				}
 				else
 				{
-					pTextFiles->pPrev = pNewTxtFile;
-					pNewTxtFile->pNext = pTextFiles;
+					m_pTextFiles->m_pPrev = pNewTxtFile;
+					pNewTxtFile->m_pNext = m_pTextFiles;
 				}
 	
-				pTextFiles = pNewTxtFile;
+				m_pTextFiles = pNewTxtFile;
 			}
 	
 			fclose(f);

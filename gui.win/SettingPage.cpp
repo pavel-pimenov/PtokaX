@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -219,12 +219,12 @@ LRESULT SettingWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, WN
 	{
 		if ((::GetKeyState(VK_SHIFT) & 0x8000) == 0)
 		{
-			::SetFocus(clsSettingDialog::mPtr->hWndWindowItems[clsSettingDialog::TV_TREE]);
+			::SetFocus(SettingDialog::m_Ptr->m_hWndWindowItems[SettingDialog::TV_TREE]);
 			return 0;
 		}
 		else
 		{
-			::SetFocus(::GetNextDlgTabItem(clsSettingDialog::mPtr->hWndWindowItems[clsSettingDialog::WINDOW_HANDLE], hWnd, TRUE));
+			::SetFocus(::GetNextDlgTabItem(SettingDialog::m_Ptr->m_hWndWindowItems[SettingDialog::WINDOW_HANDLE], hWnd, TRUE));
 			return 0;
 		}
 	}

@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -25,7 +25,7 @@ struct User;
 //---------------------------------------------------------------------------
 extern bool g_isUseSyslog;
 
-class clsUdpDebug
+class UdpDebug
 {
 	private:
 		char * sDebugBuffer, * sDebugHead;
@@ -34,9 +34,9 @@ class clsUdpDebug
 		{
 			sockaddr_storage sas_to;
 			
-			UdpDbgItem * pPrev, * pNext;
+			UdpDbgItem * m_pPrev, * m_pNext;
 			
-			char * sNick;
+			std::string m_sNick;
 #ifdef _WIN32
 			SOCKET s;
 #else
@@ -51,21 +51,19 @@ class clsUdpDebug
 			
 			UdpDbgItem();
 			~UdpDbgItem();
-			
-			UdpDbgItem(const UdpDbgItem&);
-			const UdpDbgItem& operator=(const UdpDbgItem&);
+			DISALLOW_COPY_AND_ASSIGN(UdpDbgItem);
 		};
-		DISALLOW_COPY_AND_ASSIGN(clsUdpDebug);
+		DISALLOW_COPY_AND_ASSIGN(UdpDebug);
 		
 		void CreateBuffer();
 		void DeleteBuffer();
 	public:
-		static clsUdpDebug * mPtr;
+		static UdpDebug * m_Ptr;
 		
 		UdpDbgItem * pDbgItemList;
 		
-		clsUdpDebug();
-		~clsUdpDebug();
+		UdpDebug();
+		~UdpDebug();
 		
 		void Broadcast(const std::string& p_msg) const
 		{

@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -23,42 +23,55 @@
 //---------------------------------------------------------------------------
 struct User;
 //---------------------------------------------------------------------------
+#include <unordered_map>
+/*
+#include <unordered_set>
+#include <map>
 
-class clsHashManager
+struct CFlyIPCountUser
+{
+    std::unordered_set<User *> m_Users;
+    uint16_t m_ui16Count;
+    CFlyIPCountUser() : m_ui16Count(0) {}
+};
+        std::unordered_map<std::string, CFlyIPCountUser> m_IPCountTable;
+*/
+class HashManager
 {
 	private:
-		User * pNickTable[65536];
+		std::unordered_map<std::string, User*> m_NickTable;
 		
 		struct IpTableItem
 		{
-			IpTableItem * pPrev, * pNext;
+			IpTableItem * m_pPrev, * m_pNext;
 			
-			User * pFirstUser;
+			User * m_pFirstUser;
 			
-			uint16_t ui16Count;
+			uint16_t m_ui16Count;
 			
-			IpTableItem() : pPrev(NULL), pNext(NULL), pFirstUser(NULL), ui16Count(0) { }
+			IpTableItem() : m_pPrev(NULL), m_pNext(NULL), m_pFirstUser(NULL), m_ui16Count(0) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(IpTableItem);
 		};
 		
-		IpTableItem * pIpTable[65536];
+		IpTableItem * m_pIpTable[65536];
 		
-		DISALLOW_COPY_AND_ASSIGN(clsHashManager);
+		DISALLOW_COPY_AND_ASSIGN(HashManager);
 	public:
-		static clsHashManager * mPtr;
+		static HashManager * m_Ptr;
 		
-		clsHashManager();
-		~clsHashManager();
+		HashManager();
+		~HashManager();
 		
 		bool Add(User * pUser);
 		void Remove(User * pUser);
 		
-		User * FindUser(const char * sNick, const size_t szNickLen);
-		User * FindUser(User * pUser);
-		User * FindUser(const uint8_t * ui128IpHash);
+		User * FindUser(const char * sNick, const size_t szNickLen)  const;
+		User * FindUser(const std::string& sNick) const;
+		User * FindUser(const User * pUser)  const;
+		User * FindUser(const uint8_t * m_ui128IpHash) const;
 		
-		uint32_t GetUserIpCount(User * pUser) const;
+		uint32_t GetUserIpCount(const User * pUser) const;
 };
 //---------------------------------------------------------------------------
 

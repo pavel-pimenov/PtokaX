@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -33,7 +33,7 @@
 //---------------------------------------------------------------------------
 #include "LineDialog.h"
 //---------------------------------------------------------------------------
-clsProfilesDialog * clsProfilesDialog::mPtr = NULL;
+clsProfilesDialog * clsProfilesDialog::mPtr = nullptr;
 //---------------------------------------------------------------------------
 #define IDC_RENAME_PROFILE      1000
 #define IDC_REMOVE_PROFILE      1001
@@ -43,13 +43,13 @@ static ATOM atomProfilesDialog = 0;
 
 clsProfilesDialog::clsProfilesDialog() : bIgnoreItemChanged(false)
 {
-	memset(&hWndWindowItems, 0, sizeof(hWndWindowItems));
+	memset(&m_hWndWindowItems, 0, sizeof(m_hWndWindowItems));
 }
 //---------------------------------------------------------------------------
 
 clsProfilesDialog::~clsProfilesDialog()
 {
-	clsProfilesDialog::mPtr = NULL;
+	clsProfilesDialog::mPtr = nullptr;
 }
 //---------------------------------------------------------------------------
 
@@ -72,11 +72,11 @@ void OnNewProfileOk(const char * sLine, const int /*iLen*/)
 	
 	if (iRet == -1)
 	{
-		::MessageBox(clsProfilesDialog::mPtr->hWndWindowItems[clsProfilesDialog::WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_PROFILE_NAME_EXIST], g_sPtokaXTitle, MB_OK);
+		::MessageBox(clsProfilesDialog::SettingDialog::m_Ptr->m_hWndWindowItems[clsProfilesDialog::WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_PROFILE_NAME_EXIST], g_sPtokaXTitle, MB_OK);
 	}
 	else if (iRet == -2)
 	{
-		::MessageBox(clsProfilesDialog::mPtr->hWndWindowItems[clsProfilesDialog::WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_CHARS_NOT_ALLOWED_IN_PROFILE], g_sPtokaXTitle, MB_OK);
+		::MessageBox(clsProfilesDialog::SettingDialog::m_Ptr->m_hWndWindowItems[clsProfilesDialog::WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_CHARS_NOT_ALLOWED_IN_PROFILE], g_sPtokaXTitle, MB_OK);
 	}
 }
 //---------------------------------------------------------------------------
@@ -88,46 +88,46 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 		case WM_WINDOWPOSCHANGED:
 		{
 			RECT rcParent;
-			::GetClientRect(hWndWindowItems[WINDOW_HANDLE], &rcParent);
+			::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
 			
 			int iProfilesWidth = rcParent.right / 3;
 			
 			int iPermissionsWidth = rcParent.right - (iProfilesWidth + 17);
 			
-			::SetWindowPos(hWndWindowItems[BTN_CLEAR_ALL], NULL, iProfilesWidth + 11 + (iPermissionsWidth / 2), rcParent.bottom - clsGuiSettingManager::iEditHeight - 10,
+			::SetWindowPos(m_hWndWindowItems[BTN_CLEAR_ALL], NULL, iProfilesWidth + 11 + (iPermissionsWidth / 2), rcParent.bottom - clsGuiSettingManager::iEditHeight - 10,
 			               rcParent.right - (iProfilesWidth + 21 + (iPermissionsWidth / 2)), clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[BTN_SET_ALL], NULL, iProfilesWidth + 11, rcParent.bottom - clsGuiSettingManager::iEditHeight - 10, (iPermissionsWidth / 2) - 3, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[LV_PERMISSIONS], NULL, iProfilesWidth + 12, rcParent.top + clsGuiSettingManager::iGroupBoxMargin,
+			::SetWindowPos(m_hWndWindowItems[BTN_SET_ALL], NULL, iProfilesWidth + 11, rcParent.bottom - clsGuiSettingManager::iEditHeight - 10, (iPermissionsWidth / 2) - 3, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+			::SetWindowPos(m_hWndWindowItems[LV_PERMISSIONS], NULL, iProfilesWidth + 12, rcParent.top + clsGuiSettingManager::iGroupBoxMargin,
 			               rcParent.right - (iProfilesWidth + 23), rcParent.bottom - clsGuiSettingManager::iGroupBoxMargin - clsGuiSettingManager::iEditHeight - 14, SWP_NOZORDER);
-			::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_SETCOLUMNWIDTH, 0, iPermissionsWidth - 30);
-			::SetWindowPos(hWndWindowItems[GB_PERMISSIONS], NULL, iProfilesWidth + 4, rcParent.top, rcParent.right - (iProfilesWidth + 7), rcParent.bottom - 3,
+			::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_SETCOLUMNWIDTH, 0, iPermissionsWidth - 30);
+			::SetWindowPos(m_hWndWindowItems[GB_PERMISSIONS], NULL, iProfilesWidth + 4, rcParent.top, rcParent.right - (iProfilesWidth + 7), rcParent.bottom - 3,
 			               SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[BTN_MOVE_DOWN], NULL, (iProfilesWidth / 2) + 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
+			::SetWindowPos(m_hWndWindowItems[BTN_MOVE_DOWN], NULL, (iProfilesWidth / 2) + 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
 			               iProfilesWidth - (iProfilesWidth / 2), clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[BTN_MOVE_UP], NULL, 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (iProfilesWidth / 2) - 1, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(hWndWindowItems[LV_PROFILES], NULL, 0, 0, iProfilesWidth - 2, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 12, SWP_NOMOVE | SWP_NOZORDER);
-			::SendMessage(hWndWindowItems[LV_PROFILES], LVM_SETCOLUMNWIDTH, 0, iProfilesWidth - 6);
-			::SetWindowPos(hWndWindowItems[BTN_ADD_PROFILE], NULL, 0, 0, iProfilesWidth, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
+			::SetWindowPos(m_hWndWindowItems[BTN_MOVE_UP], NULL, 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (iProfilesWidth / 2) - 1, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+			::SetWindowPos(m_hWndWindowItems[LV_PROFILES], NULL, 0, 0, iProfilesWidth - 2, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 12, SWP_NOMOVE | SWP_NOZORDER);
+			::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETCOLUMNWIDTH, 0, iProfilesWidth - 6);
+			::SetWindowPos(m_hWndWindowItems[BTN_ADD_PROFILE], NULL, 0, 0, iProfilesWidth, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
 			
 			return 0;
 		}
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
-				case(BTN_ADD_PROFILE+100):
+				case (BTN_ADD_PROFILE+100):
 				{
-					LineDialog * pNewProfileDlg = new(std::nothrow) LineDialog(&OnNewProfileOk);
+					LineDialog * pNewProfileDlg = new (std::nothrow) LineDialog(&OnNewProfileOk);
 					
 					if (pNewProfileDlg != NULL)
 					{
-						pNewProfileDlg->DoModal(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_NEW_PROFILE_NAME], "");
+						pNewProfileDlg->DoModal(m_hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_NEW_PROFILE_NAME], "");
 					}
 					
 					return 0;
 				}
 				case IDC_RENAME_PROFILE:
 				{
-					int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+					int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 					
 					if (iSel == -1)
 					{
@@ -140,16 +140,16 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 				}
 				case IDC_REMOVE_PROFILE:
 				{
-					int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+					int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 					
-					if (iSel == -1 || ::MessageBox(hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+					if (iSel == -1 || ::MessageBox(m_hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
 					{
 						return 0;
 					}
 					
 					if (clsProfileManager::mPtr->RemoveProfile((uint16_t)iSel) == false)
 					{
-						::MessageBox(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_PROFILE_DEL_FAIL], g_sPtokaXTitle, MB_OK);
+						::MessageBox(m_hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_PROFILE_DEL_FAIL], g_sPtokaXTitle, MB_OK);
 					}
 					
 					return 0;
@@ -162,7 +162,7 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 					return 0;
 				case BTN_MOVE_UP:
 				{
-					int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+					int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 					
 					if (iSel == -1)
 					{
@@ -175,7 +175,7 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 				}
 				case BTN_MOVE_DOWN:
 				{
-					int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+					int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 					
 					if (iSel == -1)
 					{
@@ -188,9 +188,9 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 				}
 				case IDOK:   // NM_RETURN
 				{
-					if (::GetFocus() == hWndWindowItems[LV_PROFILES])
+					if (::GetFocus() == m_hWndWindowItems[LV_PROFILES])
 					{
-						int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+						int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 						
 						if (iSel == -1)
 						{
@@ -205,7 +205,7 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 					break;
 				}
 				case IDCANCEL:
-					::PostMessage(hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
+					::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
 					return 0;
 			}
 			
@@ -214,7 +214,7 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 			OnContextMenu((HWND)wParam, lParam);
 			break;
 		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == hWndWindowItems[LV_PROFILES])
+			if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[LV_PROFILES])
 			{
 				if (((LPNMHDR)lParam)->code == LVN_ITEMCHANGED)
 				{
@@ -232,7 +232,7 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 					return 0;
 				}
 			}
-			else if (((LPNMHDR)lParam)->hwndFrom == hWndWindowItems[LV_PERMISSIONS])
+			else if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[LV_PERMISSIONS])
 			{
 				if (((LPNMHDR)lParam)->code == LVN_ITEMCHANGED)
 				{
@@ -252,35 +252,35 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 		case WM_CLOSE:
 		{
 			RECT rcProfiles;
-			::GetWindowRect(hWndWindowItems[WINDOW_HANDLE], &rcProfiles);
+			::GetWindowRect(m_hWndWindowItems[WINDOW_HANDLE], &rcProfiles);
 			
 			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_PROFILES_WINDOW_WIDTH, rcProfiles.right - rcProfiles.left);
 			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_PROFILES_WINDOW_HEIGHT, rcProfiles.bottom - rcProfiles.top);
 			
-			::EnableWindow(::GetParent(hWndWindowItems[WINDOW_HANDLE]), TRUE);
-			clsServerManager::hWndActiveDialog = NULL;
+			::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
+			clsServerManager::hWndActiveDialog = nullptr;
 			
 			break;
 		}
 		case WM_NCDESTROY:
 		{
-			HWND hWnd = hWndWindowItems[WINDOW_HANDLE];
+			HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
 			delete this;
 			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
 		case WM_SETFOCUS:
-			::SetFocus(hWndWindowItems[LV_PROFILES]);
+			::SetFocus(m_hWndWindowItems[LV_PROFILES]);
 			return 0;
 		case WM_ACTIVATE:
 			if (LOWORD(wParam) != WA_INACTIVE)
 			{
-				clsServerManager::hWndActiveDialog = hWndWindowItems[WINDOW_HANDLE];
+				clsServerManager::hWndActiveDialog = m_hWndWindowItems[WINDOW_HANDLE];
 			}
 			
 			break;
 	}
 	
-	return ::DefWindowProc(hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
+	return ::DefWindowProc(m_hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
 }
 //------------------------------------------------------------------------------
 
@@ -307,82 +307,82 @@ void clsProfilesDialog::DoModal(HWND hWndParent)
 	int iX = (rcParent.left + (((rcParent.right - rcParent.left)) / 2)) - (ScaleGuiDefaultsOnly(GUISETINT_PROFILES_WINDOW_WIDTH) / 2);
 	int iY = (rcParent.top + ((rcParent.bottom - rcParent.top) / 2)) - (ScaleGuiDefaultsOnly(GUISETINT_PROFILES_WINDOW_HEIGHT) / 2);
 	
-	hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomProfilesDialog), clsLanguageManager::mPtr->sTexts[LAN_PROFILES],
+	m_hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomProfilesDialog), clsLanguageManager::mPtr->sTexts[LAN_PROFILES],
 	                                                  WS_POPUP | WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	                                                  iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGuiDefaultsOnly(GUISETINT_PROFILES_WINDOW_WIDTH), ScaleGuiDefaultsOnly(GUISETINT_PROFILES_WINDOW_HEIGHT),
 	                                                  hWndParent, NULL, clsServerManager::hInstance, NULL);
 	                                                  
-	if (hWndWindowItems[WINDOW_HANDLE] == NULL)
+	if (m_hWndWindowItems[WINDOW_HANDLE] == NULL)
 	{
 		return;
 	}
 	
-	clsServerManager::hWndActiveDialog = hWndWindowItems[WINDOW_HANDLE];
+	clsServerManager::hWndActiveDialog = m_hWndWindowItems[WINDOW_HANDLE];
 	
-	::SetWindowLongPtr(hWndWindowItems[WINDOW_HANDLE], GWLP_USERDATA, (LONG_PTR)this);
-	::SetWindowLongPtr(hWndWindowItems[WINDOW_HANDLE], GWLP_WNDPROC, (LONG_PTR)StaticProfilesDialogProc);
+	::SetWindowLongPtr(m_hWndWindowItems[WINDOW_HANDLE], GWLP_USERDATA, (LONG_PTR)this);
+	::SetWindowLongPtr(m_hWndWindowItems[WINDOW_HANDLE], GWLP_WNDPROC, (LONG_PTR)StaticProfilesDialogProc);
 	
-	::GetClientRect(hWndWindowItems[WINDOW_HANDLE], &rcParent);
+	::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
 	
 	int iProfilesWidth = rcParent.right / 3;
 	
-	hWndWindowItems[BTN_ADD_PROFILE] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_ADD_NEW_PROFILE], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                    2, 2, iProfilesWidth, clsGuiSettingManager::iEditHeight, hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_ADD_PROFILE + 100), clsServerManager::hInstance, NULL);
+	m_hWndWindowItems[BTN_ADD_PROFILE] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_ADD_NEW_PROFILE], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+	                                                    2, 2, iProfilesWidth, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_ADD_PROFILE + 100), clsServerManager::hInstance, NULL);
 	                                                    
-	hWndWindowItems[LV_PROFILES] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_NOCOLUMNHEADER | LVS_REPORT | LVS_SHOWSELALWAYS |
-	                                                LVS_SINGLESEL, 3, clsGuiSettingManager::iEditHeight + 6, iProfilesWidth - 2, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 12, hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
-	::SendMessage(hWndWindowItems[LV_PROFILES], LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP);
+	m_hWndWindowItems[LV_PROFILES] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_NOCOLUMNHEADER | LVS_REPORT | LVS_SHOWSELALWAYS |
+	                                                LVS_SINGLESEL, 3, clsGuiSettingManager::iEditHeight + 6, iProfilesWidth - 2, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 12, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP);
 	
-	hWndWindowItems[BTN_MOVE_UP] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_MOVE_UP], WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (iProfilesWidth / 2) - 1, clsGuiSettingManager::iEditHeight, hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_MOVE_UP, clsServerManager::hInstance, NULL);
+	m_hWndWindowItems[BTN_MOVE_UP] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_MOVE_UP], WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_TABSTOP | BS_PUSHBUTTON,
+	                                                2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (iProfilesWidth / 2) - 1, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_MOVE_UP, clsServerManager::hInstance, NULL);
 	                                                
-	hWndWindowItems[BTN_MOVE_DOWN] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_MOVE_DOWN], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                  (iProfilesWidth / 2) + 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, iProfilesWidth - (iProfilesWidth / 2), clsGuiSettingManager::iEditHeight, hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_MOVE_DOWN, clsServerManager::hInstance, NULL);
+	m_hWndWindowItems[BTN_MOVE_DOWN] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_MOVE_DOWN], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+	                                                  (iProfilesWidth / 2) + 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, iProfilesWidth - (iProfilesWidth / 2), clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_MOVE_DOWN, clsServerManager::hInstance, NULL);
 	                                                  
-	hWndWindowItems[GB_PERMISSIONS] = ::CreateWindowEx(WS_EX_TRANSPARENT, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_PROFILE_PERMISSIONS],
+	m_hWndWindowItems[GB_PERMISSIONS] = ::CreateWindowEx(WS_EX_TRANSPARENT, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_PROFILE_PERMISSIONS],
 	                                                   WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | BS_GROUPBOX, iProfilesWidth + 4, 0, rcParent.right - (iProfilesWidth + 7), rcParent.bottom - 3,
-	                                                   hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                                   m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
 	                                                   
-	hWndWindowItems[LV_PERMISSIONS] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_NOCOLUMNHEADER | LVS_REPORT | LVS_SHOWSELALWAYS |
+	m_hWndWindowItems[LV_PERMISSIONS] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_NOCOLUMNHEADER | LVS_REPORT | LVS_SHOWSELALWAYS |
 	                                                   LVS_SINGLESEL, iProfilesWidth + 12, clsGuiSettingManager::iGroupBoxMargin, rcParent.right - (iProfilesWidth + 23), rcParent.bottom - clsGuiSettingManager::iGroupBoxMargin - clsGuiSettingManager::iEditHeight - 14,
-	                                                   hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
-	::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_CHECKBOXES);
+	                                                   m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_CHECKBOXES);
 	
 	int iPermissionsWidth = rcParent.right - (iProfilesWidth + 17);
 	
-	hWndWindowItems[BTN_SET_ALL] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_SET_ALL], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                iProfilesWidth + 11, rcParent.bottom - clsGuiSettingManager::iEditHeight - 11, (iPermissionsWidth / 2) - 3, clsGuiSettingManager::iEditHeight, hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_SET_ALL, clsServerManager::hInstance, NULL);
+	m_hWndWindowItems[BTN_SET_ALL] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_SET_ALL], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+	                                                iProfilesWidth + 11, rcParent.bottom - clsGuiSettingManager::iEditHeight - 11, (iPermissionsWidth / 2) - 3, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_SET_ALL, clsServerManager::hInstance, NULL);
 	                                                
-	hWndWindowItems[BTN_CLEAR_ALL] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_CLEAR_ALL], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+	m_hWndWindowItems[BTN_CLEAR_ALL] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_CLEAR_ALL], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
 	                                                  iProfilesWidth + 11 + (iPermissionsWidth / 2), rcParent.bottom - clsGuiSettingManager::iEditHeight - 11, rcParent.right - (iProfilesWidth + 21 + (iPermissionsWidth / 2)), clsGuiSettingManager::iEditHeight,
-	                                                  hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CLEAR_ALL, clsServerManager::hInstance, NULL);
+	                                                  m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CLEAR_ALL, clsServerManager::hInstance, NULL);
 	                                                  
-	for (uint8_t ui8i = 0; ui8i < (sizeof(hWndWindowItems) / sizeof(hWndWindowItems[0])); ui8i++)
+	for (uint8_t ui8i = 0; ui8i < (sizeof(m_hWndWindowItems) / sizeof(m_hWndWindowItems[0])); ui8i++)
 	{
-		if (hWndWindowItems[ui8i] == NULL)
+		if (m_hWndWindowItems[ui8i] == NULL)
 		{
 			return;
 		}
 		
-		::SendMessage(hWndWindowItems[ui8i], WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
+		::SendMessage(m_hWndWindowItems[ui8i], WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
 	}
 	
 	RECT rcProfiles;
-	::GetClientRect(hWndWindowItems[LV_PROFILES], &rcProfiles);
+	::GetClientRect(m_hWndWindowItems[LV_PROFILES], &rcProfiles);
 	
 	LVCOLUMN lvColumn = { 0 };
 	lvColumn.mask = LVCF_FMT | LVCF_WIDTH;
 	lvColumn.fmt = LVCFMT_LEFT;
 	lvColumn.cx = rcProfiles.right - 5;
 	
-	::SendMessage(hWndWindowItems[LV_PROFILES], LVM_INSERTCOLUMN, 0, (LPARAM)&lvColumn);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_INSERTCOLUMN, 0, (LPARAM)&lvColumn);
 	
 	RECT rcPermissions;
-	::GetClientRect(hWndWindowItems[LV_PERMISSIONS], &rcPermissions);
+	::GetClientRect(m_hWndWindowItems[LV_PERMISSIONS], &rcPermissions);
 	
 	lvColumn.cx = rcPermissions.right;
 	
-	::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_INSERTCOLUMN, 0, (LPARAM)&lvColumn);
+	::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_INSERTCOLUMN, 0, (LPARAM)&lvColumn);
 	
 	const int iPermissionsStrings[] =
 	{
@@ -423,22 +423,22 @@ void clsProfilesDialog::DoModal(HWND hWndParent)
 		lvItem.lParam = (LPARAM)iPermissionsIds[ui16i];
 		lvItem.pszText = clsLanguageManager::mPtr->sTexts[iPermissionsStrings[ui16i]];
 		
-		::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_INSERTITEM, 0, (LPARAM)&lvItem);
+		::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_INSERTITEM, 0, (LPARAM)&lvItem);
 	}
 	
-	ListViewSelectFirstItem(hWndWindowItems[LV_PERMISSIONS]);
+	ListViewSelectFirstItem(m_hWndWindowItems[LV_PERMISSIONS]);
 	
 	AddAllProfiles();
 	
 	::EnableWindow(hWndParent, FALSE);
 	
-	::ShowWindow(hWndWindowItems[WINDOW_HANDLE], SW_SHOW);
+	::ShowWindow(m_hWndWindowItems[WINDOW_HANDLE], SW_SHOW);
 }
 //------------------------------------------------------------------------------
 
 void clsProfilesDialog::AddAllProfiles()
 {
-	::SendMessage(hWndWindowItems[LV_PROFILES], WM_SETREDRAW, (WPARAM)FALSE, 0);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], WM_SETREDRAW, (WPARAM)FALSE, 0);
 	
 	LVITEM lvItem = { 0 };
 	lvItem.mask = LVIF_PARAM | LVIF_TEXT;
@@ -449,23 +449,23 @@ void clsProfilesDialog::AddAllProfiles()
 		lvItem.lParam = (LPARAM)clsProfileManager::mPtr->ppProfilesTable[ui16i];
 		lvItem.pszText = clsProfileManager::mPtr->ppProfilesTable[ui16i]->sName;
 		
-		::SendMessage(hWndWindowItems[LV_PROFILES], LVM_INSERTITEM, 0, (LPARAM)&lvItem);
+		::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_INSERTITEM, 0, (LPARAM)&lvItem);
 	}
 	
-	ListViewSelectFirstItem(hWndWindowItems[LV_PROFILES]);
+	ListViewSelectFirstItem(m_hWndWindowItems[LV_PROFILES]);
 	
-	::SendMessage(hWndWindowItems[LV_PROFILES], WM_SETREDRAW, (WPARAM)TRUE, 0);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], WM_SETREDRAW, (WPARAM)TRUE, 0);
 }
 //------------------------------------------------------------------------------
 
 void clsProfilesDialog::OnContextMenu(HWND hWindow, LPARAM lParam)
 {
-	if (hWindow != hWndWindowItems[LV_PROFILES])
+	if (hWindow != m_hWndWindowItems[LV_PROFILES])
 	{
 		return;
 	}
 	
-	int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+	int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	
 	if (iSel == -1)
 	{
@@ -481,9 +481,9 @@ void clsProfilesDialog::OnContextMenu(HWND hWindow, LPARAM lParam)
 	int iX = GET_X_LPARAM(lParam);
 	int iY = GET_Y_LPARAM(lParam);
 	
-	ListViewGetMenuPos(hWndWindowItems[LV_PROFILES], iX, iY);
+	ListViewGetMenuPos(m_hWndWindowItems[LV_PROFILES], iX, iY);
 	
-	::TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, iX, iY, hWndWindowItems[WINDOW_HANDLE], NULL);
+	::TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, iX, iY, m_hWndWindowItems[WINDOW_HANDLE], NULL);
 	
 	::DestroyMenu(hMenu);
 }
@@ -500,7 +500,7 @@ void clsProfilesDialog::OnProfileChanged(const LPNMLISTVIEW &pListView)
 	
 	bIgnoreItemChanged = true;
 	
-	uint16_t iItemCount = (uint16_t)::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_GETITEMCOUNT, 0, 0);
+	uint16_t iItemCount = (uint16_t)::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_GETITEMCOUNT, 0, 0);
 	
 	for (uint16_t ui16i = 0; ui16i < iItemCount; ui16i++)
 	{
@@ -508,7 +508,7 @@ void clsProfilesDialog::OnProfileChanged(const LPNMLISTVIEW &pListView)
 		lvItem.mask = LVIF_PARAM;
 		lvItem.iItem = ui16i;
 		
-		if ((BOOL)::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_GETITEM, 0, (LPARAM)&lvItem) == FALSE)
+		if ((BOOL)::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_GETITEM, 0, (LPARAM)&lvItem) == FALSE)
 		{
 			continue;
 		}
@@ -517,7 +517,7 @@ void clsProfilesDialog::OnProfileChanged(const LPNMLISTVIEW &pListView)
 		lvItem.state = INDEXTOSTATEIMAGEMASK(clsProfileManager::mPtr->ppProfilesTable[pListView->iItem]->bPermissions[(int)lvItem.lParam] == true ? 2 : 1);
 		lvItem.stateMask = LVIS_STATEIMAGEMASK;
 		
-		::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_SETITEMSTATE, ui16i, (LPARAM)&lvItem);
+		::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_SETITEMSTATE, ui16i, (LPARAM)&lvItem);
 	}
 	
 	bIgnoreItemChanged = false;
@@ -526,7 +526,7 @@ void clsProfilesDialog::OnProfileChanged(const LPNMLISTVIEW &pListView)
 
 void clsProfilesDialog::ChangePermissionChecks(const bool bCheck)
 {
-	int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+	int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	
 	if (iSel == -1)
 	{
@@ -535,7 +535,7 @@ void clsProfilesDialog::ChangePermissionChecks(const bool bCheck)
 	
 	bIgnoreItemChanged = true;
 	
-	uint16_t iItemCount = (uint16_t)::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_GETITEMCOUNT, 0, 0);
+	uint16_t iItemCount = (uint16_t)::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_GETITEMCOUNT, 0, 0);
 	
 	LVITEM lvItem = { 0 };
 	lvItem.mask = LVIF_STATE;
@@ -548,7 +548,7 @@ void clsProfilesDialog::ChangePermissionChecks(const bool bCheck)
 		lvItem.iItem = ui16i;
 		lvItem.state = INDEXTOSTATEIMAGEMASK(bCheck == true ? 2 : 1);
 		
-		::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_SETITEMSTATE, ui16i, (LPARAM)&lvItem);
+		::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_SETITEMSTATE, ui16i, (LPARAM)&lvItem);
 	}
 	
 	bIgnoreItemChanged = false;
@@ -557,7 +557,7 @@ void clsProfilesDialog::ChangePermissionChecks(const bool bCheck)
 
 void OnRenameProfileOk(const char * sLine, const int iLen)
 {
-	int iSel = (int)::SendMessage(clsProfilesDialog::mPtr->hWndWindowItems[clsProfilesDialog::LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+	int iSel = (int)::SendMessage(clsProfilesDialog::SettingDialog::m_Ptr->m_hWndWindowItems[clsProfilesDialog::LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	
 	if (iSel == -1)
 	{
@@ -571,26 +571,26 @@ void OnRenameProfileOk(const char * sLine, const int iLen)
 	lvItem.iItem = iSel;
 	lvItem.pszText = (char*)sLine;
 	
-	::SendMessage(clsProfilesDialog::mPtr->hWndWindowItems[clsProfilesDialog::LV_PROFILES], LVM_SETITEMTEXT, iSel, (LPARAM)&lvItem);
+	::SendMessage(clsProfilesDialog::SettingDialog::m_Ptr->m_hWndWindowItems[clsProfilesDialog::LV_PROFILES], LVM_SETITEMTEXT, iSel, (LPARAM)&lvItem);
 }
 //---------------------------------------------------------------------------
 
 void clsProfilesDialog::RenameProfile(const int iProfile)
 {
-	LineDialog * pRenameProfileDlg = new(std::nothrow) LineDialog(&OnRenameProfileOk);
+	LineDialog * pRenameProfileDlg = new (std::nothrow) LineDialog(&OnRenameProfileOk);
 	
 	if (pRenameProfileDlg != NULL)
 	{
-		pRenameProfileDlg->DoModal(hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_NEW_PROFILE_NAME], clsProfileManager::mPtr->ppProfilesTable[iProfile]->sName);
+		pRenameProfileDlg->DoModal(m_hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_NEW_PROFILE_NAME], clsProfileManager::mPtr->ppProfilesTable[iProfile]->sName);
 	}
 }
 //------------------------------------------------------------------------------
 
 void clsProfilesDialog::RemoveProfile(const uint16_t iProfile)
 {
-	::SendMessage(hWndWindowItems[LV_PROFILES], LVM_DELETEITEM, iProfile, 0);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_DELETEITEM, iProfile, 0);
 	
-	int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+	int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	
 	if (iSel == -1)
 	{
@@ -599,7 +599,7 @@ void clsProfilesDialog::RemoveProfile(const uint16_t iProfile)
 		lvItem.state = LVIS_SELECTED;
 		lvItem.stateMask = LVIS_SELECTED;
 		
-		::SendMessage(hWndWindowItems[LV_PROFILES], LVM_SETITEMSTATE, 0, (LPARAM)&lvItem);
+		::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETITEMSTATE, 0, (LPARAM)&lvItem);
 	}
 	
 	UpdateUpDown();
@@ -608,34 +608,34 @@ void clsProfilesDialog::RemoveProfile(const uint16_t iProfile)
 
 void clsProfilesDialog::UpdateUpDown()
 {
-	int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+	int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	
 	if (iSel == -1)
 	{
-		::EnableWindow(hWndWindowItems[BTN_MOVE_UP], FALSE);
-		::EnableWindow(hWndWindowItems[BTN_MOVE_DOWN], FALSE);
+		::EnableWindow(m_hWndWindowItems[BTN_MOVE_UP], FALSE);
+		::EnableWindow(m_hWndWindowItems[BTN_MOVE_DOWN], FALSE);
 	}
 	else if (iSel == 0)
 	{
-		::EnableWindow(hWndWindowItems[BTN_MOVE_UP], FALSE);
+		::EnableWindow(m_hWndWindowItems[BTN_MOVE_UP], FALSE);
 		if (iSel == (clsProfileManager::mPtr->ui16ProfileCount - 1))
 		{
-			::EnableWindow(hWndWindowItems[BTN_MOVE_DOWN], FALSE);
+			::EnableWindow(m_hWndWindowItems[BTN_MOVE_DOWN], FALSE);
 		}
 		else
 		{
-			::EnableWindow(hWndWindowItems[BTN_MOVE_DOWN], TRUE);
+			::EnableWindow(m_hWndWindowItems[BTN_MOVE_DOWN], TRUE);
 		}
 	}
 	else if (iSel == (clsProfileManager::mPtr->ui16ProfileCount - 1))
 	{
-		::EnableWindow(hWndWindowItems[BTN_MOVE_UP], TRUE);
-		::EnableWindow(hWndWindowItems[BTN_MOVE_DOWN], FALSE);
+		::EnableWindow(m_hWndWindowItems[BTN_MOVE_UP], TRUE);
+		::EnableWindow(m_hWndWindowItems[BTN_MOVE_DOWN], FALSE);
 	}
 	else
 	{
-		::EnableWindow(hWndWindowItems[BTN_MOVE_UP], TRUE);
-		::EnableWindow(hWndWindowItems[BTN_MOVE_DOWN], TRUE);
+		::EnableWindow(m_hWndWindowItems[BTN_MOVE_UP], TRUE);
+		::EnableWindow(m_hWndWindowItems[BTN_MOVE_DOWN], TRUE);
 	}
 }
 //------------------------------------------------------------------------------
@@ -648,7 +648,7 @@ void clsProfilesDialog::AddProfile()
 	lvItem.lParam = (LPARAM)clsProfileManager::mPtr->ppProfilesTable[clsProfileManager::mPtr->ui16ProfileCount - 1];
 	lvItem.pszText = clsProfileManager::mPtr->ppProfilesTable[clsProfileManager::mPtr->ui16ProfileCount - 1]->sName;
 	
-	::SendMessage(hWndWindowItems[LV_PROFILES], LVM_INSERTITEM, 0, (LPARAM)&lvItem);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_INSERTITEM, 0, (LPARAM)&lvItem);
 	
 	UpdateUpDown();
 }
@@ -663,7 +663,7 @@ void clsProfilesDialog::MoveDown(const uint16_t iProfile)
 	lvItem1.iItem = iProfile;
 	lvItem1.stateMask = LVIS_SELECTED;
 	
-	if ((BOOL)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETITEM, 0, (LPARAM)&lvItem1) == FALSE)
+	if ((BOOL)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETITEM, 0, (LPARAM)&lvItem1) == FALSE)
 	{
 		return;
 	}
@@ -673,7 +673,7 @@ void clsProfilesDialog::MoveDown(const uint16_t iProfile)
 	lvItem2.iItem = iProfile + 1;
 	lvItem2.stateMask = LVIS_SELECTED;
 	
-	if ((BOOL)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETITEM, 0, (LPARAM)&lvItem2) == FALSE)
+	if ((BOOL)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETITEM, 0, (LPARAM)&lvItem2) == FALSE)
 	{
 		return;
 	}
@@ -686,14 +686,14 @@ void clsProfilesDialog::MoveDown(const uint16_t iProfile)
 	lvItem2.iItem--;
 	lvItem2.pszText = clsProfileManager::mPtr->ppProfilesTable[lvItem2.iItem]->sName;
 	
-	::SendMessage(hWndWindowItems[LV_PROFILES], LVM_SETITEM, 0, (LPARAM)&lvItem1);
-	::SendMessage(hWndWindowItems[LV_PROFILES], LVM_SETITEM, 0, (LPARAM)&lvItem2);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETITEM, 0, (LPARAM)&lvItem1);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETITEM, 0, (LPARAM)&lvItem2);
 	
-	if (iProfile == clsProfileManager::mPtr->ui16ProfileCount - 2 && hWndFocus == hWndWindowItems[BTN_MOVE_DOWN])
+	if (iProfile == clsProfileManager::mPtr->ui16ProfileCount - 2 && hWndFocus == m_hWndWindowItems[BTN_MOVE_DOWN])
 	{
-		::SetFocus(hWndWindowItems[BTN_MOVE_UP]);
+		::SetFocus(m_hWndWindowItems[BTN_MOVE_UP]);
 	}
-	else if (hWndFocus == hWndWindowItems[BTN_MOVE_DOWN] || hWndFocus == hWndWindowItems[BTN_MOVE_UP])
+	else if (hWndFocus == m_hWndWindowItems[BTN_MOVE_DOWN] || hWndFocus == m_hWndWindowItems[BTN_MOVE_UP])
 	{
 		::SetFocus(hWndFocus);
 	}
@@ -709,7 +709,7 @@ void clsProfilesDialog::MoveUp(const uint16_t iProfile)
 	lvItem1.iItem = iProfile;
 	lvItem1.stateMask = LVIS_SELECTED;
 	
-	if ((BOOL)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETITEM, 0, (LPARAM)&lvItem1) == FALSE)
+	if ((BOOL)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETITEM, 0, (LPARAM)&lvItem1) == FALSE)
 	{
 		return;
 	}
@@ -719,7 +719,7 @@ void clsProfilesDialog::MoveUp(const uint16_t iProfile)
 	lvItem2.iItem = iProfile - 1;
 	lvItem2.stateMask = LVIS_SELECTED;
 	
-	if ((BOOL)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETITEM, 0, (LPARAM)&lvItem2) == FALSE)
+	if ((BOOL)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETITEM, 0, (LPARAM)&lvItem2) == FALSE)
 	{
 		return;
 	}
@@ -732,14 +732,14 @@ void clsProfilesDialog::MoveUp(const uint16_t iProfile)
 	lvItem2.iItem++;
 	lvItem2.pszText = clsProfileManager::mPtr->ppProfilesTable[lvItem2.iItem]->sName;
 	
-	::SendMessage(hWndWindowItems[LV_PROFILES], LVM_SETITEM, 0, (LPARAM)&lvItem1);
-	::SendMessage(hWndWindowItems[LV_PROFILES], LVM_SETITEM, 0, (LPARAM)&lvItem2);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETITEM, 0, (LPARAM)&lvItem1);
+	::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETITEM, 0, (LPARAM)&lvItem2);
 	
-	if (iProfile == 1 && hWndFocus == hWndWindowItems[BTN_MOVE_UP])
+	if (iProfile == 1 && hWndFocus == m_hWndWindowItems[BTN_MOVE_UP])
 	{
-		::SetFocus(hWndWindowItems[BTN_MOVE_DOWN]);
+		::SetFocus(m_hWndWindowItems[BTN_MOVE_DOWN]);
 	}
-	else if (hWndFocus == hWndWindowItems[BTN_MOVE_DOWN] || hWndFocus == hWndWindowItems[BTN_MOVE_UP])
+	else if (hWndFocus == m_hWndWindowItems[BTN_MOVE_DOWN] || hWndFocus == m_hWndWindowItems[BTN_MOVE_UP])
 	{
 		::SetFocus(hWndFocus);
 	}
@@ -753,7 +753,7 @@ void clsProfilesDialog::OnPermissionChanged(const LPNMLISTVIEW &pListView)
 		return;
 	}
 	
-	int iSel = (int)::SendMessage(hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+	int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
 	
 	if (iSel == -1)
 	{
@@ -766,7 +766,7 @@ void clsProfilesDialog::OnPermissionChanged(const LPNMLISTVIEW &pListView)
 	lvItem.mask = LVIF_PARAM;
 	lvItem.iItem = pListView->iItem;
 	
-	if ((BOOL)::SendMessage(hWndWindowItems[LV_PERMISSIONS], LVM_GETITEM, 0, (LPARAM)&lvItem) == FALSE)
+	if ((BOOL)::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_GETITEM, 0, (LPARAM)&lvItem) == FALSE)
 	{
 		return;
 	}

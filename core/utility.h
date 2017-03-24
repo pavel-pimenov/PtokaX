@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -25,7 +25,7 @@ struct BanItem;
 struct RangeBanItem;
 //---------------------------------------------------------------------------
 
-void Cout(const string & msg);
+void Cout(const string & sMsg);
 //---------------------------------------------------------------------------
 
 #ifdef _WIN32
@@ -36,18 +36,18 @@ static void preDD(char *pat, int M, int DD[]);
 int BMFind(char *text, int N, char *pat, int M);
 #endif
 
-char * Lock2Key(char * cLock);
+char * Lock2Key(char * sLock);
 
 #ifdef _WIN32
-char * WSErrorStr(const uint32_t iError);
+char * WSErrorStr(const uint32_t ui32Error);
 #else
-const char * ErrnoStr(const uint32_t iError);
+const char * ErrnoStr(const uint32_t ui32Error);
 #endif
 
-const char * formatBytes(int64_t iBytes);
-const char * formatBytesPerSecond(int64_t iBytes);
-const char * formatTime(uint64_t rest);
-const char * formatSecTime(uint64_t rest);
+const char * formatBytes(const uint64_t ui64Bytes);
+const char * formatBytesPerSecond(const uint64_t ui64Bytes);
+const char * formatTime(uint64_t ui64Rest);
+const char * formatSecTime(uint64_t ui64Rest);
 
 char * stristr(const char *str1, const char *str2);
 char * stristr2(const char *str1, const char *str2);
@@ -58,37 +58,40 @@ uint32_t HashNick(const char * sNick, const size_t szNickLen);
 
 class Hash128
 {
-	uint8_t m_ui128Hash[16];
-public:
-	Hash128()
-	{
-		memset(m_ui128Hash, 0, sizeof(m_ui128Hash));
-	}
-	void init(const uint8_t * ui128Hash)
-	{
-		memcpy(m_ui128Hash, ui128Hash, sizeof(m_ui128Hash));
-	}
-	operator uint8_t* ()
-	{
-		return m_ui128Hash;
-	}
-	 const uint8_t* data() const
-	 {
-		 return m_ui128Hash;
-	 }
-	 bool compare(const uint8_t * ui128Hash) const
-	 {
-		 return memcmp(m_ui128Hash, ui128Hash, sizeof(m_ui128Hash)) == 0;
-	 }
+		uint8_t m_ui128Hash[16];
+	public:
+		// Hash128(int ) // Fast;
+		// {
+		// }
+		Hash128()
+		{
+			memset(m_ui128Hash, 0, sizeof(m_ui128Hash));
+		}
+		void init(const uint8_t * ui128Hash)
+		{
+			memcpy(m_ui128Hash, ui128Hash, sizeof(m_ui128Hash));
+		}
+		operator uint8_t* ()
+		{
+			return m_ui128Hash;
+		}
+		const uint8_t* data() const
+		{
+			return m_ui128Hash;
+		}
+		bool compare(const uint8_t * ui128Hash) const
+		{
+			return memcmp(m_ui128Hash, ui128Hash, sizeof(m_ui128Hash)) == 0;
+		}
 };
 
 bool HashIP(const char * sIP, uint8_t * ui128IpHash);
 uint16_t GetIpTableIdx(const uint8_t * ui128IpHash);
 
-int GenerateBanMessage(BanItem * pBan, const time_t &tmAccTime);
-int GenerateRangeBanMessage(RangeBanItem * pRangeBan, const time_t &tmAccTime);
+int GenerateBanMessage(BanItem * pBan, const time_t &tAccTime);
+int GenerateRangeBanMessage(RangeBanItem * pRangeBan, const time_t &tAccTime);
 
-bool GenerateTempBanTime(const char cMultiplyer, const uint32_t iTime, time_t &acc_time, time_t &ban_time);
+bool GenerateTempBanTime(const uint8_t ui8Multiplyer, const uint32_t ui32Time, time_t &tAccTime, time_t &tBanTime);
 
 bool HaveOnlyNumbers(char *sData, const uint16_t ui16Len);
 
@@ -113,15 +116,16 @@ inline size_t Allign128K(size_t n)
 	return (n + 1);
 }
 
-bool CheckSprintf(const int iRetVal, const size_t szMax, const char * sMsg); // CheckSprintf(imsgLen, 64, "UdpDebug::New");
-bool CheckSprintf1(const int iRetVal, const size_t szLenVal, const size_t szMax, const char * sMsg); // CheckSprintf1(iret, imsgLen, 64, "UdpDebug::New");
-
-void AppendLog(const string & sData, const bool bScript = false);
+void AppendLog(const char * sData, const bool bScript = false);
+inline void AppendLog(const string & sData, const bool bScript = false)
+{
+	AppendLog(sData.c_str(), bScript);
+}
 void AppendDebugLog(const char * sData);
 void AppendDebugLogFormat(const char * sFormatMsg, ...);
 
 #ifdef _WIN32
-void GetHeapStats(void *hHeap, DWORD &dwCommitted, DWORD &dwUnCommitted);
+void GetHeapStats(void * pHeap, DWORD &dwCommitted, DWORD &dwUnCommitted);
 #endif
 
 void Memo(const string & sMessage);
@@ -135,7 +139,7 @@ bool DirExist(const char * sPath);
 
 #ifdef _WIN32
 void SetupOsVersion();
-void * LuaAlocator(void * pOld, void * pData, size_t szOldSize, size_t szNewSize);
+void * LuaAlocator(void * pOld, void * pData, const size_t szOldSize, const size_t szNewSize);
 #if !defined(_WIN64) && !defined(_WIN_IOT)
 INT win_inet_pton(PCTSTR pAddrString, PVOID pAddrBuf);
 void win_inet_ntop(PVOID pAddr, PTSTR pStringBuf, size_t szStringBufSize);
@@ -169,23 +173,28 @@ uint64_t be64toh(const uint64_t & ui64Value);
 bool WantAgain();
 bool IsPrivateIP(const char * sIP);
 //---------------------------------------------------------------------------
+//[+]FlylinkDC++
+#define safe_free(p) {if (p) { free(p); p = nullptr;} }
+#define safe_free_and_init(p,p_new_ptr) {if (p) {free(p);}  p = p_new_ptr;}
+
+/*
 template <class T> inline void safe_free(T* & p)
 {
-	if (p)
-	{
-		free(p);
-		p = NULL;
-	}
+    if (p)
+    {
+        free(p);
+        p = nullptr;
+    }
 }
 template <class T> inline void safe_free_and_init(T* & p, T* p_new_ptr)
 {
-	if (p)
-	{
-		free(p);
-	}
-	p = p_new_ptr;
+    if (p)
+    {
+        free(p);
+    }
+    p = p_new_ptr;
 }
-//[+]FlylinkDC++
+*/
 template <class T> inline void safe_delete(T* & p)
 {
 	if (p)
@@ -195,7 +204,7 @@ template <class T> inline void safe_delete(T* & p)
 #else
 		delete p;
 #endif
-		p = NULL;
+		p = nullptr;
 	}
 }
 template <class T> inline void safe_delete_array(T* & p)
@@ -207,7 +216,7 @@ template <class T> inline void safe_delete_array(T* & p)
 #else
 		delete[] p;
 #endif
-		p = NULL;
+		p = nullptr;
 	}
 }
 #ifdef _WIN32

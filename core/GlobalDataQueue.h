@@ -2,7 +2,7 @@
  * PtokaX - hub server for Direct Connect peer to peer network.
 
  * Copyright (C) 2002-2005  Ptaczek, Ptaczek at PtokaX dot org
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -23,101 +23,107 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 struct User;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+class CFlyBuffer
+{
+	public:
+		char * m_pBuffer;
+		size_t m_szLen;
+		size_t m_szSize;
+        void clean()
+        {
+            if (m_szLen == 0 && m_szSize > 256)
+            {
+                free(m_pBuffer);
+				m_pBuffer = (char *) malloc(256);
+				m_szSize = 255;
+            }
+        }
+		CFlyBuffer() : m_pBuffer(NULL), m_szLen(0), m_szSize(0) { }
+		DISALLOW_COPY_AND_ASSIGN(CFlyBuffer);
+};
 
-class clsGlobalDataQueue
+class GlobalDataQueue
 {
 	private:
 		struct QueueItem
 		{
-			QueueItem * pNext;
+			QueueItem * m_pNext;
 			
-			std::string pCommand[2];
+			std::string m_pCommand[2];
 			
-			uint8_t ui8CommandType;
+			uint8_t m_ui8CommandType;
 			
-			QueueItem() : pNext(NULL), ui8CommandType(0) { }
+			QueueItem() : m_pNext(NULL), m_ui8CommandType(0) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(QueueItem);
 		};
 		
-		struct GlobalQueue
+		struct GlobalQueue : public CFlyBuffer
 		{
-			GlobalQueue * pNext;
+			GlobalQueue * m_pNext;
 			
-			char * pBuffer, * pZbuffer;
+			bool m_bCreated, m_bZlined;
+			char * m_pZbuffer;
 			
-			size_t szLen, szSize, szZlen, szZsize;
+			uint32_t m_szZlen, m_szZsize;
 			
-			bool bCreated, bZlined;
-			
-			GlobalQueue() : pNext(NULL), pBuffer(NULL), pZbuffer(NULL), szLen(0), szSize(0), szZlen(0), szZsize(0), bCreated(false), bZlined(false) { }
+			GlobalQueue() : m_pNext(NULL), m_bCreated(false), m_bZlined(false),m_pZbuffer(NULL),m_szZlen(0), m_szZsize(0) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(GlobalQueue);
 		};
 		
-		struct OpsQueue
+		struct OpsQueue : public CFlyBuffer
 		{
-			char * pBuffer;
-			
-			size_t szLen, szSize;
-			
-			OpsQueue() : pBuffer(NULL), szLen(0), szSize(0) { }
-			
-			DISALLOW_COPY_AND_ASSIGN(OpsQueue);
 		};
 		
-		struct IPsQueue
+		struct IPsQueue : public CFlyBuffer
 		{
-			char * pBuffer;
+			bool m_bHaveDollars;
 			
-			size_t szLen, szSize;
-			
-			bool bHaveDollars;
-			
-			IPsQueue() : pBuffer(NULL), szLen(0), szSize(0), bHaveDollars(false) { }
+			IPsQueue() : m_bHaveDollars(false) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(IPsQueue);
 		};
 		
 		struct SingleDataItem
 		{
-			SingleDataItem * pPrev, * pNext;
+			SingleDataItem * m_pPrev, * m_pNext;
 			
-			User * pFromUser;
+			User * m_pFromUser;
 			
-			char * pData;
+			char * m_pData;
 			
-			size_t szDataLen;
+			size_t m_szDataLen;
 			
-			int32_t i32Profile;
+			int32_t m_i32Profile;
 			
-			uint8_t ui8Type;
+			uint8_t m_ui8Type;
 			
-			SingleDataItem() : pPrev(NULL), pNext(NULL), pFromUser(NULL), pData(NULL), szDataLen(0), i32Profile(0), ui8Type(0) { }
+			SingleDataItem() : m_pPrev(NULL), m_pNext(NULL), m_pFromUser(NULL), m_pData(NULL), m_szDataLen(0), m_i32Profile(0), m_ui8Type(0) { }
 			
 			DISALLOW_COPY_AND_ASSIGN(SingleDataItem);
 		};
 		
-		GlobalQueue GlobalQueues[144];
+		GlobalQueue m_GlobalQueues[144];
 		
-		OpsQueue OpListQueue;
-		IPsQueue UserIPQueue;
+		OpsQueue m_OpListQueue;
+		IPsQueue m_UserIPQueue;
 		
-		GlobalQueue * pCreatedGlobalQueues;
+		GlobalQueue * m_pCreatedGlobalQueues;
 		
-		QueueItem * pNewQueueItems[2], * pQueueItems;
-		SingleDataItem * pNewSingleItems[2];
+		QueueItem * m_pNewQueueItems[2], * m_pQueueItems;
+		SingleDataItem * m_pNewSingleItems[2];
 		
-		DISALLOW_COPY_AND_ASSIGN(clsGlobalDataQueue);
+		DISALLOW_COPY_AND_ASSIGN(GlobalDataQueue);
 		
 		static void AddDataToQueue(GlobalQueue &pQueue, const char * sData, const size_t szLen);
 		static void AddDataToQueue(GlobalQueue &pQueue, const std::string& sData);
 	public:
-		static clsGlobalDataQueue * mPtr;
+		static GlobalDataQueue * m_Ptr;
 		
-		SingleDataItem * pSingleItems;
+		SingleDataItem * m_pSingleItems;
 		
-		bool bHaveItems;
+		bool m_bHaveItems;
 		
 		enum
 		{
@@ -166,8 +172,8 @@ class clsGlobalDataQueue
 			SI_PM2PROFILE,
 		};
 		
-		clsGlobalDataQueue();
-		~clsGlobalDataQueue();
+		GlobalDataQueue();
+		~GlobalDataQueue();
 		
 		void AddQueueItem(const char * sCommand1, const size_t szLen1, const char * sCommand2, const size_t szLen2, const uint8_t ui8CmdType);
 		void OpListStore(const char * sNick);

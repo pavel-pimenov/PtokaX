@@ -1,7 +1,7 @@
 /*
  * PtokaX - hub server for Direct Connect peer to peer network.
 
- * Copyright (C) 2004-2015  Petr Kozelka, PPK at PtokaX dot org
+ * Copyright (C) 2004-2017  Petr Kozelka, PPK at PtokaX dot org
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3
@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #include "../core/PXBReader.h"
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-clsGuiSettingManager * clsGuiSettingManager::mPtr = NULL;
+clsGuiSettingManager * clsGuiSettingManager::mPtr = nullptr;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 float clsGuiSettingManager::fScaleFactor = 1.0;
 int clsGuiSettingManager::iGroupBoxMargin = 17;
@@ -40,16 +40,16 @@ int clsGuiSettingManager::iUpDownWidth = 17;
 int clsGuiSettingManager::iOneLineGB = 17 + 23 + 8;
 int clsGuiSettingManager::iOneLineOneChecksGB = 17 + 16 + 23 + 12;
 int clsGuiSettingManager::iOneLineTwoChecksGB = 17 + (2 * 16) + 23 + 15;
-HFONT clsGuiSettingManager::hFont = NULL;
-HCURSOR clsGuiSettingManager::hArrowCursor = NULL;
-HCURSOR clsGuiSettingManager::hVerticalCursor = NULL;
-WNDPROC clsGuiSettingManager::wpOldButtonProc = NULL;
-WNDPROC clsGuiSettingManager::wpOldEditProc = NULL;
-WNDPROC clsGuiSettingManager::wpOldListViewProc = NULL;
-WNDPROC clsGuiSettingManager::wpOldMultiRichEditProc = NULL;
-WNDPROC clsGuiSettingManager::wpOldNumberEditProc = NULL;
-WNDPROC clsGuiSettingManager::wpOldTabsProc = NULL;
-WNDPROC clsGuiSettingManager::wpOldTreeProc = NULL;
+HFONT clsGuiSettingManager::hFont = nullptr;
+HCURSOR clsGuiSettingManager::hArrowCursor = nullptr;
+HCURSOR clsGuiSettingManager::hVerticalCursor = nullptr;
+WNDPROC clsGuiSettingManager::wpOldButtonProc = nullptr;
+WNDPROC clsGuiSettingManager::wpOldEditProc = nullptr;
+WNDPROC clsGuiSettingManager::wpOldListViewProc = nullptr;
+WNDPROC clsGuiSettingManager::wpOldMultiRichEditProc = nullptr;
+WNDPROC clsGuiSettingManager::wpOldNumberEditProc = nullptr;
+WNDPROC clsGuiSettingManager::wpOldTabsProc = nullptr;
+WNDPROC clsGuiSettingManager::wpOldTreeProc = nullptr;
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 static const char sPtokaXGUISettings[] = "PtokaX GUI Settings";
 static const size_t szPtokaXGUISettingsLen = sizeof("PtokaX GUI Settings") - 1;
