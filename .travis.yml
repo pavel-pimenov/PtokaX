@@ -6,16 +6,20 @@ compiler:
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.6
     packages:
-    - gcc-5
-    - g++-5
-
+      - gcc-5
+      - g++-5
+      - clang-3.6
 before_install:
-  - sudo apt-get update
-#  - sudo apt-cache search tinyxml
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
+  - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-5 50
   - sudo apt-get install -y liblua5.1-0-dev zlib1g-dev libsqlite3-dev libtinyxml-dev
-# lua-sql-sqlite3 lua-svn mailutils mutt libtinyxml-dev
+  - if [ ${CC} == "clang" ]; then
+    export CC=/usr/bin/clang-3.6 CXX=/usr/bin/clang++-3.6;
+    fi
 
 script:
   - make lua51
