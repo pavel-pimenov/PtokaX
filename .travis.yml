@@ -2,6 +2,8 @@ language: cpp
 compiler:
   - gcc
   - clang
+dist: xenial
+
 before_install:
   - sudo apt-get update
 #  - sudo apt-cache search tinyxml
