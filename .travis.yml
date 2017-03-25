@@ -2,7 +2,14 @@ language: cpp
 compiler:
   - gcc
   - clang
-dist: xenial
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-5
+    - g++-5
 
 before_install:
   - sudo apt-get update
