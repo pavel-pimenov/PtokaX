@@ -2819,6 +2819,8 @@ bool BanManager::NickBan(User * pUser, const char * sNick, const char * sReason,
 	}
 	else
 	{
+		if (pUser)
+		{
 		// PPK ... bad script ban check
 		if (pUser->m_sNick[0] == '<')
 		{
@@ -2842,6 +2844,7 @@ bool BanManager::NickBan(User * pUser, const char * sNick, const char * sReason,
 		pBan->m_ui32NickHash = pUser->m_ui32NickHash;
 		
 		pBan->initIP( pUser);
+	}
 	}
 	
 	pBan->m_ui8Bits |= NICK;
@@ -3359,6 +3362,8 @@ bool BanManager::NickTempBan(User * pUser, const char * sNick, const char * sRea
 	}
 	else
 	{
+		if (pUser)
+		{
 		// PPK ... bad script ban check
 		if (pUser->m_sNick[0] == '<')
 		{
@@ -3381,7 +3386,7 @@ bool BanManager::NickTempBan(User * pUser, const char * sNick, const char * sRea
 		pBan->m_ui32NickHash = pUser->m_ui32NickHash;
 		
 		pBan->initIP( pUser);
-		
+		}		
 	}
 	
 	pBan->m_ui8Bits |= NICK;

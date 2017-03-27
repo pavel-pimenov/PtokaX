@@ -263,7 +263,11 @@ struct User
 
 	User * m_pPrev, * m_pNext, * m_pHashTablePrev, * m_pHashTableNext, * m_pHashIpTablePrev, * m_pHashIpTableNext;
 	
-	char * m_sNick, * m_sVersion;
+	char * m_sNick;
+	
+#ifdef FLYLINKDC_USE_VERSION
+    char * m_sVersion;
+#endif
 	char * m_sMyInfoOriginal, * m_sMyInfoShort, * m_sMyInfoLong;
 	char * m_sDescription, * m_sTag, * m_sConnection, * m_sEmail;
 	char * m_sClient, * m_sTagVersion;
@@ -285,9 +289,6 @@ struct User
 	int32_t m_i32Profile;
 
 	std::string m_LastSearch;
-#ifdef FLYLINKDC_USE_VERSION
-	char * sVersion;
-#endif
 	
 #ifdef _WIN32
 	SOCKET m_Socket;

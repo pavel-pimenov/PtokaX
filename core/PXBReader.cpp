@@ -318,7 +318,7 @@ bool PXBReader::PrepareArrays(const uint8_t ui8Size)
 		return false;
 	}
 	
-	m_ui8ItemValues = (uint8_t *)calloc(ui8Size, sizeof(m_ui8ItemValues));
+	m_ui8ItemValues = (uint8_t *)calloc(ui8Size, sizeof(uint8_t));
 	if (m_ui8ItemValues == NULL)
 	{
 		AppendDebugLog("%s - [MEM] Cannot create m_ui8ItemValues in PXBReader::PrepareArrays\n");

@@ -740,7 +740,7 @@ User::~User()
 	free(m_sMyInfoLong);
 	free(m_sMyInfoOriginal);
 #ifdef FLYLINKDC_USE_VERSION
-	free(sVersion);
+	free(m_sVersion);
 #endif
 	free(m_sChangedDescriptionShort);
 	free(m_sChangedDescriptionLong);
@@ -1864,10 +1864,10 @@ static void UserSetMyInfoShort(User * pUser, char * sMyInfoShort, const uint16_t
 void User::SetVersion(const char * /* sVersion*/)
 {
 #ifdef FLYLINKDC_USE_VERSION
-	free(sVersion);
+	free(m_sVersion);
 	size_t szLen = strlen(sNewVer);
-	sVersion = (char *)malloc(szLen + 1);
-	if (sVersion == NULL)
+	m_sVersion = (char *)malloc(szLen + 1);
+	if (m_sVersion == NULL)
 	{
 		m_ui32BoolBits |= BIT_ERROR;
 		Close();
@@ -1876,8 +1876,8 @@ void User::SetVersion(const char * /* sVersion*/)
 		
 		return;
 	}
-	memcpy(sVersion, sNewVer, szLen);
-	sVersion[szLen] = '\0';
+	memcpy(m_sVersion, sNewVer, szLen);
+	m_sVersion[szLen] = '\0';
 #endif
 }
 //------------------------------------------------------------------------------
