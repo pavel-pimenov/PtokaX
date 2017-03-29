@@ -638,7 +638,7 @@ void DcCommands::PreProcessData(DcCommand * pDcCommand)
 							{
 								pDcCommand->m_pUser->m_ui32BoolBits &= ~User::BIT_WAITING_FOR_PASS;
 								
-								if (pDcCommand->m_pUser->m_LogInOut.m_pBuffer != NULL && pDcCommand->m_pUser->m_LogInOut.m_pBuffer != NULL)
+								if (pDcCommand->m_pUser->m_LogInOut.m_pBuffer != NULL)
 								{
 									int iProfile = ProfileManager::m_Ptr->GetProfileIndex(pDcCommand->m_pUser->m_LogInOut.m_pBuffer);
 									if (iProfile == -1)
@@ -1642,7 +1642,7 @@ void DcCommands::Kick(DcCommand * pDcCommand)
 		}
 		
 		char * sBanTime;
-		if (OtherUser->m_LogInOut.m_pBuffer != NULL && OtherUser->m_LogInOut.m_pBuffer != NULL &&
+		if (OtherUser->m_LogInOut.m_pBuffer != NULL &&
 		        (sBanTime = stristr(OtherUser->m_LogInOut.m_pBuffer, "_BAN_")) != NULL)
 		{
 			sBanTime[0] = '\0';

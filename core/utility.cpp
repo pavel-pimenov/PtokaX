@@ -55,6 +55,9 @@ void AppendSyslog(const char* sType, const char * sData)
 	{
 		syslog(LOG_NOTICE, "[%s] %s", sType, sData);
 	}
+#else
+	(void)sType;
+	(void)sData;
 #endif
 }
 

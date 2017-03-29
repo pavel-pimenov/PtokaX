@@ -2771,7 +2771,7 @@ static int SetUserJson(lua_State * pLua)
 			return 0;
 		}
 		pUser->initExtJSON(sData);
-		pUser->SetExtJSONOriginal(sData, strlen(sData));
+		pUser->SetExtJSONOriginal(sData, uint16_t(strlen(sData)));
 	}
 	lua_settop(pLua, 0);
 	return 0;
