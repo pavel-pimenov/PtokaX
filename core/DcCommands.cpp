@@ -2903,6 +2903,13 @@ void DcCommands::Supports(DcCommand * pDcCommand)
 				}
 				break;
 			}
+			case 'H':
+			{
+				if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_HUBURL) == User::SUPPORTBIT_HUBURL) == false && szDataLen == 6 && memcmp(sSupport + 1, "ubURL", 5) == 0)
+				{
+					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_HUBURL;
+				}
+			}
 			case 'U':
 			{
 				if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_USERCOMMAND) == User::SUPPORTBIT_USERCOMMAND) == false && szDataLen == 11 && memcmp(sSupport + 1, "serCommand", 10) == 0)
