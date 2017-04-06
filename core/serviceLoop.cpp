@@ -814,9 +814,9 @@ void ServiceLoop::ReceiveLoop()
 				}
 				
 				//New User Connected ... the user is operator ? invoke lua User/OpConnected
-				uint32_t iBeforeLuaLen = curUser->m_ui32SendBufDataLen;
+				const uint32_t iBeforeLuaLen = curUser->m_ui32SendBufDataLen;
 				
-				bool bRet = ScriptManager::m_Ptr->UserConnected(curUser);
+				const bool bRet = ScriptManager::m_Ptr->UserConnected(curUser);
 				if (curUser->m_ui8State >= User::STATE_CLOSING) // connection closed by script?
 				{
 					if (bRet == false)  // only when all scripts process userconnected
@@ -829,7 +829,7 @@ void ServiceLoop::ReceiveLoop()
 				
 				if (iBeforeLuaLen < curUser->m_ui32SendBufDataLen)
 				{
-					size_t szNeededLen = curUser->m_ui32SendBufDataLen - iBeforeLuaLen;
+					const size_t szNeededLen = curUser->m_ui32SendBufDataLen - iBeforeLuaLen;
 					
 					void * sOldBuf = curUser->m_LogInOut.m_pBuffer;
 					curUser->m_LogInOut.m_pBuffer = (char *)realloc(sOldBuf, szNeededLen + 1);
