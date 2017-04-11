@@ -111,8 +111,8 @@
 #endif
 #include "pxstring.h"
 //---------------------------------------------------------------------------
-#define PtokaXVersionString "0.5.2.1"
-#define BUILD_NUMBER "553"
+#define PtokaXVersionString "0.5.2.2"
+#define BUILD_NUMBER "556"
 #ifdef USE_FLYLINKDC_EXT_JSON
 const char g_sPtokaXTitle[] = "PtokaX DC Hub for FlylinkDC++ " PtokaXVersionString
 #else
@@ -127,9 +127,9 @@ const char g_sPtokaXTitle[] = "PtokaX++ DC Hub " PtokaXVersionString
 // http://stackoverflow.com/questions/20026445/editing-googles-c-disallow-copy-and-assign-preprocessor-macro-for-c11-move
 //
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-    private:                   \
-    TypeName(const TypeName&);                 \
-    void operator=(const TypeName&)
+	private:                   \
+	TypeName(const TypeName&);                 \
+	void operator=(const TypeName&)
 
 /*
 //---------------------------------------------------------------------------

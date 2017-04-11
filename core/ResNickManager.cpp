@@ -58,7 +58,7 @@ ReservedNicksManager::ReservedNick * ReservedNicksManager::ReservedNick::CreateR
 	pReservedNick->m_sNick = (char *)malloc(szNickLen + 1);
 	if (pReservedNick->m_sNick == NULL)
 	{
-		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes in ReservedNick::CreateReservedNick\n", (uint64_t)(szNickLen + 1));
+		AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes in ReservedNick::CreateReservedNick\n", szNickLen+1);
 		
 		delete pReservedNick;
 		return NULL;
@@ -90,9 +90,9 @@ void ReservedNicksManager::Load()
 		if (iMsgLen > 0)
 		{
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+		::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-			AppendLog(ServerManager::m_pGlobalBuffer);
+		AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 		}
 		

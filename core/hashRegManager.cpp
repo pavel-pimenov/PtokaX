@@ -78,7 +78,7 @@ RegUser * RegUser::CreateReg(const char * sRegNick, size_t szRegNickLen, const c
 	pReg->m_sNick = (char *)malloc(szRegNickLen + 1);
 	if (pReg->m_sNick == NULL)
 	{
-		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sNick in RegUser::RegUser\n", (uint64_t)(szRegNickLen + 1));
+		AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sNick in RegUser::RegUser\n", szRegNickLen+1);
 		
 		delete pReg;
 		return NULL;
@@ -104,7 +104,7 @@ RegUser * RegUser::CreateReg(const char * sRegNick, size_t szRegNickLen, const c
 		pReg->m_sPass = (char *)malloc(szRegPassLen + 1);
 		if (pReg->m_sPass == NULL)
 		{
-			AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for m_sPass in RegUser::RegUser\n", (uint64_t)(szRegPassLen + 1));
+			AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sPass in RegUser::RegUser\n", szRegPassLen+1);
 			
 			delete pReg;
 			return NULL;
@@ -132,7 +132,7 @@ bool RegUser::UpdatePassword(const char * sNewPass, const size_t szNewLen)
 			{
 				m_ui8PassHash = (uint8_t *)sOldBuf;
 				
-				AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for ui8PassHash->m_sPass in RegUser::UpdatePassword\n", (uint64_t)(szNewLen + 1));
+				AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes for m_ui8PassHash->sPass in RegUser::UpdatePassword\n", szNewLen+1);
 				
 				return false;
 			}
@@ -149,7 +149,7 @@ bool RegUser::UpdatePassword(const char * sNewPass, const size_t szNewLen)
 			{
 				m_sPass = sOldPass;
 				
-				AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for m_sPass in RegUser::UpdatePassword\n", (uint64_t)(szNewLen + 1));
+				AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes for m_sPass in RegUser::UpdatePassword\n", szNewLen+1);
 				
 				return false;
 			}
@@ -757,9 +757,9 @@ void RegManager::LoadXML()
 			if (iMsgLen > 0)
 			{
 #ifdef _BUILD_GUI
-				::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-				AppendLog(ServerManager::m_pGlobalBuffer);
+			AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 			}
 			
@@ -805,13 +805,13 @@ void RegManager::LoadXML()
 				if (iProfile > iProfilesCount)
 				{
 					int iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "%s %s %s! %s %s.", LanguageManager::m_Ptr->m_sTexts[LAN_USER], nick, LanguageManager::m_Ptr->m_sTexts[LAN_HAVE_NOT_EXIST_PROFILE],
-					                       LanguageManager::m_Ptr->m_sTexts[LAN_CHANGED_PROFILE_TO], ProfileManager::m_Ptr->m_ppProfilesTable[iProfilesCount]->m_sName);
+					                      LanguageManager::m_Ptr->m_sTexts[LAN_CHANGED_PROFILE_TO], ProfileManager::m_Ptr->m_ppProfilesTable[iProfilesCount]->m_sName);
 					if (iMsgLen > 0)
 					{
 #ifdef _BUILD_GUI
-						::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
+					::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 #else
-						AppendLog(ServerManager::m_pGlobalBuffer);
+					AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 					}
 					
@@ -833,13 +833,13 @@ void RegManager::LoadXML()
 				else
 				{
 					int iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "%s %s %s! %s.", LanguageManager::m_Ptr->m_sTexts[LAN_USER], nick, LanguageManager::m_Ptr->m_sTexts[LAN_IS_ALREADY_IN_REGS],
-					                       LanguageManager::m_Ptr->m_sTexts[LAN_USER_DELETED]);
+					                      LanguageManager::m_Ptr->m_sTexts[LAN_USER_DELETED]);
 					if (iMsgLen > 0)
 					{
 #ifdef _BUILD_GUI
-						::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
+					::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 #else
-						AppendLog(ServerManager::m_pGlobalBuffer);
+					AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 					}
 					

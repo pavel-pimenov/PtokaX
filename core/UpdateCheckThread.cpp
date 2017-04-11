@@ -305,7 +305,7 @@ void clsUpdateCheckThread::Message(const char * sMessage, const size_t szLen)
 	char *sMess = (char *)malloc(szLen + 1);
 	if (sMess == NULL)
 	{
-		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sMess in clsUpdateCheckThread::Message\n", (uint64_t)(szLen + 1));
+		AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for sMess in UpdateCheckThread::Message\n", szLen+1);
 		
 		return;
 	}
@@ -386,7 +386,7 @@ bool clsUpdateCheckThread::Receive()
 		{
 			sRecvBuf = pOldBuf;
 			
-			AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for sRecvBuf in clsUpdateCheckThread::Receive\n", (uint64_t)szAllignLen);
+			AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes for sRecvBuf in UpdateCheckThread::Receive\n", szAllignLen);
 			
 			return false;
 		}

@@ -36,7 +36,7 @@ struct ScriptBot
 	ScriptBot();
 	~ScriptBot();
 	
-	static ScriptBot * CreateScriptBot(const char * sNick, const size_t szNickLen, const char * sDescription, const size_t szDscrLen, const char * sEmail, const size_t szEmailLen, const bool bOP);
+	static ScriptBot * CreateScriptBot(const char * sBotNick, const size_t szNickLen, const char * sDescription, const size_t szDscrLen, const char * sEmail, const size_t szEmailLen, const bool bOP);
 	DISALLOW_COPY_AND_ASSIGN(ScriptBot);
 };
 //------------------------------------------------------------------------------

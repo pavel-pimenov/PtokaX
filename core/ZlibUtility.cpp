@@ -85,7 +85,7 @@ char * ZlibUtility::CreateZPipe(const char *sInData, const size_t szInDataSize, 
 			m_szZbufferSize = szOldZbufferSize;
 			ui32OutDataLen = 0;
 			
-			AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for m_pZbuffer in ZlibUtility::CreateZPipe\n", (uint64_t)m_szZbufferSize);
+			AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes for m_pZbuffer in ZlibUtility::CreateZPipe\n", m_szZbufferSize);
 			
 			return m_pZbuffer;
 		}
@@ -161,7 +161,7 @@ char * ZlibUtility::CreateZPipe(const char *sInData, const size_t szInDataSize, 
 			m_szZbufferSize = szOldZbufferSize;
 			szOutDataLen = 0;
 			
-			AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for m_pZbuffer in ZlibUtility::CreateZPipe\n", (uint64_t)m_szZbufferSize);
+			AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes for m_pZbuffer in ZlibUtility::CreateZPipe\n", m_szZbufferSize);
 			
 			return sOutData;
 		}
@@ -217,7 +217,7 @@ char * ZlibUtility::CreateZPipe(const char *sInData, const size_t szInDataSize, 
 			szOutDataSize = szOldOutDataSize;
 			szOutDataLen = 0;
 			
-			AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for sOutData in ZlibUtility::CreateZPipe\n", (uint64_t)(szOutDataSize + 1));
+			AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes for sOutData in ZlibUtility::CreateZPipe\n", szOutDataSize+1);
 			
 			return sOutData;
 		}
@@ -242,7 +242,7 @@ char * ZlibUtility::CreateZPipeAlign(const char *sInData, const size_t szInDataS
 	printf("\r\n\r\n[3]CreateZPipe [size = %u], sInData = [%s]\r\n", szInDataSize, sInData);
 #endif
 #endif
-	
+
 	// prepare Zbuffer
 	if (m_szZbufferSize < szInDataSize + 128)
 	{
@@ -258,7 +258,7 @@ char * ZlibUtility::CreateZPipeAlign(const char *sInData, const size_t szInDataS
 			m_szZbufferSize = szOldZbufferSize;
 			ui32OutDataLen = 0;
 			
-			AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for m_pZbuffer in ZlibUtility::CreateZPipe\n", (uint64_t)m_szZbufferSize);
+			AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes for m_pZbuffer in ZlibUtility::CreateZPipe\n", m_szZbufferSize);
 			
 			return sOutData;
 		}
@@ -279,7 +279,7 @@ char * ZlibUtility::CreateZPipeAlign(const char *sInData, const size_t szInDataS
 	stream.avail_in = (uInt)szInDataSize;
 	
 	stream.next_out = (Bytef*)m_pZbuffer + 5;
-	stream.avail_out = (uInt)(m_szZbufferSize - 5);
+	stream.avail_out = (uInt)m_szZbufferSize-5;
 	
 	// compress
 	if (deflate(&stream, Z_FINISH) != Z_STREAM_END)
@@ -315,7 +315,7 @@ char * ZlibUtility::CreateZPipeAlign(const char *sInData, const size_t szInDataS
 			ui32OutDataSize = uiOldOutDataSize;
 			ui32OutDataLen = 0;
 			
-			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes for sOutData in ZlibUtility::CreateZPipe\n", (uint64_t)(ui32OutDataSize + 1));
+			AppendDebugLogFormat("[MEM] Cannot reallocate %u bytes for sOutData in ZlibUtility::CreateZPipe\n", ui32OutDataSize+1);
 			
 			return sOutData;
 		}

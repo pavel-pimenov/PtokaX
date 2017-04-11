@@ -155,7 +155,7 @@ void RegisterThread::AddSock(char * sAddress, const size_t szLen)
 	{
 		delete pNewSock;
 		
-		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sAddress in RegisterThread::AddSock\n", (uint64_t)(szLen + 1));
+		AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for sAddress in RegisterThread::AddSock\n", szLen+1);
 		
 		return;
 	}
@@ -582,7 +582,7 @@ bool RegisterThread::Receive(RegSocket * pSock)
 		{
 			free(oldbuf);
 			
-			AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes for sRecvBuf in RegisterThread::Receive\n", (uint64_t)szAllignLen);
+			AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes for sRecvBuf in RegisterThread::Receive\n", szAllignLen);
 			
 			return false;
 		}
@@ -742,27 +742,27 @@ bool RegisterThread::Receive(RegSocket * pSock)
 					
 					switch (v)
 					{
-					case 0:
-						strcat(m_sMsg, "/%DCN000%/");
-						break;
-					case 5:
-						strcat(m_sMsg, "/%DCN005%/");
-						break;
-					case 36:
-						strcat(m_sMsg, "/%DCN036%/");
-						break;
-					case 96:
-						strcat(m_sMsg, "/%DCN096%/");
-						break;
-					case 124:
-						strcat(m_sMsg, "/%DCN124%/");
-						break;
-					case 126:
-						strcat(m_sMsg, "/%DCN126%/");
-						break;
-					default:
-						strncat(m_sMsg, (char *)&v, 1);
-						break;
+						case 0:
+							strcat(m_sMsg, "/%DCN000%/");
+							break;
+						case 5:
+							strcat(m_sMsg, "/%DCN005%/");
+							break;
+						case 36:
+							strcat(m_sMsg, "/%DCN036%/");
+							break;
+						case 96:
+							strcat(m_sMsg, "/%DCN096%/");
+							break;
+						case 124:
+							strcat(m_sMsg, "/%DCN124%/");
+							break;
+						case 126:
+							strcat(m_sMsg, "/%DCN126%/");
+							break;
+						default:
+							strncat(m_sMsg, (char *)&v, 1);
+							break;
 					}
 				}
 				
@@ -842,7 +842,7 @@ void RegisterThread::Add2SendBuf(RegSocket * pSock, const char * sData)
 	pSock->m_pSendBuf = (char *)malloc(szLen + 1);
 	if (pSock->m_pSendBuf == NULL)
 	{
-		AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sSendBuf in RegisterThread::Add2SendBuf\n", (uint64_t)(szLen + 1));
+		AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for sSendBuf in RegisterThread::Add2SendBuf\n", szLen+1);
 		
 		return;
 	}

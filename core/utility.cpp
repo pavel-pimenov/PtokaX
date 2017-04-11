@@ -188,27 +188,27 @@ char * Lock2Key(char * sLock)
 		
 		switch (v)
 		{
-		case   0:
-			strcat(cKey, "/%DCN000%/");
-			break;
-		case   5:
-			strcat(cKey, "/%DCN005%/");
-			break;
-		case  36:
-			strcat(cKey, "/%DCN036%/");
-			break;
-		case  96:
-			strcat(cKey, "/%DCN096%/");
-			break;
-		case 124:
-			strcat(cKey, "/%DCN124%/");
-			break;
-		case 126:
-			strcat(cKey, "/%DCN126%/");
-			break;
-		default:
-			strncat(cKey, (char *)&v, 1);
-			break;
+			case   0:
+				strcat(cKey, "/%DCN000%/");
+				break;
+			case   5:
+				strcat(cKey, "/%DCN005%/");
+				break;
+			case  36:
+				strcat(cKey, "/%DCN036%/");
+				break;
+			case  96:
+				strcat(cKey, "/%DCN096%/");
+				break;
+			case 124:
+				strcat(cKey, "/%DCN124%/");
+				break;
+			case 126:
+				strcat(cKey, "/%DCN126%/");
+				break;
+			default:
+				strncat(cKey, (char *)&v, 1);
+				break;
 		}
 	}
 	return cKey;
@@ -274,22 +274,22 @@ char * WSErrorStr(const uint32_t ui32Error)
 	
 	switch (ui32Error)
 	{
-	case 10091 :
-		return errStrings[66]; // WSASYSNOTREADY
-	case 10092 :
-		return errStrings[67]; // WSAVERNOTSUPPORTED
-	case 10093 :
-		return errStrings[68]; // WSANOTINITIALISED
-	case 11001 :
-		return errStrings[69]; // WSAHOST
-	case 11002 :
-		return errStrings[70]; // WSATRY
-	case 11003 :
-		return errStrings[71]; // WSANO
-	case 11004 :
-		return errStrings[72]; // WSANO
-	default :
-		return errStrings[ui32Error - 10000];
+		case 10091 :
+			return errStrings[66]; // WSASYSNOTREADY
+		case 10092 :
+			return errStrings[67]; // WSAVERNOTSUPPORTED
+		case 10093 :
+			return errStrings[68]; // WSANOTINITIALISED
+		case 11001 :
+			return errStrings[69]; // WSAHOST
+		case 11002 :
+			return errStrings[70]; // WSATRY
+		case 11003 :
+			return errStrings[71]; // WSANO
+		case 11004 :
+			return errStrings[72]; // WSANO
+		default :
+			return errStrings[ui32Error - 10000];
 	}
 }
 #else
@@ -307,18 +307,18 @@ const char * ErrnoStr(const uint32_t ui32Error)
 	
 	switch (ui32Error)
 	{
-	case 98:
-		return errStrings[1];
-	case 104:
-		return errStrings[2];
-	case 110:
-		return errStrings[3];
-	case 111:
-		return errStrings[4];
-	case 113:
-		return errStrings[5];
-	default :
-		return errStrings[0];
+		case 98:
+			return errStrings[1];
+		case 104:
+			return errStrings[2];
+		case 110:
+			return errStrings[3];
+		case 111:
+			return errStrings[4];
+		case 113:
+			return errStrings[5];
+		default :
+			return errStrings[0];
 	}
 }
 #endif
@@ -955,40 +955,40 @@ int GenerateRangeBanMessage(RangeBanItem * pRangeBan, const time_t &tAccTime)
 }
 //---------------------------------------------------------------------------
 
-bool GenerateTempBanTime(const uint8_t ui8Multiplyer, const uint32_t ui32Time, time_t &tAcc_time, time_t &tBan_time)
+bool GenerateTempBanTime(const uint8_t ui8Multiplyer, const uint32_t ui32Time, time_t &tAccTime, time_t &tBanTime)
 {
-	time(&tAcc_time);
-	struct tm *tm = localtime(&tAcc_time);
+	time(&tAccTime);
+	struct tm *tm = localtime(&tAccTime);
 	
 	switch (ui8Multiplyer)
 	{
-	case 'm':
-		tm->tm_min += ui32Time;
-		break;
-	case 'h':
-		tm->tm_hour += ui32Time;
-		break;
-	case 'd':
-		tm->tm_mday += ui32Time;
-		break;
-	case 'w':
-		tm->tm_mday += ui32Time * 7;
-		break;
-	case 'M':
-		tm->tm_mon += ui32Time;
-		break;
-	case 'Y':
-		tm->tm_year += ui32Time;
-		break;
-	default:
-		return false;
+		case 'm':
+			tm->tm_min += ui32Time;
+			break;
+		case 'h':
+			tm->tm_hour += ui32Time;
+			break;
+		case 'd':
+			tm->tm_mday += ui32Time;
+			break;
+		case 'w':
+			tm->tm_mday += ui32Time * 7;
+			break;
+		case 'M':
+			tm->tm_mon += ui32Time;
+			break;
+		case 'Y':
+			tm->tm_year += ui32Time;
+			break;
+		default:
+			return false;
 	}
 	
 	tm->tm_isdst = -1;
 	
-	tBan_time = mktime(tm);
+	tBanTime = mktime(tm);
 	
-	if (tBan_time == (time_t) - 1)
+	if(tBanTime == (time_t)-1)
 	{
 		return false;
 	}
@@ -1493,7 +1493,7 @@ bool GetMacAddress(const char * sIP, char * sMac)
 			if (pINT->table[dwi].dwAddr == uiIP && pINT->table[dwi].dwType != MIB_IPNET_TYPE_INVALID)
 			{
 				snprintf(sMac, 18, "%02x:%02x:%02x:%02x:%02x:%02x", pINT->table[dwi].bPhysAddr[0], pINT->table[dwi].bPhysAddr[1], pINT->table[dwi].bPhysAddr[2],
-				         pINT->table[dwi].bPhysAddr[3], pINT->table[dwi].bPhysAddr[4], pINT->table[dwi].bPhysAddr[5]);
+				        pINT->table[dwi].bPhysAddr[3], pINT->table[dwi].bPhysAddr[4], pINT->table[dwi].bPhysAddr[5]);
 				delete []pINT;
 				return true;
 			}
@@ -1589,7 +1589,7 @@ bool CheckAndResizeGlobalBuffer(const size_t szWantedSize)
 	{
 		ServerManager::m_pGlobalBuffer = sOldBuf;
 		
-		AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in CheckAndResizeGlobalBuffer for ServerManager::m_pGlobalBuffer\n", (uint64_t)ServerManager::m_szGlobalBufferSize);
+		AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes in CheckAndResizeGlobalBuffer for ServerManager::m_pGlobalBuffer\n", ServerManager::m_szGlobalBufferSize);
 		
 		ServerManager::m_szGlobalBufferSize = szOldSize;
 		return false;
@@ -1616,7 +1616,7 @@ void ReduceGlobalBuffer()
 	{
 		ServerManager::m_pGlobalBuffer = sOldBuf;
 		
-		AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in ReduceGlobalBuffer for ServerManager::m_pGlobalBuffer\n", (uint64_t)ServerManager::m_szGlobalBufferSize);
+		AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes in ReduceGlobalBuffer for ServerManager::m_pGlobalBuffer\n", ServerManager::m_szGlobalBufferSize);
 		
 		ServerManager::m_szGlobalBufferSize = szOldSize;
 		return;

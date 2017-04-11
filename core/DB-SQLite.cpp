@@ -337,7 +337,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 		szLength = strlen(ppArgSTrings[0]);
 		if (szLength == 0 || szLength > 64)
 		{
-			UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: %" PRIu64, (uint64_t)szLength);
+			UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: %zu", szLength);
 			return 0;
 		}
 		
@@ -483,14 +483,14 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			szLength = strlen(ppArgSTrings[2]);
 			if (szLength == 0 || szLength > 39)
 			{
-				UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: %" PRIu64, (uint64_t)szLength);
+				UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: %zu", szLength);
 				return 0;
 			}
 			
 			szLength = strlen(ppArgSTrings[3]);
 			if (szLength == 0 || szLength > 24)
 			{
-				UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid share length: %" PRIu64, (uint64_t)szLength);
+				UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid share length: %zu", szLength);
 				return 0;
 			}
 			
@@ -508,7 +508,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			{
 				if (szLength > 192)
 				{
-					UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid description length: %" PRIu64, (uint64_t)szLength);
+					UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid description length: %zu", szLength);
 					return 0;
 				}
 				
@@ -528,7 +528,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			{
 				if (szLength > 192)
 				{
-					UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid tag length: %" PRIu64, (uint64_t)szLength);
+					UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid tag length: %zu", szLength);
 					return 0;
 				}
 				
@@ -548,7 +548,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			{
 				if (szLength > 32)
 				{
-					UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid connection length: %" PRIu64, (uint64_t)szLength);
+					UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid connection length: %zu", szLength);
 					return 0;
 				}
 				
@@ -568,7 +568,7 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 			{
 				if (szLength > 96)
 				{
-					UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid email length: %" PRIu64, (uint64_t)szLength);
+					UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBPostgreSQL search returned invalid email length: %zu", szLength);
 					return 0;
 				}
 				
@@ -609,14 +609,14 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 		size_t szLength = strlen(sFirstNick);
 		if (szLength == 0 || szLength > 64)
 		{
-			UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: %" PRIu64, (uint64_t)szLength);
+			UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: %zu", szLength);
 			return 0;
 		}
 		
 		szLength = strlen(sFirstIP);
 		if (szLength == 0 || szLength > 39)
 		{
-			UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: %" PRIu64, (uint64_t)szLength);
+			UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: %zu", szLength);
 			return 0;
 		}
 		
@@ -631,14 +631,14 @@ static int SelectCallBack(void *, int iArgCount, char ** ppArgSTrings, char **)
 	size_t szLength = strlen(ppArgSTrings[0]);
 	if (szLength == 0 || szLength > 64)
 	{
-		UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: %" PRIu64, (uint64_t)szLength);
+		UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid nick length: %zu", szLength);
 		return 0;
 	}
 	
 	szLength = strlen(ppArgSTrings[2]);
 	if (szLength == 0 || szLength > 39)
 	{
-		UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: %" PRIu64, (uint64_t)szLength);
+		UdpDebug::m_Ptr->BroadcastFormat("[LOG] DBSQLite search returned invalid ip length: %zu", szLength);
 		return 0;
 	}
 	
@@ -677,9 +677,9 @@ bool DBSQLite::SearchNick(ChatCommand * pChatCommand)
 	}
 	
 	if (iMsgLen <= 0)
-	{
-		return false;
-	}
+		{
+			return false;
+		}
 	
 	iAfterHubSecMsgLen = iMsgLen;
 	
@@ -726,7 +726,7 @@ bool DBSQLite::SearchIP(ChatCommand * pChatCommand)
 	}
 	
 	if (pChatCommand->m_bFromPM == true)
-	{
+		{
 		iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "$To: %s From: %s $<%s> ", pChatCommand->m_pUser->m_sNick, SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC]);
 	}
 	else
@@ -735,9 +735,9 @@ bool DBSQLite::SearchIP(ChatCommand * pChatCommand)
 	}
 	
 	if (iMsgLen <= 0)
-	{
-		return false;
-	}
+		{
+			return false;
+		}
 	
 	iAfterHubSecMsgLen = iMsgLen;
 	
