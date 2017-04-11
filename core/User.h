@@ -159,44 +159,44 @@ struct QzBuf; // for send queue
 struct User;
 class ExtJSONInfo
 {
-		std::string m_ExtJSON;
-		std::string m_ExtJSONOriginal;
-		uint64_t    m_iLastExtJSONSendTick;
-	public:
-		ExtJSONInfo() : m_iLastExtJSONSendTick(0)
+	std::string m_ExtJSON;
+	std::string m_ExtJSONOriginal;
+	uint64_t    m_iLastExtJSONSendTick;
+public:
+	ExtJSONInfo() : m_iLastExtJSONSendTick(0)
+	{
+	}
+	explicit ExtJSONInfo(const char* p_info) : m_iLastExtJSONSendTick(0)
+	{
+		if (p_info)
 		{
+			m_ExtJSON = p_info;
 		}
-		explicit ExtJSONInfo(const char* p_info) : m_iLastExtJSONSendTick(0)
-		{
-			if (p_info)
-			{
-				m_ExtJSON = p_info;
-			}
-		}
-		uint64_t   getLastExtJSONSendTick() const
-		{
-			return m_iLastExtJSONSendTick;
-		}
-		void   setLastExtJSONSendTick(uint64_t p_tick)
-		{
-			m_iLastExtJSONSendTick = p_tick;
-		}
-		bool ComparExtJSON(const char * sNewExtJSON, const uint16_t ui16NewExtJSONLen) const
-		{
-			if (!m_ExtJSONOriginal.empty())
-				return m_ExtJSONOriginal == std::string(sNewExtJSON, ui16NewExtJSONLen);
-			else
-				return m_ExtJSON == std::string(sNewExtJSON, ui16NewExtJSONLen);
-		}
-		void SetJSONOriginal(const std::string& p_json)
-		{
-			m_ExtJSON = p_json;
-			m_ExtJSONOriginal = p_json;
-		}
-		const std::string& GetExtJSONCommand() const
-		{
-			return m_ExtJSON;
-		}
+	}
+	uint64_t   getLastExtJSONSendTick() const
+	{
+		return m_iLastExtJSONSendTick;
+	}
+	void   setLastExtJSONSendTick(uint64_t p_tick)
+	{
+		m_iLastExtJSONSendTick = p_tick;
+	}
+	bool ComparExtJSON(const char * sNewExtJSON, const uint16_t ui16NewExtJSONLen) const
+	{
+		if (!m_ExtJSONOriginal.empty())
+			return m_ExtJSONOriginal == std::string(sNewExtJSON, ui16NewExtJSONLen);
+		else
+			return m_ExtJSON == std::string(sNewExtJSON, ui16NewExtJSONLen);
+	}
+	void SetJSONOriginal(const std::string& p_json)
+	{
+		m_ExtJSON = p_json;
+		m_ExtJSONOriginal = p_json;
+	}
+	const std::string& GetExtJSONCommand() const
+	{
+		return m_ExtJSON;
+	}
 };
 #endif
 
@@ -251,22 +251,22 @@ struct User
 	}
 #endif
 	
-
-
-
-
-
-
-
-
-
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	User * m_pPrev, * m_pNext, * m_pHashTablePrev, * m_pHashTableNext, * m_pHashIpTablePrev, * m_pHashIpTableNext;
 	
 	char * m_sNick;
 	
 #ifdef FLYLINKDC_USE_VERSION
-    char * m_sVersion;
+	char * m_sVersion;
 #endif
 	char * m_sMyInfoOriginal, * m_sMyInfoShort, * m_sMyInfoLong;
 	char * m_sDescription, * m_sTag, * m_sConnection, * m_sEmail;
@@ -287,7 +287,7 @@ struct User
 	uint32_t m_ui32NickHash;
 	
 	int32_t m_i32Profile;
-
+	
 	std::string m_LastSearch;
 	
 #ifdef _WIN32
@@ -313,7 +313,7 @@ struct User
 	uint8_t m_ui8Country, m_ui8State, m_ui8IPv4Len;
 	uint8_t m_ui8ChangedDescriptionShortLen, m_ui8ChangedDescriptionLongLen, m_ui8ChangedTagShortLen, m_ui8ChangedTagLongLen;
 	uint8_t m_ui8ChangedConnectionShortLen, m_ui8ChangedConnectionLongLen, m_ui8ChangedEmailShortLen, m_ui8ChangedEmailLongLen;
-
+	
 	uint64_t m_last_recv_tick;
 	
 	uint8_t m_ui128IpHash[16];
@@ -338,10 +338,11 @@ struct User
 		STATE_REMME
 	};
 	
-    //  u->ui32BoolBits |= BIT_PRCSD_MYINFO;   <- set to 1
-    //  u->ui32BoolBits &= ~BIT_PRCSD_MYINFO;  <- set to 0
-    //  (u->ui32BoolBits & BIT_PRCSD_MYINFO) == BIT_PRCSD_MYINFO    <- test if is 1/true
-    enum UserBits {
+	//  u->ui32BoolBits |= BIT_PRCSD_MYINFO;   <- set to 1
+	//  u->ui32BoolBits &= ~BIT_PRCSD_MYINFO;  <- set to 0
+	//  (u->ui32BoolBits & BIT_PRCSD_MYINFO) == BIT_PRCSD_MYINFO    <- test if is 1/true
+	enum UserBits
+	{
 		BIT_HASHED                     = 0x1,
 		BIT_ERROR                      = 0x2,
 		BIT_OPERATOR                   = 0x4,

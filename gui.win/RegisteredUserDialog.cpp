@@ -66,107 +66,107 @@ LRESULT clsRegisteredUserDialog::RegisteredUserDialogProc(UINT uMsg, WPARAM wPar
 {
 	switch (uMsg)
 	{
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
-			{
-				case IDOK:
-					if (OnAccept() == false)
-					{
-						return 0;
-					}
-				case IDCANCEL:
-					::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
-					return 0;
-				case (EDT_NICK+100):
-					if (HIWORD(wParam) == EN_CHANGE)
-					{
-						char buf[65];
-						::GetWindowText((HWND)lParam, buf, 65);
-						
-						bool bChanged = false;
-						
-						for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
-						{
-							if (buf[ui16i] == '|' || buf[ui16i] == '$' || buf[ui16i] == ' ')
-							{
-								strcpy(buf + ui16i, buf + ui16i + 1);
-								bChanged = true;
-								ui16i--;
-							}
-						}
-						
-						if (bChanged == true)
-						{
-							int iStart, iEnd;
-							
-							::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
-							
-							::SetWindowText((HWND)lParam, buf);
-							
-							::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
-						}
-						
-						return 0;
-					}
-					
-					break;
-				case EDT_PASSWORD:
-					if (HIWORD(wParam) == EN_CHANGE)
-					{
-						char buf[65];
-						::GetWindowText((HWND)lParam, buf, 65);
-						
-						bool bChanged = false;
-						
-						for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
-						{
-							if (buf[ui16i] == '|')
-							{
-								strcpy(buf + ui16i, buf + ui16i + 1);
-								bChanged = true;
-								ui16i--;
-							}
-						}
-						
-						if (bChanged == true)
-						{
-							int iStart, iEnd;
-							
-							::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
-							
-							::SetWindowText((HWND)lParam, buf);
-							
-							::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
-						}
-						
-						return 0;
-					}
-					
-					break;
-			}
-			
-			break;
-		case WM_CLOSE:
-			::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
-			clsServerManager::hWndActiveDialog = nullptr;
-			break;
-		case WM_NCDESTROY:
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
 		{
-			HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
-			delete this;
-			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
-		}
-		case WM_SETFOCUS:
-			if (pRegToChange == NULL)
+		case IDOK:
+			if (OnAccept() == false)
 			{
-				::SetFocus(m_hWndWindowItems[EDT_NICK]);
+				return 0;
 			}
-			else
+		case IDCANCEL:
+			::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
+			return 0;
+		case (EDT_NICK+100):
+			if (HIWORD(wParam) == EN_CHANGE)
 			{
-				::SetFocus(m_hWndWindowItems[EDT_PASSWORD]);
+				char buf[65];
+				::GetWindowText((HWND)lParam, buf, 65);
+				
+				bool bChanged = false;
+				
+				for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
+				{
+					if (buf[ui16i] == '|' || buf[ui16i] == '$' || buf[ui16i] == ' ')
+					{
+						strcpy(buf + ui16i, buf + ui16i + 1);
+						bChanged = true;
+						ui16i--;
+					}
+				}
+				
+				if (bChanged == true)
+				{
+					int iStart, iEnd;
+					
+					::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
+					
+					::SetWindowText((HWND)lParam, buf);
+					
+					::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
+				}
+				
+				return 0;
 			}
 			
-			return 0;
+			break;
+		case EDT_PASSWORD:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				char buf[65];
+				::GetWindowText((HWND)lParam, buf, 65);
+				
+				bool bChanged = false;
+				
+				for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
+				{
+					if (buf[ui16i] == '|')
+					{
+						strcpy(buf + ui16i, buf + ui16i + 1);
+						bChanged = true;
+						ui16i--;
+					}
+				}
+				
+				if (bChanged == true)
+				{
+					int iStart, iEnd;
+					
+					::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
+					
+					::SetWindowText((HWND)lParam, buf);
+					
+					::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
+				}
+				
+				return 0;
+			}
+			
+			break;
+		}
+		
+		break;
+	case WM_CLOSE:
+		::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
+		clsServerManager::hWndActiveDialog = nullptr;
+		break;
+	case WM_NCDESTROY:
+	{
+		HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
+		delete this;
+		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+	case WM_SETFOCUS:
+		if (pRegToChange == NULL)
+		{
+			::SetFocus(m_hWndWindowItems[EDT_NICK]);
+		}
+		else
+		{
+			::SetFocus(m_hWndWindowItems[EDT_PASSWORD]);
+		}
+		
+		return 0;
 	}
 	
 	return ::DefWindowProc(m_hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
@@ -199,9 +199,9 @@ void clsRegisteredUserDialog::DoModal(HWND hWndParent, RegUser * pReg/* = NULL*/
 	int iY = (rcParent.top + ((rcParent.bottom - rcParent.top) / 2)) - (ScaleGui(201) / 2);
 	
 	m_hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomRegisteredUserDialog), clsLanguageManager::mPtr->sTexts[LAN_REGISTERED_USER],
-	                                                  WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGui(300), ScaleGui(201),
-	                                                  hWndParent, NULL, clsServerManager::hInstance, NULL);
-	                                                  
+	                                                    WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGui(300), ScaleGui(201),
+	                                                    hWndParent, NULL, clsServerManager::hInstance, NULL);
+	                                                    
 	if (m_hWndWindowItems[WINDOW_HANDLE] == NULL)
 	{
 		return;
@@ -234,37 +234,37 @@ void clsRegisteredUserDialog::DoModal(HWND hWndParent, RegUser * pReg/* = NULL*/
 	::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
 	
 	m_hWndWindowItems[GB_NICK] = ::CreateWindowEx(WS_EX_TRANSPARENT, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_NICK], WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	                                            3, 0, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
-	                                            
+	                                              3, 0, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                              
 	m_hWndWindowItems[EDT_NICK] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_EDIT, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL,
-	                                             11, clsGuiSettingManager::iGroupBoxMargin, rcParent.right - 22, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(EDT_NICK + 100), clsServerManager::hInstance, NULL);
+	                                               11, clsGuiSettingManager::iGroupBoxMargin, rcParent.right - 22, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(EDT_NICK + 100), clsServerManager::hInstance, NULL);
 	::SendMessage(m_hWndWindowItems[EDT_NICK], EM_SETLIMITTEXT, 64, 0);
 	
 	int iPosY = clsGuiSettingManager::iOneLineGB;
 	
 	m_hWndWindowItems[GB_PASSWORD] = ::CreateWindowEx(WS_EX_TRANSPARENT, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_PASSWORD], WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	                                                3, iPosY, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
-	                                                
+	                                                  3, iPosY, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                                  
 	m_hWndWindowItems[EDT_PASSWORD] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_EDIT, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL,
-	                                                 11, iPosY + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right - rcParent.left) - 22, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)EDT_PASSWORD, clsServerManager::hInstance, NULL);
+	                                                   11, iPosY + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right - rcParent.left) - 22, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)EDT_PASSWORD, clsServerManager::hInstance, NULL);
 	::SendMessage(m_hWndWindowItems[EDT_PASSWORD], EM_SETLIMITTEXT, 64, 0);
 	
 	iPosY += clsGuiSettingManager::iOneLineGB;
 	
 	m_hWndWindowItems[GB_PROFILE] = ::CreateWindowEx(WS_EX_TRANSPARENT, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_PROFILE], WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	                                               3, iPosY, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
-	                                               
+	                                                 3, iPosY, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                                 
 	m_hWndWindowItems[CB_PROFILE] = ::CreateWindowEx(0, WC_COMBOBOX, "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST,
-	                                               11, iPosY + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right - rcParent.left) - 22, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)CB_PROFILE, clsServerManager::hInstance, NULL);
-	                                               
+	                                                 11, iPosY + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right - rcParent.left) - 22, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)CB_PROFILE, clsServerManager::hInstance, NULL);
+	                                                 
 	iPosY += clsGuiSettingManager::iOneLineGB + 4;
 	
 	m_hWndWindowItems[BTN_ACCEPT] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_ACCEPT], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                               2, iPosY, ((rcParent.right - rcParent.left) / 2) - 3, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)IDOK, clsServerManager::hInstance, NULL);
-	                                               
+	                                                 2, iPosY, ((rcParent.right - rcParent.left) / 2) - 3, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)IDOK, clsServerManager::hInstance, NULL);
+	                                                 
 	m_hWndWindowItems[BTN_DISCARD] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_DISCARD], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                ((rcParent.right - rcParent.left) / 2) + 2, iPosY, ((rcParent.right - rcParent.left) / 2) - 4, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)IDCANCEL, clsServerManager::hInstance, NULL);
-	                                                
+	                                                  ((rcParent.right - rcParent.left) / 2) + 2, iPosY, ((rcParent.right - rcParent.left) / 2) - 4, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)IDCANCEL, clsServerManager::hInstance, NULL);
+	                                                  
 	for (uint8_t ui8i = 0; ui8i < (sizeof(m_hWndWindowItems) / sizeof(m_hWndWindowItems[0])); ui8i++)
 	{
 		if (m_hWndWindowItems[ui8i] == NULL)

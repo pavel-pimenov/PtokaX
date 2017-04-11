@@ -45,73 +45,73 @@ LRESULT SettingPageBots::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam
 	{
 		switch (LOWORD(wParam))
 		{
-			case EDT_HUB_BOT_NICK:
-			case EDT_OP_CHAT_BOT_NICK:
-				if (HIWORD(wParam) == EN_CHANGE)
+		case EDT_HUB_BOT_NICK:
+		case EDT_OP_CHAT_BOT_NICK:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				char buf[65];
+				::GetWindowText((HWND)lParam, buf, 65);
+				
+				bool bChanged = false;
+				
+				for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
 				{
-					char buf[65];
-					::GetWindowText((HWND)lParam, buf, 65);
-					
-					bool bChanged = false;
-					
-					for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
+					if (buf[ui16i] == '|' || buf[ui16i] == '$' || buf[ui16i] == ' ')
 					{
-						if (buf[ui16i] == '|' || buf[ui16i] == '$' || buf[ui16i] == ' ')
-						{
-							strcpy(buf + ui16i, buf + ui16i + 1);
-							bChanged = true;
-							ui16i--;
-						}
+						strcpy(buf + ui16i, buf + ui16i + 1);
+						bChanged = true;
+						ui16i--;
 					}
-					
-					if (bChanged == true)
-					{
-						int iStart, iEnd;
-						
-						::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
-						
-						::SetWindowText((HWND)lParam, buf);
-						
-						::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
-					}
-					
-					return 0;
 				}
 				
-				break;
-			case EDT_HUB_BOT_DESCRIPTION:
-			case EDT_HUB_BOT_EMAIL:
-			case EDT_OP_CHAT_BOT_DESCRIPTION:
-			case EDT_OP_CHAT_BOT_EMAIL:
-				if (HIWORD(wParam) == EN_CHANGE)
+				if (bChanged == true)
 				{
-					RemoveDollarsPipes((HWND)lParam);
+					int iStart, iEnd;
 					
-					return 0;
+					::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
+					
+					::SetWindowText((HWND)lParam, buf);
+					
+					::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
 				}
 				
-				break;
-			case BTN_HUB_BOT_ENABLE:
-				if (HIWORD(wParam) == BN_CLICKED)
-				{
-					BOOL bEnable = ::SendMessage(hWndPageItems[BTN_HUB_BOT_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE;
-					::EnableWindow(hWndPageItems[EDT_HUB_BOT_NICK], bEnable);
-					::EnableWindow(hWndPageItems[BTN_HUB_BOT_IS_HUB_SEC], bEnable);
-					::EnableWindow(hWndPageItems[EDT_HUB_BOT_DESCRIPTION], bEnable);
-					::EnableWindow(hWndPageItems[EDT_HUB_BOT_EMAIL], bEnable);
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_HUB_BOT_DESCRIPTION:
+		case EDT_HUB_BOT_EMAIL:
+		case EDT_OP_CHAT_BOT_DESCRIPTION:
+		case EDT_OP_CHAT_BOT_EMAIL:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				RemoveDollarsPipes((HWND)lParam);
 				
-				break;
-			case BTN_OP_CHAT_BOT_ENABLE:
-				if (HIWORD(wParam) == BN_CLICKED)
-				{
-					BOOL bEnable = ::SendMessage(hWndPageItems[BTN_OP_CHAT_BOT_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE;
-					::EnableWindow(hWndPageItems[EDT_OP_CHAT_BOT_NICK], bEnable);
-					::EnableWindow(hWndPageItems[EDT_OP_CHAT_BOT_DESCRIPTION], bEnable);
-					::EnableWindow(hWndPageItems[EDT_OP_CHAT_BOT_EMAIL], bEnable);
-				}
-				
-				break;
+				return 0;
+			}
+			
+			break;
+		case BTN_HUB_BOT_ENABLE:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				BOOL bEnable = ::SendMessage(hWndPageItems[BTN_HUB_BOT_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE;
+				::EnableWindow(hWndPageItems[EDT_HUB_BOT_NICK], bEnable);
+				::EnableWindow(hWndPageItems[BTN_HUB_BOT_IS_HUB_SEC], bEnable);
+				::EnableWindow(hWndPageItems[EDT_HUB_BOT_DESCRIPTION], bEnable);
+				::EnableWindow(hWndPageItems[EDT_HUB_BOT_EMAIL], bEnable);
+			}
+			
+			break;
+		case BTN_OP_CHAT_BOT_ENABLE:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				BOOL bEnable = ::SendMessage(hWndPageItems[BTN_OP_CHAT_BOT_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE;
+				::EnableWindow(hWndPageItems[EDT_OP_CHAT_BOT_NICK], bEnable);
+				::EnableWindow(hWndPageItems[EDT_OP_CHAT_BOT_DESCRIPTION], bEnable);
+				::EnableWindow(hWndPageItems[EDT_OP_CHAT_BOT_EMAIL], bEnable);
+			}
+			
+			break;
 		}
 	}
 	

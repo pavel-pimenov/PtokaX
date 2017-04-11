@@ -37,14 +37,14 @@ bool BasicSplitter::BasicSplitterProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
-		case WM_MOUSEMOVE:
-			return OnMouseMove(wParam, lParam);
-		case WM_LBUTTONDOWN:
-			OnLButtonDown(lParam);
-			return false;
-		case WM_LBUTTONUP:
-			OnLButtonUp();
-			return false;
+	case WM_MOUSEMOVE:
+		return OnMouseMove(wParam, lParam);
+	case WM_LBUTTONDOWN:
+		OnLButtonDown(lParam);
+		return false;
+	case WM_LBUTTONUP:
+		OnLButtonUp();
+		return false;
 	}
 	
 	return false;

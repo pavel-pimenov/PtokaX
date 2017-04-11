@@ -206,7 +206,7 @@ ScriptTimer * ScriptTimer::CreateScriptTimer(const char * sFunctName, const size
 //------------------------------------------------------------------------------
 
 Script::Script() : m_pPrev(NULL), m_pNext(NULL), m_pBotList(NULL), m_pLua(NULL), m_sName(NULL), m_ui32DataArrivals(4294967295U), m_ui16Functions(65535),
-m_bEnabled(false), m_bRegUDP(false), m_bProcessed(false)
+	m_bEnabled(false), m_bRegUDP(false), m_bProcessed(false)
 {
 	// ...
 }

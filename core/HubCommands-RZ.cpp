@@ -537,8 +537,8 @@ bool HubCommands::Stats(ChatCommand * pChatCommand)   // !stat !stats !statistic
 		return true;
 	}
 	Statinfo += "CPU time: " + string(cputime, iLen) + "\r\n";
-#endif	
-
+#endif
+	
 	PROCESS_MEMORY_COUNTERS pmc;
 	memset(&pmc, 0, sizeof(PROCESS_MEMORY_COUNTERS));
 	pmc.cb = sizeof(pmc);
@@ -558,7 +558,7 @@ bool HubCommands::Stats(ChatCommand * pChatCommand)   // !stat !stats !statistic
 	}
 	Statinfo += "CPU usage (60 sec avg): " + string(cpuusage, iLen);
 #endif // FLYLINKDC_USE_CPU_STAT
-
+	
 	struct rusage rs;
 	
 	getrusage(RUSAGE_SELF, &rs);

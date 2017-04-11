@@ -122,20 +122,20 @@ bool RichEditCheckMenuCommands(const HWND hRichEdit, const WORD &wID)
 {
 	switch (wID)
 	{
-		case IDC_COPY:
-			::SendMessage(hRichEdit, WM_COPY, 0, 0);
-			return true;
-		case IDC_SELECT_ALL:
-		{
-			CHARRANGE cr = { 0, -1 };
-			::SendMessage(hRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
-			return true;
-		}
-		case IDC_CLEAR_ALL:
-			::SetWindowText(hRichEdit, "");
-			return true;
-		default:
-			return false;
+	case IDC_COPY:
+		::SendMessage(hRichEdit, WM_COPY, 0, 0);
+		return true;
+	case IDC_SELECT_ALL:
+	{
+		CHARRANGE cr = { 0, -1 };
+		::SendMessage(hRichEdit, EM_EXSETSEL, 0, (LPARAM)&cr);
+		return true;
+	}
+	case IDC_CLEAR_ALL:
+		::SetWindowText(hRichEdit, "");
+		return true;
+	default:
+		return false;
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

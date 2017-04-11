@@ -162,7 +162,7 @@ void ServerThread::Run()
 					{
 #endif
 					EventQueue::m_Ptr->AddThread(EventQueue::EVENT_SRVTHREAD_MSG,
-					                               ("[ERR] accept() for port " + string(m_ui16Port) + " has returned error.").c_str());
+					                             ("[ERR] accept() for port " + string(m_ui16Port) + " has returned error.").c_str());
 				}
 #ifndef _WIN32
 			}
@@ -208,7 +208,7 @@ void ServerThread::Run()
 			if (Listen(true) == true)
 			{
 				EventQueue::m_Ptr->AddThread(EventQueue::EVENT_SRVTHREAD_MSG,
-				                               ("[SYS] Server socket for port " + string(m_ui16Port) + " sucessfully recovered from suspend state.").c_str());
+				                             ("[SYS] Server socket for port " + string(m_ui16Port) + " sucessfully recovered from suspend state.").c_str());
 			}
 			else
 			{
@@ -284,7 +284,7 @@ bool ServerThread::Listen(const bool bSilent/* = false*/)
 		if (bSilent == true)
 		{
 			EventQueue::m_Ptr->AddThread(EventQueue::EVENT_SRVTHREAD_MSG,
-			                               ("[ERR] Server socket setsockopt error: " + string(errno) + " for port: " + string(m_ui16Port)).c_str());
+			                             ("[ERR] Server socket setsockopt error: " + string(errno) + " for port: " + string(m_ui16Port)).c_str());
 		}
 		else
 		{
@@ -361,9 +361,9 @@ bool ServerThread::Listen(const bool bSilent/* = false*/)
 		{
 			EventQueue::m_Ptr->AddThread(EventQueue::EVENT_SRVTHREAD_MSG,
 #ifdef _WIN32
-			                               ("[ERR] Server socket bind error: " + string(WSErrorStr(err)) + " (" + string(err) + ") for port: " + string(m_ui16Port)).c_str());
+			                             ("[ERR] Server socket bind error: " + string(WSErrorStr(err)) + " (" + string(err) + ") for port: " + string(m_ui16Port)).c_str());
 #else
-			                               ("[ERR] Server socket bind error: " + string(ErrnoStr(errno)) + " (" + string(errno) + ") for port: " + string(m_ui16Port)).c_str());
+			                             ("[ERR] Server socket bind error: " + string(ErrnoStr(errno)) + " (" + string(errno) + ") for port: " + string(m_ui16Port)).c_str());
 #endif
 		}
 		else
@@ -542,18 +542,18 @@ void ServerThread::ResumeSck()
 void ServerThread::SuspendSck(const uint32_t ui32Time)
 {
 	if (m_bActive == true)
+	{
+		Lock l(m_csServerThread);
+		if (ui32Time != 0)
 		{
-			Lock l(m_csServerThread);
-			if (ui32Time != 0)
-			{
-				m_ui32SuspendTime = ui32Time;
-			}
-			else
-			{
-				m_bSuspended = true;
-				m_ui32SuspendTime = 1;
-			}
+			m_ui32SuspendTime = ui32Time;
+		}
+		else
+		{
+			m_bSuspended = true;
+			m_ui32SuspendTime = 1;
+		}
 		safe_closesocket(m_Server);
-      }
+	}
 }
 //---------------------------------------------------------------------------

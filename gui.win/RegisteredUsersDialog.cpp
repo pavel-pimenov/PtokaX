@@ -71,155 +71,155 @@ LRESULT clsRegisteredUsersDialog::RegisteredUsersDialogProc(UINT uMsg, WPARAM wP
 {
 	switch (uMsg)
 	{
-		case WM_WINDOWPOSCHANGED:
+	case WM_WINDOWPOSCHANGED:
+	{
+		RECT rcParent;
+		::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
+		
+		::SetWindowPos(m_hWndWindowItems[CB_FILTER], NULL, (rcParent.right / 2) + 3, (rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3) + clsGuiSettingManager::iGroupBoxMargin,
+		               rcParent.right - (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[EDT_FILTER], NULL, 11, (rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3) + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[GB_FILTER], NULL, 3, rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[LV_REGS], NULL, 0, 0, rcParent.right - 6, rcParent.bottom - clsGuiSettingManager::iOneLineGB - clsGuiSettingManager::iEditHeight - 11, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[BTN_ADD_REG], NULL, 0, 0, rcParent.right - 4, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
+		
+		return 0;
+	}
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
 		{
-			RECT rcParent;
-			::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
+		case (BTN_ADD_REG+100):
+		{
+			clsRegisteredUserDialog::mPtr = new (std::nothrow) clsRegisteredUserDialog();
 			
-			::SetWindowPos(m_hWndWindowItems[CB_FILTER], NULL, (rcParent.right / 2) + 3, (rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3) + clsGuiSettingManager::iGroupBoxMargin,
-			               rcParent.right - (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[EDT_FILTER], NULL, 11, (rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3) + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[GB_FILTER], NULL, 3, rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[LV_REGS], NULL, 0, 0, rcParent.right - 6, rcParent.bottom - clsGuiSettingManager::iOneLineGB - clsGuiSettingManager::iEditHeight - 11, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[BTN_ADD_REG], NULL, 0, 0, rcParent.right - 4, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
+			if (clsRegisteredUserDialog::mPtr != NULL)
+			{
+				clsRegisteredUserDialog::mPtr->DoModal(m_hWndWindowItems[WINDOW_HANDLE]);
+			}
 			
 			return 0;
 		}
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
+		case IDC_CHANGE_REG:
+		{
+			ChangeReg();
+			return 0;
+		}
+		case IDC_REMOVE_REGS:
+			RemoveRegs();
+			return 0;
+		case CB_FILTER:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
 			{
-				case (BTN_ADD_REG+100):
+				if (::GetWindowTextLength(m_hWndWindowItems[EDT_FILTER]) != 0)
 				{
-					clsRegisteredUserDialog::mPtr = new (std::nothrow) clsRegisteredUserDialog();
-					
-					if (clsRegisteredUserDialog::mPtr != NULL)
-					{
-						clsRegisteredUserDialog::mPtr->DoModal(m_hWndWindowItems[WINDOW_HANDLE]);
-					}
-					
-					return 0;
+					FilterRegs();
 				}
-				case IDC_CHANGE_REG:
+			}
+			
+			break;
+		case IDOK:   // NM_RETURN
+		{
+			HWND hWndFocus = ::GetFocus();
+			
+			if (hWndFocus == m_hWndWindowItems[LV_REGS])
+			{
+				ChangeReg();
+				return 0;
+			}
+			else if (hWndFocus == m_hWndWindowItems[EDT_FILTER])
+			{
+				FilterRegs();
+				return 0;
+			}
+			
+			break;
+		}
+		case IDCANCEL:
+			::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
+			return 0;
+		}
+		
+		break;
+	case WM_CONTEXTMENU:
+		OnContextMenu((HWND)wParam, lParam);
+		break;
+	case WM_NOTIFY:
+		if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[LV_REGS])
+		{
+			if (((LPNMHDR)lParam)->code == LVN_COLUMNCLICK)
+			{
+				OnColumnClick((LPNMLISTVIEW)lParam);
+			}
+			else if (((LPNMHDR)lParam)->code == NM_DBLCLK)
+			{
+				if (((LPNMITEMACTIVATE)lParam)->iItem == -1)
 				{
-					ChangeReg();
-					return 0;
-				}
-				case IDC_REMOVE_REGS:
-					RemoveRegs();
-					return 0;
-				case CB_FILTER:
-					if (HIWORD(wParam) == CBN_SELCHANGE)
-					{
-						if (::GetWindowTextLength(m_hWndWindowItems[EDT_FILTER]) != 0)
-						{
-							FilterRegs();
-						}
-					}
-					
 					break;
-				case IDOK:   // NM_RETURN
-				{
-					HWND hWndFocus = ::GetFocus();
-					
-					if (hWndFocus == m_hWndWindowItems[LV_REGS])
-					{
-						ChangeReg();
-						return 0;
-					}
-					else if (hWndFocus == m_hWndWindowItems[EDT_FILTER])
-					{
-						FilterRegs();
-						return 0;
-					}
-					
-					break;
 				}
-				case IDCANCEL:
-					::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
-					return 0;
-			}
-			
-			break;
-		case WM_CONTEXTMENU:
-			OnContextMenu((HWND)wParam, lParam);
-			break;
-		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[LV_REGS])
-			{
-				if (((LPNMHDR)lParam)->code == LVN_COLUMNCLICK)
+				
+				RegUser * pReg = reinterpret_cast<RegUser *>(ListViewGetItem(m_hWndWindowItems[LV_REGS], ((LPNMITEMACTIVATE)lParam)->iItem));
+				
+				clsRegisteredUserDialog::mPtr = new (std::nothrow) clsRegisteredUserDialog();
+				
+				if (clsRegisteredUserDialog::mPtr != NULL)
 				{
-					OnColumnClick((LPNMLISTVIEW)lParam);
+					clsRegisteredUserDialog::mPtr->DoModal(m_hWndWindowItems[WINDOW_HANDLE], pReg);
 				}
-				else if (((LPNMHDR)lParam)->code == NM_DBLCLK)
-				{
-					if (((LPNMITEMACTIVATE)lParam)->iItem == -1)
-					{
-						break;
-					}
-					
-					RegUser * pReg = reinterpret_cast<RegUser *>(ListViewGetItem(m_hWndWindowItems[LV_REGS], ((LPNMITEMACTIVATE)lParam)->iItem));
-					
-					clsRegisteredUserDialog::mPtr = new (std::nothrow) clsRegisteredUserDialog();
-					
-					if (clsRegisteredUserDialog::mPtr != NULL)
-					{
-						clsRegisteredUserDialog::mPtr->DoModal(m_hWndWindowItems[WINDOW_HANDLE], pReg);
-					}
-					
-					return 0;
-				}
+				
+				return 0;
 			}
-			
-			break;
-		case WM_GETMINMAXINFO:
-		{
-			MINMAXINFO *mminfo = (MINMAXINFO*)lParam;
-			mminfo->ptMinTrackSize.x = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_REGS_WINDOW_WIDTH));
-			mminfo->ptMinTrackSize.y = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_REGS_WINDOW_HEIGHT));
-			
-			return 0;
 		}
-		case WM_CLOSE:
+		
+		break;
+	case WM_GETMINMAXINFO:
+	{
+		MINMAXINFO *mminfo = (MINMAXINFO*)lParam;
+		mminfo->ptMinTrackSize.x = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_REGS_WINDOW_WIDTH));
+		mminfo->ptMinTrackSize.y = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_REGS_WINDOW_HEIGHT));
+		
+		return 0;
+	}
+	case WM_CLOSE:
+	{
+		RECT rcRegs;
+		::GetWindowRect(m_hWndWindowItems[WINDOW_HANDLE], &rcRegs);
+		
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_WINDOW_WIDTH, rcRegs.right - rcRegs.left);
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_WINDOW_HEIGHT, rcRegs.bottom - rcRegs.top);
+		
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_NICK, (int)::SendMessage(m_hWndWindowItems[LV_REGS], LVM_GETCOLUMNWIDTH, 0, 0));
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_PASSWORD, (int)::SendMessage(m_hWndWindowItems[LV_REGS], LVM_GETCOLUMNWIDTH, 1, 0));
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_PROFILE, (int)::SendMessage(m_hWndWindowItems[LV_REGS], LVM_GETCOLUMNWIDTH, 2, 0));
+		
+		::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
+		clsServerManager::hWndActiveDialog = nullptr;
+		
+		break;
+	}
+	case WM_NCDESTROY:
+	{
+		HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
+		delete this;
+		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+	case WM_SETFOCUS:
+		if ((UINT)::SendMessage(m_hWndWindowItems[LV_REGS], LVM_GETSELECTEDCOUNT, 0, 0) != 0)
 		{
-			RECT rcRegs;
-			::GetWindowRect(m_hWndWindowItems[WINDOW_HANDLE], &rcRegs);
-			
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_WINDOW_WIDTH, rcRegs.right - rcRegs.left);
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_WINDOW_HEIGHT, rcRegs.bottom - rcRegs.top);
-			
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_NICK, (int)::SendMessage(m_hWndWindowItems[LV_REGS], LVM_GETCOLUMNWIDTH, 0, 0));
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_PASSWORD, (int)::SendMessage(m_hWndWindowItems[LV_REGS], LVM_GETCOLUMNWIDTH, 1, 0));
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_REGS_PROFILE, (int)::SendMessage(m_hWndWindowItems[LV_REGS], LVM_GETCOLUMNWIDTH, 2, 0));
-			
-			::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
-			clsServerManager::hWndActiveDialog = nullptr;
-			
-			break;
+			::SetFocus(m_hWndWindowItems[LV_REGS]);
 		}
-		case WM_NCDESTROY:
+		else
 		{
-			HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
-			delete this;
-			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+			::SetFocus(m_hWndWindowItems[EDT_FILTER]);
 		}
-		case WM_SETFOCUS:
-			if ((UINT)::SendMessage(m_hWndWindowItems[LV_REGS], LVM_GETSELECTEDCOUNT, 0, 0) != 0)
-			{
-				::SetFocus(m_hWndWindowItems[LV_REGS]);
-			}
-			else
-			{
-				::SetFocus(m_hWndWindowItems[EDT_FILTER]);
-			}
-			
-			return 0;
-		case WM_ACTIVATE:
-			if (LOWORD(wParam) != WA_INACTIVE)
-			{
-				clsServerManager::hWndActiveDialog = m_hWndWindowItems[WINDOW_HANDLE];
-			}
-			
-			break;
+		
+		return 0;
+	case WM_ACTIVATE:
+		if (LOWORD(wParam) != WA_INACTIVE)
+		{
+			clsServerManager::hWndActiveDialog = m_hWndWindowItems[WINDOW_HANDLE];
+		}
+		
+		break;
 	}
 	
 	return ::DefWindowProc(m_hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
@@ -250,10 +250,10 @@ void clsRegisteredUsersDialog::DoModal(HWND hWndParent)
 	int iY = (rcParent.top + ((rcParent.bottom - rcParent.top) / 2)) - (ScaleGuiDefaultsOnly(GUISETINT_REGS_WINDOW_HEIGHT) / 2);
 	
 	m_hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomRegisteredUsersDialog), clsLanguageManager::mPtr->sTexts[LAN_REG_USERS],
-	                                                  WS_POPUP | WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	                                                  iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGuiDefaultsOnly(GUISETINT_REGS_WINDOW_WIDTH), ScaleGuiDefaultsOnly(GUISETINT_REGS_WINDOW_HEIGHT),
-	                                                  hWndParent, NULL, clsServerManager::hInstance, NULL);
-	                                                  
+	                                                    WS_POPUP | WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+	                                                    iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGuiDefaultsOnly(GUISETINT_REGS_WINDOW_WIDTH), ScaleGuiDefaultsOnly(GUISETINT_REGS_WINDOW_HEIGHT),
+	                                                    hWndParent, NULL, clsServerManager::hInstance, NULL);
+	                                                    
 	if (m_hWndWindowItems[WINDOW_HANDLE] == NULL)
 	{
 		return;
@@ -267,23 +267,23 @@ void clsRegisteredUsersDialog::DoModal(HWND hWndParent)
 	::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
 	
 	m_hWndWindowItems[BTN_ADD_REG] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_ADD_NEW_REG], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                2, 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_ADD_REG + 100), clsServerManager::hInstance, NULL);
-	                                                
+	                                                  2, 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_ADD_REG + 100), clsServerManager::hInstance, NULL);
+	                                                  
 	m_hWndWindowItems[LV_REGS] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_REPORT | LVS_SHOWSELALWAYS,
-	                                            3, clsGuiSettingManager::iEditHeight + 6, rcParent.right - 6, rcParent.bottom - clsGuiSettingManager::iOneLineGB - clsGuiSettingManager::iEditHeight - 11, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                              3, clsGuiSettingManager::iEditHeight + 6, rcParent.right - 6, rcParent.bottom - clsGuiSettingManager::iOneLineGB - clsGuiSettingManager::iEditHeight - 11, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
 	::SendMessage(m_hWndWindowItems[LV_REGS], LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | LVS_EX_LABELTIP);
 	
 	m_hWndWindowItems[GB_FILTER] = ::CreateWindowEx(WS_EX_TRANSPARENT, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_FILTER_REGISTERED_USERS], WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	                                              3, rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
-	                                              
+	                                                3, rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3, rcParent.right - 6, clsGuiSettingManager::iOneLineGB, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                                
 	m_hWndWindowItems[EDT_FILTER] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_EDIT, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL,
-	                                               11, (rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3) + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)EDT_FILTER, clsServerManager::hInstance, NULL);
+	                                                 11, (rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3) + clsGuiSettingManager::iGroupBoxMargin, (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)EDT_FILTER, clsServerManager::hInstance, NULL);
 	::SendMessage(m_hWndWindowItems[EDT_FILTER], EM_SETLIMITTEXT, 64, 0);
 	
 	m_hWndWindowItems[CB_FILTER] = ::CreateWindowEx(0, WC_COMBOBOX, "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_TABSTOP | CBS_DROPDOWNLIST,
-	                                              (rcParent.right / 2) + 3, (rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3) + clsGuiSettingManager::iGroupBoxMargin, rcParent.right - (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight,
-	                                              m_hWndWindowItems[WINDOW_HANDLE], (HMENU)CB_FILTER, clsServerManager::hInstance, NULL);
-	                                              
+	                                                (rcParent.right / 2) + 3, (rcParent.bottom - clsGuiSettingManager::iOneLineGB - 3) + clsGuiSettingManager::iGroupBoxMargin, rcParent.right - (rcParent.right / 2) - 14, clsGuiSettingManager::iEditHeight,
+	                                                m_hWndWindowItems[WINDOW_HANDLE], (HMENU)CB_FILTER, clsServerManager::hInstance, NULL);
+	                                                
 	for (uint8_t ui8i = 0; ui8i < (sizeof(m_hWndWindowItems) / sizeof(m_hWndWindowItems[0])); ui8i++)
 	{
 		if (m_hWndWindowItems[ui8i] == NULL)
@@ -407,14 +407,14 @@ int clsRegisteredUsersDialog::CompareRegs(const void * pItem, const void * pOthe
 	
 	switch (clsRegisteredUsersDialog::mPtr->iSortColumn)
 	{
-		case 0:
-			return _stricmp(pFirstReg->sNick, pSecondReg->sNick);
-		case 1:
-			return _stricmp(pFirstReg->sPass, pSecondReg->sPass);
-		case 2:
-			return (pFirstReg->ui16Profile > pSecondReg->ui16Profile) ? 1 : ((pFirstReg->ui16Profile == pSecondReg->ui16Profile) ? 0 : -1);
-		default:
-			return 0; // never happen, but we need to make compiler/complainer happy ;o)
+	case 0:
+		return _stricmp(pFirstReg->sNick, pSecondReg->sNick);
+	case 1:
+		return _stricmp(pFirstReg->sPass, pSecondReg->sPass);
+	case 2:
+		return (pFirstReg->ui16Profile > pSecondReg->ui16Profile) ? 1 : ((pFirstReg->ui16Profile == pSecondReg->ui16Profile) ? 0 : -1);
+	default:
+		return 0; // never happen, but we need to make compiler/complainer happy ;o)
 	}
 }
 //------------------------------------------------------------------------------
@@ -509,24 +509,24 @@ void clsRegisteredUsersDialog::FilterRegs()
 			
 			switch (iFilterColumn)
 			{
-				case 0:
-					if (stristr2(curReg->sNick, sFilterString.c_str()) == NULL)
-					{
-						continue;
-					}
-					break;
-				case 1:
-					if (stristr2(curReg->sPass, sFilterString.c_str()) == NULL)
-					{
-						continue;
-					}
-					break;
-				case 2:
-					if (stristr2(clsProfileManager::mPtr->ppProfilesTable[curReg->ui16Profile]->sName, sFilterString.c_str()) == NULL)
-					{
-						continue;
-					}
-					break;
+			case 0:
+				if (stristr2(curReg->sNick, sFilterString.c_str()) == NULL)
+				{
+					continue;
+				}
+				break;
+			case 1:
+				if (stristr2(curReg->sPass, sFilterString.c_str()) == NULL)
+				{
+					continue;
+				}
+				break;
+			case 2:
+				if (stristr2(clsProfileManager::mPtr->ppProfilesTable[curReg->ui16Profile]->sName, sFilterString.c_str()) == NULL)
+				{
+					continue;
+				}
+				break;
 			}
 			
 			AddReg(curReg);

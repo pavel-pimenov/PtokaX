@@ -742,27 +742,27 @@ bool RegisterThread::Receive(RegSocket * pSock)
 					
 					switch (v)
 					{
-						case 0:
-							strcat(m_sMsg, "/%DCN000%/");
-							break;
-						case 5:
-							strcat(m_sMsg, "/%DCN005%/");
-							break;
-						case 36:
-							strcat(m_sMsg, "/%DCN036%/");
-							break;
-						case 96:
-							strcat(m_sMsg, "/%DCN096%/");
-							break;
-						case 124:
-							strcat(m_sMsg, "/%DCN124%/");
-							break;
-						case 126:
-							strcat(m_sMsg, "/%DCN126%/");
-							break;
-						default:
-							strncat(m_sMsg, (char *)&v, 1);
-							break;
+					case 0:
+						strcat(m_sMsg, "/%DCN000%/");
+						break;
+					case 5:
+						strcat(m_sMsg, "/%DCN005%/");
+						break;
+					case 36:
+						strcat(m_sMsg, "/%DCN036%/");
+						break;
+					case 96:
+						strcat(m_sMsg, "/%DCN096%/");
+						break;
+					case 124:
+						strcat(m_sMsg, "/%DCN124%/");
+						break;
+					case 126:
+						strcat(m_sMsg, "/%DCN126%/");
+						break;
+					default:
+						strncat(m_sMsg, (char *)&v, 1);
+						break;
 					}
 				}
 				

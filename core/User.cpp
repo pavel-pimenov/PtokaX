@@ -71,7 +71,7 @@ static bool UserProcessLines(User * pUser, const uint32_t ui32NewDataStart)
 	char * buffer = pUser->m_pRecvBuf;
 	static int g_id = 0;
 	++g_id;
-
+	
 	for (uint32_t ui32i = ui32NewDataStart; ui32i < pUser->m_ui32RecvBufDataLen; ++ui32i)
 	{
 		// look for pipes in the data - process lines one by one
@@ -97,7 +97,7 @@ static bool UserProcessLines(User * pUser, const uint32_t ui32NewDataStart)
 				if (pUser->m_is_proxy_user || pUser->m_is_invalid_json || g_isUseLog ||
 				        pUser->m_is_bad_len_port || pUser->m_is_bad_port || pUser->m_is_ddos_udp ||
 				        pUser->m_is_bad_len_number_myinfo || pUser->m_is_max_int8 || pUser->m_is_max_ip_len)
-				{  
+				{
 					pUser->logInvalidUser(g_id, buffer, ui32CommandLen, false);
 				}
 			}
@@ -163,9 +163,9 @@ static bool UserProcessLines(User * pUser, const uint32_t ui32NewDataStart)
 		memmove(pUser->m_pRecvBuf, pBuffer, pUser->m_ui32RecvBufDataLen);
 		pUser->m_pRecvBuf[pUser->m_ui32RecvBufDataLen] = '\0';
 		
-			return true;
-		}
+		return true;
 	}
+}
 //------------------------------------------------------------------------------
 
 static void UserSetBadTag(User * pUser, char * sDesc, const uint8_t ui8DescLen)
@@ -352,218 +352,218 @@ static void UserParseMyInfo(User * pUser)
 					
 					switch (sTagPart[0])
 					{
-						case 'V':
-							// PPK ... fix for potencial memory leak with fake tag
-							if (sTagPart[2] == '\0' || pUser->m_sTagVersion)
+					case 'V':
+						// PPK ... fix for potencial memory leak with fake tag
+						if (sTagPart[2] == '\0' || pUser->m_sTagVersion)
+						{
+							UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
+							return;
+						}
+						pUser->m_sTagVersion = pUser->m_sMyInfoOriginal + ((sTagPart + 2) - ServerManager::m_pGlobalBuffer);
+						pUser->m_ui8TagVersionLen = (uint8_t)((DCTag + szi) - (sTagPart + 2));
+						reqVals++;
+						break;
+					case 'M':
+						if ((pUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6 && (pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64)
+						{
+							if (sTagPart[2] == '\0' || sTagPart[3] == '\0' || sTagPart[4] != '\0')
 							{
 								UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
 								return;
 							}
-							pUser->m_sTagVersion = pUser->m_sMyInfoOriginal + ((sTagPart + 2) - ServerManager::m_pGlobalBuffer);
-							pUser->m_ui8TagVersionLen = (uint8_t)((DCTag + szi) - (sTagPart + 2));
-							reqVals++;
-							break;
-						case 'M':
-							if ((pUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6 && (pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64)
+							pUser->m_sModes[0] = sTagPart[2];
+							pUser->m_sModes[1] = sTagPart[3];
+							pUser->m_sModes[2] = '\0';
+							
+							if (toupper(sTagPart[3]) == 'A')
 							{
-								if (sTagPart[2] == '\0' || sTagPart[3] == '\0' || sTagPart[4] != '\0')
-								{
-									UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
-									return;
-								}
-								pUser->m_sModes[0] = sTagPart[2];
-								pUser->m_sModes[1] = sTagPart[3];
-								pUser->m_sModes[2] = '\0';
+								pUser->m_ui32BoolBits |= User::BIT_IPV6_ACTIVE;
+							}
+							else
+							{
+								pUser->m_ui32BoolBits &= ~User::BIT_IPV6_ACTIVE;
+							}
+						}
+						else
+						{
+							if (sTagPart[2] == '\0' || sTagPart[3] != '\0')
+							{
+								UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
+								return;
+							}
+							pUser->m_sModes[0] = sTagPart[2];
+							pUser->m_sModes[1] = '\0';
+						}
+						
+						if (toupper(sTagPart[2]) == 'A')
+						{
+							pUser->m_ui32BoolBits |= User::BIT_IPV4_ACTIVE;
+						}
+						else
+						{
+							pUser->m_ui32BoolBits &= ~User::BIT_IPV4_ACTIVE;
+						}
+						
+						reqVals++;
+						break;
+					case 'H':
+					{
+						if (sTagPart[2] == '\0')
+						{
+							UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
+							return;
+						}
+						
+						DCTag[szi] = '/';
+						
+						char *sHubsParts[] = { NULL, NULL, NULL };
+						uint16_t iHubsPartsLen[] = { 0, 0, 0 };
+						
+						uint8_t ui8Part = 0;
+						
+						sHubsParts[ui8Part] = sTagPart + 2;
+						
+						
+						for (uint32_t ui32j = 3; ui32j < (uint32_t)((DCTag + szi + 1) - sTagPart); ui32j++)
+						{
+							if (sTagPart[ui32j] == '/')
+							{
+								sTagPart[ui32j] = '\0';
+								iHubsPartsLen[ui8Part] = (uint16_t)((sTagPart + ui32j) - sHubsParts[ui8Part]);
 								
-								if (toupper(sTagPart[3]) == 'A')
-								{
-									pUser->m_ui32BoolBits |= User::BIT_IPV6_ACTIVE;
-								}
-								else
-								{
-									pUser->m_ui32BoolBits &= ~User::BIT_IPV6_ACTIVE;
-								}
+								// are we on end of hubs tag part ???
+								if (ui8Part == 2)
+									break;
+									
+								ui8Part++;
+								sHubsParts[ui8Part] = sTagPart + ui32j + 1;
 							}
-							else
+						}
+						
+						if (sHubsParts[0] != NULL && sHubsParts[1] != NULL && sHubsParts[2] != NULL)
+						{
+							if (iHubsPartsLen[0] != 0 && iHubsPartsLen[1] != 0 && iHubsPartsLen[2] != 0)
 							{
-								if (sTagPart[2] == '\0' || sTagPart[3] != '\0')
+								if (HaveOnlyNumbers(sHubsParts[0], iHubsPartsLen[0]) == false ||
+								        HaveOnlyNumbers(sHubsParts[1], iHubsPartsLen[1]) == false ||
+								        HaveOnlyNumbers(sHubsParts[2], iHubsPartsLen[2]) == false)
 								{
 									UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
 									return;
 								}
-								pUser->m_sModes[0] = sTagPart[2];
-								pUser->m_sModes[1] = '\0';
-							}
-							
-							if (toupper(sTagPart[2]) == 'A')
-							{
-								pUser->m_ui32BoolBits |= User::BIT_IPV4_ACTIVE;
-							}
-							else
-							{
-								pUser->m_ui32BoolBits &= ~User::BIT_IPV4_ACTIVE;
-							}
-							
-							reqVals++;
-							break;
-						case 'H':
-						{
-							if (sTagPart[2] == '\0')
-							{
-								UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
-								return;
-							}
-							
-							DCTag[szi] = '/';
-							
-							char *sHubsParts[] = { NULL, NULL, NULL };
-							uint16_t iHubsPartsLen[] = { 0, 0, 0 };
-							
-							uint8_t ui8Part = 0;
-							
-							sHubsParts[ui8Part] = sTagPart + 2;
-							
-							
-							for (uint32_t ui32j = 3; ui32j < (uint32_t)((DCTag + szi + 1) - sTagPart); ui32j++)
-							{
-								if (sTagPart[ui32j] == '/')
+								pUser->m_ui32NormalHubs = atoi(sHubsParts[0]);
+								pUser->m_ui32RegHubs = atoi(sHubsParts[1]);
+								pUser->m_ui32OpHubs = atoi(sHubsParts[2]);
+								pUser->m_ui32Hubs = pUser->m_ui32NormalHubs + pUser->m_ui32RegHubs + pUser->m_ui32OpHubs;
+								// PPK ... kill LAM3R with fake hubs
+								if (pUser->m_ui32Hubs != 0)
 								{
-									sTagPart[ui32j] = '\0';
-									iHubsPartsLen[ui8Part] = (uint16_t)((sTagPart + ui32j) - sHubsParts[ui8Part]);
-									
-									// are we on end of hubs tag part ???
-									if (ui8Part == 2)
-										break;
-										
-									ui8Part++;
-									sHubsParts[ui8Part] = sTagPart + ui32j + 1;
+									pUser->m_ui32BoolBits &= ~User::BIT_OLDHUBSTAG;
+									reqVals++;
+									break;
 								}
 							}
-							
-							if (sHubsParts[0] != NULL && sHubsParts[1] != NULL && sHubsParts[2] != NULL)
-							{
-								if (iHubsPartsLen[0] != 0 && iHubsPartsLen[1] != 0 && iHubsPartsLen[2] != 0)
-								{
-									if (HaveOnlyNumbers(sHubsParts[0], iHubsPartsLen[0]) == false ||
-									        HaveOnlyNumbers(sHubsParts[1], iHubsPartsLen[1]) == false ||
-									        HaveOnlyNumbers(sHubsParts[2], iHubsPartsLen[2]) == false)
-									{
-										UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
-										return;
-									}
-									pUser->m_ui32NormalHubs = atoi(sHubsParts[0]);
-									pUser->m_ui32RegHubs = atoi(sHubsParts[1]);
-									pUser->m_ui32OpHubs = atoi(sHubsParts[2]);
-									pUser->m_ui32Hubs = pUser->m_ui32NormalHubs + pUser->m_ui32RegHubs + pUser->m_ui32OpHubs;
-									// PPK ... kill LAM3R with fake hubs
-									if (pUser->m_ui32Hubs != 0)
-									{
-										pUser->m_ui32BoolBits &= ~User::BIT_OLDHUBSTAG;
-										reqVals++;
-										break;
-									}
-								}
-							}
-							else if (sHubsParts[1] == DCTag + szi + 1 && sHubsParts[2] == NULL)
-							{
-								DCTag[szi] = '\0';
-								pUser->m_ui32Hubs = atoi(sHubsParts[0]);
-								reqVals++;
-								pUser->m_ui32BoolBits |= User::BIT_OLDHUBSTAG;
-								break;
-							}
-							
-							pUser->SendFormat("UserParseMyInfo2", false, "<%s> %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_FAKE_TAG]);
-							
-							pUser->m_sTag[pUser->m_ui8TagLen] = '\0';
-							UdpDebug::m_Ptr->BroadcastFormat("[SYS] User %s (%s) with fake Tag disconnected: %s", pUser->m_sNick, pUser->m_sIP, pUser->m_sTag);
-							
-							//
-							// [-] FlylinkDC++ fix User JuniorSD_R166 (178.68.64.129) with fake Tag disconnected: <FlylinkDC++ V:r503-x64-19807,M ,H:0/0/0,S:15>
-
-
-							// pUser->Close();
-							// return;
-							//
-							pUser->m_ui32NormalHubs = 1; // [+]FlylinkDC++
-							if (pUser->m_ui32Hubs == 0)
-							{
-								pUser->m_ui32Hubs = 1;
-							}
-							break;
 						}
-						case 'S':
+						else if (sHubsParts[1] == DCTag + szi + 1 && sHubsParts[2] == NULL)
 						{
-							if (sTagPart[2] == '\0')
-							{
-								UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
-								return;
-							}
-							const uint16_t l_slot_len = uint16_t(strlen(sTagPart + 2));
-							if (l_slot_len > 12)
-							{
-								pUser->m_is_bad_len_number_myinfo = true;
-							}
-							if (HaveOnlyNumbers(sTagPart + 2, l_slot_len) == false)
-							{
-								UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
-								return;
-							}
-							pUser->m_ui32Slots = atoi(sTagPart + 2);
+							DCTag[szi] = '\0';
+							pUser->m_ui32Hubs = atoi(sHubsParts[0]);
 							reqVals++;
+							pUser->m_ui32BoolBits |= User::BIT_OLDHUBSTAG;
 							break;
 						}
-						case 'O':
-							if (sTagPart[2] == '\0')
-							{
-								UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
-								return;
-							}
-							if (strlen(sTagPart) > 12)
-							{
-								pUser->m_is_bad_len_number_myinfo = true;
-							}
-							pUser->m_ui32OLimit = atoi(sTagPart + 2);
-							break;
-						case 'B':
-							if (sTagPart[2] == '\0')
-							{
-								UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
-								return;
-							}
-							if (strlen(sTagPart) > 12)
-							{
-								pUser->m_is_bad_len_number_myinfo = true;
-							}
-							pUser->m_ui32LLimit = atoi(sTagPart + 2);
-							break;
-						case 'L':
-							if (sTagPart[2] == '\0')
-							{
-								UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
-								return;
-							}
-							if (strlen(sTagPart) > 12)
-							{
-								pUser->m_is_bad_len_number_myinfo = true;
-							}
-							pUser->m_ui32LLimit = atoi(sTagPart + 2);
-							break;
-						case 'D':
-							if (sTagPart[2] == '\0')
-							{
-								UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
-								return;
-							}
-							if (strlen(sTagPart) > 12)
-							{
-								pUser->m_is_bad_len_number_myinfo = true;
-							}
-							pUser->m_ui32DLimit = atoi(sTagPart + 2);
-							break;
-						default:
-							//UdpDebug::m_Ptr->BroadcastFormat("[SYS] %s (%s): Extra info in DC tag: %s", pUser->Nick, pUser->m_sIP, sTag);
-							break;
+						
+						pUser->SendFormat("UserParseMyInfo2", false, "<%s> %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_FAKE_TAG]);
+						
+						pUser->m_sTag[pUser->m_ui8TagLen] = '\0';
+						UdpDebug::m_Ptr->BroadcastFormat("[SYS] User %s (%s) with fake Tag disconnected: %s", pUser->m_sNick, pUser->m_sIP, pUser->m_sTag);
+						
+						//
+						// [-] FlylinkDC++ fix User JuniorSD_R166 (178.68.64.129) with fake Tag disconnected: <FlylinkDC++ V:r503-x64-19807,M ,H:0/0/0,S:15>
+						
+						
+						// pUser->Close();
+						// return;
+						//
+						pUser->m_ui32NormalHubs = 1; // [+]FlylinkDC++
+						if (pUser->m_ui32Hubs == 0)
+						{
+							pUser->m_ui32Hubs = 1;
+						}
+						break;
+					}
+					case 'S':
+					{
+						if (sTagPart[2] == '\0')
+						{
+							UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
+							return;
+						}
+						const uint16_t l_slot_len = uint16_t(strlen(sTagPart + 2));
+						if (l_slot_len > 12)
+						{
+							pUser->m_is_bad_len_number_myinfo = true;
+						}
+						if (HaveOnlyNumbers(sTagPart + 2, l_slot_len) == false)
+						{
+							UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
+							return;
+						}
+						pUser->m_ui32Slots = atoi(sTagPart + 2);
+						reqVals++;
+						break;
+					}
+					case 'O':
+						if (sTagPart[2] == '\0')
+						{
+							UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
+							return;
+						}
+						if (strlen(sTagPart) > 12)
+						{
+							pUser->m_is_bad_len_number_myinfo = true;
+						}
+						pUser->m_ui32OLimit = atoi(sTagPart + 2);
+						break;
+					case 'B':
+						if (sTagPart[2] == '\0')
+						{
+							UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
+							return;
+						}
+						if (strlen(sTagPart) > 12)
+						{
+							pUser->m_is_bad_len_number_myinfo = true;
+						}
+						pUser->m_ui32LLimit = atoi(sTagPart + 2);
+						break;
+					case 'L':
+						if (sTagPart[2] == '\0')
+						{
+							UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
+							return;
+						}
+						if (strlen(sTagPart) > 12)
+						{
+							pUser->m_is_bad_len_number_myinfo = true;
+						}
+						pUser->m_ui32LLimit = atoi(sTagPart + 2);
+						break;
+					case 'D':
+						if (sTagPart[2] == '\0')
+						{
+							UserSetBadTag(pUser, pUser->m_sMyInfoOriginal + (sMyINFOParts[0] - ServerManager::m_pGlobalBuffer), (uint8_t)iMyINFOPartsLen[0]);
+							return;
+						}
+						if (strlen(sTagPart) > 12)
+						{
+							pUser->m_is_bad_len_number_myinfo = true;
+						}
+						pUser->m_ui32DLimit = atoi(sTagPart + 2);
+						break;
+					default:
+						//UdpDebug::m_Ptr->BroadcastFormat("[SYS] %s (%s): Extra info in DC tag: %s", pUser->Nick, pUser->m_sIP, sTag);
+						break;
 					}
 					sTagPart = DCTag + szi + 1;
 				}
@@ -700,7 +700,7 @@ User::User() : m_ui64SharedSize(0), m_ui64ChangedSharedSizeShort(0), m_ui64Chang
 	m_ui8Country(246), m_ui8State(User::STATE_SOCKET_ACCEPTED), m_ui8IPv4Len(0),
 	m_ui8ChangedDescriptionShortLen(0), m_ui8ChangedDescriptionLongLen(0), m_ui8ChangedTagShortLen(0), m_ui8ChangedTagLongLen(0),
 	m_ui8ChangedConnectionShortLen(0), m_ui8ChangedConnectionLongLen(0), m_ui8ChangedEmailShortLen(0), m_ui8ChangedEmailLongLen(0)
-    ,m_last_recv_tick(0)
+	,m_last_recv_tick(0)
 #ifdef FLYLINKDC_USE_VERSION
 	,m_sVersion(NULL)
 #endif
@@ -901,9 +901,9 @@ bool User::DoRecv()
 #endif
 		UdpDebug::m_Ptr->BroadcastFormat("[ERR] %s (%s): ioctlsocket(FIONREAD) error %s (%d). User is being closed.", m_sNick, m_sIP,
 #ifdef _WIN32
-		                                   WSErrorStr(iError), iError);
+		                                 WSErrorStr(iError), iError);
 #else
-		                                   ErrnoStr(errno), errno);
+		                                 ErrnoStr(errno), errno);
 #endif
 		m_ui32BoolBits |= BIT_ERROR;
 		Close();
@@ -1038,9 +1038,9 @@ bool User::DoRecv()
 #endif
 			UdpDebug::m_Ptr->BroadcastFormat("[ERR] %s (%s): recv() error %s (%d). User is being closed.", m_sNick, m_sIP,
 #ifdef _WIN32
-			                                   WSErrorStr(iError), iError);
+			                                 WSErrorStr(iError), iError);
 #else
-			                                   ErrnoStr(errno), errno);
+			                                 ErrnoStr(errno), errno);
 #endif
 			m_ui32BoolBits |= BIT_ERROR;
 			Close();
@@ -1422,13 +1422,13 @@ bool User::PutInSendBuf(const char * sText, const size_t szTxtLen)
 						Close();
 						
 						UdpDebug::m_Ptr->BroadcastFormat("[SYS] %s (%s) SendBuffer overflow (AL:%" PRIu64 "[SL:%u|NL:%" PRIu64 "|FL:%" PRIu64 "]/ML:%" PRIu64 "). User disconnected.",
-							m_sNick, m_sIP, (uint64_t)szAllignLen, m_ui32SendBufDataLen, (uint64_t)szTxtLen, (uint64_t)(m_pSendBufHead - m_pSendBuf), (uint64_t)szMaxBufLen);
+						                                 m_sNick, m_sIP, (uint64_t)szAllignLen, m_ui32SendBufDataLen, (uint64_t)szTxtLen, (uint64_t)(m_pSendBufHead - m_pSendBuf), (uint64_t)szMaxBufLen);
 						return false;
 					}
 					else
 					{
 						UdpDebug::m_Ptr->BroadcastFormat("[SYS] %s (%s) SendBuffer overflow (AL:%" PRIu64 "[SL:%u|NL:%" PRIu64 "|FL:%" PRIu64 "]/ML:%" PRIu64 "). Buffer cleared - user stays online.",
-							m_sNick, m_sIP, (uint64_t)szAllignLen, m_ui32SendBufDataLen, (uint64_t)szTxtLen, (uint64_t)(m_pSendBufHead - m_pSendBuf), (uint64_t)szMaxBufLen);
+						                                 m_sNick, m_sIP, (uint64_t)szAllignLen, m_ui32SendBufDataLen, (uint64_t)szTxtLen, (uint64_t)(m_pSendBufHead - m_pSendBuf), (uint64_t)szMaxBufLen);
 					}
 					
 					// we want to keep the slow user online
@@ -1585,9 +1585,9 @@ bool User::Try2Send()
 #endif
 			UdpDebug::m_Ptr->BroadcastFormat("[ERR] %s (%s): send() error %s (%d). User is being closed.", m_sNick, m_sIP,
 #ifdef _WIN32
-			                                   WSErrorStr(iError), iError);
+			                                 WSErrorStr(iError), iError);
 #else
-			                                   ErrnoStr(errno), errno);
+			                                 ErrnoStr(errno), errno);
 #endif
 			m_ui32BoolBits |= BIT_ERROR;
 			Close();
@@ -2132,28 +2132,28 @@ void User::Add2Userlist()
 	
 	switch (SettingManager::m_Ptr->m_ui8FullMyINFOOption)
 	{
-		case 0:
-		{
-			GenerateMyInfoLong();
-			Users::m_Ptr->Add2MyInfosTag(this);
-			return;
-		}
-		case 1:
-		{
-			GenerateMyInfoLong();
-			Users::m_Ptr->Add2MyInfosTag(this);
-			GenerateMyInfoShort();
-			Users::m_Ptr->Add2MyInfos(this);
-			return;
-		}
-		case 2:
-		{
-			GenerateMyInfoShort();
-			Users::m_Ptr->Add2MyInfos(this);
-			return;
-		}
-		default:
-			break;
+	case 0:
+	{
+		GenerateMyInfoLong();
+		Users::m_Ptr->Add2MyInfosTag(this);
+		return;
+	}
+	case 1:
+	{
+		GenerateMyInfoLong();
+		Users::m_Ptr->Add2MyInfosTag(this);
+		GenerateMyInfoShort();
+		Users::m_Ptr->Add2MyInfos(this);
+		return;
+	}
+	case 2:
+	{
+		GenerateMyInfoShort();
+		Users::m_Ptr->Add2MyInfos(this);
+		return;
+	}
+	default:
+		break;
 	}
 }
 //------------------------------------------------------------------------------
@@ -2177,7 +2177,7 @@ void User::AddUserList()
 				if (Users::m_Ptr->m_ui32ZNickListLen == 0)
 				{
 					Users::m_Ptr->m_pZNickList = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pNickList, Users::m_Ptr->m_ui32NickListLen, Users::m_Ptr->m_pZNickList,
-					                                                                    Users::m_Ptr->m_ui32ZNickListLen, Users::m_Ptr->m_ui32ZNickListSize);
+					                                                                  Users::m_Ptr->m_ui32ZNickListLen, Users::m_Ptr->m_ui32ZNickListSize);
 					if (Users::m_Ptr->m_ui32ZNickListLen == 0)
 					{
 						SendCharDelayed(Users::m_Ptr->m_pNickList, Users::m_Ptr->m_ui32NickListLen);
@@ -2229,36 +2229,30 @@ void User::AddUserList()
 	
 	switch (SettingManager::m_Ptr->m_ui8FullMyINFOOption)
 	{
-		case 0:
-		{
+	case 0:
+	{
 #ifdef USE_FLYLINKDC_EXT_JSON
-			// TODO ExtJSON - ZPipe
-			SendCharDelayedExtJSON();
+		// TODO ExtJSON - ZPipe
+		SendCharDelayedExtJSON();
 #endif
-			if (Users::m_Ptr->m_ui32MyInfosTagLen == 0)
+		if (Users::m_Ptr->m_ui32MyInfosTagLen == 0)
+		{
+			break;
+		}
+		
+		if (isSupportZpipe() == false)
+		{
+			SendCharDelayed(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen);
+		}
+		else
+		{
+			if (Users::m_Ptr->m_ui32ZMyInfosTagLen == 0)
 			{
-				break;
-			}
-			
-			if (isSupportZpipe() == false)
-			{
-				SendCharDelayed(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen);
-			}
-			else
-			{
+				Users::m_Ptr->m_pZMyInfosTag = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen, Users::m_Ptr->m_pZMyInfosTag,
+				                                                                    Users::m_Ptr->m_ui32ZMyInfosTagLen, Users::m_Ptr->m_ui32ZMyInfosTagSize);
 				if (Users::m_Ptr->m_ui32ZMyInfosTagLen == 0)
 				{
-					Users::m_Ptr->m_pZMyInfosTag = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen, Users::m_Ptr->m_pZMyInfosTag,
-					                                                                      Users::m_Ptr->m_ui32ZMyInfosTagLen, Users::m_Ptr->m_ui32ZMyInfosTagSize);
-					if (Users::m_Ptr->m_ui32ZMyInfosTagLen == 0)
-					{
-						SendCharDelayed(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen);
-					}
-					else
-					{
-						PutInSendBuf(Users::m_Ptr->m_pZMyInfosTag, Users::m_Ptr->m_ui32ZMyInfosTagLen);
-						ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosTagLen - Users::m_Ptr->m_ui32ZMyInfosTagLen;
-					}
+					SendCharDelayed(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen);
 				}
 				else
 				{
@@ -2266,94 +2260,23 @@ void User::AddUserList()
 					ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosTagLen - Users::m_Ptr->m_ui32ZMyInfosTagLen;
 				}
 			}
-			break;
-		}
-		case 1:
-		{
-#ifdef USE_FLYLINKDC_EXT_JSON
-			// TODO ExtJSON - ZPipe
-			// ExtJSON Step reconnect - 1
-			SendCharDelayedExtJSON();
-#endif
-			if (ProfileManager::m_Ptr->IsAllowed(this, ProfileManager::SENDFULLMYINFOS) == false)
-			{
-				if (Users::m_Ptr->m_ui32MyInfosLen == 0)
-				{
-					break;
-				}
-				
-				if (isSupportZpipe() == false)
-				{
-					SendCharDelayed(Users::m_Ptr->m_pMyInfos, Users::m_Ptr->m_ui32MyInfosLen);
-				}
-				else
-				{
-					if (Users::m_Ptr->m_ui32ZMyInfosLen == 0)
-					{
-						Users::m_Ptr->m_pZMyInfos = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pMyInfos, Users::m_Ptr->m_ui32MyInfosLen, Users::m_Ptr->m_pZMyInfos,
-						                                                                   Users::m_Ptr->m_ui32ZMyInfosLen, Users::m_Ptr->m_ui32ZMyInfosSize);
-						if (Users::m_Ptr->m_ui32ZMyInfosLen == 0)
-						{
-							SendCharDelayed(Users::m_Ptr->m_pMyInfos, Users::m_Ptr->m_ui32MyInfosLen);
-						}
-						else
-						{
-							PutInSendBuf(Users::m_Ptr->m_pZMyInfos, Users::m_Ptr->m_ui32ZMyInfosLen);
-							ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosLen - Users::m_Ptr->m_ui32ZMyInfosLen;
-						}
-					}
-					else
-					{
-						PutInSendBuf(Users::m_Ptr->m_pZMyInfos, Users::m_Ptr->m_ui32ZMyInfosLen);
-						ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosLen - Users::m_Ptr->m_ui32ZMyInfosLen;
-					}
-				}
-			}
 			else
 			{
-			
-#ifdef USE_FLYLINKDC_EXT_JSON
-				// TODO ExtJSON
-#endif
-				if (Users::m_Ptr->m_ui32MyInfosTagLen == 0)
-				{
-					break;
-				}
-				if (isSupportZpipe() == false)
-				{
-					SendCharDelayed(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen);
-				}
-				else
-				{
-					if (Users::m_Ptr->m_ui32ZMyInfosTagLen == 0)
-					{
-						Users::m_Ptr->m_pZMyInfosTag = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen, Users::m_Ptr->m_pZMyInfosTag,
-						                                                                      Users::m_Ptr->m_ui32ZMyInfosTagLen, Users::m_Ptr->m_ui32ZMyInfosTagSize);
-						if (Users::m_Ptr->m_ui32ZMyInfosTagLen == 0)
-						{
-							SendCharDelayed(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen);
-						}
-						else
-						{
-							PutInSendBuf(Users::m_Ptr->m_pZMyInfosTag, Users::m_Ptr->m_ui32ZMyInfosTagLen);
-							ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosTagLen - Users::m_Ptr->m_ui32ZMyInfosTagLen;
-						}
-					}
-					else
-					{
-						PutInSendBuf(Users::m_Ptr->m_pZMyInfosTag, Users::m_Ptr->m_ui32ZMyInfosTagLen);
-						ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosTagLen - Users::m_Ptr->m_ui32ZMyInfosTagLen;
-					}
-				}
+				PutInSendBuf(Users::m_Ptr->m_pZMyInfosTag, Users::m_Ptr->m_ui32ZMyInfosTagLen);
+				ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosTagLen - Users::m_Ptr->m_ui32ZMyInfosTagLen;
 			}
-			break;
 		}
-		case 2:
-		{
+		break;
+	}
+	case 1:
+	{
 #ifdef USE_FLYLINKDC_EXT_JSON
-			// TODO ExtJSON ZPipe
-			SendCharDelayedExtJSON();
+		// TODO ExtJSON - ZPipe
+		// ExtJSON Step reconnect - 1
+		SendCharDelayedExtJSON();
 #endif
+		if (ProfileManager::m_Ptr->IsAllowed(this, ProfileManager::SENDFULLMYINFOS) == false)
+		{
 			if (Users::m_Ptr->m_ui32MyInfosLen == 0)
 			{
 				break;
@@ -2368,7 +2291,7 @@ void User::AddUserList()
 				if (Users::m_Ptr->m_ui32ZMyInfosLen == 0)
 				{
 					Users::m_Ptr->m_pZMyInfos = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pMyInfos, Users::m_Ptr->m_ui32MyInfosLen, Users::m_Ptr->m_pZMyInfos,
-					                                                                   Users::m_Ptr->m_ui32ZMyInfosLen, Users::m_Ptr->m_ui32ZMyInfosSize);
+					                                                                 Users::m_Ptr->m_ui32ZMyInfosLen, Users::m_Ptr->m_ui32ZMyInfosSize);
 					if (Users::m_Ptr->m_ui32ZMyInfosLen == 0)
 					{
 						SendCharDelayed(Users::m_Ptr->m_pMyInfos, Users::m_Ptr->m_ui32MyInfosLen);
@@ -2386,8 +2309,85 @@ void User::AddUserList()
 				}
 			}
 		}
-		default:
+		else
+		{
+		
+#ifdef USE_FLYLINKDC_EXT_JSON
+			// TODO ExtJSON
+#endif
+			if (Users::m_Ptr->m_ui32MyInfosTagLen == 0)
+			{
+				break;
+			}
+			if (isSupportZpipe() == false)
+			{
+				SendCharDelayed(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen);
+			}
+			else
+			{
+				if (Users::m_Ptr->m_ui32ZMyInfosTagLen == 0)
+				{
+					Users::m_Ptr->m_pZMyInfosTag = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen, Users::m_Ptr->m_pZMyInfosTag,
+					                                                                    Users::m_Ptr->m_ui32ZMyInfosTagLen, Users::m_Ptr->m_ui32ZMyInfosTagSize);
+					if (Users::m_Ptr->m_ui32ZMyInfosTagLen == 0)
+					{
+						SendCharDelayed(Users::m_Ptr->m_pMyInfosTag, Users::m_Ptr->m_ui32MyInfosTagLen);
+					}
+					else
+					{
+						PutInSendBuf(Users::m_Ptr->m_pZMyInfosTag, Users::m_Ptr->m_ui32ZMyInfosTagLen);
+						ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosTagLen - Users::m_Ptr->m_ui32ZMyInfosTagLen;
+					}
+				}
+				else
+				{
+					PutInSendBuf(Users::m_Ptr->m_pZMyInfosTag, Users::m_Ptr->m_ui32ZMyInfosTagLen);
+					ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosTagLen - Users::m_Ptr->m_ui32ZMyInfosTagLen;
+				}
+			}
+		}
+		break;
+	}
+	case 2:
+	{
+#ifdef USE_FLYLINKDC_EXT_JSON
+		// TODO ExtJSON ZPipe
+		SendCharDelayedExtJSON();
+#endif
+		if (Users::m_Ptr->m_ui32MyInfosLen == 0)
+		{
 			break;
+		}
+		
+		if (isSupportZpipe() == false)
+		{
+			SendCharDelayed(Users::m_Ptr->m_pMyInfos, Users::m_Ptr->m_ui32MyInfosLen);
+		}
+		else
+		{
+			if (Users::m_Ptr->m_ui32ZMyInfosLen == 0)
+			{
+				Users::m_Ptr->m_pZMyInfos = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pMyInfos, Users::m_Ptr->m_ui32MyInfosLen, Users::m_Ptr->m_pZMyInfos,
+				                                                                 Users::m_Ptr->m_ui32ZMyInfosLen, Users::m_Ptr->m_ui32ZMyInfosSize);
+				if (Users::m_Ptr->m_ui32ZMyInfosLen == 0)
+				{
+					SendCharDelayed(Users::m_Ptr->m_pMyInfos, Users::m_Ptr->m_ui32MyInfosLen);
+				}
+				else
+				{
+					PutInSendBuf(Users::m_Ptr->m_pZMyInfos, Users::m_Ptr->m_ui32ZMyInfosLen);
+					ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosLen - Users::m_Ptr->m_ui32ZMyInfosLen;
+				}
+			}
+			else
+			{
+				PutInSendBuf(Users::m_Ptr->m_pZMyInfos, Users::m_Ptr->m_ui32ZMyInfosLen);
+				ServerManager::m_ui64BytesSentSaved += Users::m_Ptr->m_ui32MyInfosLen - Users::m_Ptr->m_ui32ZMyInfosLen;
+			}
+		}
+	}
+	default:
+		break;
 	}
 	
 	if (ProfileManager::m_Ptr->IsAllowed(this, ProfileManager::ALLOWEDOPCHAT) == false || (SettingManager::m_Ptr->m_bBools[SETBOOL_REG_OP_CHAT] == false ||
@@ -2404,7 +2404,7 @@ void User::AddUserList()
 				if (Users::m_Ptr->m_ui32ZOpListLen == 0)
 				{
 					Users::m_Ptr->m_pZOpList = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pOpList, Users::m_Ptr->m_ui32OpListLen, Users::m_Ptr->m_pZOpList,
-					                                                                  Users::m_Ptr->m_ui32ZOpListLen, Users::m_Ptr->m_ui32ZOpListSize);
+					                                                                Users::m_Ptr->m_ui32ZOpListLen, Users::m_Ptr->m_ui32ZOpListSize);
 					if (Users::m_Ptr->m_ui32ZOpListLen == 0)
 					{
 						SendCharDelayed(Users::m_Ptr->m_pOpList, Users::m_Ptr->m_ui32OpListLen);
@@ -2469,7 +2469,7 @@ void User::AddUserList()
 				if (Users::m_Ptr->m_ui32ZUserIPListLen == 0)
 				{
 					Users::m_Ptr->m_pZUserIPList = ZlibUtility::m_Ptr->CreateZPipeAlign(Users::m_Ptr->m_pUserIPList, Users::m_Ptr->m_ui32UserIPListLen, Users::m_Ptr->m_pZUserIPList,
-					                                                                      Users::m_Ptr->m_ui32ZUserIPListLen, Users::m_Ptr->m_ui32ZUserIPListSize);
+					                                                                    Users::m_Ptr->m_ui32ZUserIPListLen, Users::m_Ptr->m_ui32ZUserIPListSize);
 					if (Users::m_Ptr->m_ui32ZUserIPListLen == 0)
 					{
 						SendCharDelayed(Users::m_Ptr->m_pUserIPList, Users::m_Ptr->m_ui32UserIPListLen);
@@ -2512,7 +2512,7 @@ bool User::GenerateMyInfoLong()   // true == changed
 		if (((m_ui32InfoBits & INFOBIT_DESCRIPTION_LONG_PERM) == INFOBIT_DESCRIPTION_LONG_PERM) == false)
 		{
 			User::FreeInfo(m_sChangedDescriptionLong, m_ui8ChangedDescriptionLongLen);
-            m_ui8ChangedDescriptionLongLen = 0;
+			m_ui8ChangedDescriptionLongLen = 0;
 		}
 	}
 	else if (m_sDescription != NULL)

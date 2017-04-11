@@ -44,82 +44,82 @@ LRESULT SettingPageGeneral::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lPa
 	{
 		switch (LOWORD(wParam))
 		{
-			case EDT_HUB_NAME:
-			case EDT_HUB_TOPIC:
-			case EDT_HUB_DESCRIPTION:
-			case EDT_HUB_ADDRESS:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					RemoveDollarsPipes((HWND)lParam);
-					
-					return 0;
-				}
+		case EDT_HUB_NAME:
+		case EDT_HUB_TOPIC:
+		case EDT_HUB_DESCRIPTION:
+		case EDT_HUB_ADDRESS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				RemoveDollarsPipes((HWND)lParam);
 				
-				break;
-			case EDT_TCP_PORTS:
-				if (HIWORD(wParam) == EN_CHANGE)
+				return 0;
+			}
+			
+			break;
+		case EDT_TCP_PORTS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				char buf[65];
+				::GetWindowText((HWND)lParam, buf, 65);
+				
+				bool bChanged = false;
+				
+				for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
 				{
-					char buf[65];
-					::GetWindowText((HWND)lParam, buf, 65);
-					
-					bool bChanged = false;
-					
-					for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
+					if (isdigit(buf[ui16i]) == 0 && buf[ui16i] != ';')
 					{
-						if (isdigit(buf[ui16i]) == 0 && buf[ui16i] != ';')
-						{
-							strcpy(buf + ui16i, buf + ui16i + 1);
-							bChanged = true;
-							ui16i--;
-						}
+						strcpy(buf + ui16i, buf + ui16i + 1);
+						bChanged = true;
+						ui16i--;
 					}
-					
-					if (bChanged == true)
-					{
-						int iStart, iEnd;
-						
-						::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
-						
-						::SetWindowText((HWND)lParam, buf);
-						
-						::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
-					}
-					
-					return 0;
 				}
 				
-				break;
-			case EDT_UDP_PORT:
-				if (HIWORD(wParam) == EN_CHANGE)
+				if (bChanged == true)
 				{
-					MinMaxCheck((HWND)lParam, 0, 65535);
+					int iStart, iEnd;
 					
-					return 0;
-				}
-				
-				break;
-			case EDT_MAX_USERS:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 32767);
+					::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
 					
-					return 0;
+					::SetWindowText((HWND)lParam, buf);
+					
+					::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
 				}
 				
-				break;
-			case BTN_RESOLVE_ADDRESS:
-				if (HIWORD(wParam) == BN_CLICKED)
-				{
-					BOOL bEnable = ::SendMessage(hWndPageItems[BTN_RESOLVE_ADDRESS], BM_GETCHECK, 0, 0) == BST_CHECKED ? FALSE : TRUE;
-					::SetWindowText(hWndPageItems[EDT_IPV4_ADDRESS], bEnable == FALSE ? clsServerManager::sHubIP :
-					                (clsSettingManager::mPtr->sTexts[SETTXT_IPV4_ADDRESS] != NULL ? clsSettingManager::mPtr->sTexts[SETTXT_IPV4_ADDRESS] : ""));
-					::EnableWindow(hWndPageItems[EDT_IPV4_ADDRESS], bEnable);
-					::SetWindowText(hWndPageItems[EDT_IPV6_ADDRESS], bEnable == FALSE ? clsServerManager::sHubIP6 :
-					                (clsSettingManager::mPtr->sTexts[SETTXT_IPV6_ADDRESS] != NULL ? clsSettingManager::mPtr->sTexts[SETTXT_IPV6_ADDRESS] : ""));
-					::EnableWindow(hWndPageItems[EDT_IPV6_ADDRESS], bEnable);
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_UDP_PORT:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 65535);
 				
-				break;
+				return 0;
+			}
+			
+			break;
+		case EDT_MAX_USERS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 32767);
+				
+				return 0;
+			}
+			
+			break;
+		case BTN_RESOLVE_ADDRESS:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				BOOL bEnable = ::SendMessage(hWndPageItems[BTN_RESOLVE_ADDRESS], BM_GETCHECK, 0, 0) == BST_CHECKED ? FALSE : TRUE;
+				::SetWindowText(hWndPageItems[EDT_IPV4_ADDRESS], bEnable == FALSE ? clsServerManager::sHubIP :
+				                (clsSettingManager::mPtr->sTexts[SETTXT_IPV4_ADDRESS] != NULL ? clsSettingManager::mPtr->sTexts[SETTXT_IPV4_ADDRESS] : ""));
+				::EnableWindow(hWndPageItems[EDT_IPV4_ADDRESS], bEnable);
+				::SetWindowText(hWndPageItems[EDT_IPV6_ADDRESS], bEnable == FALSE ? clsServerManager::sHubIP6 :
+				                (clsSettingManager::mPtr->sTexts[SETTXT_IPV6_ADDRESS] != NULL ? clsSettingManager::mPtr->sTexts[SETTXT_IPV6_ADDRESS] : ""));
+				::EnableWindow(hWndPageItems[EDT_IPV6_ADDRESS], bEnable);
+			}
+			
+			break;
 		}
 	}
 	

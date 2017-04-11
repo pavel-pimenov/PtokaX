@@ -106,7 +106,7 @@ DcCommands::~DcCommands()
 // Process DC data form User
 void DcCommands::PreProcessData(DcCommand * pDcCommand)
 {
-	bool bCheck = true; // TODO 
+	bool bCheck = true; // TODO
 #ifdef _BUILD_GUI
 	// Full raw data trace for better logging
 	if (::SendMessage(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -133,226 +133,279 @@ void DcCommands::PreProcessData(DcCommand * pDcCommand)
 	
 	switch (pDcCommand->m_pUser->m_ui8State)
 	{
-		case User::STATE_SOCKET_ACCEPTED:
-			if (pDcCommand->m_sCommand[0] == '$')
+	case User::STATE_SOCKET_ACCEPTED:
+		if (pDcCommand->m_sCommand[0] == '$')
+		{
+			if (memcmp(pDcCommand->m_sCommand + 1, "MyNick ", 7) == 0)
 			{
-				if (memcmp(pDcCommand->m_sCommand + 1, "MyNick ", 7) == 0)
-				{
-					MyNick(pDcCommand);
-					return;
-				}
+				MyNick(pDcCommand);
+				return;
 			}
-			break;
-		case User::STATE_KEY_OR_SUP:
-			if (pDcCommand->m_sCommand[0] == '$')
+		}
+		break;
+	case User::STATE_KEY_OR_SUP:
+		if (pDcCommand->m_sCommand[0] == '$')
+		{
+			if (memcmp(pDcCommand->m_sCommand + 1, "Supports ", 9) == 0)
 			{
-				if (memcmp(pDcCommand->m_sCommand + 1, "Supports ", 9) == 0)
-				{
-					m_ui32StatCmdSupports++;
-					Supports(pDcCommand);
-					return;
-				}
-				else if (*((uint32_t *)(pDcCommand->m_sCommand + 1)) == *((uint32_t *)"Key "))
+				m_ui32StatCmdSupports++;
+				Supports(pDcCommand);
+				return;
+			}
+			else if (*((uint32_t *)(pDcCommand->m_sCommand + 1)) == *((uint32_t *)"Key "))
+			{
+				m_ui32StatCmdKey++;
+				Key(pDcCommand);
+				return;
+			}
+			else if (memcmp(pDcCommand->m_sCommand + 1, "MyNick ", 7) == 0)
+			{
+				MyNick(pDcCommand);
+				return;
+			}
+		}
+		break;
+	case User::STATE_VALIDATE:
+	{
+		if (pDcCommand->m_sCommand[0] == '$')
+		{
+			switch (pDcCommand->m_sCommand[1])
+			{
+			case 'K':
+				if (memcmp(pDcCommand->m_sCommand + 2, "ey ", 3) == 0)
 				{
 					m_ui32StatCmdKey++;
-					Key(pDcCommand);
+					if (((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_HAVE_SUPPORTS) == User::BIT_HAVE_SUPPORTS) == false)
+					{
+						Key(pDcCommand);
+					}
+					else
+					{
+						pDcCommand->m_pUser->FreeBuffer();
+					}
+					
 					return;
 				}
-				else if (memcmp(pDcCommand->m_sCommand + 1, "MyNick ", 7) == 0)
+				break;
+			case 'V':
+				if (memcmp(pDcCommand->m_sCommand + 2, "alidateNick ", 12) == 0)
 				{
-					MyNick(pDcCommand);
+					m_ui32StatCmdValidate++;
+					ValidateNick(pDcCommand);
 					return;
 				}
-			}
-			break;
-		case User::STATE_VALIDATE:
-		{
-			if (pDcCommand->m_sCommand[0] == '$')
-			{
-				switch (pDcCommand->m_sCommand[1])
-				{
-					case 'K':
-						if (memcmp(pDcCommand->m_sCommand + 2, "ey ", 3) == 0)
-						{
-							m_ui32StatCmdKey++;
-							if (((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_HAVE_SUPPORTS) == User::BIT_HAVE_SUPPORTS) == false)
-							{
-								Key(pDcCommand);
-							}
-							else
-							{
-								pDcCommand->m_pUser->FreeBuffer();
-							}
-							
-							return;
-						}
-						break;
-					case 'V':
-						if (memcmp(pDcCommand->m_sCommand + 2, "alidateNick ", 12) == 0)
-						{
-							m_ui32StatCmdValidate++;
-							ValidateNick(pDcCommand);
-							return;
-						}
-						break;
+				break;
 #ifdef USE_FLYLINKDC_EXT_JSON
-					case 'E':
-						if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
-						{
-							m_iStatCmdExtJSON++;
-						}
-						break;
+			case 'E':
+				if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
+				{
+					m_iStatCmdExtJSON++;
+				}
+				break;
 #endif // USE_FLYLINKDC_EXT_JSON
+				
+			case 'M':
+				if (memcmp(pDcCommand->m_sCommand + 2, "yINFO $ALL ", 11) == 0)
+				{
+					m_ui32StatCmdMyInfo++;
+					if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false)
+					{
+						// bad state
+						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MyINFO %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
 						
-					case 'M':
-						if (memcmp(pDcCommand->m_sCommand + 2, "yINFO $ALL ", 11) == 0)
-						{
-							m_ui32StatCmdMyInfo++;
-							if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false)
-							{
-								// bad state
-								UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MyINFO %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-								
-								pDcCommand->m_pUser->Close();
-								return;
-							}
-							
-							if (MyINFODeflood(pDcCommand) == false)
-							{
-								return;
-							}
-							
-							// PPK [ Strikes back ;) ] ... get nick from MyINFO
-							char *cTemp;
-							if ((cTemp = strchr(pDcCommand->m_sCommand + 13, ' ')) == NULL)
-							{
-								UdpDebug::m_Ptr->BroadcastFormat("[SYS] Attempt to validate empty nick  from %s (%s) - user closed. (QuickList -> %s)", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP, pDcCommand->m_sCommand);
-								
-								pDcCommand->m_pUser->Close();
-								return;
-							}
-							// PPK ... one null please :)
-							cTemp[0] = '\0';
-							
-							if (ValidateUserNick(pDcCommand, pDcCommand->m_pUser, pDcCommand->m_sCommand + 13, (cTemp - pDcCommand->m_sCommand) - 13, false) == false) return;
-							
-							cTemp[0] = ' ';
-							
-							// 1st time MyINFO, user is being added to nicklist
-							if (MyINFO(pDcCommand) == false || (pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_WAITING_FOR_PASS) == User::BIT_WAITING_FOR_PASS ||
-							        ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
-								return;
-								
-							pDcCommand->m_pUser->AddMeOrIPv4Check();
-							
-							return;
-						}
-						break;
-					case 'G':
-						if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 2, "etNickList", 10) == 0)
-						{
-							m_ui32StatCmdGetNickList++;
-							if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false &&
-							        ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == false)
-							{
-								// bad state
-								UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $GetNickList %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-								
-								pDcCommand->m_pUser->Close();
-								return;
-							}
-							GetNickList(pDcCommand);
-							return;
-						}
-						break;
-					default:
-						break;
+						pDcCommand->m_pUser->Close();
+						return;
+					}
+					
+					if (MyINFODeflood(pDcCommand) == false)
+					{
+						return;
+					}
+					
+					// PPK [ Strikes back ;) ] ... get nick from MyINFO
+					char *cTemp;
+					if ((cTemp = strchr(pDcCommand->m_sCommand + 13, ' ')) == NULL)
+					{
+						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Attempt to validate empty nick  from %s (%s) - user closed. (QuickList -> %s)", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP, pDcCommand->m_sCommand);
+						
+						pDcCommand->m_pUser->Close();
+						return;
+					}
+					// PPK ... one null please :)
+					cTemp[0] = '\0';
+					
+					if (ValidateUserNick(pDcCommand, pDcCommand->m_pUser, pDcCommand->m_sCommand + 13, (cTemp - pDcCommand->m_sCommand) - 13, false) == false) return;
+					
+					cTemp[0] = ' ';
+					
+					// 1st time MyINFO, user is being added to nicklist
+					if (MyINFO(pDcCommand) == false || (pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_WAITING_FOR_PASS) == User::BIT_WAITING_FOR_PASS ||
+					        ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
+						return;
+						
+					pDcCommand->m_pUser->AddMeOrIPv4Check();
+					
+					return;
 				}
-			}
-			break;
-		}
-		case User::STATE_VERSION_OR_MYPASS:
-		{
-			if (pDcCommand->m_sCommand[0] == '$')
-			{
-				switch (pDcCommand->m_sCommand[1])
+				break;
+			case 'G':
+				if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 2, "etNickList", 10) == 0)
 				{
-					case 'V':
-						if (memcmp(pDcCommand->m_sCommand + 2, "ersion ", 7) == 0)
-						{
-							m_ui32StatCmdVersion++;
-							Version(pDcCommand);
-							return;
-						}
-						break;
-					case 'G':
-						if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 2, "etNickList", 10) == 0)
-						{
-							m_ui32StatCmdGetNickList++;
-							if (GetNickList(pDcCommand) == true && ((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false)
-							{
-								pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_GETNICKLIST;
-							}
-							return;
-						}
-						break;
-#ifdef USE_FLYLINKDC_EXT_JSON
-					case 'E':
-						if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
-						{
-							m_iStatCmdExtJSON++;
-						}
-						break;
-#endif // USE_FLYLINKDC_EXT_JSON
-					case 'M':
-						if (pDcCommand->m_sCommand[2] == 'y')
-						{
-							if (memcmp(pDcCommand->m_sCommand + 3, "INFO $ALL ", 10) == 0)
-							{
-								m_ui32StatCmdMyInfo++;
-								if (MyINFODeflood(pDcCommand) == false)
-								{
-									return;
-								}
-								
-								// Am I sending MyINFO of someone other ?
-								// OR i try to fuck up hub with some chars after my nick ??? ... PPK
-								if ((pDcCommand->m_sCommand[13 + pDcCommand->m_pUser->m_ui8NickLen] != ' ') || (memcmp(pDcCommand->m_pUser->m_sNick, pDcCommand->m_sCommand + 13, pDcCommand->m_pUser->m_ui8NickLen) != 0))
-								{
-									UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick spoofing in myinfo from %s (%s) - user closed. (%s)", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP, pDcCommand->m_sCommand);
-									
-									pDcCommand->m_pUser->Close();
-									return;
-								}
-								
-								if (MyINFO(pDcCommand) == false || (pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_WAITING_FOR_PASS) == User::BIT_WAITING_FOR_PASS || ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
-								{
-									return;
-								}
-								
-								pDcCommand->m_pUser->AddMeOrIPv4Check();
-								
-								return;
-							}
-							else if (memcmp(pDcCommand->m_sCommand + 3, "Pass ", 5) == 0)
-							{
-								m_ui32StatCmdMyPass++;
-								MyPass(pDcCommand);
-								return;
-							}
-						}
-						break;
-					default:
-						break;
+					m_ui32StatCmdGetNickList++;
+					if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false &&
+					        ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == false)
+					{
+						// bad state
+						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $GetNickList %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+						
+						pDcCommand->m_pUser->Close();
+						return;
+					}
+					GetNickList(pDcCommand);
+					return;
 				}
+				break;
+			default:
+				break;
 			}
-			break;
 		}
-		case User::STATE_GETNICKLIST_OR_MYINFO:
+		break;
+	}
+	case User::STATE_VERSION_OR_MYPASS:
+	{
+		if (pDcCommand->m_sCommand[0] == '$')
 		{
-			if (pDcCommand->m_sCommand[0] == '$')
+			switch (pDcCommand->m_sCommand[1])
 			{
-				if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 1, "GetNickList", 11) == 0)
+			case 'V':
+				if (memcmp(pDcCommand->m_sCommand + 2, "ersion ", 7) == 0)
+				{
+					m_ui32StatCmdVersion++;
+					Version(pDcCommand);
+					return;
+				}
+				break;
+			case 'G':
+				if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 2, "etNickList", 10) == 0)
+				{
+					m_ui32StatCmdGetNickList++;
+					if (GetNickList(pDcCommand) == true && ((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false)
+					{
+						pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_GETNICKLIST;
+					}
+					return;
+				}
+				break;
+#ifdef USE_FLYLINKDC_EXT_JSON
+			case 'E':
+				if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
+				{
+					m_iStatCmdExtJSON++;
+				}
+				break;
+#endif // USE_FLYLINKDC_EXT_JSON
+			case 'M':
+				if (pDcCommand->m_sCommand[2] == 'y')
+				{
+					if (memcmp(pDcCommand->m_sCommand + 3, "INFO $ALL ", 10) == 0)
+					{
+						m_ui32StatCmdMyInfo++;
+						if (MyINFODeflood(pDcCommand) == false)
+						{
+							return;
+						}
+						
+						// Am I sending MyINFO of someone other ?
+						// OR i try to fuck up hub with some chars after my nick ??? ... PPK
+						if ((pDcCommand->m_sCommand[13 + pDcCommand->m_pUser->m_ui8NickLen] != ' ') || (memcmp(pDcCommand->m_pUser->m_sNick, pDcCommand->m_sCommand + 13, pDcCommand->m_pUser->m_ui8NickLen) != 0))
+						{
+							UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick spoofing in myinfo from %s (%s) - user closed. (%s)", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP, pDcCommand->m_sCommand);
+							
+							pDcCommand->m_pUser->Close();
+							return;
+						}
+						
+						if (MyINFO(pDcCommand) == false || (pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_WAITING_FOR_PASS) == User::BIT_WAITING_FOR_PASS || ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
+						{
+							return;
+						}
+						
+						pDcCommand->m_pUser->AddMeOrIPv4Check();
+						
+						return;
+					}
+					else if (memcmp(pDcCommand->m_sCommand + 3, "Pass ", 5) == 0)
+					{
+						m_ui32StatCmdMyPass++;
+						MyPass(pDcCommand);
+						return;
+					}
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		break;
+	}
+	case User::STATE_GETNICKLIST_OR_MYINFO:
+	{
+		if (pDcCommand->m_sCommand[0] == '$')
+		{
+			if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 1, "GetNickList", 11) == 0)
+			{
+				m_ui32StatCmdGetNickList++;
+				if (GetNickList(pDcCommand) == true)
+				{
+					pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_GETNICKLIST;
+				}
+				return;
+			}
+			else if (memcmp(pDcCommand->m_sCommand + 1, "MyINFO $ALL ", 12) == 0)
+			{
+				m_ui32StatCmdMyInfo++;
+				if (MyINFODeflood(pDcCommand) == false)
+				{
+					return;
+				}
+				
+				// Am I sending MyINFO of someone other ?
+				// OR i try to fuck up hub with some chars after my nick ??? ... PPK
+				if ((pDcCommand->m_sCommand[13 + pDcCommand->m_pUser->m_ui8NickLen] != ' ') || (memcmp(pDcCommand->m_pUser->m_sNick, pDcCommand->m_sCommand + 13, pDcCommand->m_pUser->m_ui8NickLen) != 0))
+				{
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick spoofing in myinfo from %s (%s) - user closed. (%s)", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP, pDcCommand->m_sCommand);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+				
+				if (MyINFO(pDcCommand) == false || (pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_WAITING_FOR_PASS) == User::BIT_WAITING_FOR_PASS ||
+				        ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
+					return;
+					
+				pDcCommand->m_pUser->AddMeOrIPv4Check();
+				
+				return;
+			}
+#ifdef USE_FLYLINKDC_EXT_JSON
+			else if (memcmp(pDcCommand->m_sCommand + 1, "ExtJSON ", 8) == 0)
+			{
+				m_iStatCmdExtJSON++;
+			}
+#endif // USE_FLYLINKDC_EXT_JSON
+		}
+		break;
+	}
+	case User::STATE_IPV4_CHECK:
+	case User::STATE_ADDME:
+	case User::STATE_ADDME_1LOOP:
+	{
+		if (pDcCommand->m_sCommand[0] == '$')
+		{
+			switch (pDcCommand->m_sCommand[1])
+			{
+			case 'G':
+				if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 2, "etNickList", 10) == 0)
 				{
 					m_ui32StatCmdGetNickList++;
 					if (GetNickList(pDcCommand) == true)
@@ -361,7 +414,67 @@ void DcCommands::PreProcessData(DcCommand * pDcCommand)
 					}
 					return;
 				}
-				else if (memcmp(pDcCommand->m_sCommand + 1, "MyINFO $ALL ", 12) == 0)
+				break;
+#ifdef USE_FLYLINKDC_EXT_JSON
+			case 'E':
+				if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
+				{
+					m_iStatCmdExtJSON++; // ExtJSON Step 1 First Login
+					if (ExtJSONDeflood(pDcCommand->m_pUser, pDcCommand->m_sCommand, pDcCommand->m_ui32CommandLen, bCheck) == false)
+					{
+						return;
+					}
+					{
+						//using json = nlohmann::json;
+						const auto l_pos_json = strchr(pDcCommand->m_sCommand + 10, ' ');
+						std::string l_json_str;
+						std::string l_nick;
+						if (l_pos_json)
+						{
+							const int l_len_header = l_pos_json - pDcCommand->m_sCommand;
+							l_json_str = std::string(l_pos_json, pDcCommand->m_ui32CommandLen - l_len_header);
+							l_nick = std::string(pDcCommand->m_sCommand, l_len_header);
+							if (l_json_str.size() > 3 && l_json_str[l_json_str.size() - 1] == '|' && l_json_str[l_json_str.size() - 2] == '}')
+							{
+								l_json_str = l_json_str.substr(0, l_json_str.size() - 1);
+								for (auto i = l_json_str.begin(); i != l_json_str.end(); ++i)
+								{
+									if ((unsigned char)(*i) >= 0x80)
+									{
+										*i = '.';
+									}
+								}
+							}
+						}
+						try
+						{
+							auto l_json = nlohmann::json::parse(l_json_str);
+						}
+						catch (const std::exception& e)
+						{
+							pDcCommand->m_pUser->m_is_invalid_json = true;
+							pDcCommand->m_pUser->logInvalidUser(-1, pDcCommand->m_sCommand, pDcCommand->m_ui32CommandLen, false);
+							printf("Error parse JSON: IP = %s JSON: %s Len = %u error = %s\r\n",
+							       pDcCommand->m_pUser->m_sIP, l_nick.c_str(), pDcCommand->m_ui32CommandLen, e.what());
+#ifndef _WIN32
+							syslog(LOG_NOTICE, "Error parse JSON: IP = %s JSON: %s Len = %u error = %s", pDcCommand->m_pUser->m_sIP, l_nick.c_str(), pDcCommand->m_ui32CommandLen, e.what());
+#endif
+							UdpDebug::m_Ptr->BroadcastFormat("Error parse JSON: IP = %s JSON: %s Len = %u error = %s\r\n", pDcCommand->m_pUser->m_sIP, l_nick.c_str(), pDcCommand->m_ui32CommandLen, e.what());
+							
+							pDcCommand->m_pUser->Close();
+							return;
+						}
+					}
+					pDcCommand->m_pUser->initExtJSON(pDcCommand->m_sCommand);
+#ifdef USE_FLYLINKDC_EXT_JSON
+					ScriptManager::m_Ptr->Arrival(pDcCommand, ScriptManager::EXTJSON_ARRIVAL);
+#endif
+				}
+				break;
+#endif // USE_FLYLINKDC_EXT_JSON
+			case 'M':
+			{
+				if (memcmp(pDcCommand->m_sCommand + 2, "yINFO $ALL ", 11) == 0)
 				{
 					m_ui32StatCmdMyInfo++;
 					if (MyINFODeflood(pDcCommand) == false)
@@ -379,664 +492,551 @@ void DcCommands::PreProcessData(DcCommand * pDcCommand)
 						return;
 					}
 					
-					if (MyINFO(pDcCommand) == false || (pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_WAITING_FOR_PASS) == User::BIT_WAITING_FOR_PASS ||
-					        ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
-						return;
-						
-					pDcCommand->m_pUser->AddMeOrIPv4Check();
+					MyINFO(pDcCommand);
 					
 					return;
 				}
-#ifdef USE_FLYLINKDC_EXT_JSON
-				else if (memcmp(pDcCommand->m_sCommand + 1, "ExtJSON ", 8) == 0)
+				else if (memcmp(pDcCommand->m_sCommand + 2, "ultiSearch ", 11) == 0)
 				{
-					m_iStatCmdExtJSON++;
+					m_ui32StatCmdMultiSearch++;
+					SearchDeflood(pDcCommand, true);
+					return;
 				}
-#endif // USE_FLYLINKDC_EXT_JSON
+				break;
 			}
-			break;
-		}
-		case User::STATE_IPV4_CHECK:
-		case User::STATE_ADDME:
-		case User::STATE_ADDME_1LOOP:
-		{
-			if (pDcCommand->m_sCommand[0] == '$')
-			{
-				switch (pDcCommand->m_sCommand[1])
+			case 'S':
+				if (memcmp(pDcCommand->m_sCommand + 2, "earch ", 6) == 0)
 				{
-					case 'G':
-						if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 2, "etNickList", 10) == 0)
-						{
-							m_ui32StatCmdGetNickList++;
-							if (GetNickList(pDcCommand) == true)
-							{
-								pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_GETNICKLIST;
-							}
-							return;
-						}
-						break;
+					m_ui32StatCmdSearch++;
+					SearchDeflood(pDcCommand, false);
+					return;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		else if (pDcCommand->m_sCommand[0] == '<')
+		{
+			m_ui32StatChat++;
+			ChatDeflood(pDcCommand);
+			return;
+		}
+		break;
+	}
+	case User::STATE_ADDED:
+	{
+		if (pDcCommand->m_sCommand[0] == '$')
+		{
+			switch (pDcCommand->m_sCommand[1])
+			{
+			case 'S':
+			{
+				if (memcmp(pDcCommand->m_sCommand + 2, "earch ", 6) == 0)
+				{
+					m_ui32StatCmdSearch++;
+					if (SearchDeflood(pDcCommand, false) == true)
+					{
+						Search(pDcCommand, false);
+					}
+					return;
+				}
+				else if (*((uint16_t *)(pDcCommand->m_sCommand + 2)) == *((uint16_t *)"R "))
+				{
+					m_ui32StatCmdSR++;
+					SR(pDcCommand);
+					return;
+				}
+				break;
+			}
+			case 'C':
+				if (memcmp(pDcCommand->m_sCommand + 2, "onnectToMe ", 11) == 0)
+				{
+					m_ui32StatCmdConnectToMe++;
+					ConnectToMe(pDcCommand, false);
+					return;
+				}
+				else if (memcmp(pDcCommand->m_sCommand + 2, "lose ", 5) == 0)
+				{
+					m_ui32StatCmdClose++;
+					Close(pDcCommand);
+					return;
+				}
+				break;
+			case 'R':
+				if (memcmp(pDcCommand->m_sCommand + 2, "evConnectToMe ", 14) == 0)
+				{
+					m_ui32StatCmdRevCTM++;
+					RevConnectToMe(pDcCommand);
+					return;
+				}
+				break;
 #ifdef USE_FLYLINKDC_EXT_JSON
-					case 'E':
-						if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
+			case 'E':
+				if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
+				{
+					m_iStatCmdExtJSON++; // ExtJSON Step 3 - Change ExtJSON
+					if (ExtJSONDeflood(pDcCommand->m_pUser, pDcCommand->m_sCommand, pDcCommand->m_ui32CommandLen, bCheck) == false)
+					{
+						return;
+					}
+					
+					SetExtJSON(pDcCommand->m_pUser, pDcCommand->m_sCommand, pDcCommand->m_ui32CommandLen);
+					return;
+				}
+				break;
+#endif // USE_FLYLINKDC_EXT_JSON
+				
+			case 'M':
+				if (memcmp(pDcCommand->m_sCommand + 2, "yINFO $ALL ", 11) == 0)
+				{
+					m_ui32StatCmdMyInfo++;
+					if (MyINFODeflood(pDcCommand) == false)
+					{
+						return;
+					}
+					
+					// Am I sending MyINFO of someone other ?
+					// OR i try to fuck up hub with some chars after my nick ??? ... PPK
+					if ((pDcCommand->m_sCommand[13 + pDcCommand->m_pUser->m_ui8NickLen] != ' ') || (memcmp(pDcCommand->m_pUser->m_sNick, pDcCommand->m_sCommand + 13, pDcCommand->m_pUser->m_ui8NickLen) != 0))
+					{
+						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick spoofing in myinfo from %s (%s) - user closed. (%s)", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP, pDcCommand->m_sCommand);
+						
+						pDcCommand->m_pUser->Close();
+						return;
+					}
+					
+					if (MyINFO(pDcCommand) == true)
+					{
+						pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_PRCSD_MYINFO;
+					}
+					return;
+				}
+				else if (*((uint32_t *)(pDcCommand->m_sCommand + 2)) == ui32ulti)
+				{
+					if (memcmp(pDcCommand->m_sCommand + 6, "Search ", 7) == 0)
+					{
+						m_ui32StatCmdMultiSearch++;
+						if (SearchDeflood(pDcCommand, true) == true)
 						{
-							m_iStatCmdExtJSON++; // ExtJSON Step 1 First Login
-							if (ExtJSONDeflood(pDcCommand->m_pUser, pDcCommand->m_sCommand, pDcCommand->m_ui32CommandLen, bCheck) == false)
+							Search(pDcCommand, true);
+						}
+						return;
+					}
+					else if (memcmp(pDcCommand->m_sCommand + 6, "ConnectToMe ", 12) == 0)
+					{
+						m_ui32StatCmdMultiConnectToMe++;
+						ConnectToMe(pDcCommand, true);
+						return;
+					}
+				}
+				else if (memcmp(pDcCommand->m_sCommand + 2, "yPass ", 6) == 0)
+				{
+					m_ui32StatCmdMyPass++;
+					//MyPass(pUser, sData, ui32Len);
+					if ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_WAITING_FOR_PASS) == User::BIT_WAITING_FOR_PASS)
+					{
+						pDcCommand->m_pUser->m_ui32BoolBits &= ~User::BIT_WAITING_FOR_PASS;
+						
+						if (pDcCommand->m_pUser->m_LogInOut.m_pBuffer != NULL)
+						{
+							int iProfile = ProfileManager::m_Ptr->GetProfileIndex(pDcCommand->m_pUser->m_LogInOut.m_pBuffer);
+							if (iProfile == -1)
 							{
+								pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser1", true, "<%s> %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_ERR_NO_PROFILE_GIVEN_NAME_EXIST]);
+								
+								delete pDcCommand->m_pUser->m_LogInOut.m_pBuffer;
+								pDcCommand->m_pUser->m_LogInOut.m_pBuffer = NULL;
+								
 								return;
 							}
+							
+							if (pDcCommand->m_ui32CommandLen < 10)
 							{
-								//using json = nlohmann::json;
-								const auto l_pos_json = strchr(pDcCommand->m_sCommand + 10, ' ');
-								std::string l_json_str;
-								std::string l_nick;
-								if (l_pos_json)
+								pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser2", true, "<%s> %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_PASS_MUST_SPECIFIED]);
+								
+								pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_WAITING_FOR_PASS;
+								return;
+							}
+							
+							if (pDcCommand->m_ui32CommandLen > 73)
+							{
+								pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser2-1", true, "<%s> %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_MAX_ALWD_PASS_LEN_64_CHARS]);
+								
+								pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_WAITING_FOR_PASS;
+								return;
+							}
+							
+							pDcCommand->m_sCommand[pDcCommand->m_ui32CommandLen - 1] = '\0'; // cutoff pipe
+							
+							if (RegManager::m_Ptr->AddNew(pDcCommand->m_pUser->m_sNick, pDcCommand->m_sCommand + 8, (uint16_t)iProfile) == false)
+							{
+								pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser3", true, "<%s> %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_SORRY_YOU_ARE_ALREADY_REGISTERED]);
+							}
+							else
+							{
+								pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser4", true, "<%s> %s %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_THANK_YOU_FOR_PASSWORD_YOU_ARE_NOW_REGISTERED_AS],
+								                                pDcCommand->m_pUser->m_LogInOut.m_pBuffer);
+							}
+							
+							delete pDcCommand->m_pUser->m_LogInOut.m_pBuffer;
+							pDcCommand->m_pUser->m_LogInOut.m_pBuffer = NULL;
+							
+							pDcCommand->m_pUser->m_i32Profile = iProfile;
+							
+							if (((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
+							{
+								if (ProfileManager::m_Ptr->IsAllowed(pDcCommand->m_pUser, ProfileManager::HASKEYICON) == false)
 								{
-									const int l_len_header = l_pos_json - pDcCommand->m_sCommand;
-									l_json_str = std::string(l_pos_json, pDcCommand->m_ui32CommandLen - l_len_header);
-									l_nick = std::string(pDcCommand->m_sCommand, l_len_header);
-									if (l_json_str.size() > 3 && l_json_str[l_json_str.size() - 1] == '|' && l_json_str[l_json_str.size() - 2] == '}')
-									{
-										l_json_str = l_json_str.substr(0, l_json_str.size() - 1);
-										for (auto i = l_json_str.begin(); i != l_json_str.end(); ++i)
-										{
-											if ((unsigned char)(*i) >= 0x80)
-											{
-												*i = '.';
-											}
-										}
-									}
-								}
-								try
-								{
-									auto l_json = nlohmann::json::parse(l_json_str);
-								}
-								catch (const std::exception& e)
-								{
-									pDcCommand->m_pUser->m_is_invalid_json = true;
-									pDcCommand->m_pUser->logInvalidUser(-1, pDcCommand->m_sCommand, pDcCommand->m_ui32CommandLen, false);
-									printf("Error parse JSON: IP = %s JSON: %s Len = %u error = %s\r\n", 
-										pDcCommand->m_pUser->m_sIP, l_nick.c_str(), pDcCommand->m_ui32CommandLen, e.what());
-#ifndef _WIN32
-									syslog(LOG_NOTICE, "Error parse JSON: IP = %s JSON: %s Len = %u error = %s", pDcCommand->m_pUser->m_sIP, l_nick.c_str(), pDcCommand->m_ui32CommandLen, e.what());
-#endif
-									UdpDebug::m_Ptr->BroadcastFormat("Error parse JSON: IP = %s JSON: %s Len = %u error = %s\r\n", pDcCommand->m_pUser->m_sIP, l_nick.c_str(), pDcCommand->m_ui32CommandLen, e.what());
-									
-									pDcCommand->m_pUser->Close();
 									return;
 								}
-							}
-							pDcCommand->m_pUser->initExtJSON(pDcCommand->m_sCommand);
-#ifdef USE_FLYLINKDC_EXT_JSON
-							ScriptManager::m_Ptr->Arrival(pDcCommand, ScriptManager::EXTJSON_ARRIVAL);
-#endif
-						}
-						break;
-#endif // USE_FLYLINKDC_EXT_JSON
-					case 'M':
-					{
-						if (memcmp(pDcCommand->m_sCommand + 2, "yINFO $ALL ", 11) == 0)
-						{
-							m_ui32StatCmdMyInfo++;
-							if (MyINFODeflood(pDcCommand) == false)
-							{
-								return;
-							}
-							
-							// Am I sending MyINFO of someone other ?
-							// OR i try to fuck up hub with some chars after my nick ??? ... PPK
-							if ((pDcCommand->m_sCommand[13 + pDcCommand->m_pUser->m_ui8NickLen] != ' ') || (memcmp(pDcCommand->m_pUser->m_sNick, pDcCommand->m_sCommand + 13, pDcCommand->m_pUser->m_ui8NickLen) != 0))
-							{
-								UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick spoofing in myinfo from %s (%s) - user closed. (%s)", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP, pDcCommand->m_sCommand);
 								
-								pDcCommand->m_pUser->Close();
-								return;
+								pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_OPERATOR;
+								
+								Users::m_Ptr->Add2OpList(pDcCommand->m_pUser);
+								GlobalDataQueue::m_Ptr->OpListStore(pDcCommand->m_pUser->m_sNick);
+								
+								if (ProfileManager::m_Ptr->IsAllowed(pDcCommand->m_pUser, ProfileManager::ALLOWEDOPCHAT) == true)
+								{
+									if (SettingManager::m_Ptr->m_bBools[SETBOOL_REG_OP_CHAT] == true &&
+									        (SettingManager::m_Ptr->m_bBools[SETBOOL_REG_BOT] == false || SettingManager::m_Ptr->m_bBotsSameNick == false))
+									{
+										if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO) == false)
+										{
+											pDcCommand->m_pUser->SendCharDelayed(SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_OP_CHAT_HELLO],
+											                                     SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_OP_CHAT_HELLO]);
+										}
+										
+										pDcCommand->m_pUser->SendCharDelayed(SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_OP_CHAT_MYINFO], SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_OP_CHAT_MYINFO]);
+										pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser5", true, "$OpList %s$$|", SettingManager::m_Ptr->m_sTexts[SETTXT_OP_CHAT_NICK]);
+									}
+								}
 							}
-							
-							MyINFO(pDcCommand);
-							
-							return;
 						}
-						else if (memcmp(pDcCommand->m_sCommand + 2, "ultiSearch ", 11) == 0)
-						{
-							m_ui32StatCmdMultiSearch++;
-							SearchDeflood(pDcCommand, true);
-							return;
-						}
-						break;
-					}
-					case 'S':
-						if (memcmp(pDcCommand->m_sCommand + 2, "earch ", 6) == 0)
-						{
-							m_ui32StatCmdSearch++;
-							SearchDeflood(pDcCommand, false);
-							return;
-						}
-						break;
-					default:
-						break;
-				}
-			}
-			else if (pDcCommand->m_sCommand[0] == '<')
-			{
-				m_ui32StatChat++;
-				ChatDeflood(pDcCommand);
-				return;
-			}
-			break;
-		}
-		case User::STATE_ADDED:
-		{
-			if (pDcCommand->m_sCommand[0] == '$')
-			{
-				switch (pDcCommand->m_sCommand[1])
-				{
-					case 'S':
-					{
-						if (memcmp(pDcCommand->m_sCommand + 2, "earch ", 6) == 0)
-						{
-							m_ui32StatCmdSearch++;
-							if (SearchDeflood(pDcCommand, false) == true)
-							{
-								Search(pDcCommand, false);
-							}
-							return;
-						}
-						else if (*((uint16_t *)(pDcCommand->m_sCommand + 2)) == *((uint16_t *)"R "))
-						{
-							m_ui32StatCmdSR++;
-							SR(pDcCommand);
-							return;
-						}
-						break;
-					}
-					case 'C':
-						if (memcmp(pDcCommand->m_sCommand + 2, "onnectToMe ", 11) == 0)
-						{
-							m_ui32StatCmdConnectToMe++;
-							ConnectToMe(pDcCommand, false);
-							return;
-						}
-						else if (memcmp(pDcCommand->m_sCommand + 2, "lose ", 5) == 0)
-						{
-							m_ui32StatCmdClose++;
-							Close(pDcCommand);
-							return;
-						}
-						break;
-					case 'R':
-						if (memcmp(pDcCommand->m_sCommand + 2, "evConnectToMe ", 14) == 0)
-						{
-							m_ui32StatCmdRevCTM++;
-							RevConnectToMe(pDcCommand);
-							return;
-						}
-						break;
-#ifdef USE_FLYLINKDC_EXT_JSON
-					case 'E':
-						if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
-						{
-							m_iStatCmdExtJSON++; // ExtJSON Step 3 - Change ExtJSON
-							if (ExtJSONDeflood(pDcCommand->m_pUser, pDcCommand->m_sCommand, pDcCommand->m_ui32CommandLen, bCheck) == false)
-							{
-								return;
-							}
-							
-							SetExtJSON(pDcCommand->m_pUser, pDcCommand->m_sCommand, pDcCommand->m_ui32CommandLen);
-							return;
-						}
-						break;
-#endif // USE_FLYLINKDC_EXT_JSON
 						
-					case 'M':
-						if (memcmp(pDcCommand->m_sCommand + 2, "yINFO $ALL ", 11) == 0)
-						{
-							m_ui32StatCmdMyInfo++;
-							if (MyINFODeflood(pDcCommand) == false)
-							{
-								return;
-							}
-							
-							// Am I sending MyINFO of someone other ?
-							// OR i try to fuck up hub with some chars after my nick ??? ... PPK
-							if ((pDcCommand->m_sCommand[13 + pDcCommand->m_pUser->m_ui8NickLen] != ' ') || (memcmp(pDcCommand->m_pUser->m_sNick, pDcCommand->m_sCommand + 13, pDcCommand->m_pUser->m_ui8NickLen) != 0))
-							{
-								UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick spoofing in myinfo from %s (%s) - user closed. (%s)", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP, pDcCommand->m_sCommand);
-								
-								pDcCommand->m_pUser->Close();
-								return;
-							}
-							
-							if (MyINFO(pDcCommand) == true)
-							{
-								pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_PRCSD_MYINFO;
-							}
-							return;
-						}
-						else if (*((uint32_t *)(pDcCommand->m_sCommand + 2)) == ui32ulti)
-						{
-							if (memcmp(pDcCommand->m_sCommand + 6, "Search ", 7) == 0)
-							{
-								m_ui32StatCmdMultiSearch++;
-								if (SearchDeflood(pDcCommand, true) == true)
-								{
-									Search(pDcCommand, true);
-								}
-								return;
-							}
-							else if (memcmp(pDcCommand->m_sCommand + 6, "ConnectToMe ", 12) == 0)
-							{
-								m_ui32StatCmdMultiConnectToMe++;
-								ConnectToMe(pDcCommand, true);
-								return;
-							}
-						}
-						else if (memcmp(pDcCommand->m_sCommand + 2, "yPass ", 6) == 0)
-						{
-							m_ui32StatCmdMyPass++;
-							//MyPass(pUser, sData, ui32Len);
-							if ((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_WAITING_FOR_PASS) == User::BIT_WAITING_FOR_PASS)
-							{
-								pDcCommand->m_pUser->m_ui32BoolBits &= ~User::BIT_WAITING_FOR_PASS;
-								
-								if (pDcCommand->m_pUser->m_LogInOut.m_pBuffer != NULL)
-								{
-									int iProfile = ProfileManager::m_Ptr->GetProfileIndex(pDcCommand->m_pUser->m_LogInOut.m_pBuffer);
-									if (iProfile == -1)
-									{
-										pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser1", true, "<%s> %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_ERR_NO_PROFILE_GIVEN_NAME_EXIST]);
-										
-										delete pDcCommand->m_pUser->m_LogInOut.m_pBuffer;
-										pDcCommand->m_pUser->m_LogInOut.m_pBuffer = NULL;
-										
-										return;
-									}
-									
-									if (pDcCommand->m_ui32CommandLen < 10)
-									{
-										pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser2", true, "<%s> %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_PASS_MUST_SPECIFIED]);
-										
-										pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_WAITING_FOR_PASS;
-										return;
-									}
-									
-									if (pDcCommand->m_ui32CommandLen > 73)
-									{
-										pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser2-1", true, "<%s> %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_MAX_ALWD_PASS_LEN_64_CHARS]);
-										
-										pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_WAITING_FOR_PASS;
-										return;
-									}
-									
-									pDcCommand->m_sCommand[pDcCommand->m_ui32CommandLen - 1] = '\0'; // cutoff pipe
-									
-									if (RegManager::m_Ptr->AddNew(pDcCommand->m_pUser->m_sNick, pDcCommand->m_sCommand + 8, (uint16_t)iProfile) == false)
-									{
-										pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser3", true, "<%s> %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_SORRY_YOU_ARE_ALREADY_REGISTERED]);
-									}
-									else
-									{
-										pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser4", true, "<%s> %s %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_THANK_YOU_FOR_PASSWORD_YOU_ARE_NOW_REGISTERED_AS],
-										                                pDcCommand->m_pUser->m_LogInOut.m_pBuffer);
-									}
-									
-									delete pDcCommand->m_pUser->m_LogInOut.m_pBuffer;
-									pDcCommand->m_pUser->m_LogInOut.m_pBuffer = NULL;
-
-									pDcCommand->m_pUser->m_i32Profile = iProfile;
-									
-									if (((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
-									{
-										if (ProfileManager::m_Ptr->IsAllowed(pDcCommand->m_pUser, ProfileManager::HASKEYICON) == false)
-										{
-											return;
-										}
-										
-										pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_OPERATOR;
-										
-										Users::m_Ptr->Add2OpList(pDcCommand->m_pUser);
-										GlobalDataQueue::m_Ptr->OpListStore(pDcCommand->m_pUser->m_sNick);
-										
-										if (ProfileManager::m_Ptr->IsAllowed(pDcCommand->m_pUser, ProfileManager::ALLOWEDOPCHAT) == true)
-										{
-											if (SettingManager::m_Ptr->m_bBools[SETBOOL_REG_OP_CHAT] == true &&
-											        (SettingManager::m_Ptr->m_bBools[SETBOOL_REG_BOT] == false || SettingManager::m_Ptr->m_bBotsSameNick == false))
-											{
-												if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO) == false)
-												{
-													pDcCommand->m_pUser->SendCharDelayed(SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_OP_CHAT_HELLO],
-													                                     SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_OP_CHAT_HELLO]);
-												}
-												
-												pDcCommand->m_pUser->SendCharDelayed(SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_OP_CHAT_MYINFO], SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_OP_CHAT_MYINFO]);
-												pDcCommand->m_pUser->SendFormat("DcCommands::PreProcessData::MyPass->RegUser5", true, "$OpList %s$$|", SettingManager::m_Ptr->m_sTexts[SETTXT_OP_CHAT_NICK]);
-											}
-										}
-									}
-								}
-								
-								return;
-							}
-						}
-						break;
-					case 'G':
-					{
-						if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 2, "etNickList", 10) == 0)
-						{
-							m_ui32StatCmdGetNickList++;
-							if (GetNickList(pDcCommand) == true)
-							{
-								pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_GETNICKLIST;
-							}
-							return;
-						}
-						else if (memcmp(pDcCommand->m_sCommand + 2, "etINFO ", 7) == 0)
-						{
-							m_ui32StatCmdGetInfo++;
-							GetINFO(pDcCommand);
-							return;
-						}
-						break;
+						return;
 					}
-					case 'T':
-						if (memcmp(pDcCommand->m_sCommand + 2, "o: ", 3) == 0)
-						{
-							m_ui32StatCmdTo++;
-							To(pDcCommand);
-							return;
-						}
-					case 'K':
-						if (*((uint32_t *)(pDcCommand->m_sCommand + 2)) == ui32ick)
-						{
-							m_ui32StatCmdKick++;
-							Kick(pDcCommand);
-							return;
-						}
-						break;
-					case 'O':
-						if (memcmp(pDcCommand->m_sCommand + 2, "pForceMove $Who:", 16) == 0)
-						{
-							m_ui32StatCmdOpForceMove++;
-							OpForceMove(pDcCommand);
-							return;
-						}
-					default:
-						break;
 				}
-			}
-			else if (pDcCommand->m_sCommand[0] == '<')
+				break;
+			case 'G':
 			{
-				m_ui32StatChat++;
-				if (ChatDeflood(pDcCommand) == true)
+				if (pDcCommand->m_ui32CommandLen == 13 && memcmp(pDcCommand->m_sCommand + 2, "etNickList", 10) == 0)
 				{
-					Chat(pDcCommand);
+					m_ui32StatCmdGetNickList++;
+					if (GetNickList(pDcCommand) == true)
+					{
+						pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_GETNICKLIST;
+					}
+					return;
 				}
-				
-				return;
+				else if (memcmp(pDcCommand->m_sCommand + 2, "etINFO ", 7) == 0)
+				{
+					m_ui32StatCmdGetInfo++;
+					GetINFO(pDcCommand);
+					return;
+				}
+				break;
 			}
-			break;
+			case 'T':
+				if (memcmp(pDcCommand->m_sCommand + 2, "o: ", 3) == 0)
+				{
+					m_ui32StatCmdTo++;
+					To(pDcCommand);
+					return;
+				}
+			case 'K':
+				if (*((uint32_t *)(pDcCommand->m_sCommand + 2)) == ui32ick)
+				{
+					m_ui32StatCmdKick++;
+					Kick(pDcCommand);
+					return;
+				}
+				break;
+			case 'O':
+				if (memcmp(pDcCommand->m_sCommand + 2, "pForceMove $Who:", 16) == 0)
+				{
+					m_ui32StatCmdOpForceMove++;
+					OpForceMove(pDcCommand);
+					return;
+				}
+			default:
+				break;
+			}
 		}
-		case User::STATE_CLOSING:
-		case User::STATE_REMME:
+		else if (pDcCommand->m_sCommand[0] == '<')
+		{
+			m_ui32StatChat++;
+			if (ChatDeflood(pDcCommand) == true)
+			{
+				Chat(pDcCommand);
+			}
+			
 			return;
+		}
+		break;
+	}
+	case User::STATE_CLOSING:
+	case User::STATE_REMME:
+		return;
 	}
 	
 	// PPK ... fallback to full command identification and disconnect on bad state or unknown command not handled by script
 	switch (pDcCommand->m_sCommand[0])
 	{
-		case '$':
-			switch (pDcCommand->m_sCommand[1])
+	case '$':
+		switch (pDcCommand->m_sCommand[1])
+		{
+		case 'B':
+		{
+			if (memcmp(pDcCommand->m_sCommand + 2, "otINFO", 6) == 0)
 			{
-				case 'B':
-				{
-					if (memcmp(pDcCommand->m_sCommand + 2, "otINFO", 6) == 0)
-					{
-						m_ui32StatBotINFO++;
-						BotINFO(pDcCommand);
-						return;
-					}
-					break;
-				}
-				case 'C':
-					if (memcmp(pDcCommand->m_sCommand + 2, "onnectToMe ", 11) == 0)
-					{
-						m_ui32StatCmdConnectToMe++;
-						
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $ConnectToMe %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-						
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					else if (memcmp(pDcCommand->m_sCommand + 2, "lose ", 5) == 0)
-					{
-						m_ui32StatCmdClose++;
-						
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Close %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-						
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					break;
-				case 'G':
-				{
-					if (*((uint16_t *)(pDcCommand->m_sCommand + 2)) == *((uint16_t *)"et"))
-					{
-						if (memcmp(pDcCommand->m_sCommand + 4, "INFO ", 5) == 0)
-						{
-							m_ui32StatCmdGetInfo++;
-							
-							UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $GetINFO %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-							
-							pDcCommand->m_pUser->Close();
-							return;
-						}
-						else if (pDcCommand->m_ui32CommandLen == 13 && *((uint64_t *)(pDcCommand->m_sCommand + 4)) == *((uint64_t *)"NickList"))
-						{
-							m_ui32StatCmdGetNickList++;
-							
-							UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $GetNickList %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-							
-							pDcCommand->m_pUser->Close();
-							return;
-						}
-					}
-					break;
-				}
-				case 'K':
-					if (memcmp(pDcCommand->m_sCommand + 2, "ey ", 3) == 0)
-					{
-						m_ui32StatCmdKey++;
-						
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Key %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-						
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					else if (*((uint32_t *)(pDcCommand->m_sCommand + 2)) == ui32ick)
-					{
-						m_ui32StatCmdKick++;
-						
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Kick %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-						
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					break;
-#ifdef USE_FLYLINKDC_EXT_JSON
-				case 'E':
-					if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
-					{
-#ifdef _DBG
-						int iret = sprintf(msg, "%s (%s) bad state in case $ExtJSON: %d", pUser->Nick, pUser->IP, pUser->m_iState);
-						if (CheckSprintf(iret, 1024, "DcCommands::PreProcessData56") == true)
-						{
-							Memo(msg);
-						}
-						
-#endif
-						// pUser->m_ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
-						m_iStatCmdExtJSON++; // ExtJSON Step 2 (After Login)
-						// TODO ExtJSON ?? UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%d) in $ExtJSON %s (%s) - user closed.", (int)pUser->m_ui8State, pUser->m_sNick, pUser->m_sIP);
-						// curUser->Close();
-						return;
-					}
-					break;
-#endif // USE_FLYLINKDC_EXT_JSON
-				case 'M':
-					if (*((uint32_t *)(pDcCommand->m_sCommand + 2)) == ui32ulti)
-					{
-						if (memcmp(pDcCommand->m_sCommand + 6, "ConnectToMe ", 12) == 0)
-						{
-							m_ui32StatCmdMultiConnectToMe++;
-							
-							UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MultiConnectToMe %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-							
-							pDcCommand->m_pUser->Close();
-							return;
-						}
-						else if (memcmp(pDcCommand->m_sCommand + 6, "Search ", 7) == 0)
-						{
-							m_ui32StatCmdMultiSearch++;
-							
-							UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MultiSearch %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-							
-							pDcCommand->m_pUser->Close();
-							return;
-						}
-					}
-					else if (pDcCommand->m_sCommand[2] == 'y')
-					{
-						if (memcmp(pDcCommand->m_sCommand + 3, "INFO $ALL ", 10) == 0)
-						{
-							m_ui32StatCmdMyInfo++;
-							
-							UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MyINFO %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-							
-							pDcCommand->m_pUser->Close();
-							return;
-						}
-						else if (memcmp(pDcCommand->m_sCommand + 3, "Pass ", 5) == 0)
-						{
-							m_ui32StatCmdMyPass++;
-							
-							UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MyPass %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-							
-							pDcCommand->m_pUser->Close();
-							return;
-						}
-					}
-					break;
-				case 'O':
-					if (memcmp(pDcCommand->m_sCommand + 2, "pForceMove $Who:", 16) == 0)
-					{
-						m_ui32StatCmdOpForceMove++;
-						
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $OpForceMove %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-						
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					break;
-				case 'R':
-					if (memcmp(pDcCommand->m_sCommand + 2, "evConnectToMe ", 14) == 0)
-					{
-						m_ui32StatCmdRevCTM++;
-						
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $RevConnectToMe %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-						
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					break;
-				case 'S':
-					switch (pDcCommand->m_sCommand[2])
-					{
-						case 'e':
-						{
-							if (memcmp(pDcCommand->m_sCommand + 3, "arch ", 5) == 0)
-							{
-								m_ui32StatCmdSearch++;
-								
-								UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Search %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-								
-								pDcCommand->m_pUser->Close();
-								return;
-							}
-							break;
-						}
-						case 'R':
-							if (pDcCommand->m_sCommand[3] == ' ')
-							{
-								m_ui32StatCmdSR++;
-								
-								UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $SR %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-								
-								pDcCommand->m_pUser->Close();
-								return;
-							}
-							break;
-						case 'u':
-						{
-							if (memcmp(pDcCommand->m_sCommand + 3, "pports ", 7) == 0)
-							{
-								m_ui32StatCmdSupports++;
-								
-								UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Supports %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-								
-								pDcCommand->m_pUser->Close();
-								return;
-							}
-							break;
-						}
-						default:
-							break;
-					}
-					break;
-				case 'T':
-					if (memcmp(pDcCommand->m_sCommand + 2, "o: ", 3) == 0)
-					{
-						m_ui32StatCmdTo++;
-						
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $To %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-						
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					break;
-				case 'V':
-					if (memcmp(pDcCommand->m_sCommand + 2, "alidateNick ", 12) == 0)
-					{
-						m_ui32StatCmdValidate++;
-						
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $ValidateNick %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-						
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					else if (memcmp(pDcCommand->m_sCommand + 2, "ersion ", 7) == 0)
-					{
-						m_ui32StatCmdVersion++;
-						
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Version %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-						
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					break;
-				default:
-					break;
+				m_ui32StatBotINFO++;
+				BotINFO(pDcCommand);
+				return;
 			}
 			break;
-		case '<':
-		{
-			m_ui32StatChat++;
-			
-			UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in Chat %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-			
-			pDcCommand->m_pUser->Close();
-			return;
 		}
+		case 'C':
+			if (memcmp(pDcCommand->m_sCommand + 2, "onnectToMe ", 11) == 0)
+			{
+				m_ui32StatCmdConnectToMe++;
+				
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $ConnectToMe %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+				
+				pDcCommand->m_pUser->Close();
+				return;
+			}
+			else if (memcmp(pDcCommand->m_sCommand + 2, "lose ", 5) == 0)
+			{
+				m_ui32StatCmdClose++;
+				
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Close %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+				
+				pDcCommand->m_pUser->Close();
+				return;
+			}
+			break;
+		case 'G':
+		{
+			if (*((uint16_t *)(pDcCommand->m_sCommand + 2)) == *((uint16_t *)"et"))
+			{
+				if (memcmp(pDcCommand->m_sCommand + 4, "INFO ", 5) == 0)
+				{
+					m_ui32StatCmdGetInfo++;
+					
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $GetINFO %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+				else if (pDcCommand->m_ui32CommandLen == 13 && *((uint64_t *)(pDcCommand->m_sCommand + 4)) == *((uint64_t *)"NickList"))
+				{
+					m_ui32StatCmdGetNickList++;
+					
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $GetNickList %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+			}
+			break;
+		}
+		case 'K':
+			if (memcmp(pDcCommand->m_sCommand + 2, "ey ", 3) == 0)
+			{
+				m_ui32StatCmdKey++;
+				
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Key %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+				
+				pDcCommand->m_pUser->Close();
+				return;
+			}
+			else if (*((uint32_t *)(pDcCommand->m_sCommand + 2)) == ui32ick)
+			{
+				m_ui32StatCmdKick++;
+				
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Kick %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+				
+				pDcCommand->m_pUser->Close();
+				return;
+			}
+			break;
+#ifdef USE_FLYLINKDC_EXT_JSON
+		case 'E':
+			if (memcmp(pDcCommand->m_sCommand + 2, "xtJSON ", 7) == 0)
+			{
+#ifdef _DBG
+				int iret = sprintf(msg, "%s (%s) bad state in case $ExtJSON: %d", pUser->Nick, pUser->IP, pUser->m_iState);
+				if (CheckSprintf(iret, 1024, "DcCommands::PreProcessData56") == true)
+				{
+					Memo(msg);
+				}
+				
+#endif
+				// pUser->m_ui32BoolBits |= User::BIT_PRCSD_EXT_JSON;
+				m_iStatCmdExtJSON++; // ExtJSON Step 2 (After Login)
+				// TODO ExtJSON ?? UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%d) in $ExtJSON %s (%s) - user closed.", (int)pUser->m_ui8State, pUser->m_sNick, pUser->m_sIP);
+				// curUser->Close();
+				return;
+			}
+			break;
+#endif // USE_FLYLINKDC_EXT_JSON
+		case 'M':
+			if (*((uint32_t *)(pDcCommand->m_sCommand + 2)) == ui32ulti)
+			{
+				if (memcmp(pDcCommand->m_sCommand + 6, "ConnectToMe ", 12) == 0)
+				{
+					m_ui32StatCmdMultiConnectToMe++;
+					
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MultiConnectToMe %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+				else if (memcmp(pDcCommand->m_sCommand + 6, "Search ", 7) == 0)
+				{
+					m_ui32StatCmdMultiSearch++;
+					
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MultiSearch %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+			}
+			else if (pDcCommand->m_sCommand[2] == 'y')
+			{
+				if (memcmp(pDcCommand->m_sCommand + 3, "INFO $ALL ", 10) == 0)
+				{
+					m_ui32StatCmdMyInfo++;
+					
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MyINFO %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+				else if (memcmp(pDcCommand->m_sCommand + 3, "Pass ", 5) == 0)
+				{
+					m_ui32StatCmdMyPass++;
+					
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $MyPass %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+			}
+			break;
+		case 'O':
+			if (memcmp(pDcCommand->m_sCommand + 2, "pForceMove $Who:", 16) == 0)
+			{
+				m_ui32StatCmdOpForceMove++;
+				
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $OpForceMove %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+				
+				pDcCommand->m_pUser->Close();
+				return;
+			}
+			break;
+		case 'R':
+			if (memcmp(pDcCommand->m_sCommand + 2, "evConnectToMe ", 14) == 0)
+			{
+				m_ui32StatCmdRevCTM++;
+				
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $RevConnectToMe %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+				
+				pDcCommand->m_pUser->Close();
+				return;
+			}
+			break;
+		case 'S':
+			switch (pDcCommand->m_sCommand[2])
+			{
+			case 'e':
+			{
+				if (memcmp(pDcCommand->m_sCommand + 3, "arch ", 5) == 0)
+				{
+					m_ui32StatCmdSearch++;
+					
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Search %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+				break;
+			}
+			case 'R':
+				if (pDcCommand->m_sCommand[3] == ' ')
+				{
+					m_ui32StatCmdSR++;
+					
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $SR %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+				break;
+			case 'u':
+			{
+				if (memcmp(pDcCommand->m_sCommand + 3, "pports ", 7) == 0)
+				{
+					m_ui32StatCmdSupports++;
+					
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Supports %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+					
+					pDcCommand->m_pUser->Close();
+					return;
+				}
+				break;
+			}
+			default:
+				break;
+			}
+			break;
+		case 'T':
+			if (memcmp(pDcCommand->m_sCommand + 2, "o: ", 3) == 0)
+			{
+				m_ui32StatCmdTo++;
+				
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $To %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+				
+				pDcCommand->m_pUser->Close();
+				return;
+			}
+			break;
+		case 'V':
+			if (memcmp(pDcCommand->m_sCommand + 2, "alidateNick ", 12) == 0)
+			{
+				m_ui32StatCmdValidate++;
+				
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $ValidateNick %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+				
+				pDcCommand->m_pUser->Close();
+				return;
+			}
+			else if (memcmp(pDcCommand->m_sCommand + 2, "ersion ", 7) == 0)
+			{
+				m_ui32StatCmdVersion++;
+				
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in $Version %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+				
+				pDcCommand->m_pUser->Close();
+				return;
+			}
+			break;
 		default:
 			break;
+		}
+		break;
+	case '<':
+	{
+		m_ui32StatChat++;
+		
+		UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad state (%hhu) in Chat %s (%s) - user closed.", pDcCommand->m_pUser->m_ui8State, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+		
+		pDcCommand->m_pUser->Close();
+		return;
+	}
+	default:
+		break;
 	}
 	
 	
@@ -1798,12 +1798,12 @@ void DcCommands::Search(DcCommand * pDcCommand, const bool bMulti)
 	//ui32Len = strlen(sData);
 #endif
 #endif
-
+	
 	uint32_t iAfterCmd;
 	if (bMulti == false)
 	{
-		if (pDcCommand->m_ui32CommandLen < 10 
-            || pDcCommand->m_ui32CommandLen > 512) // FlylinkDC++
+		if (pDcCommand->m_ui32CommandLen < 10
+		        || pDcCommand->m_ui32CommandLen > 512) // FlylinkDC++
 		{
 			UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad $Search (%s) from %s (%s) - user closed.", pDcCommand->m_sCommand, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
 			
@@ -1815,7 +1815,7 @@ void DcCommands::Search(DcCommand * pDcCommand, const bool bMulti)
 	else
 	{
 		if (pDcCommand->m_ui32CommandLen < 15
-          || pDcCommand->m_ui32CommandLen > 512) // FlylinkDC++
+		        || pDcCommand->m_ui32CommandLen > 512) // FlylinkDC++
 		{
 			UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad $MultiSearch (%s) from %s (%s) - user closed.", pDcCommand->m_sCommand, pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
 			
@@ -1951,9 +1951,9 @@ void DcCommands::Search(DcCommand * pDcCommand, const bool bMulti)
 			
 			pSpace[0] = ' ';
 			UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad IP:Port length in %sSearch from %s (%s). (%s)", bMulti == false ? "" : "M", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP, pDcCommand->m_sCommand);
-            pDcCommand->m_pUser->m_is_bad_port = true; // FlylinkDC++
+			pDcCommand->m_pUser->m_is_bad_port = true; // FlylinkDC++
 			//pDcCommand->m_pUser->Close();
-            
+			
 			return;
 		}
 		
@@ -2879,136 +2879,136 @@ void DcCommands::Supports(DcCommand * pDcCommand)
 		
 		switch (sSupport[0])
 		{
-			case 'N':
-				if (sSupport[1] == 'o')
-				{
-					if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO) == false && szDataLen == 7 && memcmp(sSupport + 2, "Hello", 5) == 0)
-					{
-						pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_NOHELLO;
-					}
-					else if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_NOGETINFO) == User::SUPPORTBIT_NOGETINFO) == false && szDataLen == 9 && memcmp(sSupport + 2, "GetINFO", 7) == 0)
-					{
-						pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_NOGETINFO;
-					}
-				}
-				break;
-			case 'Q':
+		case 'N':
+			if (sSupport[1] == 'o')
 			{
-				if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false && szDataLen == 9 && *((uint64_t *)(sSupport + 1)) == *((uint64_t *)"uickList"))
+				if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO) == false && szDataLen == 7 && memcmp(sSupport + 2, "Hello", 5) == 0)
 				{
-					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_QUICKLIST;
-					// PPK ... in fact NoHello is only not fully implemented Quicklist (without diferent login sequency)
-					// That's why i overide NoHello here and use bQuicklist only for login, on other places is same as NoHello ;)
 					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_NOHELLO;
 				}
-				break;
+				else if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_NOGETINFO) == User::SUPPORTBIT_NOGETINFO) == false && szDataLen == 9 && memcmp(sSupport + 2, "GetINFO", 7) == 0)
+				{
+					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_NOGETINFO;
+				}
 			}
-			case 'H':
+			break;
+		case 'Q':
+		{
+			if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false && szDataLen == 9 && *((uint64_t *)(sSupport + 1)) == *((uint64_t *)"uickList"))
 			{
-				if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_HUBURL) == User::SUPPORTBIT_HUBURL) == false && szDataLen == 6 && memcmp(sSupport + 1, "ubURL", 5) == 0)
-				{
-					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_HUBURL;
-				}
+				pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_QUICKLIST;
+				// PPK ... in fact NoHello is only not fully implemented Quicklist (without diferent login sequency)
+				// That's why i overide NoHello here and use bQuicklist only for login, on other places is same as NoHello ;)
+				pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_NOHELLO;
 			}
-			case 'U':
+			break;
+		}
+		case 'H':
+		{
+			if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_HUBURL) == User::SUPPORTBIT_HUBURL) == false && szDataLen == 6 && memcmp(sSupport + 1, "ubURL", 5) == 0)
 			{
-				if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_USERCOMMAND) == User::SUPPORTBIT_USERCOMMAND) == false && szDataLen == 11 && memcmp(sSupport + 1, "serCommand", 10) == 0)
-				{
-					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_USERCOMMAND;
-				}
-				else if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_USERIP2) == User::SUPPORTBIT_USERIP2) == false && szDataLen == 7 && memcmp(sSupport + 1, "serIP2", 6) == 0)
-				{
-					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_USERIP2;
-				}
-				break;
+				pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_HUBURL;
 			}
-			case 'B':
+		}
+		case 'U':
+		{
+			if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_USERCOMMAND) == User::SUPPORTBIT_USERCOMMAND) == false && szDataLen == 11 && memcmp(sSupport + 1, "serCommand", 10) == 0)
 			{
-				if (((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == false && szDataLen == 7 && memcmp(sSupport + 1, "otINFO", 6) == 0)
-				{
-					if (SettingManager::m_Ptr->m_bBools[SETBOOL_DONT_ALLOW_PINGERS] == true)
-					{
-						pDcCommand->m_pUser->SendFormat("DcCommands::Supports2", false, "<%s> %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_SORRY_THIS_HUB_NOT_ALLOW_PINGERS]);
-						pDcCommand->m_pUser->Close();
-						return;
-					}
-					else
-					{
-						pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_PINGER;
-						pDcCommand->m_pUser->SendFormat("DcCommands::Supports4", true, "%s%" PRIu64 " %s, %" PRIu64 " %s, %" PRIu64 " %s / %s: %u)|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_NAME_WLCM], ServerManager::m_ui64Days, LanguageManager::m_Ptr->m_sTexts[LAN_DAYS_LWR],
-						                                ServerManager::m_ui64Hours, LanguageManager::m_Ptr->m_sTexts[LAN_HOURS_LWR], ServerManager::m_ui64Mins, LanguageManager::m_Ptr->m_sTexts[LAN_MINUTES_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_USERS], ServerManager::m_ui32Logged);
-					}
-				}
-				break;
+				pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_USERCOMMAND;
 			}
-			case 'Z':
+			else if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_USERIP2) == User::SUPPORTBIT_USERIP2) == false && szDataLen == 7 && memcmp(sSupport + 1, "serIP2", 6) == 0)
 			{
-				if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == false)
-				{
-					if (szDataLen == 6 && memcmp(sSupport + 1, "Pipe0", 5) == 0)
-					{
-						pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_ZPIPE0;
-						pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_ZPIPE;
-						m_ui32StatZPipe++;
-					}
-					else if (szDataLen == 5 && *((uint32_t *)(sSupport + 1)) == *((uint32_t *)"Pipe"))
-					{
-						pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_ZPIPE;
-						m_ui32StatZPipe++;
-					}
-				}
-				break;
+				pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_USERIP2;
 			}
-			case 'I':
+			break;
+		}
+		case 'B':
+		{
+			if (((pDcCommand->m_pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == false && szDataLen == 7 && memcmp(sSupport + 1, "otINFO", 6) == 0)
 			{
-				if (szDataLen == 4)
+				if (SettingManager::m_Ptr->m_bBools[SETBOOL_DONT_ALLOW_PINGERS] == true)
 				{
-					if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64) == false && *((uint32_t *)sSupport) == *((uint32_t *)"IP64"))
-					{
-						pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_IP64;
-					}
-					else if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_IPV4) == User::SUPPORTBIT_IPV4) == false && *((uint32_t *)sSupport) == *((uint32_t *)"IPv4"))
-					{
-						pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_IPV4;
-					}
+					pDcCommand->m_pUser->SendFormat("DcCommands::Supports2", false, "<%s> %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_SORRY_THIS_HUB_NOT_ALLOW_PINGERS]);
+					pDcCommand->m_pUser->Close();
+					return;
 				}
-				break;
+				else
+				{
+					pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_PINGER;
+					pDcCommand->m_pUser->SendFormat("DcCommands::Supports4", true, "%s%" PRIu64 " %s, %" PRIu64 " %s, %" PRIu64 " %s / %s: %u)|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_NAME_WLCM], ServerManager::m_ui64Days, LanguageManager::m_Ptr->m_sTexts[LAN_DAYS_LWR],
+					                                ServerManager::m_ui64Hours, LanguageManager::m_Ptr->m_sTexts[LAN_HOURS_LWR], ServerManager::m_ui64Mins, LanguageManager::m_Ptr->m_sTexts[LAN_MINUTES_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_USERS], ServerManager::m_ui32Logged);
+				}
 			}
-			case 'T':
+			break;
+		}
+		case 'Z':
+		{
+			if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == false)
 			{
-				if (szDataLen == 4)
+				if (szDataLen == 6 && memcmp(sSupport + 1, "Pipe0", 5) == 0)
 				{
-					if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_TLS2) == User::SUPPORTBIT_TLS2) == false && *((uint32_t *)sSupport) == *((uint32_t *)"TLS2"))
-					{
-						pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_TLS2;
-					}
+					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_ZPIPE0;
+					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_ZPIPE;
+					m_ui32StatZPipe++;
 				}
-				break;
+				else if (szDataLen == 5 && *((uint32_t *)(sSupport + 1)) == *((uint32_t *)"Pipe"))
+				{
+					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_ZPIPE;
+					m_ui32StatZPipe++;
+				}
 			}
+			break;
+		}
+		case 'I':
+		{
+			if (szDataLen == 4)
+			{
+				if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64) == false && *((uint32_t *)sSupport) == *((uint32_t *)"IP64"))
+				{
+					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_IP64;
+				}
+				else if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_IPV4) == User::SUPPORTBIT_IPV4) == false && *((uint32_t *)sSupport) == *((uint32_t *)"IPv4"))
+				{
+					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_IPV4;
+				}
+			}
+			break;
+		}
+		case 'T':
+		{
+			if (szDataLen == 4)
+			{
+				if (((pDcCommand->m_pUser->m_ui32SupportBits & User::SUPPORTBIT_TLS2) == User::SUPPORTBIT_TLS2) == false && *((uint32_t *)sSupport) == *((uint32_t *)"TLS2"))
+				{
+					pDcCommand->m_pUser->m_ui32SupportBits |= User::SUPPORTBIT_TLS2;
+				}
+			}
+			break;
+		}
 #ifdef USE_FLYLINKDC_EXT_JSON
-			case 'E':
+		case 'E':
+		{
+			if (szDataLen == 8)
 			{
-				if (szDataLen == 8)
+				if (pDcCommand->m_pUser->isSupportExtJSON() == false && memcmp(sSupport + 1, "xtJSON2", 7) == 0)
 				{
-					if (pDcCommand->m_pUser->isSupportExtJSON() == false && memcmp(sSupport + 1, "xtJSON2", 7) == 0)
-					{
-						pDcCommand->m_pUser->m_is_json_user = true; // |= User::SUPPORTBIT_EXTJSON2;
-					}
+					pDcCommand->m_pUser->m_is_json_user = true; // |= User::SUPPORTBIT_EXTJSON2;
 				}
-				break;
 			}
+			break;
+		}
 #endif
-			case '\0':
-			{
-				// PPK ... corrupted $Supports ???
-				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad $Supports from %s (%s) - user closed.", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
-				
-				pDcCommand->m_pUser->Close();
-				return;
-			}
-			default:
-				// PPK ... unknown supports
-				break;
+		case '\0':
+		{
+			// PPK ... corrupted $Supports ???
+			UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad $Supports from %s (%s) - user closed.", pDcCommand->m_pUser->m_sNick, pDcCommand->m_pUser->m_sIP);
+			
+			pDcCommand->m_pUser->Close();
+			return;
+		}
+		default:
+			// PPK ... unknown supports
+			break;
 		}
 		
 		sSupport = pDcCommand->m_sCommand + ui32i + 1;
@@ -3658,29 +3658,29 @@ bool DcCommands::ValidateUserNick(DcCommand * pDcCommand,User * pUser, char * sN
 	{
 		switch (sNick[ui32i])
 		{
-			case ' ':
-			case '$':
-			case '|':
-			{
-				pUser->SendFormat("DcCommands::ValidateUserNick1", false, "<%s> %s '%c' ! %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOUR_NICK_CONTAINS_ILLEGAL_CHARACTER], sNick[ui32i], LanguageManager::m_Ptr->m_sTexts[LAN_PLS_CORRECT_IT_AND_GET_BACK_AGAIN]);
-				
+		case ' ':
+		case '$':
+		case '|':
+		{
+			pUser->SendFormat("DcCommands::ValidateUserNick1", false, "<%s> %s '%c' ! %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOUR_NICK_CONTAINS_ILLEGAL_CHARACTER], sNick[ui32i], LanguageManager::m_Ptr->m_sTexts[LAN_PLS_CORRECT_IT_AND_GET_BACK_AGAIN]);
+			
 //				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick with bad chars (%s) from %s (%s) - user closed.", Nick, pUser->sNick, pUser->sIP);
+
+			pUser->Close();
+			return false;
+		}
+		default:
+			if ((unsigned char)sNick[ui32i] < 32)
+			{
+				pUser->SendFormat("DcCommands::ValidateUserNick2", false, "<%s> %s! %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOUR_NICK_CONTAINS_ILLEGAL_WHITE_CHARACTER], LanguageManager::m_Ptr->m_sTexts[LAN_PLS_CORRECT_IT_AND_GET_BACK_AGAIN]);
+				
+//					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick with white chars (%s) from %s (%s) - user closed.", Nick, pUser->sNick, pUser->sIP);
 
 				pUser->Close();
 				return false;
 			}
-			default:
-				if ((unsigned char)sNick[ui32i] < 32)
-				{
-					pUser->SendFormat("DcCommands::ValidateUserNick2", false, "<%s> %s! %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOUR_NICK_CONTAINS_ILLEGAL_WHITE_CHARACTER], LanguageManager::m_Ptr->m_sTexts[LAN_PLS_CORRECT_IT_AND_GET_BACK_AGAIN]);
-					
-//					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick with white chars (%s) from %s (%s) - user closed.", Nick, pUser->sNick, pUser->sIP);
-
-					pUser->Close();
-					return false;
-				}
-				
-				continue;
+			
+			continue;
 		}
 	}
 	
@@ -3882,16 +3882,16 @@ bool DcCommands::ValidateUserNick(DcCommand * pDcCommand,User * pUser, char * sN
 					}
 					else
 					{
-					pUser->SendFormat("DcCommands::ValidateUserNick7", false, "$ValidateDenide %s|", sNick);
-					
-					if (strcmp(OtherUser->m_sIP, pUser->m_sIP) != 0 || strcmp(OtherUser->m_sNick, pUser->m_sNick) != 0)
-					{
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick taken [%s (%s)] %s (%s) - user closed.", OtherUser->m_sNick, OtherUser->m_sIP, pUser->m_sNick, pUser->m_sIP);
+						pUser->SendFormat("DcCommands::ValidateUserNick7", false, "$ValidateDenide %s|", sNick);
+						
+						if (strcmp(OtherUser->m_sIP, pUser->m_sIP) != 0 || strcmp(OtherUser->m_sNick, pUser->m_sNick) != 0)
+						{
+							UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick taken [%s (%s)] %s (%s) - user closed.", OtherUser->m_sNick, OtherUser->m_sIP, pUser->m_sNick, pUser->m_sIP);
+						}
+						
+						pUser->Close();
+						return false;
 					}
-					
-					pUser->Close();
-					return false;
-				}
 				}
 				else
 				{
@@ -3909,7 +3909,7 @@ bool DcCommands::ValidateUserNick(DcCommand * pDcCommand,User * pUser, char * sN
 // [+] FlylinkDC++
 //---------------------------------------------------------------------------
 bool DcCommands::ValidateUserNickFinally(bool pIsNotReg, User * pUser, const size_t szNickLen, const bool ValidateNick)
-{	
+{
 	if (pIsNotReg)
 	{
 		// user is NOT registered
@@ -4030,163 +4030,163 @@ void DcCommands::ProcessCmds(User * pUser)
 		
 		switch (cur->m_ui8Type)
 		{
-			case PrcsdUsrCmd::SUPPORTS:
+		case PrcsdUsrCmd::SUPPORTS:
+		{
+			memcpy(ServerManager::m_pGlobalBuffer, "$Supports", 9);
+			uint32_t iSupportsLen = 9;
+			
+			// PPK ... why dc++ have that 0 on end ? that was not in original documentation.. stupid duck...
+			if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_ZPIPE0) == User::SUPPORTBIT_ZPIPE0) == true)
 			{
-				memcpy(ServerManager::m_pGlobalBuffer, "$Supports", 9);
-				uint32_t iSupportsLen = 9;
-				
-				// PPK ... why dc++ have that 0 on end ? that was not in original documentation.. stupid duck...
-				if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_ZPIPE0) == User::SUPPORTBIT_ZPIPE0) == true)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " ZPipe0", 7);
-					iSupportsLen += 7;
-				}
-				else if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == true)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " ZPipe", 6);
-					iSupportsLen += 6;
-				}
-				
-				// PPK ... yes yes yes finally QuickList support in PtokaX !!! ;))
-				if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " QuickList", 10);
-					iSupportsLen += 10;
-				}
-				else if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO)
-				{
-					// PPK ... Hmmm Client not really need it, but for now send it ;-)
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " NoHello", 8);
-					iSupportsLen += 8;
-				}
-				else if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_NOGETINFO) == User::SUPPORTBIT_NOGETINFO)
-				{
-					// PPK ... if client support NoHello automatically supports NoGetINFO another badwith wasting !
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " NoGetINFO", 10);
-					iSupportsLen += 10;
-				}
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " ZPipe0", 7);
+				iSupportsLen += 7;
+			}
+			else if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_ZPIPE) == User::SUPPORTBIT_ZPIPE) == true)
+			{
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " ZPipe", 6);
+				iSupportsLen += 6;
+			}
+			
+			// PPK ... yes yes yes finally QuickList support in PtokaX !!! ;))
+			if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST)
+			{
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " QuickList", 10);
+				iSupportsLen += 10;
+			}
+			else if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_NOHELLO) == User::SUPPORTBIT_NOHELLO)
+			{
+				// PPK ... Hmmm Client not really need it, but for now send it ;-)
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " NoHello", 8);
+				iSupportsLen += 8;
+			}
+			else if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_NOGETINFO) == User::SUPPORTBIT_NOGETINFO)
+			{
+				// PPK ... if client support NoHello automatically supports NoGetINFO another badwith wasting !
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " NoGetINFO", 10);
+				iSupportsLen += 10;
+			}
 #ifdef USE_FLYLINKDC_EXT_JSON
-				if (pUser->isSupportExtJSON())
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " ExtJSON2", 9);
-					iSupportsLen += 9;
-				}
+			if (pUser->isSupportExtJSON())
+			{
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " ExtJSON2", 9);
+				iSupportsLen += 9;
+			}
 #endif
-				if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_HUBURL) == User::SUPPORTBIT_HUBURL)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " HubURL", 7);
-					iSupportsLen += 7;
-				}
-				if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " IP64", 5);
-					iSupportsLen += 5;
-				}
-// FlylinkDC++				
-				if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " IP64", 5);
-					iSupportsLen += 5;
-				}
-				
-				if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_IPV4) == User::SUPPORTBIT_IPV4) && ((pUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6))
-				{
-					// Only client connected with IPv6 sending this, so only that client is getting reply
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " IPv4", 5);
-					iSupportsLen += 5;
-				}
-				
-				if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_USERCOMMAND) == User::SUPPORTBIT_USERCOMMAND)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " UserCommand", 12);
-					iSupportsLen += 12;
-				}
-				
-				if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_USERIP2) == User::SUPPORTBIT_USERIP2 && ((pUser->m_ui32BoolBits & User::BIT_QUACK_SUPPORTS) == User::BIT_QUACK_SUPPORTS) == false)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " UserIP2", 8);
-					iSupportsLen += 8;
-				}
-				
-				if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_TLS2) == User::SUPPORTBIT_TLS2)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " TLS2", 5);
-					iSupportsLen += 5;
-				}
-				
-				if ((pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " BotINFO HubINFO", 16);
-					iSupportsLen += 16;
-				}
-				
-				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, "|\0", 2);
-				pUser->SendCharDelayed(ServerManager::m_pGlobalBuffer, iSupportsLen + 1);
-				break;
-			}
-			case PrcsdUsrCmd::LOGINHELLO:
+			if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_HUBURL) == User::SUPPORTBIT_HUBURL)
 			{
-				pUser->SendFormat("DcCommands::ProcessCmds", true, "$Hello %s|", pUser->m_sNick);
-				break;
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " HubURL", 7);
+				iSupportsLen += 7;
 			}
-			case PrcsdUsrCmd::GETPASS:
+			if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64)
 			{
-				uint32_t ui32Len = 9;
-				pUser->SendCharDelayed("$GetPass|", ui32Len); // query user for password
-				break;
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " IP64", 5);
+				iSupportsLen += 5;
 			}
-			case PrcsdUsrCmd::CHAT:
+// FlylinkDC++
+			if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64)
 			{
-				// find chat message data
-				char *sBuff = cur->m_sCommand + pUser->m_ui8NickLen + 3;
-				
-				// non-command chat msg
-				bool bNonChat = false;
-				for (uint8_t ui8i = 0; ui8i < (uint8_t)SettingManager::m_Ptr->m_ui16TextsLens[SETTXT_CHAT_COMMANDS_PREFIXES]; ui8i++)
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " IP64", 5);
+				iSupportsLen += 5;
+			}
+			
+			if (((pUser->m_ui32SupportBits & User::SUPPORTBIT_IPV4) == User::SUPPORTBIT_IPV4) && ((pUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6))
+			{
+				// Only client connected with IPv6 sending this, so only that client is getting reply
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " IPv4", 5);
+				iSupportsLen += 5;
+			}
+			
+			if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_USERCOMMAND) == User::SUPPORTBIT_USERCOMMAND)
+			{
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " UserCommand", 12);
+				iSupportsLen += 12;
+			}
+			
+			if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_USERIP2) == User::SUPPORTBIT_USERIP2 && ((pUser->m_ui32BoolBits & User::BIT_QUACK_SUPPORTS) == User::BIT_QUACK_SUPPORTS) == false)
+			{
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " UserIP2", 8);
+				iSupportsLen += 8;
+			}
+			
+			if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_TLS2) == User::SUPPORTBIT_TLS2)
+			{
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " TLS2", 5);
+				iSupportsLen += 5;
+			}
+			
+			if ((pUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER)
+			{
+				memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " BotINFO HubINFO", 16);
+				iSupportsLen += 16;
+			}
+			
+			memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, "|\0", 2);
+			pUser->SendCharDelayed(ServerManager::m_pGlobalBuffer, iSupportsLen + 1);
+			break;
+		}
+		case PrcsdUsrCmd::LOGINHELLO:
+		{
+			pUser->SendFormat("DcCommands::ProcessCmds", true, "$Hello %s|", pUser->m_sNick);
+			break;
+		}
+		case PrcsdUsrCmd::GETPASS:
+		{
+			uint32_t ui32Len = 9;
+			pUser->SendCharDelayed("$GetPass|", ui32Len); // query user for password
+			break;
+		}
+		case PrcsdUsrCmd::CHAT:
+		{
+			// find chat message data
+			char *sBuff = cur->m_sCommand + pUser->m_ui8NickLen + 3;
+			
+			// non-command chat msg
+			bool bNonChat = false;
+			for (uint8_t ui8i = 0; ui8i < (uint8_t)SettingManager::m_Ptr->m_ui16TextsLens[SETTXT_CHAT_COMMANDS_PREFIXES]; ui8i++)
+			{
+				if (sBuff[0] == SettingManager::m_Ptr->m_sTexts[SETTXT_CHAT_COMMANDS_PREFIXES][ui8i])
 				{
-					if (sBuff[0] == SettingManager::m_Ptr->m_sTexts[SETTXT_CHAT_COMMANDS_PREFIXES][ui8i])
+					bNonChat = true;
+					break;
+				}
+			}
+			
+			if (bNonChat == true)
+			{
+				// text files...
+				if (SettingManager::m_Ptr->m_bBools[SETBOOL_ENABLE_TEXT_FILES] == true)
+				{
+					cur->m_sCommand[cur->m_ui32Len - 1] = '\0'; // get rid of the pipe
+					
+					if (TextFilesManager::m_Ptr->ProcessTextFilesCmd(pUser, sBuff + 1))
 					{
-						bNonChat = true;
 						break;
 					}
-				}
-				
-				if (bNonChat == true)
-				{
-					// text files...
-					if (SettingManager::m_Ptr->m_bBools[SETBOOL_ENABLE_TEXT_FILES] == true)
-					{
-						cur->m_sCommand[cur->m_ui32Len - 1] = '\0'; // get rid of the pipe
-						
-						if (TextFilesManager::m_Ptr->ProcessTextFilesCmd(pUser, sBuff + 1))
-						{
-							break;
-						}
-						
-						cur->m_sCommand[cur->m_ui32Len - 1] = '|'; // add back pipe
-					}
 					
-					// built-in commands
-					// alex82 ... Уменьшили минимальную длину команды
-					if (cur->m_ui32Len - pUser->m_ui8NickLen >= 6)
-					{
-						if (HubCommands::DoCommand(pUser, sBuff - (pUser->m_ui8NickLen - 1), cur->m_ui32Len))
-							break;
-							
-						cur->m_sCommand[cur->m_ui32Len - 1] = '|'; // add back pipe
-					}
+					cur->m_sCommand[cur->m_ui32Len - 1] = '|'; // add back pipe
 				}
 				
-				// everything's ok, let's chat
-				Users::m_Ptr->SendChat2All(pUser, cur->m_sCommand, cur->m_ui32Len, cur->m_pPtr);
-				
-				break;
+				// built-in commands
+				// alex82 ... Уменьшили минимальную длину команды
+				if (cur->m_ui32Len - pUser->m_ui8NickLen >= 6)
+				{
+					if (HubCommands::DoCommand(pUser, sBuff - (pUser->m_ui8NickLen - 1), cur->m_ui32Len))
+						break;
+						
+					cur->m_sCommand[cur->m_ui32Len - 1] = '|'; // add back pipe
+				}
 			}
-			case PrcsdUsrCmd::TO_OP_CHAT:
-			{
-				GlobalDataQueue::m_Ptr->SingleItemStore(cur->m_sCommand, cur->m_ui32Len, pUser, 0, GlobalDataQueue::SI_OPCHAT);
-				break;
-			}
+			
+			// everything's ok, let's chat
+			Users::m_Ptr->SendChat2All(pUser, cur->m_sCommand, cur->m_ui32Len, cur->m_pPtr);
+			
+			break;
+		}
+		case PrcsdUsrCmd::TO_OP_CHAT:
+		{
+			GlobalDataQueue::m_Ptr->SingleItemStore(cur->m_sCommand, cur->m_ui32Len, pUser, 0, GlobalDataQueue::SI_OPCHAT);
+			break;
+		}
 		}
 		
 		safe_free(cur->m_sCommand);

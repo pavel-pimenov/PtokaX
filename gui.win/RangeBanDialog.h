@@ -25,44 +25,44 @@ struct RangeBanItem;
 
 class clsRangeBanDialog
 {
-	public:
-		HWND m_hWndWindowItems[17];
-		
-		enum enmWindowItems
-		{
-			WINDOW_HANDLE,
-			GB_RANGE,
-			EDT_FROM_IP,
-			EDT_TO_IP,
-			BTN_FULL_BAN,
-			GB_REASON,
-			EDT_REASON,
-			GB_BY,
-			EDT_BY,
-			GB_BAN_TYPE,
-			RB_PERM_BAN,
-			GB_TEMP_BAN,
-			RB_TEMP_BAN,
-			DT_TEMP_BAN_EXPIRE_DATE,
-			DT_TEMP_BAN_EXPIRE_TIME,
-			BTN_ACCEPT,
-			BTN_DISCARD
-		};
-		
-		clsRangeBanDialog();
-		~clsRangeBanDialog();
-		
-		static LRESULT CALLBACK StaticRangeBanDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-		
-		void DoModal(HWND hWndParent, RangeBanItem * pRangeBan = NULL);
-		void RangeBanDeleted(RangeBanItem * pRangeBan);
-	private:
-		RangeBanItem * pRangeBanToChange;
-		
-		LRESULT RangeBanDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-		
-		bool OnAccept();
-		DISALLOW_COPY_AND_ASSIGN(clsRangeBanDialog);
+public:
+	HWND m_hWndWindowItems[17];
+	
+	enum enmWindowItems
+	{
+		WINDOW_HANDLE,
+		GB_RANGE,
+		EDT_FROM_IP,
+		EDT_TO_IP,
+		BTN_FULL_BAN,
+		GB_REASON,
+		EDT_REASON,
+		GB_BY,
+		EDT_BY,
+		GB_BAN_TYPE,
+		RB_PERM_BAN,
+		GB_TEMP_BAN,
+		RB_TEMP_BAN,
+		DT_TEMP_BAN_EXPIRE_DATE,
+		DT_TEMP_BAN_EXPIRE_TIME,
+		BTN_ACCEPT,
+		BTN_DISCARD
+	};
+	
+	clsRangeBanDialog();
+	~clsRangeBanDialog();
+	
+	static LRESULT CALLBACK StaticRangeBanDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
+	void DoModal(HWND hWndParent, RangeBanItem * pRangeBan = NULL);
+	void RangeBanDeleted(RangeBanItem * pRangeBan);
+private:
+	RangeBanItem * pRangeBanToChange;
+	
+	LRESULT RangeBanDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
+	bool OnAccept();
+	DISALLOW_COPY_AND_ASSIGN(clsRangeBanDialog);
 };
 //------------------------------------------------------------------------------
 

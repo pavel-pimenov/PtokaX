@@ -203,9 +203,9 @@ void ProfileManager::LoadXML()
 			if (iMsgLen > 0)
 			{
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+				::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-			AppendLog(ServerManager::m_pGlobalBuffer);
+				AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 			}
 			
@@ -458,18 +458,18 @@ int32_t ProfileManager::AddProfile(const char * sName)
 	{
 		switch (sName[ui32j])
 		{
-			case '\0':
-				break;
-			case '|':
+		case '\0':
+			break;
+		case '|':
+			return -2;
+		default:
+			if (sName[ui32j] < 33)
+			{
 				return -2;
-			default:
-				if (sName[ui32j] < 33)
-				{
-					return -2;
-				}
-				
-				ui32j++;
-				continue;
+			}
+			
+			ui32j++;
+			continue;
 		}
 		
 		break;

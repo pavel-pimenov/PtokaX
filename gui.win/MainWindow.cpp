@@ -123,108 +123,401 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
-		case WM_CREATE:
+	case WM_CREATE:
+	{
 		{
+			HWND hCombo = ::CreateWindowEx(0, WC_COMBOBOX, "", WS_CHILD | WS_VSCROLL | CBS_DROPDOWNLIST, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, m_hWnd, NULL,
+			                               clsServerManager::hInstance, NULL);
+			                               
+			if (hCombo != NULL)
 			{
-				HWND hCombo = ::CreateWindowEx(0, WC_COMBOBOX, "", WS_CHILD | WS_VSCROLL | CBS_DROPDOWNLIST, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, m_hWnd, NULL,
-				                               clsServerManager::hInstance, NULL);
-				                               
-				if (hCombo != NULL)
-				{
-					::SendMessage(hCombo, WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
-					
-					clsGuiSettingManager::iGroupBoxMargin = (int)::SendMessage(hCombo, CB_GETITEMHEIGHT, (WPARAM) - 1, 0);
-					clsGuiSettingManager::iEditHeight = clsGuiSettingManager::iGroupBoxMargin + (::GetSystemMetrics(SM_CXFIXEDFRAME) * 2);
-					clsGuiSettingManager::iTextHeight = clsGuiSettingManager::iGroupBoxMargin - 2;
-					clsGuiSettingManager::iCheckHeight = max(clsGuiSettingManager::iTextHeight - 2, ::GetSystemMetrics(SM_CYSMICON));
-					
-					::DestroyWindow(hCombo);
-				}
+				::SendMessage(hCombo, WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
 				
-				HWND hUpDown = ::CreateWindowEx(0, UPDOWN_CLASS, "", WS_CHILD | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_SETBUDDYINT,
-				                                CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, clsGuiSettingManager::iEditHeight, m_hWnd, NULL, clsServerManager::hInstance, NULL);
-				                                
-				if (hUpDown != NULL)
-				{
-					RECT rcUpDown;
-					::GetWindowRect(hUpDown, &rcUpDown);
-					
-					clsGuiSettingManager::iUpDownWidth = rcUpDown.right - rcUpDown.left;
-					
-					::DestroyWindow(hUpDown);
-				}
+				clsGuiSettingManager::iGroupBoxMargin = (int)::SendMessage(hCombo, CB_GETITEMHEIGHT, (WPARAM) - 1, 0);
+				clsGuiSettingManager::iEditHeight = clsGuiSettingManager::iGroupBoxMargin + (::GetSystemMetrics(SM_CXFIXEDFRAME) * 2);
+				clsGuiSettingManager::iTextHeight = clsGuiSettingManager::iGroupBoxMargin - 2;
+				clsGuiSettingManager::iCheckHeight = max(clsGuiSettingManager::iTextHeight - 2, ::GetSystemMetrics(SM_CYSMICON));
 				
-				clsGuiSettingManager::iOneLineGB = clsGuiSettingManager::iGroupBoxMargin + clsGuiSettingManager::iEditHeight + 8;
-				clsGuiSettingManager::iOneLineOneChecksGB = clsGuiSettingManager::iGroupBoxMargin + clsGuiSettingManager::iCheckHeight + clsGuiSettingManager::iEditHeight + 12;
-				clsGuiSettingManager::iOneLineTwoChecksGB = clsGuiSettingManager::iGroupBoxMargin + (2 * clsGuiSettingManager::iCheckHeight) + clsGuiSettingManager::iEditHeight + 15;
-				
-				SettingPage::iOneCheckGB = clsGuiSettingManager::iGroupBoxMargin + clsGuiSettingManager::iCheckHeight + 8;
-				SettingPage::iTwoChecksGB = clsGuiSettingManager::iGroupBoxMargin + (2 * clsGuiSettingManager::iCheckHeight) + 3 + 8;
-				SettingPage::iOneLineTwoGroupGB = clsGuiSettingManager::iGroupBoxMargin + clsGuiSettingManager::iEditHeight + (2 * clsGuiSettingManager::iOneLineGB) + 7;
-				SettingPage::iTwoLineGB = clsGuiSettingManager::iGroupBoxMargin  + (2 * clsGuiSettingManager::iEditHeight) + 13;
-				SettingPage::iThreeLineGB = clsGuiSettingManager::iGroupBoxMargin + (3 * clsGuiSettingManager::iEditHeight) + 18;
+				::DestroyWindow(hCombo);
 			}
+			
+			HWND hUpDown = ::CreateWindowEx(0, UPDOWN_CLASS, "", WS_CHILD | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_SETBUDDYINT,
+			                                CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, clsGuiSettingManager::iEditHeight, m_hWnd, NULL, clsServerManager::hInstance, NULL);
+			                                
+			if (hUpDown != NULL)
+			{
+				RECT rcUpDown;
+				::GetWindowRect(hUpDown, &rcUpDown);
+				
+				clsGuiSettingManager::iUpDownWidth = rcUpDown.right - rcUpDown.left;
+				
+				::DestroyWindow(hUpDown);
+			}
+			
+			clsGuiSettingManager::iOneLineGB = clsGuiSettingManager::iGroupBoxMargin + clsGuiSettingManager::iEditHeight + 8;
+			clsGuiSettingManager::iOneLineOneChecksGB = clsGuiSettingManager::iGroupBoxMargin + clsGuiSettingManager::iCheckHeight + clsGuiSettingManager::iEditHeight + 12;
+			clsGuiSettingManager::iOneLineTwoChecksGB = clsGuiSettingManager::iGroupBoxMargin + (2 * clsGuiSettingManager::iCheckHeight) + clsGuiSettingManager::iEditHeight + 15;
+			
+			SettingPage::iOneCheckGB = clsGuiSettingManager::iGroupBoxMargin + clsGuiSettingManager::iCheckHeight + 8;
+			SettingPage::iTwoChecksGB = clsGuiSettingManager::iGroupBoxMargin + (2 * clsGuiSettingManager::iCheckHeight) + 3 + 8;
+			SettingPage::iOneLineTwoGroupGB = clsGuiSettingManager::iGroupBoxMargin + clsGuiSettingManager::iEditHeight + (2 * clsGuiSettingManager::iOneLineGB) + 7;
+			SettingPage::iTwoLineGB = clsGuiSettingManager::iGroupBoxMargin  + (2 * clsGuiSettingManager::iEditHeight) + 13;
+			SettingPage::iThreeLineGB = clsGuiSettingManager::iGroupBoxMargin + (3 * clsGuiSettingManager::iEditHeight) + 18;
+		}
+		
+		RECT rcMain;
+		::GetClientRect(m_hWnd, &rcMain);
+		
+		DWORD dwTabsStyle = WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP | TCS_TABS | TCS_FOCUSNEVER;
+		
+		BOOL bHotTrackEnabled = FALSE;
+		::SystemParametersInfo(SPI_GETHOTTRACKING, 0, &bHotTrackEnabled, 0);
+		
+		if (bHotTrackEnabled != FALSE)
+		{
+			dwTabsStyle |= TCS_HOTTRACK;
+		}
+		
+		m_hWndWindowItems[TC_TABS] = ::CreateWindowEx(0, WC_TABCONTROL, "", dwTabsStyle, 0, 0, rcMain.right, clsGuiSettingManager::iEditHeight, m_hWnd, NULL, clsServerManager::hInstance, NULL);
+		::SendMessage(m_hWndWindowItems[TC_TABS], WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
+		
+		TCITEM tcItem = { 0 };
+		tcItem.mask = TCIF_TEXT | TCIF_PARAM;
+		
+		for (uint8_t ui8i = 0; ui8i < (sizeof(MainWindowPages) / sizeof(MainWindowPages[0])); ui8i++)
+		{
+			if (MainWindowPages[ui8i] != NULL)
+			{
+				if (MainWindowPages[ui8i]->CreateMainWindowPage(m_hWnd) == false)
+				{
+					::MessageBox(m_hWnd, "Main window creation failed!", g_sPtokaXTitle, MB_OK);
+				}
+				
+				tcItem.pszText = MainWindowPages[ui8i]->GetPageName();
+				tcItem.lParam = (LPARAM)MainWindowPages[ui8i];
+				::SendMessage(m_hWndWindowItems[TC_TABS], TCM_INSERTITEM, ui8i, (LPARAM)&tcItem);
+			}
+			
+			if (ui8i == 0 && clsGuiSettingManager::mPtr->i32Integers[GUISETINT_MAIN_WINDOW_HEIGHT] == clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_MAIN_WINDOW_HEIGHT))
+			{
+				RECT rcPage = { 0 };
+				::GetWindowRect(MainWindowPages[0]->m_hWnd, &rcPage);
+				
+				int iDiff = (rcMain.bottom) - (rcPage.bottom - rcPage.top) - (clsGuiSettingManager::iEditHeight + 1);
+				
+				::GetWindowRect(m_hWnd, &rcMain);
+				
+				if (iDiff != 0)
+				{
+					::SetWindowPos(m_hWnd, NULL, 0, 0, (rcMain.right - rcMain.left), (rcMain.bottom - rcMain.top) - iDiff, SWP_NOMOVE | SWP_NOZORDER);
+				}
+			}
+		}
+		
+		clsGuiSettingManager::wpOldTabsProc = (WNDPROC)::SetWindowLongPtr(m_hWndWindowItems[TC_TABS], GWLP_WNDPROC, (LONG_PTR)TabsProc);
+		
+#ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
+		
+		if (clsSettingManager::mPtr->bBools[SETBOOL_CHECK_NEW_RELEASES] == true)
+		{
+			// Create update check thread
+			clsUpdateCheckThread::mPtr = new (std::nothrow) clsUpdateCheckThread();
+			if (clsUpdateCheckThread::mPtr == NULL)
+			{
+				AppendDebugLog("%s - [MEM] Cannot allocate clsUpdateCheckThread::mPtr in MainWindow::MainWindowProc::WM_CREATE\n");
+				exit(EXIT_FAILURE);
+			}
+			
+			// Start the update check thread
+			clsUpdateCheckThread::mPtr->Resume();
+		}
+#endif
+		return 0;
+	}
+	case WM_CLOSE:
+		if (::MessageBox(m_hWnd, (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES)
+		{
+			clsServerManager::bIsClose = true;
 			
 			RECT rcMain;
-			::GetClientRect(m_hWnd, &rcMain);
+			::GetWindowRect(m_hWnd, &rcMain);
 			
-			DWORD dwTabsStyle = WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP | TCS_TABS | TCS_FOCUSNEVER;
+			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_MAIN_WINDOW_WIDTH, rcMain.right - rcMain.left);
+			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_MAIN_WINDOW_HEIGHT, rcMain.bottom - rcMain.top);
 			
-			BOOL bHotTrackEnabled = FALSE;
-			::SystemParametersInfo(SPI_GETHOTTRACKING, 0, &bHotTrackEnabled, 0);
-			
-			if (bHotTrackEnabled != FALSE)
+			// stop server if running and save settings
+			if (clsServerManager::bServerRunning == true)
 			{
-				dwTabsStyle |= TCS_HOTTRACK;
+				clsServerManager::Stop();
+				return 0;
+			}
+			else
+			{
+				clsServerManager::FinalClose();
 			}
 			
-			m_hWndWindowItems[TC_TABS] = ::CreateWindowEx(0, WC_TABCONTROL, "", dwTabsStyle, 0, 0, rcMain.right, clsGuiSettingManager::iEditHeight, m_hWnd, NULL, clsServerManager::hInstance, NULL);
-			::SendMessage(m_hWndWindowItems[TC_TABS], WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));
+			break;
+		}
+		
+		return 0;
+	case WM_DESTROY:
+		::PostQuitMessage(1);
+		break;
+	case WM_TRAYICON:
+		if (lParam == WM_MOUSEMOVE)
+		{
+#ifndef _WIN64
+			if (ui64LastTrayMouseMove != GetActualTick())
+			{
+				ui64LastTrayMouseMove = GetActualTick();
+#else
+			if (ui64LastTrayMouseMove != GetTickCount64())
+			{
+				ui64LastTrayMouseMove = GetTickCount64();
+#endif
+				NOTIFYICONDATA nid;
+				memset(&nid, 0, sizeof(NOTIFYICONDATA));
+				nid.cbSize = sizeof(NOTIFYICONDATA);
+				nid.hWnd = m_hWnd;
+				nid.uID = 0;
+				nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+				nid.hIcon = (HICON)::LoadImage(clsServerManager::hInstance, MAKEINTRESOURCE(IDR_MAINICONSMALL), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED);
+				nid.uCallbackMessage = WM_TRAYICON;
+				
+				char msg[256];
+				int iret = 0;
+				if (clsServerManager::bServerRunning == false)
+				{
+					msg[0] = '\0';
+				}
+				else
+				{
+					iret = sprintf(msg, " (%s: %u)", clsLanguageManager::mPtr->sTexts[LAN_USERS], clsServerManager::ui32Logged);
+					if (CheckSprintf(iret, 256, "MainWindow::MainWindowProc") == false)
+					{
+						return 0;
+					}
+				}
+				
+				const size_t szSize = sizeof(nid.szTip);
+				
+				if (szSize < (size_t)(clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME] + iret + 10))
+				{
+					nid.szTip[szSize - 1] = '\0';
+					memcpy(nid.szTip + (szSize - (iret + 1)), msg, iret);
+					nid.szTip[szSize - (iret + 2)] = '.';
+					nid.szTip[szSize - (iret + 3)] = '.';
+					nid.szTip[szSize - (iret + 4)] = '.';
+					memcpy(nid.szTip + szPtokaXDashLen, clsSettingManager::mPtr->sTexts[SETTXT_HUB_NAME], szSize - (iret + 13));
+					memcpy(nid.szTip, sPtokaXDash, szPtokaXDashLen);
+				}
+				else
+				{
+					memcpy(nid.szTip, sPtokaXDash, szPtokaXDashLen);
+					memcpy(nid.szTip + szPtokaXDashLen, clsSettingManager::mPtr->sTexts[SETTXT_HUB_NAME], clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME]);
+					memcpy(nid.szTip + szPtokaXDashLen + clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME], msg, iret);
+					nid.szTip[szPtokaXDashLen + clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME] + iret] = '\0';
+				}
+				::Shell_NotifyIcon(NIM_MODIFY, &nid);
+			}
+		}
+		else if (lParam == WM_LBUTTONUP)
+		{
+			::ShowWindow(m_hWnd, SW_SHOW);
+			::ShowWindow(m_hWnd, SW_RESTORE);
+		}
+		
+		return 0;
+	case WM_SIZE:
+		if (wParam == SIZE_MINIMIZED && clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_TRAY_ICON] == true)
+		{
+			::ShowWindow(m_hWnd, SW_HIDE);
+		}
+		else
+		{
+			RECT rc;
+			::SetRect(&rc, 0, 0, GET_X_LPARAM(lParam), clsGuiSettingManager::iEditHeight);
+			::SendMessage(m_hWndWindowItems[TC_TABS], TCM_ADJUSTRECT, FALSE, (LPARAM)&rc);
 			
-			TCITEM tcItem = { 0 };
-			tcItem.mask = TCIF_TEXT | TCIF_PARAM;
+			HDWP hdwp = ::BeginDeferWindowPos(3);
+			
+			::DeferWindowPos(hdwp, m_hWndWindowItems[TC_TABS], NULL, 0, 0, GET_X_LPARAM(lParam), clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
 			
 			for (uint8_t ui8i = 0; ui8i < (sizeof(MainWindowPages) / sizeof(MainWindowPages[0])); ui8i++)
 			{
 				if (MainWindowPages[ui8i] != NULL)
 				{
-					if (MainWindowPages[ui8i]->CreateMainWindowPage(m_hWnd) == false)
-					{
-						::MessageBox(m_hWnd, "Main window creation failed!", g_sPtokaXTitle, MB_OK);
-					}
-					
-					tcItem.pszText = MainWindowPages[ui8i]->GetPageName();
-					tcItem.lParam = (LPARAM)MainWindowPages[ui8i];
-					::SendMessage(m_hWndWindowItems[TC_TABS], TCM_INSERTITEM, ui8i, (LPARAM)&tcItem);
-				}
-				
-				if (ui8i == 0 && clsGuiSettingManager::mPtr->i32Integers[GUISETINT_MAIN_WINDOW_HEIGHT] == clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_MAIN_WINDOW_HEIGHT))
-				{
-					RECT rcPage = { 0 };
-					::GetWindowRect(MainWindowPages[0]->m_hWnd, &rcPage);
-					
-					int iDiff = (rcMain.bottom) - (rcPage.bottom - rcPage.top) - (clsGuiSettingManager::iEditHeight + 1);
-					
-					::GetWindowRect(m_hWnd, &rcMain);
-					
-					if (iDiff != 0)
-					{
-						::SetWindowPos(m_hWnd, NULL, 0, 0, (rcMain.right - rcMain.left), (rcMain.bottom - rcMain.top) - iDiff, SWP_NOMOVE | SWP_NOZORDER);
-					}
+					::DeferWindowPos(hdwp, MainWindowPages[ui8i]->m_hWnd, NULL, 0, clsGuiSettingManager::iEditHeight + 1, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) - (clsGuiSettingManager::iEditHeight + 1),
+					                 SWP_NOMOVE | SWP_NOZORDER);
 				}
 			}
 			
-			clsGuiSettingManager::wpOldTabsProc = (WNDPROC)::SetWindowLongPtr(m_hWndWindowItems[TC_TABS], GWLP_WNDPROC, (LONG_PTR)TabsProc);
-			
-#ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
-			
-			if (clsSettingManager::mPtr->bBools[SETBOOL_CHECK_NEW_RELEASES] == true)
+			::EndDeferWindowPos(hdwp);
+		}
+		
+		return 0;
+	case WM_GETMINMAXINFO:
+	{
+		MINMAXINFO *mminfo = (MINMAXINFO*)lParam;
+		mminfo->ptMinTrackSize.x = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_MAIN_WINDOW_WIDTH));
+		mminfo->ptMinTrackSize.y = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_MAIN_WINDOW_HEIGHT));
+		
+		return 0;
+	}
+	case WM_NOTIFY:
+		if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[TC_TABS])
+		{
+			if (((LPNMHDR)lParam)->code == TCN_SELCHANGE)
 			{
+				OnSelChanged();
+				return 0;
+			}
+			else if (((LPNMHDR)lParam)->code == TCN_KEYDOWN)
+			{
+				NMTCKEYDOWN * ptckd = (NMTCKEYDOWN *)lParam;
+				if (ptckd->wVKey == VK_TAB)
+				{
+					int iPage = (int)::SendMessage(m_hWndWindowItems[TC_TABS], TCM_GETCURSEL, 0, 0);
+					
+					if (iPage == -1)
+					{
+						break;
+					}
+					
+					TCITEM tcItem = { 0 };
+					tcItem.mask = TCIF_PARAM;
+					
+					if ((BOOL)::SendMessage(m_hWndWindowItems[TC_TABS], TCM_GETITEM, iPage, (LPARAM)&tcItem) == FALSE)
+					{
+						break;
+					}
+					
+					if (tcItem.lParam == NULL)
+					{
+						::MessageBox(m_hWnd, "Not implemented!", g_sPtokaXTitle, MB_OK);
+					}
+					
+					MainWindowPage * curMainWindowPage = reinterpret_cast<MainWindowPage *>(tcItem.lParam);
+					
+					if ((::GetKeyState(VK_SHIFT) & 0x8000) > 0)
+					{
+						curMainWindowPage->FocusLastItem();
+						return 0;
+					}
+					else
+					{
+						curMainWindowPage->FocusFirstItem();
+						return 0;
+					}
+				}
+			}
+		}
+		
+		break;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDC_EXIT:
+			::PostMessage(m_hWnd, WM_CLOSE, 0, 0);
+			return 0;
+		case IDC_SETTINGS:
+		{
+			SettingDialog::m_Ptr = new (std::nothrow) SettingDialog();
+			
+			if (SettingDialog::m_Ptr != nullptr)
+			{
+				SettingDialog::m_Ptr->DoModal(m_hWnd);
+			}
+			
+			return 0;
+		}
+		case IDC_REG_USERS:
+		{
+			clsRegisteredUsersDialog::mPtr = new (std::nothrow) clsRegisteredUsersDialog();
+			
+			if (clsRegisteredUsersDialog::mPtr != NULL)
+			{
+				clsRegisteredUsersDialog::mPtr->DoModal(m_hWnd);
+			}
+			
+			return 0;
+		}
+		case IDC_PROFILES:
+		{
+			clsProfilesDialog::mPtr = new (std::nothrow) clsProfilesDialog();
+			
+			if (clsProfilesDialog::mPtr != NULL)
+			{
+				clsProfilesDialog::mPtr->DoModal(m_hWnd);
+			}
+			
+			return 0;
+		}
+		case IDC_BANS:
+		{
+			clsBansDialog::mPtr = new (std::nothrow) clsBansDialog();
+			
+			if (clsBansDialog::mPtr != NULL)
+			{
+				clsBansDialog::mPtr->DoModal(m_hWnd);
+			}
+			
+			return 0;
+		}
+		case IDC_RANGE_BANS:
+		{
+			clsRangeBansDialog::mPtr = new (std::nothrow) clsRangeBansDialog();
+			
+			if (clsRangeBansDialog::mPtr != NULL)
+			{
+				clsRangeBansDialog::mPtr->DoModal(m_hWnd);
+			}
+			
+			return 0;
+		}
+		case IDC_ABOUT:
+		{
+			AboutDialog * pAboutDlg = new (std::nothrow) AboutDialog();
+			
+			if (pAboutDlg != NULL)
+			{
+				pAboutDlg->DoModal(m_hWnd);
+			}
+			
+			return 0;
+		}
+		case IDC_HOMEPAGE:
+			::ShellExecute(NULL, NULL, "https://github.com/pavel-pimenov/PtokaX", NULL, NULL, SW_SHOWNORMAL);
+			return 0;
+		case IDC_FORUM:
+			::ShellExecute(NULL, NULL, "http://forum.PtokaX.org/", NULL, NULL, SW_SHOWNORMAL);
+			return 0;
+		case IDC_WIKI:
+			::ShellExecute(NULL, NULL, "http://wiki.PtokaX.org", NULL, NULL, SW_SHOWNORMAL);
+			return 0;
+		case IDC_UPDATE_CHECK:
+		{
+#ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
+			clsUpdateDialog::mPtr = new (std::nothrow) clsUpdateDialog();
+			
+			if (clsUpdateDialog::mPtr != NULL)
+			{
+				clsUpdateDialog::mPtr->DoModal(m_hWnd);
+				
+				// First destroy old update check thread if any
+				if (clsUpdateCheckThread::mPtr != NULL)
+				{
+					clsUpdateCheckThread::mPtr->Close();
+					clsUpdateCheckThread::mPtr->WaitFor();
+				}
+				
+				safe_delete(clsUpdateCheckThread::mPtr);
+				
 				// Create update check thread
 				clsUpdateCheckThread::mPtr = new (std::nothrow) clsUpdateCheckThread();
 				if (clsUpdateCheckThread::mPtr == NULL)
 				{
-					AppendDebugLog("%s - [MEM] Cannot allocate clsUpdateCheckThread::mPtr in MainWindow::MainWindowProc::WM_CREATE\n");
+					AppendDebugLog("%s - [MEM] Cannot allocate clsUpdateCheckThread::mPtr in MainWindow::MainWindowProc::IDC_UPDATE_CHECK\n");
 					exit(EXIT_FAILURE);
 				}
 				
@@ -234,378 +527,85 @@ LRESULT clsMainWindow::MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 #endif
 			return 0;
 		}
-		case WM_CLOSE:
-			if (::MessageBox(m_hWnd, (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES)
-			{
-				clsServerManager::bIsClose = true;
-				
-				RECT rcMain;
-				::GetWindowRect(m_hWnd, &rcMain);
-				
-				clsGuiSettingManager::mPtr->SetInteger(GUISETINT_MAIN_WINDOW_WIDTH, rcMain.right - rcMain.left);
-				clsGuiSettingManager::mPtr->SetInteger(GUISETINT_MAIN_WINDOW_HEIGHT, rcMain.bottom - rcMain.top);
-				
-				// stop server if running and save settings
-				if (clsServerManager::bServerRunning == true)
-				{
-					clsServerManager::Stop();
-					return 0;
-				}
-				else
-				{
-					clsServerManager::FinalClose();
-				}
-				
-				break;
-			}
-			
-			return 0;
-		case WM_DESTROY:
-			::PostQuitMessage(1);
-			break;
-		case WM_TRAYICON:
-			if (lParam == WM_MOUSEMOVE)
-			{
-#ifndef _WIN64
-				if (ui64LastTrayMouseMove != GetActualTick())
-				{
-					ui64LastTrayMouseMove = GetActualTick();
-#else
-				if (ui64LastTrayMouseMove != GetTickCount64())
-				{
-					ui64LastTrayMouseMove = GetTickCount64();
-#endif
-					NOTIFYICONDATA nid;
-					memset(&nid, 0, sizeof(NOTIFYICONDATA));
-					nid.cbSize = sizeof(NOTIFYICONDATA);
-					nid.hWnd = m_hWnd;
-					nid.uID = 0;
-					nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
-					nid.hIcon = (HICON)::LoadImage(clsServerManager::hInstance, MAKEINTRESOURCE(IDR_MAINICONSMALL), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED);
-					nid.uCallbackMessage = WM_TRAYICON;
-					
-					char msg[256];
-					int iret = 0;
-					if (clsServerManager::bServerRunning == false)
-					{
-						msg[0] = '\0';
-					}
-					else
-					{
-						iret = sprintf(msg, " (%s: %u)", clsLanguageManager::mPtr->sTexts[LAN_USERS], clsServerManager::ui32Logged);
-						if (CheckSprintf(iret, 256, "MainWindow::MainWindowProc") == false)
-						{
-							return 0;
-						}
-					}
-					
-					const size_t szSize = sizeof(nid.szTip);
-					
-					if (szSize < (size_t)(clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME] + iret + 10))
-					{
-						nid.szTip[szSize - 1] = '\0';
-						memcpy(nid.szTip + (szSize - (iret + 1)), msg, iret);
-						nid.szTip[szSize - (iret + 2)] = '.';
-						nid.szTip[szSize - (iret + 3)] = '.';
-						nid.szTip[szSize - (iret + 4)] = '.';
-						memcpy(nid.szTip + szPtokaXDashLen, clsSettingManager::mPtr->sTexts[SETTXT_HUB_NAME], szSize - (iret + 13));
-						memcpy(nid.szTip, sPtokaXDash, szPtokaXDashLen);
-					}
-					else
-					{
-						memcpy(nid.szTip, sPtokaXDash, szPtokaXDashLen);
-						memcpy(nid.szTip + szPtokaXDashLen, clsSettingManager::mPtr->sTexts[SETTXT_HUB_NAME], clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME]);
-						memcpy(nid.szTip + szPtokaXDashLen + clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME], msg, iret);
-						nid.szTip[szPtokaXDashLen + clsSettingManager::mPtr->ui16TextsLens[SETTXT_HUB_NAME] + iret] = '\0';
-					}
-					::Shell_NotifyIcon(NIM_MODIFY, &nid);
-				}
-			}
-			else if (lParam == WM_LBUTTONUP)
-			{
-				::ShowWindow(m_hWnd, SW_SHOW);
-				::ShowWindow(m_hWnd, SW_RESTORE);
-			}
-			
-			return 0;
-		case WM_SIZE:
-			if (wParam == SIZE_MINIMIZED && clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_TRAY_ICON] == true)
-			{
-				::ShowWindow(m_hWnd, SW_HIDE);
-			}
-			else
-			{
-				RECT rc;
-				::SetRect(&rc, 0, 0, GET_X_LPARAM(lParam), clsGuiSettingManager::iEditHeight);
-				::SendMessage(m_hWndWindowItems[TC_TABS], TCM_ADJUSTRECT, FALSE, (LPARAM)&rc);
-				
-				HDWP hdwp = ::BeginDeferWindowPos(3);
-				
-				::DeferWindowPos(hdwp, m_hWndWindowItems[TC_TABS], NULL, 0, 0, GET_X_LPARAM(lParam), clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
-				
-				for (uint8_t ui8i = 0; ui8i < (sizeof(MainWindowPages) / sizeof(MainWindowPages[0])); ui8i++)
-				{
-					if (MainWindowPages[ui8i] != NULL)
-					{
-						::DeferWindowPos(hdwp, MainWindowPages[ui8i]->m_hWnd, NULL, 0, clsGuiSettingManager::iEditHeight + 1, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) - (clsGuiSettingManager::iEditHeight + 1),
-						                 SWP_NOMOVE | SWP_NOZORDER);
-					}
-				}
-				
-				::EndDeferWindowPos(hdwp);
-			}
-			
-			return 0;
-		case WM_GETMINMAXINFO:
-		{
-			MINMAXINFO *mminfo = (MINMAXINFO*)lParam;
-			mminfo->ptMinTrackSize.x = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_MAIN_WINDOW_WIDTH));
-			mminfo->ptMinTrackSize.y = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_MAIN_WINDOW_HEIGHT));
-			
-			return 0;
-		}
-		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[TC_TABS])
-			{
-				if (((LPNMHDR)lParam)->code == TCN_SELCHANGE)
-				{
-					OnSelChanged();
-					return 0;
-				}
-				else if (((LPNMHDR)lParam)->code == TCN_KEYDOWN)
-				{
-					NMTCKEYDOWN * ptckd = (NMTCKEYDOWN *)lParam;
-					if (ptckd->wVKey == VK_TAB)
-					{
-						int iPage = (int)::SendMessage(m_hWndWindowItems[TC_TABS], TCM_GETCURSEL, 0, 0);
-						
-						if (iPage == -1)
-						{
-							break;
-						}
-						
-						TCITEM tcItem = { 0 };
-						tcItem.mask = TCIF_PARAM;
-						
-						if ((BOOL)::SendMessage(m_hWndWindowItems[TC_TABS], TCM_GETITEM, iPage, (LPARAM)&tcItem) == FALSE)
-						{
-							break;
-						}
-						
-						if (tcItem.lParam == NULL)
-						{
-							::MessageBox(m_hWnd, "Not implemented!", g_sPtokaXTitle, MB_OK);
-						}
-						
-						MainWindowPage * curMainWindowPage = reinterpret_cast<MainWindowPage *>(tcItem.lParam);
-						
-						if ((::GetKeyState(VK_SHIFT) & 0x8000) > 0)
-						{
-							curMainWindowPage->FocusLastItem();
-							return 0;
-						}
-						else
-						{
-							curMainWindowPage->FocusFirstItem();
-							return 0;
-						}
-					}
-				}
-			}
-			
-			break;
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
-			{
-				case IDC_EXIT:
-					::PostMessage(m_hWnd, WM_CLOSE, 0, 0);
-					return 0;
-				case IDC_SETTINGS:
-				{
-					SettingDialog::m_Ptr = new (std::nothrow) SettingDialog();
-					
-					if (SettingDialog::m_Ptr != nullptr)
-					{
-						SettingDialog::m_Ptr->DoModal(m_hWnd);
-					}
-					
-					return 0;
-				}
-				case IDC_REG_USERS:
-				{
-					clsRegisteredUsersDialog::mPtr = new (std::nothrow) clsRegisteredUsersDialog();
-					
-					if (clsRegisteredUsersDialog::mPtr != NULL)
-					{
-						clsRegisteredUsersDialog::mPtr->DoModal(m_hWnd);
-					}
-					
-					return 0;
-				}
-				case IDC_PROFILES:
-				{
-					clsProfilesDialog::mPtr = new (std::nothrow) clsProfilesDialog();
-					
-					if (clsProfilesDialog::mPtr != NULL)
-					{
-						clsProfilesDialog::mPtr->DoModal(m_hWnd);
-					}
-					
-					return 0;
-				}
-				case IDC_BANS:
-				{
-					clsBansDialog::mPtr = new (std::nothrow) clsBansDialog();
-					
-					if (clsBansDialog::mPtr != NULL)
-					{
-						clsBansDialog::mPtr->DoModal(m_hWnd);
-					}
-					
-					return 0;
-				}
-				case IDC_RANGE_BANS:
-				{
-					clsRangeBansDialog::mPtr = new (std::nothrow) clsRangeBansDialog();
-					
-					if (clsRangeBansDialog::mPtr != NULL)
-					{
-						clsRangeBansDialog::mPtr->DoModal(m_hWnd);
-					}
-					
-					return 0;
-				}
-				case IDC_ABOUT:
-				{
-					AboutDialog * pAboutDlg = new (std::nothrow) AboutDialog();
-					
-					if (pAboutDlg != NULL)
-					{
-						pAboutDlg->DoModal(m_hWnd);
-					}
-					
-					return 0;
-				}
-				case IDC_HOMEPAGE:
-					::ShellExecute(NULL, NULL, "https://github.com/pavel-pimenov/PtokaX", NULL, NULL, SW_SHOWNORMAL);
-					return 0;
-				case IDC_FORUM:
-					::ShellExecute(NULL, NULL, "http://forum.PtokaX.org/", NULL, NULL, SW_SHOWNORMAL);
-					return 0;
-				case IDC_WIKI:
-					::ShellExecute(NULL, NULL, "http://wiki.PtokaX.org", NULL, NULL, SW_SHOWNORMAL);
-					return 0;
-				case IDC_UPDATE_CHECK:
-				{
-#ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
-					clsUpdateDialog::mPtr = new (std::nothrow) clsUpdateDialog();
-					
-					if (clsUpdateDialog::mPtr != NULL)
-					{
-						clsUpdateDialog::mPtr->DoModal(m_hWnd);
-						
-						// First destroy old update check thread if any
-						if (clsUpdateCheckThread::mPtr != NULL)
-						{
-							clsUpdateCheckThread::mPtr->Close();
-							clsUpdateCheckThread::mPtr->WaitFor();
-						}
-						
-						safe_delete(clsUpdateCheckThread::mPtr);
-						
-						// Create update check thread
-						clsUpdateCheckThread::mPtr = new (std::nothrow) clsUpdateCheckThread();
-						if (clsUpdateCheckThread::mPtr == NULL)
-						{
-							AppendDebugLog("%s - [MEM] Cannot allocate clsUpdateCheckThread::mPtr in MainWindow::MainWindowProc::IDC_UPDATE_CHECK\n");
-							exit(EXIT_FAILURE);
-						}
-						
-						// Start the update check thread
-						clsUpdateCheckThread::mPtr->Resume();
-					}
-#endif
-					return 0;
-				}
-				case IDC_SAVE_SETTINGS:
-					clsBanManager::mPtr->Save(true);
-					clsProfileManager::mPtr->SaveProfiles();
-					clsRegManager::mPtr->Save();
-					clsScriptManager::mPtr->SaveScripts();
-					clsSettingManager::mPtr->Save();
-					
-					::MessageBox(m_hWnd, clsLanguageManager::mPtr->sTexts[LAN_SETTINGS_SAVED], g_sPtokaXTitle, MB_OK | MB_ICONINFORMATION);
-					return 0;
-				case IDC_RELOAD_TXTS:
-					clsTextFilesManager::mPtr->RefreshTextFiles();
-					
-					::MessageBox(m_hWnd, (string(clsLanguageManager::mPtr->sTexts[LAN_TXT_FILES_RELOADED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_TXT_FILES_RELOADED]) + ".").c_str(), g_sPtokaXTitle, MB_OK | MB_ICONINFORMATION);
-					
-					return 0;
-			}
-			
-			break;
-		case WM_QUERYENDSESSION:
+		case IDC_SAVE_SETTINGS:
 			clsBanManager::mPtr->Save(true);
 			clsProfileManager::mPtr->SaveProfiles();
 			clsRegManager::mPtr->Save();
 			clsScriptManager::mPtr->SaveScripts();
 			clsSettingManager::mPtr->Save();
 			
-			AppendLog("Serving stopped (Windows shutdown).");
+			::MessageBox(m_hWnd, clsLanguageManager::mPtr->sTexts[LAN_SETTINGS_SAVED], g_sPtokaXTitle, MB_OK | MB_ICONINFORMATION);
+			return 0;
+		case IDC_RELOAD_TXTS:
+			clsTextFilesManager::mPtr->RefreshTextFiles();
 			
-			return TRUE;
-		case WM_UPDATE_CHECK_MSG:
+			::MessageBox(m_hWnd, (string(clsLanguageManager::mPtr->sTexts[LAN_TXT_FILES_RELOADED], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_TXT_FILES_RELOADED]) + ".").c_str(), g_sPtokaXTitle, MB_OK | MB_ICONINFORMATION);
+			
+			return 0;
+		}
+		
+		break;
+	case WM_QUERYENDSESSION:
+		clsBanManager::mPtr->Save(true);
+		clsProfileManager::mPtr->SaveProfiles();
+		clsRegManager::mPtr->Save();
+		clsScriptManager::mPtr->SaveScripts();
+		clsSettingManager::mPtr->Save();
+		
+		AppendLog("Serving stopped (Windows shutdown).");
+		
+		return TRUE;
+	case WM_UPDATE_CHECK_MSG:
+	{
+		char * sMsg = (char *)lParam;
+		if (clsUpdateDialog::mPtr != NULL)
 		{
-			char * sMsg = (char *)lParam;
+			clsUpdateDialog::mPtr->Message(sMsg);
+		}
+		
+		free(sMsg);
+		
+		return 0;
+	}
+	case WM_UPDATE_CHECK_DATA:
+	{
+		char * sMsg = (char *)lParam;
+		
+		if (clsUpdateDialog::mPtr == NULL)
+		{
+			clsUpdateDialog::mPtr = new (std::nothrow) clsUpdateDialog();
+			
 			if (clsUpdateDialog::mPtr != NULL)
 			{
-				clsUpdateDialog::mPtr->Message(sMsg);
-			}
-			
-			free(sMsg);
-			
-			return 0;
-		}
-		case WM_UPDATE_CHECK_DATA:
-		{
-			char * sMsg = (char *)lParam;
-			
-			if (clsUpdateDialog::mPtr == NULL)
-			{
-				clsUpdateDialog::mPtr = new (std::nothrow) clsUpdateDialog();
-				
-				if (clsUpdateDialog::mPtr != NULL)
+				if (clsUpdateDialog::mPtr->ParseData(sMsg, m_hWnd) == false)
 				{
-					if (clsUpdateDialog::mPtr->ParseData(sMsg, m_hWnd) == false)
-					{
-						safe_delete(clsUpdateDialog::mPtr);
-					}
+					safe_delete(clsUpdateDialog::mPtr);
 				}
 			}
-			else
-			{
-				clsUpdateDialog::mPtr->ParseData(sMsg, m_hWnd);
-			}
-			
-			free(sMsg);
-			
-			return 0;
 		}
-		case WM_UPDATE_CHECK_TERMINATE:
+		else
+		{
+			clsUpdateDialog::mPtr->ParseData(sMsg, m_hWnd);
+		}
+		
+		free(sMsg);
+		
+		return 0;
+	}
+	case WM_UPDATE_CHECK_TERMINATE:
 #ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
-			if (clsUpdateCheckThread::mPtr != NULL)
-			{
-				clsUpdateCheckThread::mPtr->Close();
-				clsUpdateCheckThread::mPtr->WaitFor();
-			}
-			
-			safe_delete(clsUpdateCheckThread::mPtr);
+		if (clsUpdateCheckThread::mPtr != NULL)
+		{
+			clsUpdateCheckThread::mPtr->Close();
+			clsUpdateCheckThread::mPtr->WaitFor();
+		}
+		
+		safe_delete(clsUpdateCheckThread::mPtr);
 #endif
-			return 0;
-		case WM_SETFOCUS:
-			::SetFocus(m_hWndWindowItems[TC_TABS]);
-			return 0;
+		return 0;
+	case WM_SETFOCUS:
+		::SetFocus(m_hWndWindowItems[TC_TABS]);
+		return 0;
 	}
 	
 	if (uMsg == uiTaskBarCreated)

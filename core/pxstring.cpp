@@ -87,7 +87,7 @@ string::string(const uint32_t ui32Number) : m_sData((char *)sEmpty), m_szDataLen
 	int iLen = snprintf(tmp, 16, "%u", ui32Number);
 	if (iLen > 0)
 	{
-	stralloc(tmp, iLen);
+		stralloc(tmp, iLen);
 	}
 #endif
 }
@@ -103,7 +103,7 @@ string::string(const int32_t i32Number) : m_sData((char *)sEmpty), m_szDataLen(0
 	int iLen = snprintf(tmp, 16, "%d", i32Number);
 	if (iLen > 0)
 	{
-	stralloc(tmp, iLen);
+		stralloc(tmp, iLen);
 	}
 #endif
 }
@@ -119,7 +119,7 @@ string::string(const uint64_t ui64Number) : m_sData((char *)sEmpty), m_szDataLen
 	int iLen = snprintf(tmp, 32, "%" PRIu64, ui64Number);
 	if (iLen > 0)
 	{
-	stralloc(tmp, iLen);
+		stralloc(tmp, iLen);
 	}
 #endif
 }
@@ -135,7 +135,7 @@ string::string(const int64_t i64Number) : m_sData((char *)sEmpty), m_szDataLen(0
 	int iLen = snprintf(tmp, 32, "%" PRId64, i64Number);
 	if (iLen > 0)
 	{
-	stralloc(tmp, iLen);
+		stralloc(tmp, iLen);
 	}
 #endif
 }

@@ -43,155 +43,155 @@ LRESULT SettingPageRules2::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
 		switch (LOWORD(wParam))
 		{
-			case EDT_SLOTS_MSG:
-			case EDT_SLOTS_REDIR_ADDR:
-			case EDT_HUBS_SLOTS_MSG:
-			case EDT_HUBS_SLOTS_REDIR_ADDR:
-			case EDT_HUBS_MSG:
-			case EDT_HUBS_REDIR_ADDR:
-				if (HIWORD(wParam) == EN_CHANGE)
+		case EDT_SLOTS_MSG:
+		case EDT_SLOTS_REDIR_ADDR:
+		case EDT_HUBS_SLOTS_MSG:
+		case EDT_HUBS_SLOTS_REDIR_ADDR:
+		case EDT_HUBS_MSG:
+		case EDT_HUBS_REDIR_ADDR:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				RemovePipes((HWND)lParam);
+				
+				return 0;
+			}
+			
+			break;
+		case EDT_SLOTS_MIN:
+		case EDT_SLOTS_MAX:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 999);
+				
+				uint16_t ui16Min = 0, ui16Max = 0;
+				
+				LRESULT lResult = ::SendMessage(hWndPageItems[UD_SLOTS_MIN], UDM_GETPOS, 0, 0);
+				if (HIWORD(lResult) == 0)
 				{
-					RemovePipes((HWND)lParam);
-					
-					return 0;
+					ui16Min = LOWORD(lResult);
 				}
 				
-				break;
-			case EDT_SLOTS_MIN:
-			case EDT_SLOTS_MAX:
-				if (HIWORD(wParam) == EN_CHANGE)
+				lResult = ::SendMessage(hWndPageItems[UD_SLOTS_MAX], UDM_GETPOS, 0, 0);
+				if (HIWORD(lResult) == 0)
 				{
-					MinMaxCheck((HWND)lParam, 0, 999);
-					
-					uint16_t ui16Min = 0, ui16Max = 0;
-					
-					LRESULT lResult = ::SendMessage(hWndPageItems[UD_SLOTS_MIN], UDM_GETPOS, 0, 0);
-					if (HIWORD(lResult) == 0)
-					{
-						ui16Min = LOWORD(lResult);
-					}
-					
-					lResult = ::SendMessage(hWndPageItems[UD_SLOTS_MAX], UDM_GETPOS, 0, 0);
-					if (HIWORD(lResult) == 0)
-					{
-						ui16Max = LOWORD(lResult);
-					}
-					
-					if (ui16Min == 0 && ui16Max == 0)
-					{
-						::EnableWindow(hWndPageItems[EDT_SLOTS_MSG], FALSE);
-						::EnableWindow(hWndPageItems[BTN_SLOTS_REDIR], FALSE);
-						::EnableWindow(hWndPageItems[EDT_SLOTS_REDIR_ADDR], FALSE);
-					}
-					else
-					{
-						::EnableWindow(hWndPageItems[EDT_SLOTS_MSG], TRUE);
-						::EnableWindow(hWndPageItems[BTN_SLOTS_REDIR], TRUE);
-						::EnableWindow(hWndPageItems[EDT_SLOTS_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_SLOTS_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-					}
-					
-					return 0;
+					ui16Max = LOWORD(lResult);
 				}
 				
-				break;
-			case BTN_SLOTS_REDIR:
-				if (HIWORD(wParam) == BN_CLICKED)
+				if (ui16Min == 0 && ui16Max == 0)
 				{
+					::EnableWindow(hWndPageItems[EDT_SLOTS_MSG], FALSE);
+					::EnableWindow(hWndPageItems[BTN_SLOTS_REDIR], FALSE);
+					::EnableWindow(hWndPageItems[EDT_SLOTS_REDIR_ADDR], FALSE);
+				}
+				else
+				{
+					::EnableWindow(hWndPageItems[EDT_SLOTS_MSG], TRUE);
+					::EnableWindow(hWndPageItems[BTN_SLOTS_REDIR], TRUE);
 					::EnableWindow(hWndPageItems[EDT_SLOTS_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_SLOTS_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
 				}
 				
-				break;
-			case EDT_HUBS:
-			case EDT_SLOTS:
-				if (HIWORD(wParam) == EN_CHANGE)
+				return 0;
+			}
+			
+			break;
+		case BTN_SLOTS_REDIR:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[EDT_SLOTS_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_SLOTS_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case EDT_HUBS:
+		case EDT_SLOTS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 999);
+				
+				uint16_t ui16Hubs = 0, ui16Slots = 0;
+				
+				LRESULT lResult = ::SendMessage(hWndPageItems[UD_HUBS], UDM_GETPOS, 0, 0);
+				if (HIWORD(lResult) == 0)
 				{
-					MinMaxCheck((HWND)lParam, 0, 999);
-					
-					uint16_t ui16Hubs = 0, ui16Slots = 0;
-					
-					LRESULT lResult = ::SendMessage(hWndPageItems[UD_HUBS], UDM_GETPOS, 0, 0);
-					if (HIWORD(lResult) == 0)
-					{
-						ui16Hubs = LOWORD(lResult);
-					}
-					
-					lResult = ::SendMessage(hWndPageItems[UD_SLOTS], UDM_GETPOS, 0, 0);
-					if (HIWORD(lResult) == 0)
-					{
-						ui16Slots = LOWORD(lResult);
-					}
-					
-					if (ui16Hubs == 0 || ui16Slots == 0)
-					{
-						::EnableWindow(hWndPageItems[EDT_HUBS_SLOTS_MSG], FALSE);
-						::EnableWindow(hWndPageItems[BTN_HUBS_SLOTS_REDIR], FALSE);
-						::EnableWindow(hWndPageItems[EDT_HUBS_SLOTS_REDIR_ADDR], FALSE);
-					}
-					else
-					{
-						::EnableWindow(hWndPageItems[EDT_HUBS_SLOTS_MSG], TRUE);
-						::EnableWindow(hWndPageItems[BTN_HUBS_SLOTS_REDIR], TRUE);
-						::EnableWindow(hWndPageItems[EDT_HUBS_SLOTS_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_HUBS_SLOTS_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-					}
-					
-					return 0;
+					ui16Hubs = LOWORD(lResult);
 				}
 				
-				break;
-			case BTN_HUBS_SLOTS_REDIR:
-				if (HIWORD(wParam) == BN_CLICKED)
+				lResult = ::SendMessage(hWndPageItems[UD_SLOTS], UDM_GETPOS, 0, 0);
+				if (HIWORD(lResult) == 0)
 				{
+					ui16Slots = LOWORD(lResult);
+				}
+				
+				if (ui16Hubs == 0 || ui16Slots == 0)
+				{
+					::EnableWindow(hWndPageItems[EDT_HUBS_SLOTS_MSG], FALSE);
+					::EnableWindow(hWndPageItems[BTN_HUBS_SLOTS_REDIR], FALSE);
+					::EnableWindow(hWndPageItems[EDT_HUBS_SLOTS_REDIR_ADDR], FALSE);
+				}
+				else
+				{
+					::EnableWindow(hWndPageItems[EDT_HUBS_SLOTS_MSG], TRUE);
+					::EnableWindow(hWndPageItems[BTN_HUBS_SLOTS_REDIR], TRUE);
 					::EnableWindow(hWndPageItems[EDT_HUBS_SLOTS_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_HUBS_SLOTS_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
 				}
 				
-				break;
-			case EDT_MAX_HUBS:
-				if (HIWORD(wParam) == EN_CHANGE)
+				return 0;
+			}
+			
+			break;
+		case BTN_HUBS_SLOTS_REDIR:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[EDT_HUBS_SLOTS_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_HUBS_SLOTS_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case EDT_MAX_HUBS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 999);
+				
+				uint16_t ui16Hubs = 0;
+				
+				LRESULT lResult = ::SendMessage(hWndPageItems[UD_MAX_HUBS], UDM_GETPOS, 0, 0);
+				if (HIWORD(lResult) == 0)
 				{
-					MinMaxCheck((HWND)lParam, 0, 999);
-					
-					uint16_t ui16Hubs = 0;
-					
-					LRESULT lResult = ::SendMessage(hWndPageItems[UD_MAX_HUBS], UDM_GETPOS, 0, 0);
-					if (HIWORD(lResult) == 0)
-					{
-						ui16Hubs = LOWORD(lResult);
-					}
-					
-					if (ui16Hubs == 0)
-					{
-						::EnableWindow(hWndPageItems[EDT_HUBS_MSG], FALSE);
-						::EnableWindow(hWndPageItems[BTN_HUBS_REDIR], FALSE);
-						::EnableWindow(hWndPageItems[EDT_HUBS_REDIR_ADDR], FALSE);
-					}
-					else
-					{
-						::EnableWindow(hWndPageItems[EDT_HUBS_MSG], TRUE);
-						::EnableWindow(hWndPageItems[BTN_HUBS_REDIR], TRUE);
-						::EnableWindow(hWndPageItems[EDT_HUBS_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_HUBS_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-					}
-					
-					return 0;
+					ui16Hubs = LOWORD(lResult);
 				}
 				
-				break;
-			case BTN_HUBS_REDIR:
-				if (HIWORD(wParam) == BN_CLICKED)
+				if (ui16Hubs == 0)
 				{
+					::EnableWindow(hWndPageItems[EDT_HUBS_MSG], FALSE);
+					::EnableWindow(hWndPageItems[BTN_HUBS_REDIR], FALSE);
+					::EnableWindow(hWndPageItems[EDT_HUBS_REDIR_ADDR], FALSE);
+				}
+				else
+				{
+					::EnableWindow(hWndPageItems[EDT_HUBS_MSG], TRUE);
+					::EnableWindow(hWndPageItems[BTN_HUBS_REDIR], TRUE);
 					::EnableWindow(hWndPageItems[EDT_HUBS_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_HUBS_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
 				}
 				
-				break;
-			case EDT_CTM_LEN:
-			case EDT_RCTM_LEN:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 512);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case BTN_HUBS_REDIR:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[EDT_HUBS_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_HUBS_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case EDT_CTM_LEN:
+		case EDT_RCTM_LEN:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 512);
 				
-				break;
+				return 0;
+			}
+			
+			break;
 		}
 	}
 	

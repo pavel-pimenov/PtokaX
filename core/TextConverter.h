@@ -24,22 +24,22 @@
 #if defined(_WITH_SQLITE)
 class TextConverter
 {
-	private:
+private:
 #ifndef _WIN32
-		iconv_t m_iconvUtfCheck;
-		iconv_t m_iconvAsciiToUtf;
+	iconv_t m_iconvUtfCheck;
+	iconv_t m_iconvAsciiToUtf;
 #endif
-		
-		bool CheckUtf8Validity(const char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize);
-		
-	public:
-		static TextConverter * m_Ptr;
-		
-		TextConverter();
-		~TextConverter();
-		
-		size_t CheckUtf8AndConvert(const char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize);
-        DISALLOW_COPY_AND_ASSIGN(TextConverter);
+	
+	bool CheckUtf8Validity(const char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize);
+	
+public:
+	static TextConverter * m_Ptr;
+	
+	TextConverter();
+	~TextConverter();
+	
+	size_t CheckUtf8AndConvert(const char * sInput, const uint8_t ui8InputLen, char * sOutput, const uint8_t ui8OutputSize);
+	DISALLOW_COPY_AND_ASSIGN(TextConverter);
 };
 #endif // _WITH_SQLITE
 #endif // FLYLINKDC_USE_DB

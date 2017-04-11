@@ -25,32 +25,32 @@
 
 class SettingDialog
 {
-	public:
-		static SettingDialog * m_Ptr;
-		
-		HWND m_hWndWindowItems[4];
-		
-		enum enmWindowItems
-		{
-			WINDOW_HANDLE,
-			TV_TREE,
-			BTN_OK,
-			BTN_CANCEL
-		};
-		
-		SettingDialog();
-		~SettingDialog();
-		
-		static LRESULT CALLBACK StaticSettingDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-		
-		void DoModal(HWND hWndParent);
-	private:
-		SettingPage * SettingPages[12];
-		
-		LRESULT SettingDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-		
-		void OnSelChanged();
-		DISALLOW_COPY_AND_ASSIGN(SettingDialog);
+public:
+	static SettingDialog * m_Ptr;
+	
+	HWND m_hWndWindowItems[4];
+	
+	enum enmWindowItems
+	{
+		WINDOW_HANDLE,
+		TV_TREE,
+		BTN_OK,
+		BTN_CANCEL
+	};
+	
+	SettingDialog();
+	~SettingDialog();
+	
+	static LRESULT CALLBACK StaticSettingDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
+	void DoModal(HWND hWndParent);
+private:
+	SettingPage * SettingPages[12];
+	
+	LRESULT SettingDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
+	void OnSelChanged();
+	DISALLOW_COPY_AND_ASSIGN(SettingDialog);
 };
 //------------------------------------------------------------------------------
 

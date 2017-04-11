@@ -90,9 +90,9 @@ void ReservedNicksManager::Load()
 		if (iMsgLen > 0)
 		{
 #ifdef _BUILD_GUI
-		::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-		AppendLog(ServerManager::m_pGlobalBuffer);
+			AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 		}
 		

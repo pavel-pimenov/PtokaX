@@ -43,48 +43,48 @@ LRESULT SettingPageMyINFO::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
 		switch (LOWORD(wParam))
 		{
-			case CB_NO_TAG_ACTION:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32NoTagAction = (uint32_t)::SendMessage(hWndPageItems[CB_NO_TAG_ACTION], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_NO_TAG_MESSAGE], ui32NoTagAction != 0 ? TRUE : FALSE);
-					::EnableWindow(hWndPageItems[EDT_NO_TAG_REDIRECT], ui32NoTagAction == 2 ? TRUE : FALSE);
-					::EnableWindow(hWndPageItems[BTN_REPORT_SUSPICIOUS_TAG], ui32NoTagAction == 0 ? TRUE : FALSE);
-				}
+		case CB_NO_TAG_ACTION:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32NoTagAction = (uint32_t)::SendMessage(hWndPageItems[CB_NO_TAG_ACTION], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_NO_TAG_MESSAGE], ui32NoTagAction != 0 ? TRUE : FALSE);
+				::EnableWindow(hWndPageItems[EDT_NO_TAG_REDIRECT], ui32NoTagAction == 2 ? TRUE : FALSE);
+				::EnableWindow(hWndPageItems[BTN_REPORT_SUSPICIOUS_TAG], ui32NoTagAction == 0 ? TRUE : FALSE);
+			}
+			
+			break;
+		case EDT_NO_TAG_MESSAGE:
+		case EDT_NO_TAG_REDIRECT:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				RemovePipes((HWND)lParam);
 				
-				break;
-			case EDT_NO_TAG_MESSAGE:
-			case EDT_NO_TAG_REDIRECT:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					RemovePipes((HWND)lParam);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_MINUTES_BEFORE_ACCEPT_NEW_MYINFO:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 999);
 				
-				break;
-			case EDT_MINUTES_BEFORE_ACCEPT_NEW_MYINFO:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 0, 999);
-					
-					return 0;
-				}
-				
-				break;
-			case CB_ORIGINAL_MYINFO_ACTION:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					BOOL bEnable = ((uint32_t)::SendMessage(hWndPageItems[CB_ORIGINAL_MYINFO_ACTION], CB_GETCURSEL, 0, 0) == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[BTN_REMOVE_DESCRIPTION], bEnable);
-					::EnableWindow(hWndPageItems[BTN_REMOVE_TAG], bEnable);
-					::EnableWindow(hWndPageItems[BTN_REMOVE_CONNECTION], bEnable);
-					::EnableWindow(hWndPageItems[BTN_REMOVE_EMAIL], bEnable);
-					::EnableWindow(hWndPageItems[BTN_MODE_TO_MYINFO], bEnable);
-					::EnableWindow(hWndPageItems[BTN_MODE_TO_DESCRIPTION], bEnable);
-				}
-				
-				break;
+				return 0;
+			}
+			
+			break;
+		case CB_ORIGINAL_MYINFO_ACTION:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				BOOL bEnable = ((uint32_t)::SendMessage(hWndPageItems[CB_ORIGINAL_MYINFO_ACTION], CB_GETCURSEL, 0, 0) == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[BTN_REMOVE_DESCRIPTION], bEnable);
+				::EnableWindow(hWndPageItems[BTN_REMOVE_TAG], bEnable);
+				::EnableWindow(hWndPageItems[BTN_REMOVE_CONNECTION], bEnable);
+				::EnableWindow(hWndPageItems[BTN_REMOVE_EMAIL], bEnable);
+				::EnableWindow(hWndPageItems[BTN_MODE_TO_MYINFO], bEnable);
+				::EnableWindow(hWndPageItems[BTN_MODE_TO_DESCRIPTION], bEnable);
+			}
+			
+			break;
 		}
 	}
 	

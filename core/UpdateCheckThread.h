@@ -24,37 +24,37 @@
 #ifdef FLYLINKDC_USE_UPDATE_CHECKER_THREAD
 class clsUpdateCheckThread
 {
-	private:
-		HANDLE hThread;
-		
-		char * sRecvBuf;
-		
-		SOCKET sSocket;
-		
-		uint32_t ui32FileLen;
-		
-		uint32_t ui32RecvBufLen, ui32RecvBufSize;
-		uint32_t ui32BytesRead, ui32BytesSent;
-		
-		bool bOk, bData, bTerminated;
-		
-		char sMsg[2048];
-		
-		static void Message(const char * sMessage, const size_t szLen);
-		bool Receive();
-		bool SendHeader();
-		
-		DISALLOW_COPY_AND_ASSIGN(clsUpdateCheckThread);
-	public:
-		static clsUpdateCheckThread * mPtr;
-		
-		clsUpdateCheckThread();
-		~clsUpdateCheckThread();
-		
-		void Resume();
-		void Run();
-		void Close();
-		void WaitFor();
+private:
+	HANDLE hThread;
+	
+	char * sRecvBuf;
+	
+	SOCKET sSocket;
+	
+	uint32_t ui32FileLen;
+	
+	uint32_t ui32RecvBufLen, ui32RecvBufSize;
+	uint32_t ui32BytesRead, ui32BytesSent;
+	
+	bool bOk, bData, bTerminated;
+	
+	char sMsg[2048];
+	
+	static void Message(const char * sMessage, const size_t szLen);
+	bool Receive();
+	bool SendHeader();
+	
+	DISALLOW_COPY_AND_ASSIGN(clsUpdateCheckThread);
+public:
+	static clsUpdateCheckThread * mPtr;
+	
+	clsUpdateCheckThread();
+	~clsUpdateCheckThread();
+	
+	void Resume();
+	void Run();
+	void Close();
+	void WaitFor();
 };
 //---------------------------------------------------------------------------
 #endif

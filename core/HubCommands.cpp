@@ -79,416 +79,416 @@ bool HubCommands::DoCommand(User * pUser, char * sCommand, const uint32_t ui32Cm
 	
 	switch (tolower(m_ChatCommand.m_sCommand[0]))
 	{
-		case 'g':
-			// !getbans
-			if (m_ChatCommand.m_ui32CommandLen == 7 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etbans", 6) == 0)
-			{
-				return GetBans(&m_ChatCommand);
-			}
-			
-			// !gag nick
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ag ", 3) == 0)
-			{
-				return Gag(&m_ChatCommand);
-			}
-			
-			// !getinfo nick
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "etinfo ", 7) == 0)
-			{
-				return GetInfo(&m_ChatCommand);
-			}
-			
-			// !getipinfo ip
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "etipinfo ", 9) == 0)
-			{
-				return GetIpInfo(&m_ChatCommand);
-			}
-			
-			// !gettempbans
-			if (m_ChatCommand.m_ui32CommandLen == 11 && strncasecmp(m_ChatCommand.m_sCommand + 1, "ettempbans", 10) == 0)
-			{
-				return GetTempBans(&m_ChatCommand);
-			}
-			
-			// !getscripts
-			if (m_ChatCommand.m_ui32CommandLen == 10 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etscripts", 9) == 0)
-			{
-				return GetScripts(&m_ChatCommand);
-			}
-			
-			// !getpermbans
-			if (m_ChatCommand.m_ui32CommandLen == 11 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etpermbans", 10) == 0)
-			{
-				return GetPermBans(&m_ChatCommand);
-			}
-			
-			// !getrangebans
-			if (m_ChatCommand.m_ui32CommandLen == 12 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etrangebans", 11) == 0)
-			{
-				return GetRangeBans(&m_ChatCommand);
-			}
-			
-			// !getrangepermbans
-			if (m_ChatCommand.m_ui32CommandLen == 16 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etrangepermbans", 15) == 0)
-			{
-				return GetRangePermBans(&m_ChatCommand);
-			}
-			
-			// !getrangetempbans
-			if (m_ChatCommand.m_ui32CommandLen == 16 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etrangetempbans", 15) == 0)
-			{
-				return GetRangeTempBans(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'n':
-			// !nickban nick reason
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ickban ", 7) == 0)
-			{
-				return NickBan(&m_ChatCommand);
-			}
-			
-			// !nicktempban nick time reason ...  m = minutes, h = hours, d = days, w = weeks, M = months, Y = years
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "icktempban ", 11) == 0)
-			{
-				return NickTempBan(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'b':
-			// !ban nick reason
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "an ", 3) == 0)
-			{
-				return Ban(&m_ChatCommand);
-			}
-			
-			// !banip ip reason
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "anip ", 5) == 0)
-			{
-				return BanIp(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 't':
-			// !tempban nick time reason ... m = minutes, h = hours, d = day, w = weeks, M = months, Y = years
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "empban ", 7) == 0)
-			{
-				return TempBan(&m_ChatCommand);
-			}
-			
-			// !tempbanip nick time reason ... m = minutes, h = hours, d = day, w = weeks, M = months, Y = years
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "empbanip ", 9) == 0)
-			{
-				return TempBanIp(&m_ChatCommand);
-			}
-			
-			// !tempunban nick/ip
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "empunban ", 9) == 0)
-			{
-				return TempUnban(&m_ChatCommand);
-			}
-			
-			// !topic text/off
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "opic ", 5) == 0)
-			{
-				return Topic(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'm':
-			// !myip
-			if (m_ChatCommand.m_ui32CommandLen == 4 && strncasecmp(m_ChatCommand.m_sCommand + 1, "yip", 3) == 0)
-			{
-				return MyIp(&m_ChatCommand);
-			}
-			
-			// !massmsg text
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "assmsg ", 7) == 0)
-			{
-				return MassMsg(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'r':
-			// !restartscripts
-			if (m_ChatCommand.m_ui32CommandLen == 14 && strncasecmp(m_ChatCommand.m_sCommand + 1, "estartscripts", 13) == 0)
-			{
-				return RestartScripts(&m_ChatCommand);
-			}
-			
-			// !restart
-			if (m_ChatCommand.m_ui32CommandLen == 7 && strncasecmp(m_ChatCommand.m_sCommand + 1, "estart", 6) == 0)
-			{
-				return Restart(&m_ChatCommand);
-			}
-			
-			// !reloadtxt
-			if (m_ChatCommand.m_ui32CommandLen == 9 && strncasecmp(m_ChatCommand.m_sCommand + 1, "eloadtxt", 8) == 0)
-			{
-				return ReloadTxt(&m_ChatCommand);
-			}
-			
-			// !restartscript scriptname
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "estartscript ", 13) == 0)
-			{
-				return RestartScript(&m_ChatCommand);
-			}
-			
-			// !rangeban fromip toip reason
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angeban ", 8) == 0)
-			{
-				return RangeBan(&m_ChatCommand);
-			}
-			
-			// !rangetempban fromip toip time reason ... m = minutes, h = hours, d = days, w = weeks, M = months, Y = years
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angetempban ", 12) == 0)
-			{
-				return RangeTempBan(&m_ChatCommand);
-			}
-			
-			// !rangeunban fromip toip
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angeunban ", 10) == 0)
-			{
-				return RangeUnBan(&m_ChatCommand);
-			}
-			
-			// !rangetempunban fromip toip
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angetempunban ", 14) == 0)
-			{
-				return RangeTempUnBan(&m_ChatCommand);
-			}
-			
-			// !rangepermunban fromip toip
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angepermunban ", 14) == 0)
-			{
-				return RangePermUnBan(&m_ChatCommand);
-			}
-			
-			// !reguser nick profile_name
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "eguser ", 7) == 0)
-			{
-				return RegNewUser(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'u':
-			// !unban nick/ip
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "nban ", 5) == 0)
-			{
-				return Unban(&m_ChatCommand);
-			}
-			
-			// !ungag nick
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ngag ", 5) == 0)
-			{
-				return Ungag(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'o':
-			// !op nick
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "p ", 2) == 0)
-			{
-				return Op(&m_ChatCommand);
-			}
-			
-			// !opmassmsg text
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "pmassmsg ", 9) == 0)
-			{
-				return OpMassMsg(&m_ChatCommand);;
-			}
-			
-			return false;
-			
-		case 'd':
-			// !drop nick
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "rop ", 4) == 0)
-			{
-				return Drop(&m_ChatCommand);
-			}
-			
-			// !delreguser nick
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "elreguser ", 10) == 0)
-			{
-				return DelRegUser(&m_ChatCommand);
-			}
-			
-			// !debug port/off
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ebug ", 5) == 0)
-			{
-				return Debug(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'c':
-			/*
-			            // !crash
-			            // Code to test if 32bit DC++ based client is vulnerable to zlib bomb
-			            if(strncasecmp(m_ChatCommand.m_sCommand+1, "rash", 4) == 0) {
-			
-			                char * sTmp = (char*)calloc(392*1024*1024, 1);
-			
-			                uint32_t iLen = 0;
-			                char *sData = ZlibUtility->CreateZPipe(sTmp, 392*1024*1024, iLen);
-			
-			                if(iLen == 0) {
-			                    printf("0!");
-			                } else {
-			                    printf("LEN %u", iLen);
-			                    if(UserPutInSendBuf(pUser, sData, iLen)) {
-			                        UserTry2Send(pUser);
-			                    }
-			                }
-			
-			                free(sTmp);
-			
-			                return true;
-			            }
-			*/
-			// !clrtempbans
-			if (m_ChatCommand.m_ui32CommandLen == 11 && strncasecmp(m_ChatCommand.m_sCommand + 1, "lrtempbans", 10) == 0)
-			{
-				return ClrTempBans(&m_ChatCommand);
-			}
-			
-			// !clrpermbans
-			if (m_ChatCommand.m_ui32CommandLen == 11 && strncasecmp(m_ChatCommand.m_sCommand + 1, "lrpermbans", 10) == 0)
-			{
-				return ClrPermBans(&m_ChatCommand);
-			}
-			
-			// !clrrangetempbans
-			if (m_ChatCommand.m_ui32CommandLen == 16 && strncasecmp(m_ChatCommand.m_sCommand + 1, "lrrangetempbans", 15) == 0)
-			{
-				return ClrRangeTempBans(&m_ChatCommand);
-			}
-			
-			// !clrrangepermbans
-			if (m_ChatCommand.m_ui32CommandLen == 16 && strncasecmp(m_ChatCommand.m_sCommand + 1, "lrrangepermbans", 15) == 0)
-			{
-				return ClrRangePermBans(&m_ChatCommand);
-			}
-			
-			// !checknickban nick
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "hecknickban ", 12) == 0)
-			{
-				return CheckNickBan(&m_ChatCommand);
-			}
-			
-			// !checkipban ip
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "heckipban ", 10) == 0)
-			{
-				return CheckIpBan(&m_ChatCommand);
-			}
-			
-			// !checkrangeban ipfrom ipto
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "heckrangeban ", 13) == 0)
-			{
-				return CheckRangeBan(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'a':
-			// !addreguser nick pas> profile_name
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ddreguser ", 10) == 0)
-			{
-				return AddRegUser(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'h':
-			// !help
-			if (m_ChatCommand.m_ui32CommandLen == 4 && strncasecmp(m_ChatCommand.m_sCommand + 1, "elp", 3) == 0)
-			{
-				return Help(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 's':
-			// !stat !stats !statistic
-			if ((m_ChatCommand.m_ui32CommandLen == 4 && strncasecmp(m_ChatCommand.m_sCommand + 1, "tat", 3) == 0) || (m_ChatCommand.m_ui32CommandLen == 5 && strncasecmp(m_ChatCommand.m_sCommand + 1, "tats", 4) == 0) || (m_ChatCommand.m_ui32CommandLen == 9 && strncasecmp(m_ChatCommand.m_sCommand + 1, "tatistic", 8) == 0))
-			{
-				return Stats(&m_ChatCommand);
-			}
-			
-			// !stopscript scriptname
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "topscript ", 10) == 0)
-			{
-				return StopScript(&m_ChatCommand);
-			}
-			
-			// !startscript scriptname
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "tartscript ", 11) == 0)
-			{
-				return StartScript(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'p':
-			// !passwd password
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "asswd ", 6) == 0)
-			{
-				return Passwd(&m_ChatCommand);
-			}
-			
-			// !permunban what
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ermunban ", 9) == 0)
-			{
-				return PermUnban(&m_ChatCommand);
-			}
-			
-			return false;
-			
-		case 'f':
-			// !fullban nick reason
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ullban ", 7) == 0)
-			{
-				return FullBan(&m_ChatCommand);
-			}
-			
-			// !fullbanip ip reason
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ullbanip ", 9) == 0)
-			{
-				return FullBanIp(&m_ChatCommand);
-			}
-			
-			// Hub commands: !fulltempban nick time reason ... PPK m = minutes, h = hours, d = days, w = weeks, M = months , Y = years
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ulltempban ", 11) == 0)
-			{
-				return FullTempBan(&m_ChatCommand);
-			}
-			
-			// !fulltempbanip ip time reason ... m = minutes, h = hours, d = days, w = weeks, M = months, Y = years
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ulltempbanip ", 13) == 0)
-			{
-				return FullTempBanIp(&m_ChatCommand);
-			}
-			
-			// !fullrangeban fromip toip reason
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ullrangeban ", 12) == 0)
-			{
-				return FullRangeBan(&m_ChatCommand);
-			}
-			
-			// !fullrangetempban fromip toip time reason ... m = minutes, h = hours, d = days, w = weeks, M = months, Y = years
-			if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ullrangetempban ", 16) == 0)
-			{
-				return FullRangeTempBan(&m_ChatCommand);
-			}
-			
-			return false;
+	case 'g':
+		// !getbans
+		if (m_ChatCommand.m_ui32CommandLen == 7 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etbans", 6) == 0)
+		{
+			return GetBans(&m_ChatCommand);
+		}
+		
+		// !gag nick
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ag ", 3) == 0)
+		{
+			return Gag(&m_ChatCommand);
+		}
+		
+		// !getinfo nick
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "etinfo ", 7) == 0)
+		{
+			return GetInfo(&m_ChatCommand);
+		}
+		
+		// !getipinfo ip
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "etipinfo ", 9) == 0)
+		{
+			return GetIpInfo(&m_ChatCommand);
+		}
+		
+		// !gettempbans
+		if (m_ChatCommand.m_ui32CommandLen == 11 && strncasecmp(m_ChatCommand.m_sCommand + 1, "ettempbans", 10) == 0)
+		{
+			return GetTempBans(&m_ChatCommand);
+		}
+		
+		// !getscripts
+		if (m_ChatCommand.m_ui32CommandLen == 10 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etscripts", 9) == 0)
+		{
+			return GetScripts(&m_ChatCommand);
+		}
+		
+		// !getpermbans
+		if (m_ChatCommand.m_ui32CommandLen == 11 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etpermbans", 10) == 0)
+		{
+			return GetPermBans(&m_ChatCommand);
+		}
+		
+		// !getrangebans
+		if (m_ChatCommand.m_ui32CommandLen == 12 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etrangebans", 11) == 0)
+		{
+			return GetRangeBans(&m_ChatCommand);
+		}
+		
+		// !getrangepermbans
+		if (m_ChatCommand.m_ui32CommandLen == 16 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etrangepermbans", 15) == 0)
+		{
+			return GetRangePermBans(&m_ChatCommand);
+		}
+		
+		// !getrangetempbans
+		if (m_ChatCommand.m_ui32CommandLen == 16 && strncasecmp(m_ChatCommand.m_sCommand + 1, "etrangetempbans", 15) == 0)
+		{
+			return GetRangeTempBans(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'n':
+		// !nickban nick reason
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ickban ", 7) == 0)
+		{
+			return NickBan(&m_ChatCommand);
+		}
+		
+		// !nicktempban nick time reason ...  m = minutes, h = hours, d = days, w = weeks, M = months, Y = years
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "icktempban ", 11) == 0)
+		{
+			return NickTempBan(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'b':
+		// !ban nick reason
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "an ", 3) == 0)
+		{
+			return Ban(&m_ChatCommand);
+		}
+		
+		// !banip ip reason
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "anip ", 5) == 0)
+		{
+			return BanIp(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 't':
+		// !tempban nick time reason ... m = minutes, h = hours, d = day, w = weeks, M = months, Y = years
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "empban ", 7) == 0)
+		{
+			return TempBan(&m_ChatCommand);
+		}
+		
+		// !tempbanip nick time reason ... m = minutes, h = hours, d = day, w = weeks, M = months, Y = years
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "empbanip ", 9) == 0)
+		{
+			return TempBanIp(&m_ChatCommand);
+		}
+		
+		// !tempunban nick/ip
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "empunban ", 9) == 0)
+		{
+			return TempUnban(&m_ChatCommand);
+		}
+		
+		// !topic text/off
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "opic ", 5) == 0)
+		{
+			return Topic(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'm':
+		// !myip
+		if (m_ChatCommand.m_ui32CommandLen == 4 && strncasecmp(m_ChatCommand.m_sCommand + 1, "yip", 3) == 0)
+		{
+			return MyIp(&m_ChatCommand);
+		}
+		
+		// !massmsg text
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "assmsg ", 7) == 0)
+		{
+			return MassMsg(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'r':
+		// !restartscripts
+		if (m_ChatCommand.m_ui32CommandLen == 14 && strncasecmp(m_ChatCommand.m_sCommand + 1, "estartscripts", 13) == 0)
+		{
+			return RestartScripts(&m_ChatCommand);
+		}
+		
+		// !restart
+		if (m_ChatCommand.m_ui32CommandLen == 7 && strncasecmp(m_ChatCommand.m_sCommand + 1, "estart", 6) == 0)
+		{
+			return Restart(&m_ChatCommand);
+		}
+		
+		// !reloadtxt
+		if (m_ChatCommand.m_ui32CommandLen == 9 && strncasecmp(m_ChatCommand.m_sCommand + 1, "eloadtxt", 8) == 0)
+		{
+			return ReloadTxt(&m_ChatCommand);
+		}
+		
+		// !restartscript scriptname
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "estartscript ", 13) == 0)
+		{
+			return RestartScript(&m_ChatCommand);
+		}
+		
+		// !rangeban fromip toip reason
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angeban ", 8) == 0)
+		{
+			return RangeBan(&m_ChatCommand);
+		}
+		
+		// !rangetempban fromip toip time reason ... m = minutes, h = hours, d = days, w = weeks, M = months, Y = years
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angetempban ", 12) == 0)
+		{
+			return RangeTempBan(&m_ChatCommand);
+		}
+		
+		// !rangeunban fromip toip
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angeunban ", 10) == 0)
+		{
+			return RangeUnBan(&m_ChatCommand);
+		}
+		
+		// !rangetempunban fromip toip
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angetempunban ", 14) == 0)
+		{
+			return RangeTempUnBan(&m_ChatCommand);
+		}
+		
+		// !rangepermunban fromip toip
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "angepermunban ", 14) == 0)
+		{
+			return RangePermUnBan(&m_ChatCommand);
+		}
+		
+		// !reguser nick profile_name
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "eguser ", 7) == 0)
+		{
+			return RegNewUser(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'u':
+		// !unban nick/ip
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "nban ", 5) == 0)
+		{
+			return Unban(&m_ChatCommand);
+		}
+		
+		// !ungag nick
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ngag ", 5) == 0)
+		{
+			return Ungag(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'o':
+		// !op nick
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "p ", 2) == 0)
+		{
+			return Op(&m_ChatCommand);
+		}
+		
+		// !opmassmsg text
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "pmassmsg ", 9) == 0)
+		{
+			return OpMassMsg(&m_ChatCommand);;
+		}
+		
+		return false;
+		
+	case 'd':
+		// !drop nick
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "rop ", 4) == 0)
+		{
+			return Drop(&m_ChatCommand);
+		}
+		
+		// !delreguser nick
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "elreguser ", 10) == 0)
+		{
+			return DelRegUser(&m_ChatCommand);
+		}
+		
+		// !debug port/off
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ebug ", 5) == 0)
+		{
+			return Debug(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'c':
+		/*
+		            // !crash
+		            // Code to test if 32bit DC++ based client is vulnerable to zlib bomb
+		            if(strncasecmp(m_ChatCommand.m_sCommand+1, "rash", 4) == 0) {
+		
+		                char * sTmp = (char*)calloc(392*1024*1024, 1);
+		
+		                uint32_t iLen = 0;
+		                char *sData = ZlibUtility->CreateZPipe(sTmp, 392*1024*1024, iLen);
+		
+		                if(iLen == 0) {
+		                    printf("0!");
+		                } else {
+		                    printf("LEN %u", iLen);
+		                    if(UserPutInSendBuf(pUser, sData, iLen)) {
+		                        UserTry2Send(pUser);
+		                    }
+		                }
+		
+		                free(sTmp);
+		
+		                return true;
+		            }
+		*/
+		// !clrtempbans
+		if (m_ChatCommand.m_ui32CommandLen == 11 && strncasecmp(m_ChatCommand.m_sCommand + 1, "lrtempbans", 10) == 0)
+		{
+			return ClrTempBans(&m_ChatCommand);
+		}
+		
+		// !clrpermbans
+		if (m_ChatCommand.m_ui32CommandLen == 11 && strncasecmp(m_ChatCommand.m_sCommand + 1, "lrpermbans", 10) == 0)
+		{
+			return ClrPermBans(&m_ChatCommand);
+		}
+		
+		// !clrrangetempbans
+		if (m_ChatCommand.m_ui32CommandLen == 16 && strncasecmp(m_ChatCommand.m_sCommand + 1, "lrrangetempbans", 15) == 0)
+		{
+			return ClrRangeTempBans(&m_ChatCommand);
+		}
+		
+		// !clrrangepermbans
+		if (m_ChatCommand.m_ui32CommandLen == 16 && strncasecmp(m_ChatCommand.m_sCommand + 1, "lrrangepermbans", 15) == 0)
+		{
+			return ClrRangePermBans(&m_ChatCommand);
+		}
+		
+		// !checknickban nick
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "hecknickban ", 12) == 0)
+		{
+			return CheckNickBan(&m_ChatCommand);
+		}
+		
+		// !checkipban ip
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "heckipban ", 10) == 0)
+		{
+			return CheckIpBan(&m_ChatCommand);
+		}
+		
+		// !checkrangeban ipfrom ipto
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "heckrangeban ", 13) == 0)
+		{
+			return CheckRangeBan(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'a':
+		// !addreguser nick pas> profile_name
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ddreguser ", 10) == 0)
+		{
+			return AddRegUser(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'h':
+		// !help
+		if (m_ChatCommand.m_ui32CommandLen == 4 && strncasecmp(m_ChatCommand.m_sCommand + 1, "elp", 3) == 0)
+		{
+			return Help(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 's':
+		// !stat !stats !statistic
+		if ((m_ChatCommand.m_ui32CommandLen == 4 && strncasecmp(m_ChatCommand.m_sCommand + 1, "tat", 3) == 0) || (m_ChatCommand.m_ui32CommandLen == 5 && strncasecmp(m_ChatCommand.m_sCommand + 1, "tats", 4) == 0) || (m_ChatCommand.m_ui32CommandLen == 9 && strncasecmp(m_ChatCommand.m_sCommand + 1, "tatistic", 8) == 0))
+		{
+			return Stats(&m_ChatCommand);
+		}
+		
+		// !stopscript scriptname
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "topscript ", 10) == 0)
+		{
+			return StopScript(&m_ChatCommand);
+		}
+		
+		// !startscript scriptname
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "tartscript ", 11) == 0)
+		{
+			return StartScript(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'p':
+		// !passwd password
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "asswd ", 6) == 0)
+		{
+			return Passwd(&m_ChatCommand);
+		}
+		
+		// !permunban what
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ermunban ", 9) == 0)
+		{
+			return PermUnban(&m_ChatCommand);
+		}
+		
+		return false;
+		
+	case 'f':
+		// !fullban nick reason
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ullban ", 7) == 0)
+		{
+			return FullBan(&m_ChatCommand);
+		}
+		
+		// !fullbanip ip reason
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ullbanip ", 9) == 0)
+		{
+			return FullBanIp(&m_ChatCommand);
+		}
+		
+		// Hub commands: !fulltempban nick time reason ... PPK m = minutes, h = hours, d = days, w = weeks, M = months , Y = years
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ulltempban ", 11) == 0)
+		{
+			return FullTempBan(&m_ChatCommand);
+		}
+		
+		// !fulltempbanip ip time reason ... m = minutes, h = hours, d = days, w = weeks, M = months, Y = years
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ulltempbanip ", 13) == 0)
+		{
+			return FullTempBanIp(&m_ChatCommand);
+		}
+		
+		// !fullrangeban fromip toip reason
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ullrangeban ", 12) == 0)
+		{
+			return FullRangeBan(&m_ChatCommand);
+		}
+		
+		// !fullrangetempban fromip toip time reason ... m = minutes, h = hours, d = days, w = weeks, M = months, Y = years
+		if (strncasecmp(m_ChatCommand.m_sCommand + 1, "ullrangetempban ", 16) == 0)
+		{
+			return FullRangeTempBan(&m_ChatCommand);
+		}
+		
+		return false;
 	}
 	
 	return false; // PPK ... and send to all as chat ;)
@@ -640,74 +640,74 @@ bool HubCommands::BanIp(ChatCommand * pChatCommand, const bool bFull)
 	
 	switch (BanManager::m_Ptr->BanIp(NULL, pChatCommand->m_sCommand, sReason, pChatCommand->m_pUser->m_sNick, bFull))
 	{
-		case 0:
+	case 0:
+	{
+		UncountDeflood(pChatCommand);
+		
+		uint8_t ui128Hash[16];
+		memset(ui128Hash, 0, 16);
+		
+		HashIP(pChatCommand->m_sCommand, ui128Hash);
+		
+		User * pCurUser = NULL,
+		       * pNextUser = HashManager::m_Ptr->FindUser(ui128Hash);
+		       
+		while (pNextUser != NULL)
 		{
-			UncountDeflood(pChatCommand);
+			pCurUser = pNextUser;
+			pNextUser = pCurUser->m_pHashIpTableNext;
 			
-			uint8_t ui128Hash[16];
-			memset(ui128Hash, 0, 16);
-			
-			HashIP(pChatCommand->m_sCommand, ui128Hash);
-			
-			User * pCurUser = NULL,
-			       * pNextUser = HashManager::m_Ptr->FindUser(ui128Hash);
-			       
-			while (pNextUser != NULL)
+			if (pCurUser == pChatCommand->m_pUser || (pCurUser->m_i32Profile != -1 && ProfileManager::m_Ptr->IsAllowed(pCurUser, ProfileManager::ENTERIFIPBAN) == true))
 			{
-				pCurUser = pNextUser;
-				pNextUser = pCurUser->m_pHashIpTableNext;
-				
-				if (pCurUser == pChatCommand->m_pUser || (pCurUser->m_i32Profile != -1 && ProfileManager::m_Ptr->IsAllowed(pCurUser, ProfileManager::ENTERIFIPBAN) == true))
-				{
-					continue;
-				}
-				
-				// PPK don't nickban user with higher profile
-				if (pCurUser->m_i32Profile != -1 && pChatCommand->m_pUser->m_i32Profile > pCurUser->m_i32Profile)
-				{
-					pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::BanIp3", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
-					                                         LanguageManager::m_Ptr->m_sTexts[LAN_YOU_NOT_ALLOWED_TO], LanguageManager::m_Ptr->m_sTexts[LAN_BAN_LWR], pCurUser->m_sNick);
-					                                         
-					continue;
-				}
-				
-				pCurUser->SendFormat("HubCommands::BanIp4", false, "<%s> %s: %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOU_HAD_BEEN_BANNED_BCS], sReason == NULL ? LanguageManager::m_Ptr->m_sTexts[LAN_NO_REASON_SPECIFIED] : sReason);
-				
-				UdpDebug::m_Ptr->BroadcastFormat("[SYS] User %s (%s) ipbanned by %s", pCurUser->m_sNick, pCurUser->m_sIP, pChatCommand->m_pUser->m_sNick);
-				
-				pCurUser->Close();
+				continue;
 			}
 			
-			if (SettingManager::m_Ptr->m_bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)
+			// PPK don't nickban user with higher profile
+			if (pCurUser->m_i32Profile != -1 && pChatCommand->m_pUser->m_i32Profile > pCurUser->m_i32Profile)
 			{
-				GlobalDataQueue::m_Ptr->StatusMessageFormat("HubCommands::BanIp5", "<%s> *** %s %s %s%s %s %s %s: %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], pChatCommand->m_sCommand, LanguageManager::m_Ptr->m_sTexts[LAN_IS_LWR], bFull == true ? LanguageManager::m_Ptr->m_sTexts[LAN_FULL_LWR] : "",
-				                                            LanguageManager::m_Ptr->m_sTexts[LAN_BANNED_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_BY_LWR], pChatCommand->m_pUser->m_sNick, LanguageManager::m_Ptr->m_sTexts[LAN_BECAUSE_LWR], sReason == NULL ? LanguageManager::m_Ptr->m_sTexts[LAN_NO_REASON_SPECIFIED] : sReason);
+				pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::BanIp3", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
+				                                         LanguageManager::m_Ptr->m_sTexts[LAN_YOU_NOT_ALLOWED_TO], LanguageManager::m_Ptr->m_sTexts[LAN_BAN_LWR], pCurUser->m_sNick);
+				                                         
+				continue;
 			}
 			
-			if (SettingManager::m_Ptr->m_bBools[SETBOOL_SEND_STATUS_MESSAGES] == false || ((pChatCommand->m_pUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
-			{
-				pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::BanIp6", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s%s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], pChatCommand->m_sCommand,
-				                                         LanguageManager::m_Ptr->m_sTexts[LAN_IS_LWR], bFull == true ? LanguageManager::m_Ptr->m_sTexts[LAN_FULL_LWR] : "", LanguageManager::m_Ptr->m_sTexts[LAN_BANNED_LWR]);
-			}
+			pCurUser->SendFormat("HubCommands::BanIp4", false, "<%s> %s: %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOU_HAD_BEEN_BANNED_BCS], sReason == NULL ? LanguageManager::m_Ptr->m_sTexts[LAN_NO_REASON_SPECIFIED] : sReason);
 			
-			return true;
+			UdpDebug::m_Ptr->BroadcastFormat("[SYS] User %s (%s) ipbanned by %s", pCurUser->m_sNick, pCurUser->m_sIP, pChatCommand->m_pUser->m_sNick);
+			
+			pCurUser->Close();
 		}
-		case 1:
+		
+		if (SettingManager::m_Ptr->m_bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)
 		{
-			pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::BanIp7", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> *** %s %c%sbanip <%s> <%s>. %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
-			                                         LanguageManager::m_Ptr->m_sTexts[LAN_SNTX_ERR_IN_CMD], SettingManager::m_Ptr->m_sTexts[SETTXT_CHAT_COMMANDS_PREFIXES][0], bFull == true ? "full" : "", LanguageManager::m_Ptr->m_sTexts[LAN_IP], LanguageManager::m_Ptr->m_sTexts[LAN_REASON_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_NO_VALID_IP_SPECIFIED]);
-			                                         
-			return true;
+			GlobalDataQueue::m_Ptr->StatusMessageFormat("HubCommands::BanIp5", "<%s> *** %s %s %s%s %s %s %s: %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], pChatCommand->m_sCommand, LanguageManager::m_Ptr->m_sTexts[LAN_IS_LWR], bFull == true ? LanguageManager::m_Ptr->m_sTexts[LAN_FULL_LWR] : "",
+			                                            LanguageManager::m_Ptr->m_sTexts[LAN_BANNED_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_BY_LWR], pChatCommand->m_pUser->m_sNick, LanguageManager::m_Ptr->m_sTexts[LAN_BECAUSE_LWR], sReason == NULL ? LanguageManager::m_Ptr->m_sTexts[LAN_NO_REASON_SPECIFIED] : sReason);
 		}
-		case 2:
+		
+		if (SettingManager::m_Ptr->m_bBools[SETBOOL_SEND_STATUS_MESSAGES] == false || ((pChatCommand->m_pUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
 		{
-			pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::BanIp8", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> *** %s %s %s %s%s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
-			                                         LanguageManager::m_Ptr->m_sTexts[LAN_IP], pChatCommand->m_sCommand, LanguageManager::m_Ptr->m_sTexts[LAN_IS_ALREADY], bFull == true ? LanguageManager::m_Ptr->m_sTexts[LAN_FULL_LWR] : "", LanguageManager::m_Ptr->m_sTexts[LAN_BANNED_LWR]);
-			                                         
-			return true;
+			pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::BanIp6", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s%s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], pChatCommand->m_sCommand,
+			                                         LanguageManager::m_Ptr->m_sTexts[LAN_IS_LWR], bFull == true ? LanguageManager::m_Ptr->m_sTexts[LAN_FULL_LWR] : "", LanguageManager::m_Ptr->m_sTexts[LAN_BANNED_LWR]);
 		}
-		default:
-			return true;
+		
+		return true;
+	}
+	case 1:
+	{
+		pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::BanIp7", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> *** %s %c%sbanip <%s> <%s>. %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
+		                                         LanguageManager::m_Ptr->m_sTexts[LAN_SNTX_ERR_IN_CMD], SettingManager::m_Ptr->m_sTexts[SETTXT_CHAT_COMMANDS_PREFIXES][0], bFull == true ? "full" : "", LanguageManager::m_Ptr->m_sTexts[LAN_IP], LanguageManager::m_Ptr->m_sTexts[LAN_REASON_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_NO_VALID_IP_SPECIFIED]);
+		                                         
+		return true;
+	}
+	case 2:
+	{
+		pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::BanIp8", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> *** %s %s %s %s%s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
+		                                         LanguageManager::m_Ptr->m_sTexts[LAN_IP], pChatCommand->m_sCommand, LanguageManager::m_Ptr->m_sTexts[LAN_IS_ALREADY], bFull == true ? LanguageManager::m_Ptr->m_sTexts[LAN_FULL_LWR] : "", LanguageManager::m_Ptr->m_sTexts[LAN_BANNED_LWR]);
+		                                         
+		return true;
+	}
+	default:
+		return true;
 	}
 }
 //---------------------------------------------------------------------------
@@ -912,7 +912,7 @@ bool HubCommands::TempBanIp(ChatCommand * pChatCommand, const bool bFull)
 			{
 				sCmdParts[2] = pChatCommand->m_sCommand + pChatCommand->m_ui32CommandLen + 1;
 				ui16CmdPartsLen[2] = (uint16_t)(pChatCommand->m_ui32CommandLen - ui32i - 1);
-
+				
 				break;
 			}
 			
@@ -971,55 +971,55 @@ bool HubCommands::TempBanIp(ChatCommand * pChatCommand, const bool bFull)
 	
 	switch (BanManager::m_Ptr->TempBanIp(NULL, sCmdParts[0], sCmdParts[2], pChatCommand->m_pUser->m_sNick, 0, ban_time, bFull))
 	{
-		case 0:
+	case 0:
+	{
+		uint8_t ui128Hash[16];
+		memset(ui128Hash, 0, 16);
+		
+		HashIP(pChatCommand->m_sCommand, ui128Hash);
+		
+		User * pCur = NULL,
+		       * pNext = HashManager::m_Ptr->FindUser(ui128Hash);
+		while (pNext != NULL)
 		{
-			uint8_t ui128Hash[16];
-			memset(ui128Hash, 0, 16);
+			pCur = pNext;
+			pNext = pCur->m_pHashIpTableNext;
 			
-			HashIP(pChatCommand->m_sCommand, ui128Hash);
-			
-			User * pCur = NULL,
-			       * pNext = HashManager::m_Ptr->FindUser(ui128Hash);
-			while (pNext != NULL)
+			if (pCur == pChatCommand->m_pUser || (pCur->m_i32Profile != -1 && ProfileManager::m_Ptr->IsAllowed(pCur, ProfileManager::ENTERIFIPBAN) == true))
 			{
-				pCur = pNext;
-				pNext = pCur->m_pHashIpTableNext;
-				
-				if (pCur == pChatCommand->m_pUser || (pCur->m_i32Profile != -1 && ProfileManager::m_Ptr->IsAllowed(pCur, ProfileManager::ENTERIFIPBAN) == true))
-				{
-					continue;
-				}
-				
-				// PPK don't nickban user with higher profile
-				if (pCur->m_i32Profile != -1 && pChatCommand->m_pUser->m_i32Profile > pCur->m_i32Profile)
-				{
-					pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::TempBanIp3", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
-					                                         LanguageManager::m_Ptr->m_sTexts[LAN_YOU_NOT_ALLOWED_TO], LanguageManager::m_Ptr->m_sTexts[LAN_BAN_LWR], pCur->m_sNick);
-					continue;
-				}
-				
-				pCur->SendFormat("HubCommands::TempBanIp", false, "<%s> %s: %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOU_HAD_BEEN_BANNED_BCS], sCmdParts[2] == NULL ? LanguageManager::m_Ptr->m_sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
-				
-				UdpDebug::m_Ptr->BroadcastFormat("[SYS] User %s (%s) tempipbanned by %s", pCur->m_sNick, pCur->m_sIP, pChatCommand->m_pUser->m_sNick);
-				
-				pCur->Close();
+				continue;
 			}
-			break;
+			
+			// PPK don't nickban user with higher profile
+			if (pCur->m_i32Profile != -1 && pChatCommand->m_pUser->m_i32Profile > pCur->m_i32Profile)
+			{
+				pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::TempBanIp3", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> %s %s %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
+				                                         LanguageManager::m_Ptr->m_sTexts[LAN_YOU_NOT_ALLOWED_TO], LanguageManager::m_Ptr->m_sTexts[LAN_BAN_LWR], pCur->m_sNick);
+				continue;
+			}
+			
+			pCur->SendFormat("HubCommands::TempBanIp", false, "<%s> %s: %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOU_HAD_BEEN_BANNED_BCS], sCmdParts[2] == NULL ? LanguageManager::m_Ptr->m_sTexts[LAN_NO_REASON_SPECIFIED] : sCmdParts[2]);
+			
+			UdpDebug::m_Ptr->BroadcastFormat("[SYS] User %s (%s) tempipbanned by %s", pCur->m_sNick, pCur->m_sIP, pChatCommand->m_pUser->m_sNick);
+			
+			pCur->Close();
 		}
-		case 1:
-		{
-			pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::TempBanIp4", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> *** %s %c%sbanip <%s> <%s>. %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
-			                                         LanguageManager::m_Ptr->m_sTexts[LAN_SNTX_ERR_IN_CMD], SettingManager::m_Ptr->m_sTexts[SETTXT_CHAT_COMMANDS_PREFIXES][0], bFull == true ? "full" : "", LanguageManager::m_Ptr->m_sTexts[LAN_IP], LanguageManager::m_Ptr->m_sTexts[LAN_REASON_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_NO_VALID_IP_SPECIFIED]);
-			return true;
-		}
-		case 2:
-		{
-			pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::TempBanIp5", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> *** %s %s %s %s%s %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
-			                                         LanguageManager::m_Ptr->m_sTexts[LAN_IP], sCmdParts[0], LanguageManager::m_Ptr->m_sTexts[LAN_IS_ALREADY], bFull == true ? LanguageManager::m_Ptr->m_sTexts[LAN_FULL_LWR] : "", LanguageManager::m_Ptr->m_sTexts[LAN_BANNED_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_TO_LONGER_TIME]);
-			return true;
-		}
-		default:
-			return true;
+		break;
+	}
+	case 1:
+	{
+		pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::TempBanIp4", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> *** %s %c%sbanip <%s> <%s>. %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
+		                                         LanguageManager::m_Ptr->m_sTexts[LAN_SNTX_ERR_IN_CMD], SettingManager::m_Ptr->m_sTexts[SETTXT_CHAT_COMMANDS_PREFIXES][0], bFull == true ? "full" : "", LanguageManager::m_Ptr->m_sTexts[LAN_IP], LanguageManager::m_Ptr->m_sTexts[LAN_REASON_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_NO_VALID_IP_SPECIFIED]);
+		return true;
+	}
+	case 2:
+	{
+		pChatCommand->m_pUser->SendFormatCheckPM("HubCommands::TempBanIp5", pChatCommand->m_bFromPM == true ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC] : NULL, true, "<%s> *** %s %s %s %s%s %s!|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC],
+		                                         LanguageManager::m_Ptr->m_sTexts[LAN_IP], sCmdParts[0], LanguageManager::m_Ptr->m_sTexts[LAN_IS_ALREADY], bFull == true ? LanguageManager::m_Ptr->m_sTexts[LAN_FULL_LWR] : "", LanguageManager::m_Ptr->m_sTexts[LAN_BANNED_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_TO_LONGER_TIME]);
+		return true;
+	}
+	default:
+		return true;
 	}
 	
 	UncountDeflood(pChatCommand);

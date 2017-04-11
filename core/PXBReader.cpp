@@ -256,23 +256,23 @@ bool PXBReader::WriteNextItem(const uint32_t ui32Length, const uint8_t ui8SubIte
 		
 		switch (m_ui8ItemValues[ui8i])
 		{
-			case PXB_BYTE:
-				m_pActualPosition[4] = (m_pItemDatas[ui8i] == 0 ? '0' : '1');
-				break;
-			case PXB_TWO_BYTES:
-				(*((uint16_t *)(m_pActualPosition + 4))) = htons(*((uint16_t *)m_pItemDatas[ui8i]));
-				break;
-			case PXB_FOUR_BYTES:
-				(*((uint32_t *)(m_pActualPosition + 4))) = htonl(*((uint32_t *)m_pItemDatas[ui8i]));
-				break;
-			case PXB_EIGHT_BYTES:
-				(*((uint64_t *)(m_pActualPosition + 4))) = htobe64(*((uint64_t *)m_pItemDatas[ui8i]));
-				break;
-			case PXB_STRING:
-				memcpy(m_pActualPosition + 4, m_pItemDatas[ui8i], m_ui16ItemLengths[ui8i]);
-				break;
-			default:
-				break;
+		case PXB_BYTE:
+			m_pActualPosition[4] = (m_pItemDatas[ui8i] == 0 ? '0' : '1');
+			break;
+		case PXB_TWO_BYTES:
+			(*((uint16_t *)(m_pActualPosition + 4))) = htons(*((uint16_t *)m_pItemDatas[ui8i]));
+			break;
+		case PXB_FOUR_BYTES:
+			(*((uint32_t *)(m_pActualPosition + 4))) = htonl(*((uint32_t *)m_pItemDatas[ui8i]));
+			break;
+		case PXB_EIGHT_BYTES:
+			(*((uint64_t *)(m_pActualPosition + 4))) = htobe64(*((uint64_t *)m_pItemDatas[ui8i]));
+			break;
+		case PXB_STRING:
+			memcpy(m_pActualPosition + 4, m_pItemDatas[ui8i], m_ui16ItemLengths[ui8i]);
+			break;
+		default:
+			break;
 		}
 		
 		m_pActualPosition += m_ui16ItemLengths[ui8i] + 4;

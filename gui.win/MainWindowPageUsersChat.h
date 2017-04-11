@@ -28,49 +28,49 @@ struct User;
 
 class clsMainWindowPageUsersChat : public MainWindowPage, private BasicSplitter
 {
-	public:
-		static clsMainWindowPageUsersChat * mPtr;
-		
-		HWND hWndPageItems[7];
-		
-		enum enmPageItems
-		{
-			BTN_SHOW_CHAT,
-			BTN_SHOW_COMMANDS,
-			REDT_CHAT,
-			EDT_CHAT,
-			BTN_AUTO_UPDATE_USERLIST,
-			LV_USERS,
-			BTN_UPDATE_USERS
-		};
-		
-		clsMainWindowPageUsersChat();
-		~clsMainWindowPageUsersChat();
-		
-		bool CreateMainWindowPage(HWND hOwner);
-		void UpdateLanguage();
-		char * GetPageName();
-		void FocusFirstItem();
-		void FocusLastItem();
-		
-		bool OnEditEnter();
-		void AddUser(const User * curUser);
-		void RemoveUser(const User * curUser);
-		User * GetUser();
-	private:
+public:
+	static clsMainWindowPageUsersChat * mPtr;
 	
-		LRESULT MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-		
-		void UpdateUserList();
-		void OnContextMenu(HWND hWindow, LPARAM lParam);
-		void DisconnectUser();
-		void KickUser();
-		void BanUser();
-		void RedirectUser();
-		
-		HWND GetWindowHandle();
-		void UpdateSplitterParts();
-		DISALLOW_COPY_AND_ASSIGN(clsMainWindowPageUsersChat);
+	HWND hWndPageItems[7];
+	
+	enum enmPageItems
+	{
+		BTN_SHOW_CHAT,
+		BTN_SHOW_COMMANDS,
+		REDT_CHAT,
+		EDT_CHAT,
+		BTN_AUTO_UPDATE_USERLIST,
+		LV_USERS,
+		BTN_UPDATE_USERS
+	};
+	
+	clsMainWindowPageUsersChat();
+	~clsMainWindowPageUsersChat();
+	
+	bool CreateMainWindowPage(HWND hOwner);
+	void UpdateLanguage();
+	char * GetPageName();
+	void FocusFirstItem();
+	void FocusLastItem();
+	
+	bool OnEditEnter();
+	void AddUser(const User * curUser);
+	void RemoveUser(const User * curUser);
+	User * GetUser();
+private:
+
+	LRESULT MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
+	void UpdateUserList();
+	void OnContextMenu(HWND hWindow, LPARAM lParam);
+	void DisconnectUser();
+	void KickUser();
+	void BanUser();
+	void RedirectUser();
+	
+	HWND GetWindowHandle();
+	void UpdateSplitterParts();
+	DISALLOW_COPY_AND_ASSIGN(clsMainWindowPageUsersChat);
 };
 //------------------------------------------------------------------------------
 

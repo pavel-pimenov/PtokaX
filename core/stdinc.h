@@ -127,9 +127,9 @@ const char g_sPtokaXTitle[] = "PtokaX++ DC Hub " PtokaXVersionString
 // http://stackoverflow.com/questions/20026445/editing-googles-c-disallow-copy-and-assign-preprocessor-macro-for-c11-move
 //
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-	private:                   \
-	TypeName(const TypeName&);                 \
-	void operator=(const TypeName&)
+    private:                   \
+    TypeName(const TypeName&);                 \
+    void operator=(const TypeName&)
 
 /*
 //---------------------------------------------------------------------------

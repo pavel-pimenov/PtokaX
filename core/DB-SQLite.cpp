@@ -677,9 +677,9 @@ bool DBSQLite::SearchNick(ChatCommand * pChatCommand)
 	}
 	
 	if (iMsgLen <= 0)
-		{
-			return false;
-		}
+	{
+		return false;
+	}
 	
 	iAfterHubSecMsgLen = iMsgLen;
 	
@@ -726,7 +726,7 @@ bool DBSQLite::SearchIP(ChatCommand * pChatCommand)
 	}
 	
 	if (pChatCommand->m_bFromPM == true)
-		{
+	{
 		iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "$To: %s From: %s $<%s> ", pChatCommand->m_pUser->m_sNick, SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC]);
 	}
 	else
@@ -735,9 +735,9 @@ bool DBSQLite::SearchIP(ChatCommand * pChatCommand)
 	}
 	
 	if (iMsgLen <= 0)
-		{
-			return false;
-		}
+	{
+		return false;
+	}
 	
 	iAfterHubSecMsgLen = iMsgLen;
 	

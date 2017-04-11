@@ -846,7 +846,7 @@ static int SetHubBot(lua_State * pLua)
 	{
 		SettingManager::m_Ptr->m_bUpdateLocked = false;
 		SettingManager::m_Ptr->DisableBot((bBotHaveNewNick == true || bEnableBot == false),
-		                                    (bRegStateChange == true || bBotHaveNewNick == true || bDescriptionChange == true || bEmailChange == true) ? true : false);
+		                                  (bRegStateChange == true || bBotHaveNewNick == true || bDescriptionChange == true || bEmailChange == true) ? true : false);
 		SettingManager::m_Ptr->m_bUpdateLocked = true;
 	}
 	

@@ -43,63 +43,63 @@ LRESULT SettingPageBans::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lParam
 	{
 		switch (LOWORD(wParam))
 		{
-			case EDT_DEFAULT_TEMPBAN_TIME:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 32767);
-					
-					return 0;
-				}
+		case EDT_DEFAULT_TEMPBAN_TIME:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 32767);
 				
-				break;
-			case EDT_ADD_MESSAGE:
-			case EDT_TEMP_BAN_REDIR:
-			case EDT_PERM_BAN_REDIR:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					RemovePipes((HWND)lParam);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_ADD_MESSAGE:
+		case EDT_TEMP_BAN_REDIR:
+		case EDT_PERM_BAN_REDIR:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				RemovePipes((HWND)lParam);
 				
-				break;
-			case BTN_TEMP_BAN_REDIR_ENABLE:
-				if (HIWORD(wParam) == BN_CLICKED)
-				{
-					::EnableWindow(hWndPageItems[EDT_TEMP_BAN_REDIR],
-					               ::SendMessage(hWndPageItems[BTN_TEMP_BAN_REDIR_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-				}
+				return 0;
+			}
+			
+			break;
+		case BTN_TEMP_BAN_REDIR_ENABLE:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[EDT_TEMP_BAN_REDIR],
+				               ::SendMessage(hWndPageItems[BTN_TEMP_BAN_REDIR_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case BTN_PERM_BAN_REDIR_ENABLE:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[EDT_PERM_BAN_REDIR],
+				               ::SendMessage(hWndPageItems[BTN_PERM_BAN_REDIR_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case CB_BRUTE_FORCE_PASSWORD_PROTECTION_ACTION:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_BRUTE_FORCE_PASSWORD_PROTECTION_ACTION], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[LBL_TEMP_BAN_TIME], ui32Action == 2 ? TRUE : FALSE);
+				::EnableWindow(hWndPageItems[EDT_TEMP_BAN_TIME], ui32Action == 2 ? TRUE : FALSE);
+				::EnableWindow(hWndPageItems[UD_TEMP_BAN_TIME], ui32Action == 2 ? TRUE : FALSE);
+				::EnableWindow(hWndPageItems[LBL_TEMP_BAN_TIME_HOURS], ui32Action == 2 ? TRUE : FALSE);
+				::EnableWindow(hWndPageItems[BTN_REPORT_3X_BAD_PASS], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case EDT_TEMP_BAN_TIME:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 999);
 				
-				break;
-			case BTN_PERM_BAN_REDIR_ENABLE:
-				if (HIWORD(wParam) == BN_CLICKED)
-				{
-					::EnableWindow(hWndPageItems[EDT_PERM_BAN_REDIR],
-					               ::SendMessage(hWndPageItems[BTN_PERM_BAN_REDIR_ENABLE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-				}
-				
-				break;
-			case CB_BRUTE_FORCE_PASSWORD_PROTECTION_ACTION:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_BRUTE_FORCE_PASSWORD_PROTECTION_ACTION], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[LBL_TEMP_BAN_TIME], ui32Action == 2 ? TRUE : FALSE);
-					::EnableWindow(hWndPageItems[EDT_TEMP_BAN_TIME], ui32Action == 2 ? TRUE : FALSE);
-					::EnableWindow(hWndPageItems[UD_TEMP_BAN_TIME], ui32Action == 2 ? TRUE : FALSE);
-					::EnableWindow(hWndPageItems[LBL_TEMP_BAN_TIME_HOURS], ui32Action == 2 ? TRUE : FALSE);
-					::EnableWindow(hWndPageItems[BTN_REPORT_3X_BAD_PASS], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case EDT_TEMP_BAN_TIME:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 999);
-					
-					return 0;
-				}
-				
-				break;
+				return 0;
+			}
+			
+			break;
 		}
 	}
 	

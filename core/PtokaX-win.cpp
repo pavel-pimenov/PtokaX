@@ -218,16 +218,16 @@ static void WINAPI CtrlHandler(DWORD dwCtrl)
 {
 	switch (dwCtrl)
 	{
-		case SERVICE_CONTROL_SHUTDOWN:
-		case SERVICE_CONTROL_STOP:
-			ss.dwCurrentState = SERVICE_STOP_PENDING;
-			ServerManager::m_bIsClose = true;
-			ServerManager::Stop();
-		case SERVICE_CONTROL_INTERROGATE:
-			// Fall through to send current status.
-			break;
-		default:
-			break;
+	case SERVICE_CONTROL_SHUTDOWN:
+	case SERVICE_CONTROL_STOP:
+		ss.dwCurrentState = SERVICE_STOP_PENDING;
+		ServerManager::m_bIsClose = true;
+		ServerManager::Stop();
+	case SERVICE_CONTROL_INTERROGATE:
+		// Fall through to send current status.
+		break;
+	default:
+		break;
 	}
 	
 	if (SetServiceStatus(ssh, &ss) == false)
@@ -346,16 +346,16 @@ static void WINAPI StartService(DWORD /*argc*/, char* argv[])
 #ifndef _WIN32
 class CSyslogInit()
 {
-		CSyslogInit()
-		{
-			openlog("ptokax", 0, LOG_USER);
-			syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ start!");
-		}
-		~CSyslogInit()
-		{
-			syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ stop!");
-			closelog();
-		}
+	CSyslogInit()
+	{
+		openlog("ptokax", 0, LOG_USER);
+		syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ start!");
+	}
+	~CSyslogInit()
+	{
+		syslog(LOG_NOTICE, "PtokaX for FlylinkDC++ stop!");
+		closelog();
+	}
 };
 #endif
 

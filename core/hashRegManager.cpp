@@ -757,9 +757,9 @@ void RegManager::LoadXML()
 			if (iMsgLen > 0)
 			{
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+				::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-			AppendLog(ServerManager::m_pGlobalBuffer);
+				AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 			}
 			
@@ -805,13 +805,13 @@ void RegManager::LoadXML()
 				if (iProfile > iProfilesCount)
 				{
 					int iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "%s %s %s! %s %s.", LanguageManager::m_Ptr->m_sTexts[LAN_USER], nick, LanguageManager::m_Ptr->m_sTexts[LAN_HAVE_NOT_EXIST_PROFILE],
-					                      LanguageManager::m_Ptr->m_sTexts[LAN_CHANGED_PROFILE_TO], ProfileManager::m_Ptr->m_ppProfilesTable[iProfilesCount]->m_sName);
+					                       LanguageManager::m_Ptr->m_sTexts[LAN_CHANGED_PROFILE_TO], ProfileManager::m_Ptr->m_ppProfilesTable[iProfilesCount]->m_sName);
 					if (iMsgLen > 0)
 					{
 #ifdef _BUILD_GUI
-					::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
+						::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 #else
-					AppendLog(ServerManager::m_pGlobalBuffer);
+						AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 					}
 					
@@ -833,13 +833,13 @@ void RegManager::LoadXML()
 				else
 				{
 					int iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "%s %s %s! %s.", LanguageManager::m_Ptr->m_sTexts[LAN_USER], nick, LanguageManager::m_Ptr->m_sTexts[LAN_IS_ALREADY_IN_REGS],
-					                      LanguageManager::m_Ptr->m_sTexts[LAN_USER_DELETED]);
+					                       LanguageManager::m_Ptr->m_sTexts[LAN_USER_DELETED]);
 					if (iMsgLen > 0)
 					{
 #ifdef _BUILD_GUI
-					::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
+						::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONEXCLAMATION);
 #else
-					AppendLog(ServerManager::m_pGlobalBuffer);
+						AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 					}
 					

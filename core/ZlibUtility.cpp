@@ -242,7 +242,7 @@ char * ZlibUtility::CreateZPipeAlign(const char *sInData, const size_t szInDataS
 	printf("\r\n\r\n[3]CreateZPipe [size = %u], sInData = [%s]\r\n", szInDataSize, sInData);
 #endif
 #endif
-
+	
 	// prepare Zbuffer
 	if (m_szZbufferSize < szInDataSize + 128)
 	{

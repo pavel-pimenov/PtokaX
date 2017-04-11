@@ -83,221 +83,221 @@ LRESULT clsMainWindowPageUsersChat::MainWindowPageProc(UINT uMsg, WPARAM wParam,
 {
 	switch (uMsg)
 	{
-		case WM_SETFOCUS:
-			::SetFocus(hWndPageItems[BTN_SHOW_CHAT]);
-			
-			return 0;
-		case WM_WINDOWPOSCHANGED:
+	case WM_SETFOCUS:
+		::SetFocus(hWndPageItems[BTN_SHOW_CHAT]);
+		
+		return 0;
+	case WM_WINDOWPOSCHANGED:
+	{
+		RECT rcMain = { 0, clsGuiSettingManager::iCheckHeight, ((WINDOWPOS*)lParam)->cx, ((WINDOWPOS*)lParam)->cy };
+		
+		::SetWindowPos(hWndPageItems[BTN_SHOW_CHAT], NULL, 0, 0, ((rcMain.right - ScaleGui(150)) / 2) - 3, clsGuiSettingManager::iCheckHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[BTN_SHOW_COMMANDS], NULL, ((rcMain.right - ScaleGui(150)) / 2) + 1, 0, ((rcMain.right - ScaleGui(150)) / 2) - 3, clsGuiSettingManager::iCheckHeight, SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], NULL, rcMain.right - (ScaleGui(150) - 4), 0, (rcMain.right - (rcMain.right - (ScaleGui(150) - 2))) - 4, clsGuiSettingManager::iCheckHeight,
+		               SWP_NOZORDER);
+		               
+		SetSplitterRect(&rcMain);
+		
+		return 0;
+	}
+	case WM_NOTIFY:
+		if (((LPNMHDR)lParam)->hwndFrom == hWndPageItems[REDT_CHAT] && ((LPNMHDR)lParam)->code == EN_LINK)
 		{
-			RECT rcMain = { 0, clsGuiSettingManager::iCheckHeight, ((WINDOWPOS*)lParam)->cx, ((WINDOWPOS*)lParam)->cy };
+			if (((ENLINK *)lParam)->msg == WM_LBUTTONUP)
+			{
+				RichEditOpenLink(hWndPageItems[REDT_CHAT], (ENLINK *)lParam);
+			}
+		}
+		else if (((LPNMHDR)lParam)->hwndFrom == hWndPageItems[LV_USERS] && ((LPNMHDR)lParam)->code == LVN_GETINFOTIP)
+		{
+			NMLVGETINFOTIP * pGetInfoTip = (LPNMLVGETINFOTIP)lParam;
 			
-			::SetWindowPos(hWndPageItems[BTN_SHOW_CHAT], NULL, 0, 0, ((rcMain.right - ScaleGui(150)) / 2) - 3, clsGuiSettingManager::iCheckHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[BTN_SHOW_COMMANDS], NULL, ((rcMain.right - ScaleGui(150)) / 2) + 1, 0, ((rcMain.right - ScaleGui(150)) / 2) - 3, clsGuiSettingManager::iCheckHeight, SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], NULL, rcMain.right - (ScaleGui(150) - 4), 0, (rcMain.right - (rcMain.right - (ScaleGui(150) - 2))) - 4, clsGuiSettingManager::iCheckHeight,
-			               SWP_NOZORDER);
-			               
-			SetSplitterRect(&rcMain);
+			char msg[1024];
+			
+			LVITEM lvItem = { 0 };
+			lvItem.mask = LVIF_PARAM | LVIF_TEXT;
+			lvItem.iItem = pGetInfoTip->iItem;
+			lvItem.pszText = msg;
+			lvItem.cchTextMax = 1024;
+			
+			if ((BOOL)::SendMessage(hWndPageItems[LV_USERS], LVM_GETITEM, 0, (LPARAM)&lvItem) == FALSE)
+			{
+				return 0;
+			}
+			
+			User * curUser = reinterpret_cast<User *>(lvItem.lParam);
+			
+			if (::SendMessage(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+			{
+				User * testUser = clsHashManager::mPtr->FindUser(lvItem.pszText, strlen(lvItem.pszText));
+				
+				if (testUser == NULL || testUser != curUser)
+				{
+					return 0;
+				}
+			}
+			
+			string sInfoTip = string(clsLanguageManager::mPtr->sTexts[LAN_NICK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_NICK]) + ": " + string(curUser->sNick, curUser->ui8NickLen) +
+			                  "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_IP], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_IP]) + ": " + string(curUser->sIP);
+			                  
+			sInfoTip += "\n\n" + string(clsLanguageManager::mPtr->sTexts[LAN_CLIENT], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_CLIENT]) + ": " +
+			            string(curUser->sClient, (size_t)curUser->ui8ClientLen) +
+			            "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_VERSION], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_VERSION]) + ": " + string(curUser->sTagVersion, (size_t)curUser->ui8TagVersionLen);
+			            
+			sInfoTip += "\n\n" + string(clsLanguageManager::mPtr->sTexts[LAN_MODE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_MODE]) + ": " + string(curUser->sModes) +
+			            "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_SLOTS], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SLOTS]) + ": " + string(curUser->Slots) +
+			            "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_HUBS], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_HUBS]) + ": " + string(curUser->Hubs);
+			            
+			if (curUser->OLimit != 0)
+			{
+				sInfoTip += "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_AUTO_OPEN_SLOT_WHEN_UP_UNDER], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_AUTO_OPEN_SLOT_WHEN_UP_UNDER]) + " " +
+				            string(curUser->OLimit) + " kB/s";
+			}
+			
+			if (curUser->DLimit != 0)
+			{
+				sInfoTip += "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_LIMITER], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_LIMITER]) + " D:" + string(curUser->DLimit) + " kB/s";
+			}
+			
+			if (curUser->LLimit != 0)
+			{
+				sInfoTip += "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_LIMITER], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_LIMITER]) + " L:" + string(curUser->LLimit) + " kB/s";
+			}
+			
+			sInfoTip += "\n\nRecvBuf: " + string(curUser->ui32RecvBufLen) + " bytes";
+			sInfoTip += "\nSendBuf: " + string(curUser->ui32SendBufLen) + " bytes";
+			
+			pGetInfoTip->cchTextMax = (int)(sInfoTip.size() > INFOTIPSIZE ? INFOTIPSIZE : sInfoTip.size());
+			memcpy(pGetInfoTip->pszText, sInfoTip.c_str(), sInfoTip.size() > INFOTIPSIZE ? INFOTIPSIZE : sInfoTip.size());
+			pGetInfoTip->pszText[(sInfoTip.size() > INFOTIPSIZE ? INFOTIPSIZE : sInfoTip.size()) - 1] = '\0';
 			
 			return 0;
 		}
-		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == hWndPageItems[REDT_CHAT] && ((LPNMHDR)lParam)->code == EN_LINK)
+		break;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case BTN_AUTO_UPDATE_USERLIST:
+			if (HIWORD(wParam) == BN_CLICKED && clsServerManager::bServerRunning == true)
 			{
-				if (((ENLINK *)lParam)->msg == WM_LBUTTONUP)
+				bool bChecked = ::SendMessage(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false;
+				::EnableWindow(hWndPageItems[BTN_UPDATE_USERS], bChecked == true ? FALSE : TRUE);
+				if (bChecked == true)
 				{
-					RichEditOpenLink(hWndPageItems[REDT_CHAT], (ENLINK *)lParam);
-				}
-			}
-			else if (((LPNMHDR)lParam)->hwndFrom == hWndPageItems[LV_USERS] && ((LPNMHDR)lParam)->code == LVN_GETINFOTIP)
-			{
-				NMLVGETINFOTIP * pGetInfoTip = (LPNMLVGETINFOTIP)lParam;
-				
-				char msg[1024];
-				
-				LVITEM lvItem = { 0 };
-				lvItem.mask = LVIF_PARAM | LVIF_TEXT;
-				lvItem.iItem = pGetInfoTip->iItem;
-				lvItem.pszText = msg;
-				lvItem.cchTextMax = 1024;
-				
-				if ((BOOL)::SendMessage(hWndPageItems[LV_USERS], LVM_GETITEM, 0, (LPARAM)&lvItem) == FALSE)
-				{
-					return 0;
-				}
-				
-				User * curUser = reinterpret_cast<User *>(lvItem.lParam);
-				
-				if (::SendMessage(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-				{
-					User * testUser = clsHashManager::mPtr->FindUser(lvItem.pszText, strlen(lvItem.pszText));
-					
-					if (testUser == NULL || testUser != curUser)
-					{
-						return 0;
-					}
-				}
-				
-				string sInfoTip = string(clsLanguageManager::mPtr->sTexts[LAN_NICK], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_NICK]) + ": " + string(curUser->sNick, curUser->ui8NickLen) +
-				                  "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_IP], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_IP]) + ": " + string(curUser->sIP);
-				                  
-				sInfoTip += "\n\n" + string(clsLanguageManager::mPtr->sTexts[LAN_CLIENT], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_CLIENT]) + ": " +
-				            string(curUser->sClient, (size_t)curUser->ui8ClientLen) +
-				            "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_VERSION], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_VERSION]) + ": " + string(curUser->sTagVersion, (size_t)curUser->ui8TagVersionLen);
-				            
-				sInfoTip += "\n\n" + string(clsLanguageManager::mPtr->sTexts[LAN_MODE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_MODE]) + ": " + string(curUser->sModes) +
-				            "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_SLOTS], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_SLOTS]) + ": " + string(curUser->Slots) +
-				            "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_HUBS], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_HUBS]) + ": " + string(curUser->Hubs);
-				            
-				if (curUser->OLimit != 0)
-				{
-					sInfoTip += "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_AUTO_OPEN_SLOT_WHEN_UP_UNDER], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_AUTO_OPEN_SLOT_WHEN_UP_UNDER]) + " " +
-					            string(curUser->OLimit) + " kB/s";
-				}
-				
-				if (curUser->DLimit != 0)
-				{
-					sInfoTip += "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_LIMITER], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_LIMITER]) + " D:" + string(curUser->DLimit) + " kB/s";
-				}
-				
-				if (curUser->LLimit != 0)
-				{
-					sInfoTip += "\n" + string(clsLanguageManager::mPtr->sTexts[LAN_LIMITER], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_LIMITER]) + " L:" + string(curUser->LLimit) + " kB/s";
-				}
-				
-				sInfoTip += "\n\nRecvBuf: " + string(curUser->ui32RecvBufLen) + " bytes";
-				sInfoTip += "\nSendBuf: " + string(curUser->ui32SendBufLen) + " bytes";
-				
-				pGetInfoTip->cchTextMax = (int)(sInfoTip.size() > INFOTIPSIZE ? INFOTIPSIZE : sInfoTip.size());
-				memcpy(pGetInfoTip->pszText, sInfoTip.c_str(), sInfoTip.size() > INFOTIPSIZE ? INFOTIPSIZE : sInfoTip.size());
-				pGetInfoTip->pszText[(sInfoTip.size() > INFOTIPSIZE ? INFOTIPSIZE : sInfoTip.size()) - 1] = '\0';
-				
-				return 0;
-			}
-			break;
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
-			{
-				case BTN_AUTO_UPDATE_USERLIST:
-					if (HIWORD(wParam) == BN_CLICKED && clsServerManager::bServerRunning == true)
-					{
-						bool bChecked = ::SendMessage(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false;
-						::EnableWindow(hWndPageItems[BTN_UPDATE_USERS], bChecked == true ? FALSE : TRUE);
-						if (bChecked == true)
-						{
-							UpdateUserList();
-						}
-						
-						return 0;
-					}
-					
-					break;
-				case BTN_UPDATE_USERS:
 					UpdateUserList();
-					return 0;
-				case EDT_CHAT:
-					if (HIWORD(wParam) == EN_CHANGE)
-					{
-						int iLen = ::GetWindowTextLength((HWND)lParam);
-						
-						char * buf = (char *)malloc(iLen + 1);
-						
-						if (buf == NULL)
-						{
-							AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for buf in clsMainWindowPageUsersChat::MainWindowPageProc\n", iLen + 1);
-							return 0;
-						}
-						
-						::GetWindowText((HWND)lParam, buf, iLen + 1);
-						
-						bool bChanged = false;
-						
-						for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
-						{
-							if (buf[ui16i] == '|')
-							{
-								strcpy(buf + ui16i, buf + ui16i + 1);
-								bChanged = true;
-								ui16i--;
-							}
-						}
-						
-						if (bChanged == true)
-						{
-							int iStart, iEnd;
-							
-							::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
-							
-							::SetWindowText((HWND)lParam, buf);
-							
-							::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
-						}
-						
-						free(buf);
-						
-						return 0;
-					}
-					
-					break;
-				case IDC_REG_USER:
-				{
-					int iSel = (int)::SendMessage(hWndPageItems[LV_USERS], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
-					
-					if (iSel == -1)
-					{
-						return 0;
-					}
-					
-					char sNick[65];
-					
-					LVITEM lvItem = { 0 };
-					lvItem.mask = LVIF_TEXT;
-					lvItem.iItem = iSel;
-					lvItem.iSubItem = 0;
-					lvItem.pszText = sNick;
-					lvItem.cchTextMax = 65;
-					
-					::SendMessage(hWndPageItems[LV_USERS], LVM_GETITEM, 0, (LPARAM)&lvItem);
-					
-					clsRegisteredUserDialog::mPtr = new (std::nothrow) clsRegisteredUserDialog();
-					
-					if (clsRegisteredUserDialog::mPtr != NULL)
-					{
-						clsRegisteredUserDialog::mPtr->DoModal(clsMainWindow::mPtr->m_hWnd, NULL, sNick);
-					}
-					
-					return 0;
 				}
-				case IDC_DISCONNECT_USER:
-					DisconnectUser();
-					return 0;
-				case IDC_KICK_USER:
-					KickUser();
-					return 0;
-				case IDC_BAN_USER:
-					BanUser();
-					return 0;
-				case IDC_REDIRECT_USER:
-					RedirectUser();
-					return 0;
-			}
-			
-			if (RichEditCheckMenuCommands(hWndPageItems[REDT_CHAT], LOWORD(wParam)) == true)
-			{
+				
 				return 0;
 			}
 			
 			break;
-		case WM_CONTEXTMENU:
-			OnContextMenu((HWND)wParam, lParam);
-			break;
-		case WM_DESTROY:
-			clsGuiSettingManager::mPtr->SetBool(GUISETBOOL_SHOW_CHAT, ::SendMessage(hWndPageItems[BTN_SHOW_CHAT], BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false);
-			clsGuiSettingManager::mPtr->SetBool(GUISETBOOL_SHOW_COMMANDS, ::SendMessage(hWndPageItems[BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false);
-			clsGuiSettingManager::mPtr->SetBool(GUISETBOOL_AUTO_UPDATE_USERLIST, ::SendMessage(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false);
+		case BTN_UPDATE_USERS:
+			UpdateUserList();
+			return 0;
+		case EDT_CHAT:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				int iLen = ::GetWindowTextLength((HWND)lParam);
+				
+				char * buf = (char *)malloc(iLen + 1);
+				
+				if (buf == NULL)
+				{
+					AppendDebugLogFormat("[MEM] Cannot allocate %d bytes for buf in clsMainWindowPageUsersChat::MainWindowPageProc\n", iLen + 1);
+					return 0;
+				}
+				
+				::GetWindowText((HWND)lParam, buf, iLen + 1);
+				
+				bool bChanged = false;
+				
+				for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
+				{
+					if (buf[ui16i] == '|')
+					{
+						strcpy(buf + ui16i, buf + ui16i + 1);
+						bChanged = true;
+						ui16i--;
+					}
+				}
+				
+				if (bChanged == true)
+				{
+					int iStart, iEnd;
+					
+					::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
+					
+					::SetWindowText((HWND)lParam, buf);
+					
+					::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
+				}
+				
+				free(buf);
+				
+				return 0;
+			}
 			
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_USERS_CHAT_SPLITTER, iPercentagePos);
-			
 			break;
+		case IDC_REG_USER:
+		{
+			int iSel = (int)::SendMessage(hWndPageItems[LV_USERS], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+			
+			if (iSel == -1)
+			{
+				return 0;
+			}
+			
+			char sNick[65];
+			
+			LVITEM lvItem = { 0 };
+			lvItem.mask = LVIF_TEXT;
+			lvItem.iItem = iSel;
+			lvItem.iSubItem = 0;
+			lvItem.pszText = sNick;
+			lvItem.cchTextMax = 65;
+			
+			::SendMessage(hWndPageItems[LV_USERS], LVM_GETITEM, 0, (LPARAM)&lvItem);
+			
+			clsRegisteredUserDialog::mPtr = new (std::nothrow) clsRegisteredUserDialog();
+			
+			if (clsRegisteredUserDialog::mPtr != NULL)
+			{
+				clsRegisteredUserDialog::mPtr->DoModal(clsMainWindow::mPtr->m_hWnd, NULL, sNick);
+			}
+			
+			return 0;
+		}
+		case IDC_DISCONNECT_USER:
+			DisconnectUser();
+			return 0;
+		case IDC_KICK_USER:
+			KickUser();
+			return 0;
+		case IDC_BAN_USER:
+			BanUser();
+			return 0;
+		case IDC_REDIRECT_USER:
+			RedirectUser();
+			return 0;
+		}
+		
+		if (RichEditCheckMenuCommands(hWndPageItems[REDT_CHAT], LOWORD(wParam)) == true)
+		{
+			return 0;
+		}
+		
+		break;
+	case WM_CONTEXTMENU:
+		OnContextMenu((HWND)wParam, lParam);
+		break;
+	case WM_DESTROY:
+		clsGuiSettingManager::mPtr->SetBool(GUISETBOOL_SHOW_CHAT, ::SendMessage(hWndPageItems[BTN_SHOW_CHAT], BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false);
+		clsGuiSettingManager::mPtr->SetBool(GUISETBOOL_SHOW_COMMANDS, ::SendMessage(hWndPageItems[BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false);
+		clsGuiSettingManager::mPtr->SetBool(GUISETBOOL_AUTO_UPDATE_USERLIST, ::SendMessage(hWndPageItems[BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false);
+		
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_USERS_CHAT_SPLITTER, iPercentagePos);
+		
+		break;
 	}
 	
 	if (BasicSplitterProc(uMsg, wParam, lParam) == true)
@@ -567,19 +567,19 @@ void clsMainWindowPageUsersChat::UpdateUserList()
 		
 		switch (pCur->ui8State)
 		{
-			case User::STATE_ADDED:
-				ui32LoggedIn++;
-				
-				AddUser(pCur);
-				
-				break;
-			case User::STATE_CLOSING:
-			case User::STATE_REMME:
-				ui32InClose++;
-				break;
-			default:
-				ui32InLogin++;
-				break;
+		case User::STATE_ADDED:
+			ui32LoggedIn++;
+			
+			AddUser(pCur);
+			
+			break;
+		case User::STATE_CLOSING:
+		case User::STATE_REMME:
+			ui32InClose++;
+			break;
+		default:
+			ui32InLogin++;
+			break;
 		}
 	}
 	

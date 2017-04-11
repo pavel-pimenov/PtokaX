@@ -719,415 +719,415 @@ void ServiceLoop::ReceiveLoop()
 		
 		switch (curUser->m_ui8State)
 		{
-			case User::STATE_SOCKET_ACCEPTED:
+		case User::STATE_SOCKET_ACCEPTED:
+		{
+			if (ServerManager::m_ui64ActualTick != curUser->m_LogInOut.m_ui64LogonTick)
 			{
-				if (ServerManager::m_ui64ActualTick != curUser->m_LogInOut.m_ui64LogonTick)
+				if (curUser->MakeLock() == false)
 				{
-					if (curUser->MakeLock() == false)
-					{
-						curUser->Close();
-						continue;
-					}
-					
-					curUser->m_ui8State = User::STATE_KEY_OR_SUP;
-				}
-				
-				break;
-			}
-			case User::STATE_KEY_OR_SUP:
-			{
-				// check logon timeout for iState 1
-				if (ServerManager::m_ui64ActualTick - curUser->m_LogInOut.m_ui64LogonTick > 20)
-				{
-					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Login timeout 1 for %s - user disconnected.", curUser->m_sIP);
-					
 					curUser->Close();
 					continue;
 				}
-				break;
+				
+				curUser->m_ui8State = User::STATE_KEY_OR_SUP;
 			}
-			case User::STATE_IPV4_CHECK:
+			
+			break;
+		}
+		case User::STATE_KEY_OR_SUP:
+		{
+			// check logon timeout for iState 1
+			if (ServerManager::m_ui64ActualTick - curUser->m_LogInOut.m_ui64LogonTick > 20)
 			{
-				// check IPv4Check timeout
-				if ((ServerManager::m_ui64ActualTick - curUser->m_LogInOut.m_ui64IPv4CheckTick) > 10)
-				{
-					UdpDebug::m_Ptr->BroadcastFormat("[SYS] IPv4Check timeout for %s (%s).", curUser->m_sNick, curUser->m_sIP);
-					
-					curUser->m_ui8State = User::STATE_ADDME;
-					continue;
-				}
-				break;
-			}
-			case User::STATE_ADDME:
-			{
-				// PPK ... Add user, but only if send $GetNickList (or have quicklist supports) <- important, used by flooders !!!
-				if (((curUser->m_ui32BoolBits & User::BIT_GETNICKLIST) == User::BIT_GETNICKLIST) == false &&
-				        ((curUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false &&
-				        ((curUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
-					continue;
-					
-				curUser->SendFormat("ServiceLoop::ReceiveLoop->User::STATE_ADDME", true, "%s%" PRIu64 " %s, %" PRIu64 " %s, %" PRIu64 " %s / %s: %u)|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_NAME_WLCM], ServerManager::m_ui64Days, LanguageManager::m_Ptr->m_sTexts[LAN_DAYS_LWR],
-				                    ServerManager::m_ui64Hours, LanguageManager::m_Ptr->m_sTexts[LAN_HOURS_LWR], ServerManager::m_ui64Mins, LanguageManager::m_Ptr->m_sTexts[LAN_MINUTES_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_USERS], ServerManager::m_ui32Logged);
-				curUser->m_ui8State = User::STATE_ADDME_1LOOP;
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Login timeout 1 for %s - user disconnected.", curUser->m_sIP);
+				
+				curUser->Close();
 				continue;
 			}
-			case User::STATE_ADDME_1LOOP:
+			break;
+		}
+		case User::STATE_IPV4_CHECK:
+		{
+			// check IPv4Check timeout
+			if ((ServerManager::m_ui64ActualTick - curUser->m_LogInOut.m_ui64IPv4CheckTick) > 10)
 			{
-				// PPK ... added login delay.
-				if (m_dLoggedUsers >= m_dActualSrvLoopLogins && ((curUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] IPv4Check timeout for %s (%s).", curUser->m_sNick, curUser->m_sIP);
+				
+				curUser->m_ui8State = User::STATE_ADDME;
+				continue;
+			}
+			break;
+		}
+		case User::STATE_ADDME:
+		{
+			// PPK ... Add user, but only if send $GetNickList (or have quicklist supports) <- important, used by flooders !!!
+			if (((curUser->m_ui32BoolBits & User::BIT_GETNICKLIST) == User::BIT_GETNICKLIST) == false &&
+			        ((curUser->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST) == false &&
+			        ((curUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
+				continue;
+				
+			curUser->SendFormat("ServiceLoop::ReceiveLoop->User::STATE_ADDME", true, "%s%" PRIu64 " %s, %" PRIu64 " %s, %" PRIu64 " %s / %s: %u)|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_NAME_WLCM], ServerManager::m_ui64Days, LanguageManager::m_Ptr->m_sTexts[LAN_DAYS_LWR],
+			                    ServerManager::m_ui64Hours, LanguageManager::m_Ptr->m_sTexts[LAN_HOURS_LWR], ServerManager::m_ui64Mins, LanguageManager::m_Ptr->m_sTexts[LAN_MINUTES_LWR], LanguageManager::m_Ptr->m_sTexts[LAN_USERS], ServerManager::m_ui32Logged);
+			curUser->m_ui8State = User::STATE_ADDME_1LOOP;
+			continue;
+		}
+		case User::STATE_ADDME_1LOOP:
+		{
+			// PPK ... added login delay.
+			if (m_dLoggedUsers >= m_dActualSrvLoopLogins && ((curUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == false)
+			{
+				if (ServerManager::m_ui64ActualTick - curUser->m_LogInOut.m_ui64LogonTick > 300)
 				{
-					if (ServerManager::m_ui64ActualTick - curUser->m_LogInOut.m_ui64LogonTick > 300)
-					{
-						UdpDebug::m_Ptr->BroadcastFormat("[SYS] Login timeout (%d) 3 for %s (%s) - user disconnected.", (int)curUser->m_ui8State, curUser->m_sNick, curUser->m_sIP);
-						
-						curUser->Close();
-					}
+					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Login timeout (%d) 3 for %s (%s) - user disconnected.", (int)curUser->m_ui8State, curUser->m_sNick, curUser->m_sIP);
+					
+					curUser->Close();
+				}
+				continue;
+			}
+			
+			// PPK ... is not more needed, free mem ;)
+			curUser->FreeBuffer();
+			
+			if ((curUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6 && ((curUser->m_ui32BoolBits & User::SUPPORTBIT_IPV4) == User::SUPPORTBIT_IPV4) == false)
+			{
+				in_addr ipv4addr;
+				ipv4addr.s_addr = INADDR_NONE;
+				
+				if (curUser->m_ui128IpHash[0] == 32 && curUser->m_ui128IpHash[1] == 2)  // 6to4 tunnel
+				{
+					memcpy(&ipv4addr, curUser->m_ui128IpHash + 2, 4);
+				}
+				else if (curUser->m_ui128IpHash[0] == 32 && curUser->m_ui128IpHash[1] == 1 && curUser->m_ui128IpHash[2] == 0 && curUser->m_ui128IpHash[3] == 0)    // teredo tunnel
+				{
+					uint32_t ui32Ip = 0;
+					memcpy(&ui32Ip, curUser->m_ui128IpHash + 12, 4);
+					ui32Ip ^= 0xffffffff;
+					memcpy(&ipv4addr, &ui32Ip, 4);
+				}
+				
+				if (ipv4addr.s_addr != INADDR_NONE)
+				{
+					strcpy(curUser->m_sIPv4, inet_ntoa(ipv4addr));
+					curUser->m_ui8IPv4Len = (uint8_t)strlen(curUser->m_sIPv4);
+					curUser->m_ui32BoolBits |= User::BIT_IPV4;
+				}
+			}
+			
+			//New User Connected ... the user is operator ? invoke lua User/OpConnected
+			const uint32_t iBeforeLuaLen = curUser->m_ui32SendBufDataLen;
+			
+			const bool bRet = ScriptManager::m_Ptr->UserConnected(curUser);
+			if (curUser->m_ui8State >= User::STATE_CLOSING) // connection closed by script?
+			{
+				if (bRet == false)  // only when all scripts process userconnected
+				{
+					ScriptManager::m_Ptr->UserDisconnected(curUser);
+				}
+				
+				continue;
+			}
+			
+			if (iBeforeLuaLen < curUser->m_ui32SendBufDataLen)
+			{
+				const size_t szNeededLen = curUser->m_ui32SendBufDataLen - iBeforeLuaLen;
+				
+				void * sOldBuf = curUser->m_LogInOut.m_pBuffer;
+				curUser->m_LogInOut.m_pBuffer = (char *)realloc(sOldBuf, szNeededLen + 1);
+				if (curUser->m_LogInOut.m_pBuffer == NULL)
+				{
+					curUser->m_ui32BoolBits |= User::BIT_ERROR;
+					curUser->Close();
+					
+					AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sLockUsrConn in ServiceLoop::ReceiveLoop\n", (uint64_t)(szNeededLen + 1));
+					
 					continue;
 				}
-				
-				// PPK ... is not more needed, free mem ;)
-				curUser->FreeBuffer();
-				
-				if ((curUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6 && ((curUser->m_ui32BoolBits & User::SUPPORTBIT_IPV4) == User::SUPPORTBIT_IPV4) == false)
-				{
-					in_addr ipv4addr;
-					ipv4addr.s_addr = INADDR_NONE;
-					
-					if (curUser->m_ui128IpHash[0] == 32 && curUser->m_ui128IpHash[1] == 2)  // 6to4 tunnel
-					{
-						memcpy(&ipv4addr, curUser->m_ui128IpHash + 2, 4);
-					}
-					else if (curUser->m_ui128IpHash[0] == 32 && curUser->m_ui128IpHash[1] == 1 && curUser->m_ui128IpHash[2] == 0 && curUser->m_ui128IpHash[3] == 0)    // teredo tunnel
-					{
-						uint32_t ui32Ip = 0;
-						memcpy(&ui32Ip, curUser->m_ui128IpHash + 12, 4);
-						ui32Ip ^= 0xffffffff;
-						memcpy(&ipv4addr, &ui32Ip, 4);
-					}
-					
-					if (ipv4addr.s_addr != INADDR_NONE)
-					{
-						strcpy(curUser->m_sIPv4, inet_ntoa(ipv4addr));
-						curUser->m_ui8IPv4Len = (uint8_t)strlen(curUser->m_sIPv4);
-						curUser->m_ui32BoolBits |= User::BIT_IPV4;
-					}
-				}
-				
-				//New User Connected ... the user is operator ? invoke lua User/OpConnected
-				const uint32_t iBeforeLuaLen = curUser->m_ui32SendBufDataLen;
-				
-				const bool bRet = ScriptManager::m_Ptr->UserConnected(curUser);
-				if (curUser->m_ui8State >= User::STATE_CLOSING) // connection closed by script?
-				{
-					if (bRet == false)  // only when all scripts process userconnected
-					{
-						ScriptManager::m_Ptr->UserDisconnected(curUser);
-					}
-					
-					continue;
-				}
-				
-				if (iBeforeLuaLen < curUser->m_ui32SendBufDataLen)
-				{
-					const size_t szNeededLen = curUser->m_ui32SendBufDataLen - iBeforeLuaLen;
-					
-					void * sOldBuf = curUser->m_LogInOut.m_pBuffer;
-					curUser->m_LogInOut.m_pBuffer = (char *)realloc(sOldBuf, szNeededLen + 1);
-					if (curUser->m_LogInOut.m_pBuffer == NULL)
-					{
-						curUser->m_ui32BoolBits |= User::BIT_ERROR;
-						curUser->Close();
-						
-						AppendDebugLogFormat("[MEM] Cannot allocate %" PRIu64 " bytes for sLockUsrConn in ServiceLoop::ReceiveLoop\n", (uint64_t)(szNeededLen + 1));
-						
-						continue;
-					}
-					memcpy(curUser->m_LogInOut.m_pBuffer, curUser->m_pSendBuf + iBeforeLuaLen, szNeededLen);
-					curUser->m_LogInOut.m_ui32UserConnectedLen = (uint32_t)szNeededLen;
-					curUser->m_LogInOut.m_pBuffer[curUser->m_LogInOut.m_ui32UserConnectedLen] = '\0';
-					curUser->m_ui32SendBufDataLen = iBeforeLuaLen;
-					curUser->m_pSendBuf[curUser->m_ui32SendBufDataLen] = '\0';
-				}
-				
-				// PPK ... wow user is accepted, now add it :)
-				if (((curUser->m_ui32BoolBits & User::BIT_HAVE_BADTAG) == User::BIT_HAVE_BADTAG) == true)
-				{
-					curUser->HasSuspiciousTag();
-				}
-				
-				curUser->Add2Userlist();
-				
-				m_dLoggedUsers++;
-				curUser->m_ui8State = User::STATE_ADDME_2LOOP;
-				ServerManager::m_ui64TotalShare += curUser->m_ui64SharedSize;
-				curUser->m_ui32BoolBits |= User::BIT_HAVE_SHARECOUNTED;
-				
+				memcpy(curUser->m_LogInOut.m_pBuffer, curUser->m_pSendBuf + iBeforeLuaLen, szNeededLen);
+				curUser->m_LogInOut.m_ui32UserConnectedLen = (uint32_t)szNeededLen;
+				curUser->m_LogInOut.m_pBuffer[curUser->m_LogInOut.m_ui32UserConnectedLen] = '\0';
+				curUser->m_ui32SendBufDataLen = iBeforeLuaLen;
+				curUser->m_pSendBuf[curUser->m_ui32SendBufDataLen] = '\0';
+			}
+			
+			// PPK ... wow user is accepted, now add it :)
+			if (((curUser->m_ui32BoolBits & User::BIT_HAVE_BADTAG) == User::BIT_HAVE_BADTAG) == true)
+			{
+				curUser->HasSuspiciousTag();
+			}
+			
+			curUser->Add2Userlist();
+			
+			m_dLoggedUsers++;
+			curUser->m_ui8State = User::STATE_ADDME_2LOOP;
+			ServerManager::m_ui64TotalShare += curUser->m_ui64SharedSize;
+			curUser->m_ui32BoolBits |= User::BIT_HAVE_SHARECOUNTED;
+			
 #ifdef _BUILD_GUI
-				if (::SendMessage(MainWindowPageUsersChat::m_Ptr->hWndPageItems[MainWindowPageUsersChat::BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_CHECKED)
-				{
-					MainWindowPageUsersChat::m_Ptr->AddUser(curUser);
-				}
+			if (::SendMessage(MainWindowPageUsersChat::m_Ptr->hWndPageItems[MainWindowPageUsersChat::BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_CHECKED)
+			{
+				MainWindowPageUsersChat::m_Ptr->AddUser(curUser);
+			}
 #endif
 //                if(sqldb) sqldb->AddVisit(curUser);
 #ifdef FLYLINKDC_USE_DB
 #ifdef _WITH_SQLITE
-				DBSQLite::m_Ptr->UpdateRecord(curUser);
+			DBSQLite::m_Ptr->UpdateRecord(curUser);
 #elif _WITH_POSTGRES
-				DBPostgreSQL::m_Ptr->UpdateRecord(curUser);
+			DBPostgreSQL::m_Ptr->UpdateRecord(curUser);
 #elif _WITH_MYSQL
-				DBMySQL::m_Ptr->UpdateRecord(curUser);
+			DBMySQL::m_Ptr->UpdateRecord(curUser);
 #endif
 #endif
-				// PPK ... change to NoHello supports
-				int iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "$Hello %s|", curUser->m_sNick);
-				if (iMsgLen > 0)
-				{
-					GlobalDataQueue::m_Ptr->AddQueueItem(ServerManager::m_pGlobalBuffer, iMsgLen, NULL, 0, GlobalDataQueue::CMD_HELLO);
-				}
-				
-				GlobalDataQueue::m_Ptr->UserIPStore(curUser);
-				
-				switch (SettingManager::m_Ptr->m_ui8FullMyINFOOption)
-				{
-					case 0:
-						GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_sMyInfoLong, curUser->m_ui16MyInfoLongLen, NULL, 0, GlobalDataQueue::CMD_MYINFO);
-						break;
-					case 1:
-						GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_sMyInfoShort, curUser->m_ui16MyInfoShortLen, curUser->m_sMyInfoLong, curUser->m_ui16MyInfoLongLen, GlobalDataQueue::CMD_MYINFO);
-						break;
-					case 2:
-						GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_sMyInfoShort, curUser->m_ui16MyInfoShortLen, NULL, 0, GlobalDataQueue::CMD_MYINFO);
-						break;
-					default:
-						break;
-				}
-#ifdef USE_FLYLINKDC_EXT_JSON
-/*
-				// TODO ExtJSON
-				if (curUser->m_user_ext_info)
-				{
-					const std::string& l_ext_json = curUser->m_user_ext_info->GetExtJSONCommand();
-					if (!l_ext_json.empty())
-					{
-						// TODO ExtJSON if (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MYINFO_DELAY] == 0 || ServerManager::m_ui64ActualTick > ((60 * SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MYINFO_DELAY]) + pUser->getLastExtJSONSendTick()))
-						//if (curUser->getLastExtJSONSendTick() || ServerManager::m_ui64ActualTick > curUser->getLastExtJSONSendTick() + 60)
-						{
-							GlobalDataQueue::m_Ptr->AddQueueItem(l_ext_json.c_str(), l_ext_json.size(), NULL, 0, GlobalDataQueue::CMD_EXTJSON);
-							curUser->setLastExtJSONSendTick(ServerManager::m_ui64ActualTick);
-						}
-					}
-				}
-*/
-#endif
-				
-				if (((curUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true)
-				{
-					GlobalDataQueue::m_Ptr->OpListStore(curUser->m_sNick);
-				}
-				
-				curUser->m_ui64LastMyINFOSendTick = ServerManager::m_ui64ActualTick;
+			// PPK ... change to NoHello supports
+			int iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "$Hello %s|", curUser->m_sNick);
+			if (iMsgLen > 0)
+			{
+				GlobalDataQueue::m_Ptr->AddQueueItem(ServerManager::m_pGlobalBuffer, iMsgLen, NULL, 0, GlobalDataQueue::CMD_HELLO);
+			}
+			
+			GlobalDataQueue::m_Ptr->UserIPStore(curUser);
+			
+			switch (SettingManager::m_Ptr->m_ui8FullMyINFOOption)
+			{
+			case 0:
+				GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_sMyInfoLong, curUser->m_ui16MyInfoLongLen, NULL, 0, GlobalDataQueue::CMD_MYINFO);
+				break;
+			case 1:
+				GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_sMyInfoShort, curUser->m_ui16MyInfoShortLen, curUser->m_sMyInfoLong, curUser->m_ui16MyInfoLongLen, GlobalDataQueue::CMD_MYINFO);
+				break;
+			case 2:
+				GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_sMyInfoShort, curUser->m_ui16MyInfoShortLen, NULL, 0, GlobalDataQueue::CMD_MYINFO);
+				break;
+			default:
 				break;
 			}
-			case User::STATE_ADDED:
-				if (curUser->m_pCmdToUserStrt != NULL)
+#ifdef USE_FLYLINKDC_EXT_JSON
+			/*
+			                // TODO ExtJSON
+			                if (curUser->m_user_ext_info)
+			                {
+			                    const std::string& l_ext_json = curUser->m_user_ext_info->GetExtJSONCommand();
+			                    if (!l_ext_json.empty())
+			                    {
+			                        // TODO ExtJSON if (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MYINFO_DELAY] == 0 || ServerManager::m_ui64ActualTick > ((60 * SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MYINFO_DELAY]) + pUser->getLastExtJSONSendTick()))
+			                        //if (curUser->getLastExtJSONSendTick() || ServerManager::m_ui64ActualTick > curUser->getLastExtJSONSendTick() + 60)
+			                        {
+			                            GlobalDataQueue::m_Ptr->AddQueueItem(l_ext_json.c_str(), l_ext_json.size(), NULL, 0, GlobalDataQueue::CMD_EXTJSON);
+			                            curUser->setLastExtJSONSendTick(ServerManager::m_ui64ActualTick);
+			                        }
+			                    }
+			                }
+			*/
+#endif
+			
+			if (((curUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true)
+			{
+				GlobalDataQueue::m_Ptr->OpListStore(curUser->m_sNick);
+			}
+			
+			curUser->m_ui64LastMyINFOSendTick = ServerManager::m_ui64ActualTick;
+			break;
+		}
+		case User::STATE_ADDED:
+			if (curUser->m_pCmdToUserStrt != NULL)
+			{
+				PrcsdToUsrCmd * cur = NULL,
+				                * next = curUser->m_pCmdToUserStrt;
+				                
+				curUser->m_pCmdToUserStrt = NULL;
+				curUser->m_pCmdToUserEnd = NULL;
+				
+				while (next != NULL)
 				{
-					PrcsdToUsrCmd * cur = NULL,
-					                * next = curUser->m_pCmdToUserStrt;
-					                
-					curUser->m_pCmdToUserStrt = NULL;
-					curUser->m_pCmdToUserEnd = NULL;
+					cur = next;
+					next = cur->m_pNext;
 					
-					while (next != NULL)
+					if (cur->m_ui32Loops >= 2)
 					{
-						cur = next;
-						next = cur->m_pNext;
-						
-						if (cur->m_ui32Loops >= 2)
+						User * ToUser = HashManager::m_Ptr->FindUser(cur->m_nick);
+						if (ToUser == cur->m_pToUser)
 						{
-							User * ToUser = HashManager::m_Ptr->FindUser(cur->m_nick);
-							if (ToUser == cur->m_pToUser)
+							if (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MAX_PM_COUNT_TO_USER] == 0 || cur->m_ui32PmCount == 0)
 							{
-								if (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MAX_PM_COUNT_TO_USER] == 0 || cur->m_ui32PmCount == 0)
+								cur->m_pToUser->SendCharDelayed(cur->m_sCommand, cur->m_ui32Len);
+							}
+							else
+							{
+								if (cur->m_pToUser->m_ui32ReceivedPmCount == 0)
 								{
-									cur->m_pToUser->SendCharDelayed(cur->m_sCommand, cur->m_ui32Len);
+									cur->m_pToUser->m_ui64ReceivedPmTick = ServerManager::m_ui64ActualTick;
 								}
-								else
+								else if (cur->m_pToUser->m_ui32ReceivedPmCount >= (uint32_t)SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MAX_PM_COUNT_TO_USER])
 								{
-									if (cur->m_pToUser->m_ui32ReceivedPmCount == 0)
+									if (cur->m_pToUser->m_ui64ReceivedPmTick + 60 < ServerManager::m_ui64ActualTick)
 									{
 										cur->m_pToUser->m_ui64ReceivedPmTick = ServerManager::m_ui64ActualTick;
+										cur->m_pToUser->m_ui32ReceivedPmCount = 0;
 									}
-									else if (cur->m_pToUser->m_ui32ReceivedPmCount >= (uint32_t)SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MAX_PM_COUNT_TO_USER])
+									else
 									{
-										if (cur->m_pToUser->m_ui64ReceivedPmTick + 60 < ServerManager::m_ui64ActualTick)
+										if (cur->m_ui32PmCount == 1)
 										{
-											cur->m_pToUser->m_ui64ReceivedPmTick = ServerManager::m_ui64ActualTick;
-											cur->m_pToUser->m_ui32ReceivedPmCount = 0;
+											curUser->SendFormat("ServiceLoop::ReceiveLoop->User::STATE_ADDED1", true, "$To: %s From: %s $<%s> %s %s %s!|",
+											                    curUser->m_sNick, cur->m_nick.c_str(), SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_SRY_LST_MSG_BCS],
+											                    cur->m_nick.c_str(), LanguageManager::m_Ptr->m_sTexts[LAN_EXC_MSG_LIMIT]);
 										}
 										else
 										{
-											if (cur->m_ui32PmCount == 1)
-											{
-												curUser->SendFormat("ServiceLoop::ReceiveLoop->User::STATE_ADDED1", true, "$To: %s From: %s $<%s> %s %s %s!|", 
-													curUser->m_sNick, cur->m_nick.c_str(), SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_SRY_LST_MSG_BCS],
-													cur->m_nick.c_str(), LanguageManager::m_Ptr->m_sTexts[LAN_EXC_MSG_LIMIT]);
-											}
-											else
-											{
-												curUser->SendFormat("ServiceLoop::ReceiveLoop->User::STATE_ADDED2", true,
-												                    "$To: %s From: %s $<%s> %s %u %s %s %s!|", curUser->m_sNick, 
-													cur->m_nick.c_str(), SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_SORRY_LAST],
-												    cur->m_ui32PmCount, LanguageManager::m_Ptr->m_sTexts[LAN_MSGS_NOT_SENT], cur->m_nick.c_str(), LanguageManager::m_Ptr->m_sTexts[LAN_EXC_MSG_LIMIT]);
-											}
-											safe_free(cur->m_sCommand);
-											delete cur;
-											
-											continue;
+											curUser->SendFormat("ServiceLoop::ReceiveLoop->User::STATE_ADDED2", true,
+											                    "$To: %s From: %s $<%s> %s %u %s %s %s!|", curUser->m_sNick,
+											                    cur->m_nick.c_str(), SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_SORRY_LAST],
+											                    cur->m_ui32PmCount, LanguageManager::m_Ptr->m_sTexts[LAN_MSGS_NOT_SENT], cur->m_nick.c_str(), LanguageManager::m_Ptr->m_sTexts[LAN_EXC_MSG_LIMIT]);
 										}
+										safe_free(cur->m_sCommand);
+										delete cur;
+										
+										continue;
 									}
-									cur->m_pToUser->SendCharDelayed(cur->m_sCommand, cur->m_ui32Len);
-									cur->m_pToUser->m_ui32ReceivedPmCount += cur->m_ui32PmCount;
 								}
+								cur->m_pToUser->SendCharDelayed(cur->m_sCommand, cur->m_ui32Len);
+								cur->m_pToUser->m_ui32ReceivedPmCount += cur->m_ui32PmCount;
 							}
+						}
+					}
+					else
+					{
+						cur->m_ui32Loops++;
+						if (curUser->m_pCmdToUserStrt == NULL)
+						{
+							cur->m_pNext = NULL;
+							curUser->m_pCmdToUserStrt = cur;
+							curUser->m_pCmdToUserEnd = cur;
 						}
 						else
 						{
-							cur->m_ui32Loops++;
-							if (curUser->m_pCmdToUserStrt == NULL)
-							{
-								cur->m_pNext = NULL;
-								curUser->m_pCmdToUserStrt = cur;
-								curUser->m_pCmdToUserEnd = cur;
-							}
-							else
-							{
-								curUser->m_pCmdToUserEnd->m_pNext = cur;
-								curUser->m_pCmdToUserEnd = cur;
-							}
-							continue;
+							curUser->m_pCmdToUserEnd->m_pNext = cur;
+							curUser->m_pCmdToUserEnd = cur;
 						}
-						
-						safe_free(cur->m_sCommand);
-						
-						delete cur;
-					}
-				}
-				
-				if (ServerManager::m_ui8SrCntr == 0)
-				{
-					if (curUser->m_pCmdActive6Search != NULL)
-					{
-						if (curUser->m_pCmdActive4Search != NULL)
-						{
-							GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_pCmdActive6Search->m_sCommand, curUser->m_pCmdActive6Search->m_ui32Len,
-							                                       curUser->m_pCmdActive4Search->m_sCommand, curUser->m_pCmdActive4Search->m_ui32Len, GlobalDataQueue::CMD_ACTIVE_SEARCH_V64);
-						}
-						else
-						{
-							GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_pCmdActive6Search->m_sCommand, curUser->m_pCmdActive6Search->m_ui32Len, NULL, 0, GlobalDataQueue::CMD_ACTIVE_SEARCH_V6);
-						}
-					}
-					else if (curUser->m_pCmdActive4Search != NULL)
-					{
-						GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_pCmdActive4Search->m_sCommand, curUser->m_pCmdActive4Search->m_ui32Len, NULL, 0, GlobalDataQueue::CMD_ACTIVE_SEARCH_V4);
-					}
-					
-					if (curUser->m_pCmdPassiveSearch != NULL)
-					{
-						uint8_t ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V4;
-						if ((curUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
-						{
-							if ((curUser->m_ui32BoolBits & User::BIT_IPV4) == User::BIT_IPV4)
-							{
-								if ((curUser->m_ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE)
-								{
-									ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V4_ONLY;
-								}
-								else if ((curUser->m_ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE)
-								{
-									ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V6_ONLY;
-								}
-								else
-								{
-									ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V64;
-								}
-							}
-							else
-							{
-								ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V6;
-							}
-						}
-						
-						GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_pCmdPassiveSearch->m_sCommand, curUser->m_pCmdPassiveSearch->m_ui32Len, NULL, 0, ui8CmdType);
-						
-						User::DeletePrcsdUsrCmd(curUser->m_pCmdPassiveSearch);
-					}
-				}
-				
-				// PPK ... deflood memory cleanup, if is not needed anymore
-				if (ServerManager::m_ui8SrCntr == 0)
-				{
-					if (curUser->m_sLastChat != NULL && curUser->m_ui16LastChatLines < 2 &&
-					        (curUser->m_ui64SameChatsTick + SettingManager::m_Ptr->m_i16Shorts[SETSHORT_SAME_MAIN_CHAT_TIME]) < ServerManager::m_ui64ActualTick)
-					{
-						safe_free(curUser->m_sLastChat);
-						curUser->m_ui16LastChatLen = 0;
-						curUser->m_ui16SameMultiChats = 0;
-						curUser->m_ui16LastChatLines = 0;
-					}
-					
-					if (curUser->m_sLastPM != NULL && curUser->m_ui16LastPmLines < 2 &&
-					        (curUser->m_ui64SamePMsTick + SettingManager::m_Ptr->m_i16Shorts[SETSHORT_SAME_PM_TIME]) < ServerManager::m_ui64ActualTick)
-					{
-						safe_free(curUser->m_sLastPM);
-						curUser->m_ui16LastPMLen = 0;
-						curUser->m_ui16SameMultiPms = 0;
-						curUser->m_ui16LastPmLines = 0;
-					}
-					
-					if (!curUser->m_LastSearch.empty() && (curUser->m_ui64SameSearchsTick + SettingManager::m_Ptr->m_i16Shorts[SETSHORT_SAME_SEARCH_TIME]) < ServerManager::m_ui64ActualTick)
-					{
-						curUser->m_LastSearch.clear();
-					}
-				}
-				continue;
-			case User::STATE_CLOSING:
-			{
-				if (((curUser->m_ui32BoolBits & User::BIT_ERROR) == User::BIT_ERROR) == false && curUser->m_ui32SendBufDataLen != 0)
-				{
-					if (curUser->m_LogInOut.m_ui32ToCloseLoops != 0 || ((curUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
-					{
-						curUser->Try2Send();
-						curUser->m_LogInOut.m_ui32ToCloseLoops--;
 						continue;
 					}
-				}
-				curUser->m_ui8State = User::STATE_REMME;
-				continue;
-			}
-			// if user is marked as dead, remove him
-			case User::STATE_REMME:
-			{
-				shutdown_and_close(curUser->m_Socket, SHUT_RD);
-				
-				// linked list
-				Users::m_Ptr->RemUser(curUser);
-				
-				delete curUser;
-				continue;
-			}
-			default:
-			{
-				// check logon timeout
-				if (ServerManager::m_ui64ActualTick - curUser->m_LogInOut.m_ui64LogonTick > 60)
-				{
-					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Login timeout (%d) 2 for %s (%s) - user disconnected.", (int)curUser->m_ui8State, curUser->m_sNick, curUser->m_sIP);
 					
-					curUser->Close();
+					safe_free(cur->m_sCommand);
+					
+					delete cur;
+				}
+			}
+			
+			if (ServerManager::m_ui8SrCntr == 0)
+			{
+				if (curUser->m_pCmdActive6Search != NULL)
+				{
+					if (curUser->m_pCmdActive4Search != NULL)
+					{
+						GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_pCmdActive6Search->m_sCommand, curUser->m_pCmdActive6Search->m_ui32Len,
+						                                     curUser->m_pCmdActive4Search->m_sCommand, curUser->m_pCmdActive4Search->m_ui32Len, GlobalDataQueue::CMD_ACTIVE_SEARCH_V64);
+					}
+					else
+					{
+						GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_pCmdActive6Search->m_sCommand, curUser->m_pCmdActive6Search->m_ui32Len, NULL, 0, GlobalDataQueue::CMD_ACTIVE_SEARCH_V6);
+					}
+				}
+				else if (curUser->m_pCmdActive4Search != NULL)
+				{
+					GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_pCmdActive4Search->m_sCommand, curUser->m_pCmdActive4Search->m_ui32Len, NULL, 0, GlobalDataQueue::CMD_ACTIVE_SEARCH_V4);
+				}
+				
+				if (curUser->m_pCmdPassiveSearch != NULL)
+				{
+					uint8_t ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V4;
+					if ((curUser->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
+					{
+						if ((curUser->m_ui32BoolBits & User::BIT_IPV4) == User::BIT_IPV4)
+						{
+							if ((curUser->m_ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE)
+							{
+								ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V4_ONLY;
+							}
+							else if ((curUser->m_ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE)
+							{
+								ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V6_ONLY;
+							}
+							else
+							{
+								ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V64;
+							}
+						}
+						else
+						{
+							ui8CmdType = GlobalDataQueue::CMD_PASSIVE_SEARCH_V6;
+						}
+					}
+					
+					GlobalDataQueue::m_Ptr->AddQueueItem(curUser->m_pCmdPassiveSearch->m_sCommand, curUser->m_pCmdPassiveSearch->m_ui32Len, NULL, 0, ui8CmdType);
+					
+					User::DeletePrcsdUsrCmd(curUser->m_pCmdPassiveSearch);
+				}
+			}
+			
+			// PPK ... deflood memory cleanup, if is not needed anymore
+			if (ServerManager::m_ui8SrCntr == 0)
+			{
+				if (curUser->m_sLastChat != NULL && curUser->m_ui16LastChatLines < 2 &&
+				        (curUser->m_ui64SameChatsTick + SettingManager::m_Ptr->m_i16Shorts[SETSHORT_SAME_MAIN_CHAT_TIME]) < ServerManager::m_ui64ActualTick)
+				{
+					safe_free(curUser->m_sLastChat);
+					curUser->m_ui16LastChatLen = 0;
+					curUser->m_ui16SameMultiChats = 0;
+					curUser->m_ui16LastChatLines = 0;
+				}
+				
+				if (curUser->m_sLastPM != NULL && curUser->m_ui16LastPmLines < 2 &&
+				        (curUser->m_ui64SamePMsTick + SettingManager::m_Ptr->m_i16Shorts[SETSHORT_SAME_PM_TIME]) < ServerManager::m_ui64ActualTick)
+				{
+					safe_free(curUser->m_sLastPM);
+					curUser->m_ui16LastPMLen = 0;
+					curUser->m_ui16SameMultiPms = 0;
+					curUser->m_ui16LastPmLines = 0;
+				}
+				
+				if (!curUser->m_LastSearch.empty() && (curUser->m_ui64SameSearchsTick + SettingManager::m_Ptr->m_i16Shorts[SETSHORT_SAME_SEARCH_TIME]) < ServerManager::m_ui64ActualTick)
+				{
+					curUser->m_LastSearch.clear();
+				}
+			}
+			continue;
+		case User::STATE_CLOSING:
+		{
+			if (((curUser->m_ui32BoolBits & User::BIT_ERROR) == User::BIT_ERROR) == false && curUser->m_ui32SendBufDataLen != 0)
+			{
+				if (curUser->m_LogInOut.m_ui32ToCloseLoops != 0 || ((curUser->m_ui32BoolBits & User::BIT_PINGER) == User::BIT_PINGER) == true)
+				{
+					curUser->Try2Send();
+					curUser->m_LogInOut.m_ui32ToCloseLoops--;
 					continue;
 				}
-				break;
 			}
+			curUser->m_ui8State = User::STATE_REMME;
+			continue;
+		}
+		// if user is marked as dead, remove him
+		case User::STATE_REMME:
+		{
+			shutdown_and_close(curUser->m_Socket, SHUT_RD);
+			
+			// linked list
+			Users::m_Ptr->RemUser(curUser);
+			
+			delete curUser;
+			continue;
+		}
+		default:
+		{
+			// check logon timeout
+			if (ServerManager::m_ui64ActualTick - curUser->m_LogInOut.m_ui64LogonTick > 60)
+			{
+				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Login timeout (%d) 2 for %s (%s) - user disconnected.", (int)curUser->m_ui8State, curUser->m_sNick, curUser->m_sIP);
+				
+				curUser->Close();
+				continue;
+			}
+			break;
+		}
 		}
 	}
 	
@@ -1162,100 +1162,100 @@ void ServiceLoop::SendLoop()
 		
 		switch (curUser->m_ui8State)
 		{
-			case User::STATE_ADDME_2LOOP:
+		case User::STATE_ADDME_2LOOP:
+		{
+			ServerManager::m_ui32Logged++;
+			
+			if (ServerManager::m_ui32Peak < ServerManager::m_ui32Logged)
 			{
-				ServerManager::m_ui32Logged++;
-				
-				if (ServerManager::m_ui32Peak < ServerManager::m_ui32Logged)
+				ServerManager::m_ui32Peak = ServerManager::m_ui32Logged;
+				if (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MAX_USERS_PEAK] < (int16_t)ServerManager::m_ui32Peak)
+					SettingManager::m_Ptr->SetShort(SETSHORT_MAX_USERS_PEAK, (int16_t)ServerManager::m_ui32Peak);
+			}
+			
+			curUser->m_ui8State = User::STATE_ADDED;
+			
+			// finaly send the nicklist/myinfos/oplist
+			curUser->AddUserList();
+			
+			// PPK ... UserIP2 supports
+			if (((curUser->m_ui32SupportBits & User::SUPPORTBIT_USERIP2) == User::SUPPORTBIT_USERIP2) == true && ((curUser->m_ui32BoolBits & User::BIT_QUACK_SUPPORTS) == User::BIT_QUACK_SUPPORTS) == false && ProfileManager::m_Ptr->IsAllowed(curUser, ProfileManager::SENDALLUSERIP) == false)
+			{
+				curUser->SendFormat("ServiceLoop::SendLoop->User::STATE_ADDME_2LOOP1", true, "$UserIP %s %s|", curUser->m_sNick, (curUser->m_sIPv4[0] == '\0' ? curUser->m_sIP : curUser->m_sIPv4));
+			}
+			
+			curUser->m_ui32BoolBits &= ~User::BIT_GETNICKLIST;
+			
+			// PPK ... send motd ???
+			if (SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_MOTD] != 0)
+			{
+				if (SettingManager::m_Ptr->m_bBools[SETBOOL_MOTD_AS_PM] == true)
 				{
-					ServerManager::m_ui32Peak = ServerManager::m_ui32Logged;
-					if (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MAX_USERS_PEAK] < (int16_t)ServerManager::m_ui32Peak)
-						SettingManager::m_Ptr->SetShort(SETSHORT_MAX_USERS_PEAK, (int16_t)ServerManager::m_ui32Peak);
+					curUser->SendFormat("ServiceLoop::SendLoop->User::STATE_ADDME_2LOOP2", true, SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_MOTD], curUser->m_sNick);
 				}
+				else
+				{
+					curUser->SendCharDelayed(SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_MOTD], SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_MOTD]);
+				}
+			}
+			
+			// check for Debug subscription
+			if (((curUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true)
+				UdpDebug::m_Ptr->CheckUdpSub(curUser, true);
 				
-				curUser->m_ui8State = User::STATE_ADDED;
+			if (curUser->m_LogInOut.m_ui32UserConnectedLen != 0)
+			{
+				curUser->PutInSendBuf(curUser->m_LogInOut.m_pBuffer, curUser->m_LogInOut.m_ui32UserConnectedLen);
 				
-				// finaly send the nicklist/myinfos/oplist
+				curUser->FreeBuffer();
+			}
+			
+			// Login struct no more needed, free mem ! ;)
+			curUser->m_LogInOut.Clean();
+			
+			// PPK ... send all login data from buffer !
+			curUser->Try2Send();
+			
+			// apply one loop delay to avoid double sending of hello and oplist
+			continue;
+		}
+		case User::STATE_ADDED:
+		{
+			if (((curUser->m_ui32BoolBits & User::BIT_GETNICKLIST) == User::BIT_GETNICKLIST) == true)
+			{
 				curUser->AddUserList();
-				
-				// PPK ... UserIP2 supports
-				if (((curUser->m_ui32SupportBits & User::SUPPORTBIT_USERIP2) == User::SUPPORTBIT_USERIP2) == true && ((curUser->m_ui32BoolBits & User::BIT_QUACK_SUPPORTS) == User::BIT_QUACK_SUPPORTS) == false && ProfileManager::m_Ptr->IsAllowed(curUser, ProfileManager::SENDALLUSERIP) == false)
-				{
-					curUser->SendFormat("ServiceLoop::SendLoop->User::STATE_ADDME_2LOOP1", true, "$UserIP %s %s|", curUser->m_sNick, (curUser->m_sIPv4[0] == '\0' ? curUser->m_sIP : curUser->m_sIPv4));
-				}
-				
 				curUser->m_ui32BoolBits &= ~User::BIT_GETNICKLIST;
-				
-				// PPK ... send motd ???
-				if (SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_MOTD] != 0)
-				{
-					if (SettingManager::m_Ptr->m_bBools[SETBOOL_MOTD_AS_PM] == true)
-					{
-						curUser->SendFormat("ServiceLoop::SendLoop->User::STATE_ADDME_2LOOP2", true, SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_MOTD], curUser->m_sNick);
-					}
-					else
-					{
-						curUser->SendCharDelayed(SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_MOTD], SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_MOTD]);
-					}
-				}
-				
-				// check for Debug subscription
-				if (((curUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true)
-					UdpDebug::m_Ptr->CheckUdpSub(curUser, true);
-					
-				if (curUser->m_LogInOut.m_ui32UserConnectedLen != 0)
-				{
-					curUser->PutInSendBuf(curUser->m_LogInOut.m_pBuffer, curUser->m_LogInOut.m_ui32UserConnectedLen);
-					
-					curUser->FreeBuffer();
-				}
-				
-				// Login struct no more needed, free mem ! ;)
-				curUser->m_LogInOut.Clean();
-				
-				// PPK ... send all login data from buffer !
-				curUser->Try2Send();
-				
-				// apply one loop delay to avoid double sending of hello and oplist
-				continue;
 			}
-			case User::STATE_ADDED:
+			
+			// process global data queues
+			if (GlobalDataQueue::m_Ptr->m_bHaveItems == true)
 			{
-				if (((curUser->m_ui32BoolBits & User::BIT_GETNICKLIST) == User::BIT_GETNICKLIST) == true)
-				{
-					curUser->AddUserList();
-					curUser->m_ui32BoolBits &= ~User::BIT_GETNICKLIST;
-				}
-				
-				// process global data queues
-				if (GlobalDataQueue::m_Ptr->m_bHaveItems == true)
-				{
-					GlobalDataQueue::m_Ptr->ProcessQueues(curUser);
-				}
-				
-				if (GlobalDataQueue::m_Ptr->m_pSingleItems != NULL)
-				{
-					GlobalDataQueue::m_Ptr->ProcessSingleItems(curUser);
-				}
-				
-				// send data acumulated by queues above
-				// if sending caused error, close the user
-				if (curUser->m_ui32SendBufDataLen != 0)
-				{
-					// PPK ... true = we have rest ;)
-					if (curUser->Try2Send() == true)
-					{
-						iSendRests++;
-					}
-				}
-				break;
+				GlobalDataQueue::m_Ptr->ProcessQueues(curUser);
 			}
-			case User::STATE_CLOSING:
-			case User::STATE_REMME:
-				continue;
-			default:
-				curUser->Try2Send();
-				break;
+			
+			if (GlobalDataQueue::m_Ptr->m_pSingleItems != NULL)
+			{
+				GlobalDataQueue::m_Ptr->ProcessSingleItems(curUser);
+			}
+			
+			// send data acumulated by queues above
+			// if sending caused error, close the user
+			if (curUser->m_ui32SendBufDataLen != 0)
+			{
+				// PPK ... true = we have rest ;)
+				if (curUser->Try2Send() == true)
+				{
+					iSendRests++;
+				}
+			}
+			break;
+		}
+		case User::STATE_CLOSING:
+		case User::STATE_REMME:
+			continue;
+		default:
+			curUser->Try2Send();
+			break;
 		}
 	}
 	

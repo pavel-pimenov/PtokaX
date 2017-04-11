@@ -74,122 +74,122 @@ LRESULT SettingPageAdvanced::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lP
 	{
 		switch (LOWORD(wParam))
 		{
-			case BTN_ENABLE_TRAY_ICON:
-				if (HIWORD(wParam) == BN_CLICKED)
-				{
-					::EnableWindow(hWndPageItems[BTN_MINIMIZE_ON_STARTUP],
-					               ::SendMessage(hWndPageItems[BTN_ENABLE_TRAY_ICON], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-				}
+		case BTN_ENABLE_TRAY_ICON:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[BTN_MINIMIZE_ON_STARTUP],
+				               ::SendMessage(hWndPageItems[BTN_ENABLE_TRAY_ICON], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case BTN_ENABLE_SCRIPTING:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				BOOL bEnable = ::SendMessage(hWndPageItems[BTN_ENABLE_SCRIPTING], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE;
+				::EnableWindow(hWndPageItems[BTN_STOP_SCRIPT_ON_ERROR], bEnable);
+				::EnableWindow(hWndPageItems[BTN_SAVE_SCRIPT_ERRORS_TO_LOG], bEnable);
+			}
+			
+			break;
+		case BTN_FILTER_KICK_MESSAGES:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[BTN_SEND_KICK_MESSAGES_TO_OPS],
+				               ::SendMessage(hWndPageItems[BTN_FILTER_KICK_MESSAGES], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case BTN_SEND_STATUS_MESSAGES_TO_OPS:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[BTN_SEND_STATUS_MESSAGES_IN_PM],
+				               ::SendMessage(hWndPageItems[BTN_SEND_STATUS_MESSAGES_TO_OPS], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case EDT_PREFIXES_FOR_HUB_COMMANDS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				char buf[6];
+				::GetWindowText((HWND)lParam, buf, 6);
 				
-				break;
-			case BTN_ENABLE_SCRIPTING:
-				if (HIWORD(wParam) == BN_CLICKED)
-				{
-					BOOL bEnable = ::SendMessage(hWndPageItems[BTN_ENABLE_SCRIPTING], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE;
-					::EnableWindow(hWndPageItems[BTN_STOP_SCRIPT_ON_ERROR], bEnable);
-					::EnableWindow(hWndPageItems[BTN_SAVE_SCRIPT_ERRORS_TO_LOG], bEnable);
-				}
+				bool bChanged = false;
 				
-				break;
-			case BTN_FILTER_KICK_MESSAGES:
-				if (HIWORD(wParam) == BN_CLICKED)
+				for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
 				{
-					::EnableWindow(hWndPageItems[BTN_SEND_KICK_MESSAGES_TO_OPS],
-					               ::SendMessage(hWndPageItems[BTN_FILTER_KICK_MESSAGES], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-				}
-				
-				break;
-			case BTN_SEND_STATUS_MESSAGES_TO_OPS:
-				if (HIWORD(wParam) == BN_CLICKED)
-				{
-					::EnableWindow(hWndPageItems[BTN_SEND_STATUS_MESSAGES_IN_PM],
-					               ::SendMessage(hWndPageItems[BTN_SEND_STATUS_MESSAGES_TO_OPS], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-				}
-				
-				break;
-			case EDT_PREFIXES_FOR_HUB_COMMANDS:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					char buf[6];
-					::GetWindowText((HWND)lParam, buf, 6);
-					
-					bool bChanged = false;
-					
-					for (uint16_t ui16i = 0; buf[ui16i] != '\0'; ui16i++)
+					if (buf[ui16i] == '|' || buf[ui16i] == ' ')
 					{
-						if (buf[ui16i] == '|' || buf[ui16i] == ' ')
+						strcpy(buf + ui16i, buf + ui16i + 1);
+						bChanged = true;
+						ui16i--;
+						continue;
+					}
+					
+					for (uint16_t ui16j = 0; buf[ui16j] != '\0'; ui16j++)
+					{
+						if (ui16j == ui16i)
 						{
-							strcpy(buf + ui16i, buf + ui16i + 1);
-							bChanged = true;
-							ui16i--;
 							continue;
 						}
 						
-						for (uint16_t ui16j = 0; buf[ui16j] != '\0'; ui16j++)
+						if (buf[ui16j] == buf[ui16i])
 						{
-							if (ui16j == ui16i)
+							strcpy(buf + ui16j, buf + ui16j + 1);
+							bChanged = true;
+							if (ui16i > ui16j)
 							{
-								continue;
+								ui16i--;
 							}
-							
-							if (buf[ui16j] == buf[ui16i])
-							{
-								strcpy(buf + ui16j, buf + ui16j + 1);
-								bChanged = true;
-								if (ui16i > ui16j)
-								{
-									ui16i--;
-								}
-								ui16j--;
-							}
+							ui16j--;
 						}
 					}
-					
-					if (bChanged == true)
-					{
-						int iStart, iEnd;
-						
-						::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
-						
-						::SetWindowText((HWND)lParam, buf);
-						
-						::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
-					}
-					
-					return 0;
 				}
 				
-				break;
-			case EDT_ADMIN_NICK:
-				if (HIWORD(wParam) == EN_CHANGE)
+				if (bChanged == true)
 				{
-					RemovePipes((HWND)lParam);
+					int iStart, iEnd;
 					
-					return 0;
+					::SendMessage((HWND)lParam, EM_GETSEL, (WPARAM)&iStart, (LPARAM)&iEnd);
+					
+					::SetWindowText((HWND)lParam, buf);
+					
+					::SendMessage((HWND)lParam, EM_SETSEL, iStart, iEnd);
 				}
 				
-				break;
+				return 0;
+			}
+			
+			break;
+		case EDT_ADMIN_NICK:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				RemovePipes((HWND)lParam);
+				
+				return 0;
+			}
+			
+			break;
 #if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
-			case CHK_ENABLE_DATABASE:
-				if (HIWORD(wParam) == BN_CLICKED)
-				{
-					BOOL bEnabled = ::SendMessage(hWndPageItems[CHK_ENABLE_DATABASE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE;
-					
-					::EnableWindow(hWndPageItems[LBL_REMOVE_OLD_RECORDS], bEnabled);
-					::EnableWindow(hWndPageItems[EDT_REMOVE_OLD_RECORDS], bEnabled);
-					::EnableWindow(hWndPageItems[UD_REMOVE_OLD_RECORDS], bEnabled);
-				}
+		case CHK_ENABLE_DATABASE:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				BOOL bEnabled = ::SendMessage(hWndPageItems[CHK_ENABLE_DATABASE], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE;
 				
-				break;
-			case EDT_REMOVE_OLD_RECORDS:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 0, 32767);
-					
-					return 0;
-				}
+				::EnableWindow(hWndPageItems[LBL_REMOVE_OLD_RECORDS], bEnabled);
+				::EnableWindow(hWndPageItems[EDT_REMOVE_OLD_RECORDS], bEnabled);
+				::EnableWindow(hWndPageItems[UD_REMOVE_OLD_RECORDS], bEnabled);
+			}
+			
+			break;
+		case EDT_REMOVE_OLD_RECORDS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 32767);
 				
-				break;
+				return 0;
+			}
+			
+			break;
 #endif
 		}
 	}

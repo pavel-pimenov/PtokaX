@@ -149,7 +149,7 @@ void ServerManager::OnSecTimer()
 	getrusage(RUSAGE_SELF, &rs);
 	
 	double dcpuSec = double(rs.ru_utime.tv_sec) + (double(rs.ru_utime.tv_usec) / 1000000) +
-	                       double(rs.ru_stime.tv_sec) + (double(rs.ru_stime.tv_usec) / 1000000);
+	                 double(rs.ru_stime.tv_sec) + (double(rs.ru_stime.tv_usec) / 1000000);
 	m_dCpuUsage = dcpuSec - m_dCpuUsages[m_ui8MinTick];
 	m_dCpuUsages[m_ui8MinTick] = dcpuSec;
 #endif
@@ -394,7 +394,7 @@ void ServerManager::Initialize()
 		exit(EXIT_FAILURE);
 	}
 #ifdef FLYLINKDC_USE_DB
-#if defined(_WITH_SQLITE)	
+#if defined(_WITH_SQLITE)
 	
 	TextConverter::m_Ptr = new (std::nothrow) TextConverter();
 	if (TextConverter::m_Ptr == NULL)
@@ -402,7 +402,7 @@ void ServerManager::Initialize()
 		AppendDebugLog("%s - [MEM] Cannot allocate TextConverter::m_Ptr in ServerInitialize\n");
 		exit(EXIT_FAILURE);
 	}
-#endif	
+#endif
 #endif
 	
 	LanguageManager::m_Ptr = new (std::nothrow) LanguageManager();
@@ -914,7 +914,7 @@ void ServerManager::FinalClose()
 	safe_delete(ZlibUtility::m_Ptr);
 	safe_delete(LanguageManager::m_Ptr);
 #ifdef FLYLINKDC_USE_DB
-#if defined(_WITH_SQLITE)	
+#if defined(_WITH_SQLITE)
 	safe_delete(TextConverter::m_Ptr);
 #endif
 #endif
@@ -1032,7 +1032,7 @@ void ServerManager::UpdateServers()
 		if (bFound == false)
 		{
 			if (m_bUseIPv6 == false)
-				{
+			{
 				CreateServerThread(AF_INET, SettingManager::m_Ptr->m_ui16PortNumbers[ui8i]);
 				continue;
 			}
@@ -1203,24 +1203,24 @@ void ServerManager::CommandLineSetup()
 		
 		switch (iChar)
 		{
-			case '1':
-				SettingManager::m_Ptr->CmdLineBasicSetup();
-				printf("%s", sMenu);
-				continue;
-			case '2':
-				SettingManager::m_Ptr->CmdLineCompleteSetup();
-				printf("%s", sMenu);
-				continue;
-			case '3':
-				RegManager::m_Ptr->AddRegCmdLine();
-				printf("%s", sMenu);
-				continue;
-			case '4':
-				printf("%s ending...\n", g_sPtokaXTitle);
-				break;
-			default:
-				printf("Unknown option: %c\nYour choice: ", iChar);
-				continue;
+		case '1':
+			SettingManager::m_Ptr->CmdLineBasicSetup();
+			printf("%s", sMenu);
+			continue;
+		case '2':
+			SettingManager::m_Ptr->CmdLineCompleteSetup();
+			printf("%s", sMenu);
+			continue;
+		case '3':
+			RegManager::m_Ptr->AddRegCmdLine();
+			printf("%s", sMenu);
+			continue;
+		case '4':
+			printf("%s ending...\n", g_sPtokaXTitle);
+			break;
+		default:
+			printf("Unknown option: %c\nYour choice: ", iChar);
+			continue;
 		}
 		
 		break;
@@ -1260,8 +1260,8 @@ bool ServerManager::ResolveHubAddress(const bool bSilent/* = false*/)
 					int err = WSAGetLastError();
 #ifdef _BUILD_GUI
 					::MessageBox(MainWindow::m_Ptr->m_hWnd, (string(LanguageManager::m_Ptr->m_sTexts[LAN_RESOLVING_OF_HOSTNAME], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_RESOLVING_OF_HOSTNAME]) + " '" + string(SettingManager::m_Ptr->m_sTexts[SETTXT_HUB_ADDRESS]) + "' " +
-					                                           string(LanguageManager::m_Ptr->m_sTexts[LAN_HAS_FAILED], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_HAS_FAILED]) + ".\n" + string(LanguageManager::m_Ptr->m_sTexts[LAN_ERROR_CODE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_ERROR_CODE]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ")\n\n" +
-					                                           string(LanguageManager::m_Ptr->m_sTexts[LAN_CHECK_THE_ADDRESS_PLEASE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_CHECK_THE_ADDRESS_PLEASE]) + ".").c_str(), LanguageManager::m_Ptr->m_sTexts[LAN_ERROR], MB_OK | MB_ICONERROR);
+					                                         string(LanguageManager::m_Ptr->m_sTexts[LAN_HAS_FAILED], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_HAS_FAILED]) + ".\n" + string(LanguageManager::m_Ptr->m_sTexts[LAN_ERROR_CODE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_ERROR_CODE]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ")\n\n" +
+					                                         string(LanguageManager::m_Ptr->m_sTexts[LAN_CHECK_THE_ADDRESS_PLEASE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_CHECK_THE_ADDRESS_PLEASE]) + ".").c_str(), LanguageManager::m_Ptr->m_sTexts[LAN_ERROR], MB_OK | MB_ICONERROR);
 #else
 					AppendLog(string(LanguageManager::m_Ptr->m_sTexts[LAN_RESOLVING_OF_HOSTNAME], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_RESOLVING_OF_HOSTNAME]) +
 					          " '" + string(SettingManager::m_Ptr->m_sTexts[SETTXT_HUB_ADDRESS]) + "' " + string(LanguageManager::m_Ptr->m_sTexts[LAN_HAS_FAILED], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_HAS_FAILED]) + ".\n" + string(LanguageManager::m_Ptr->m_sTexts[LAN_ERROR_CODE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_ERROR_CODE]) +

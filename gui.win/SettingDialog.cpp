@@ -109,240 +109,240 @@ LRESULT SettingDialog::SettingDialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam
 {
 	switch (uMsg)
 	{
-		case WM_SETFOCUS:
-			::SetFocus(m_hWndWindowItems[TV_TREE]);
-			
-			return 0;
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
-			{
-				case IDOK:
-				{
-					bool bUpdateHubNameWelcome = false, bUpdateHubName = false, bUpdateTCPPorts = false, bUpdateUDPPort = false, bUpdateAutoReg = false,
-					     bUpdateMOTD = false, bUpdateHubSec = false, bUpdateRegOnlyMessage = false, bUpdateShareLimitMessage = false,
-					     bUpdateSlotsLimitMessage = false, bUpdateHubSlotRatioMessage = false, bUpdateMaxHubsLimitMessage = false,
-					     bUpdateNoTagMessage = false, bUpdateNickLimitMessage = false, bUpdateBotsSameNick = false, bUpdateBotNick = false,
-					     bUpdateBot = false, bUpdateOpChatNick = false, bUpdateOpChat = false, bUpdateLanguage = false, bUpdateTextFiles = false,
-					     bUpdateRedirectAddress = false, bUpdateTempBanRedirAddress = false, bUpdatePermBanRedirAddress = false, bUpdateSysTray = false,
-					     bUpdateScripting = false, bUpdateMinShare = false, bUpdateMaxShare = false;
-					     
-					clsSettingManager::mPtr->bUpdateLocked = true;
-					
-					for (uint8_t ui8i = 0; ui8i < 12; ui8i++)
-					{
-						if (SettingPages[ui8i] != NULL)
-						{
-							SettingPages[ui8i]->Save();
-							
-							SettingPages[ui8i]->GetUpdates(bUpdateHubNameWelcome, bUpdateHubName, bUpdateTCPPorts, bUpdateUDPPort, bUpdateAutoReg,
-							                               bUpdateMOTD, bUpdateHubSec, bUpdateRegOnlyMessage, bUpdateShareLimitMessage, bUpdateSlotsLimitMessage,
-							                               bUpdateHubSlotRatioMessage, bUpdateMaxHubsLimitMessage, bUpdateNoTagMessage, bUpdateNickLimitMessage,
-							                               bUpdateBotsSameNick, bUpdateBotNick, bUpdateBot, bUpdateOpChatNick, bUpdateOpChat, bUpdateLanguage, bUpdateTextFiles,
-							                               bUpdateRedirectAddress, bUpdateTempBanRedirAddress, bUpdatePermBanRedirAddress, bUpdateSysTray, bUpdateScripting,
-							                               bUpdateMinShare, bUpdateMaxShare);
-						}
-					}
-					
-					clsSettingManager::mPtr->bUpdateLocked = false;
-					
-					if (bUpdateHubSec == true)
-					{
-						clsSettingManager::mPtr->UpdateHubSec();
-					}
-					
-					if (bUpdateMOTD == true)
-					{
-						clsSettingManager::mPtr->UpdateMOTD();
-					}
-					
-					if (bUpdateLanguage == true)
-					{
-						clsSettingManager::mPtr->UpdateLanguage();
-					}
-					
-					if (bUpdateHubNameWelcome == true)
-					{
-						clsSettingManager::mPtr->UpdateHubNameWelcome();
-					}
-					
-					if (bUpdateHubName == true)
-					{
-						clsMainWindow::mPtr->UpdateTitleBar();
-						clsSettingManager::mPtr->UpdateHubName();
-					}
-					
-					if (bUpdateRedirectAddress == true)
-					{
-						clsSettingManager::mPtr->UpdateRedirectAddress();
-					}
-					
-					if (bUpdateRegOnlyMessage == true)
-					{
-						clsSettingManager::mPtr->UpdateRegOnlyMessage();
-					}
-					
-					if (bUpdateMinShare == true)
-					{
-						clsSettingManager::mPtr->UpdateMinShare();
-					}
-					
-					if (bUpdateMaxShare == true)
-					{
-						clsSettingManager::mPtr->UpdateMaxShare();
-					}
-					
-					if (bUpdateShareLimitMessage == true)
-					{
-						clsSettingManager::mPtr->UpdateShareLimitMessage();
-					}
-					
-					if (bUpdateSlotsLimitMessage == true)
-					{
-						clsSettingManager::mPtr->UpdateSlotsLimitMessage();
-					}
-					
-					if (bUpdateMaxHubsLimitMessage == true)
-					{
-						clsSettingManager::mPtr->UpdateMaxHubsLimitMessage();
-					}
-					
-					if (bUpdateHubSlotRatioMessage == true)
-					{
-						clsSettingManager::mPtr->UpdateHubSlotRatioMessage();
-					}
-					
-					if (bUpdateNoTagMessage == true)
-					{
-						clsSettingManager::mPtr->UpdateNoTagMessage();
-					}
-					
-					if (bUpdateTempBanRedirAddress == true)
-					{
-						clsSettingManager::mPtr->UpdateTempBanRedirAddress();
-					}
-					
-					if (bUpdatePermBanRedirAddress == true)
-					{
-						clsSettingManager::mPtr->UpdatePermBanRedirAddress();
-					}
-					
-					if (bUpdateNickLimitMessage == true)
-					{
-						clsSettingManager::mPtr->UpdateNickLimitMessage();
-					}
-					
-					if (bUpdateTCPPorts == true)
-					{
-						clsSettingManager::mPtr->UpdateTCPPorts();
-					}
-					
-					if (bUpdateBotsSameNick == true)
-					{
-						clsSettingManager::mPtr->UpdateBotsSameNick();
-					}
-					
-					if (bUpdateTextFiles == true)
-					{
-						clsTextFilesManager::mPtr->RefreshTextFiles();
-					}
-					
-					if (bUpdateBot == true)
-					{
-						clsSettingManager::mPtr->UpdateBot(bUpdateBotNick);
-					}
-					
-					if (bUpdateOpChat == true)
-					{
-						clsSettingManager::mPtr->UpdateOpChat(bUpdateOpChatNick);
-					}
-					
-					if (bUpdateUDPPort == true)
-					{
-						clsSettingManager::mPtr->UpdateUDPPort();
-					}
-					
-					if (bUpdateSysTray == true)
-					{
-						clsMainWindow::mPtr->UpdateSysTray();
-					}
-					
-#ifdef FLYLINKDC_REMOVE_REGISTER_THREAD
-					if (bUpdateAutoReg == true)
-					{
-						clsServerManager::UpdateAutoRegState();
-					}
-#endif
-					
-					if (bUpdateScripting == true)
-					{
-						clsSettingManager::mPtr->UpdateScripting();
-					}
-				}
-				case IDCANCEL:
-					::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
-					return 0;
-			}
-			
-			break;
-		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[TV_TREE])
-			{
-				if (((LPNMHDR)lParam)->code == TVN_SELCHANGED)
-				{
-					OnSelChanged();
-					return 0;
-				}
-				else if (((LPNMHDR)lParam)->code == TVN_KEYDOWN)
-				{
-					NMTVKEYDOWN * ptvkd = (LPNMTVKEYDOWN)lParam;
-					if (ptvkd->wVKey == VK_TAB)
-					{
-						if ((::GetKeyState(VK_SHIFT) & 0x8000) > 0)
-						{
-							HTREEITEM htiNode = (HTREEITEM)::SendMessage(m_hWndWindowItems[TV_TREE], TVM_GETNEXTITEM, TVGN_CARET, 0);
-							
-							if (htiNode == NULL)
-							{
-								break;
-							}
-							
-							TVITEM tvItem;
-							memset(&tvItem, 0, sizeof(TVITEM));
-							tvItem.hItem = htiNode;
-							tvItem.mask = TVIF_PARAM;
-							
-							if ((BOOL)::SendMessage(m_hWndWindowItems[TV_TREE], TVM_GETITEM, 0, (LPARAM)&tvItem) == FALSE)
-							{
-								break;
-							}
-							
-							SettingPage * curSetPage = reinterpret_cast<SettingPage *>(tvItem.lParam);
-							
-							curSetPage->FocusLastItem();
-							
-							return 0;
-						}
-						else
-						{
-							::SetFocus(m_hWndWindowItems[BTN_OK]);
-							
-							return 0;
-						}
-					}
-				}
-			}
-			
-			break;
-		case WM_CLOSE:
-			::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
-			clsServerManager::hWndActiveDialog = nullptr;
-			break;
-		case WM_NCDESTROY:
+	case WM_SETFOCUS:
+		::SetFocus(m_hWndWindowItems[TV_TREE]);
+		
+		return 0;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
 		{
-			HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
-			delete this;
-			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+		case IDOK:
+		{
+			bool bUpdateHubNameWelcome = false, bUpdateHubName = false, bUpdateTCPPorts = false, bUpdateUDPPort = false, bUpdateAutoReg = false,
+			     bUpdateMOTD = false, bUpdateHubSec = false, bUpdateRegOnlyMessage = false, bUpdateShareLimitMessage = false,
+			     bUpdateSlotsLimitMessage = false, bUpdateHubSlotRatioMessage = false, bUpdateMaxHubsLimitMessage = false,
+			     bUpdateNoTagMessage = false, bUpdateNickLimitMessage = false, bUpdateBotsSameNick = false, bUpdateBotNick = false,
+			     bUpdateBot = false, bUpdateOpChatNick = false, bUpdateOpChat = false, bUpdateLanguage = false, bUpdateTextFiles = false,
+			     bUpdateRedirectAddress = false, bUpdateTempBanRedirAddress = false, bUpdatePermBanRedirAddress = false, bUpdateSysTray = false,
+			     bUpdateScripting = false, bUpdateMinShare = false, bUpdateMaxShare = false;
+			     
+			clsSettingManager::mPtr->bUpdateLocked = true;
+			
+			for (uint8_t ui8i = 0; ui8i < 12; ui8i++)
+			{
+				if (SettingPages[ui8i] != NULL)
+				{
+					SettingPages[ui8i]->Save();
+					
+					SettingPages[ui8i]->GetUpdates(bUpdateHubNameWelcome, bUpdateHubName, bUpdateTCPPorts, bUpdateUDPPort, bUpdateAutoReg,
+					                               bUpdateMOTD, bUpdateHubSec, bUpdateRegOnlyMessage, bUpdateShareLimitMessage, bUpdateSlotsLimitMessage,
+					                               bUpdateHubSlotRatioMessage, bUpdateMaxHubsLimitMessage, bUpdateNoTagMessage, bUpdateNickLimitMessage,
+					                               bUpdateBotsSameNick, bUpdateBotNick, bUpdateBot, bUpdateOpChatNick, bUpdateOpChat, bUpdateLanguage, bUpdateTextFiles,
+					                               bUpdateRedirectAddress, bUpdateTempBanRedirAddress, bUpdatePermBanRedirAddress, bUpdateSysTray, bUpdateScripting,
+					                               bUpdateMinShare, bUpdateMaxShare);
+				}
+			}
+			
+			clsSettingManager::mPtr->bUpdateLocked = false;
+			
+			if (bUpdateHubSec == true)
+			{
+				clsSettingManager::mPtr->UpdateHubSec();
+			}
+			
+			if (bUpdateMOTD == true)
+			{
+				clsSettingManager::mPtr->UpdateMOTD();
+			}
+			
+			if (bUpdateLanguage == true)
+			{
+				clsSettingManager::mPtr->UpdateLanguage();
+			}
+			
+			if (bUpdateHubNameWelcome == true)
+			{
+				clsSettingManager::mPtr->UpdateHubNameWelcome();
+			}
+			
+			if (bUpdateHubName == true)
+			{
+				clsMainWindow::mPtr->UpdateTitleBar();
+				clsSettingManager::mPtr->UpdateHubName();
+			}
+			
+			if (bUpdateRedirectAddress == true)
+			{
+				clsSettingManager::mPtr->UpdateRedirectAddress();
+			}
+			
+			if (bUpdateRegOnlyMessage == true)
+			{
+				clsSettingManager::mPtr->UpdateRegOnlyMessage();
+			}
+			
+			if (bUpdateMinShare == true)
+			{
+				clsSettingManager::mPtr->UpdateMinShare();
+			}
+			
+			if (bUpdateMaxShare == true)
+			{
+				clsSettingManager::mPtr->UpdateMaxShare();
+			}
+			
+			if (bUpdateShareLimitMessage == true)
+			{
+				clsSettingManager::mPtr->UpdateShareLimitMessage();
+			}
+			
+			if (bUpdateSlotsLimitMessage == true)
+			{
+				clsSettingManager::mPtr->UpdateSlotsLimitMessage();
+			}
+			
+			if (bUpdateMaxHubsLimitMessage == true)
+			{
+				clsSettingManager::mPtr->UpdateMaxHubsLimitMessage();
+			}
+			
+			if (bUpdateHubSlotRatioMessage == true)
+			{
+				clsSettingManager::mPtr->UpdateHubSlotRatioMessage();
+			}
+			
+			if (bUpdateNoTagMessage == true)
+			{
+				clsSettingManager::mPtr->UpdateNoTagMessage();
+			}
+			
+			if (bUpdateTempBanRedirAddress == true)
+			{
+				clsSettingManager::mPtr->UpdateTempBanRedirAddress();
+			}
+			
+			if (bUpdatePermBanRedirAddress == true)
+			{
+				clsSettingManager::mPtr->UpdatePermBanRedirAddress();
+			}
+			
+			if (bUpdateNickLimitMessage == true)
+			{
+				clsSettingManager::mPtr->UpdateNickLimitMessage();
+			}
+			
+			if (bUpdateTCPPorts == true)
+			{
+				clsSettingManager::mPtr->UpdateTCPPorts();
+			}
+			
+			if (bUpdateBotsSameNick == true)
+			{
+				clsSettingManager::mPtr->UpdateBotsSameNick();
+			}
+			
+			if (bUpdateTextFiles == true)
+			{
+				clsTextFilesManager::mPtr->RefreshTextFiles();
+			}
+			
+			if (bUpdateBot == true)
+			{
+				clsSettingManager::mPtr->UpdateBot(bUpdateBotNick);
+			}
+			
+			if (bUpdateOpChat == true)
+			{
+				clsSettingManager::mPtr->UpdateOpChat(bUpdateOpChatNick);
+			}
+			
+			if (bUpdateUDPPort == true)
+			{
+				clsSettingManager::mPtr->UpdateUDPPort();
+			}
+			
+			if (bUpdateSysTray == true)
+			{
+				clsMainWindow::mPtr->UpdateSysTray();
+			}
+			
+#ifdef FLYLINKDC_REMOVE_REGISTER_THREAD
+			if (bUpdateAutoReg == true)
+			{
+				clsServerManager::UpdateAutoRegState();
+			}
+#endif
+			
+			if (bUpdateScripting == true)
+			{
+				clsSettingManager::mPtr->UpdateScripting();
+			}
 		}
+		case IDCANCEL:
+			::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
+			return 0;
+		}
+		
+		break;
+	case WM_NOTIFY:
+		if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[TV_TREE])
+		{
+			if (((LPNMHDR)lParam)->code == TVN_SELCHANGED)
+			{
+				OnSelChanged();
+				return 0;
+			}
+			else if (((LPNMHDR)lParam)->code == TVN_KEYDOWN)
+			{
+				NMTVKEYDOWN * ptvkd = (LPNMTVKEYDOWN)lParam;
+				if (ptvkd->wVKey == VK_TAB)
+				{
+					if ((::GetKeyState(VK_SHIFT) & 0x8000) > 0)
+					{
+						HTREEITEM htiNode = (HTREEITEM)::SendMessage(m_hWndWindowItems[TV_TREE], TVM_GETNEXTITEM, TVGN_CARET, 0);
+						
+						if (htiNode == NULL)
+						{
+							break;
+						}
+						
+						TVITEM tvItem;
+						memset(&tvItem, 0, sizeof(TVITEM));
+						tvItem.hItem = htiNode;
+						tvItem.mask = TVIF_PARAM;
+						
+						if ((BOOL)::SendMessage(m_hWndWindowItems[TV_TREE], TVM_GETITEM, 0, (LPARAM)&tvItem) == FALSE)
+						{
+							break;
+						}
+						
+						SettingPage * curSetPage = reinterpret_cast<SettingPage *>(tvItem.lParam);
+						
+						curSetPage->FocusLastItem();
+						
+						return 0;
+					}
+					else
+					{
+						::SetFocus(m_hWndWindowItems[BTN_OK]);
+						
+						return 0;
+					}
+				}
+			}
+		}
+		
+		break;
+	case WM_CLOSE:
+		::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
+		clsServerManager::hWndActiveDialog = nullptr;
+		break;
+	case WM_NCDESTROY:
+	{
+		HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
+		delete this;
+		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
 	}
 	
 	return ::DefWindowProc(m_hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
@@ -376,9 +376,9 @@ void SettingDialog::DoModal(HWND hWndParent)
 	int iY = (rcParent.top + ((rcParent.bottom - rcParent.top) / 2)) - (iHeight / 2);
 	
 	m_hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomSettingDialog), clsLanguageManager::mPtr->sTexts[LAN_SETTINGS],
-	                                                  WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, iWidth, iHeight,
-	                                                  hWndParent, NULL, clsServerManager::hInstance, NULL);
-	                                                  
+	                                                    WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, iWidth, iHeight,
+	                                                    hWndParent, NULL, clsServerManager::hInstance, NULL);
+	                                                    
 	if (m_hWndWindowItems[WINDOW_HANDLE] == NULL)
 	{
 		return;
@@ -392,8 +392,8 @@ void SettingDialog::DoModal(HWND hWndParent)
 	::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
 	
 	m_hWndWindowItems[TV_TREE] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_TREEVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | TVS_HASBUTTONS | TVS_LINESATROOT | TVS_HASLINES | TVS_SHOWSELALWAYS |
-	                                            TVS_DISABLEDRAGDROP, 5, 5, ScaleGui(154), rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 16, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
-	                                            
+	                                              TVS_DISABLEDRAGDROP, 5, 5, ScaleGui(154), rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 16, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                              
 	TVINSERTSTRUCT tvIS;
 	memset(&tvIS, 0, sizeof(TVINSERTSTRUCT));
 	tvIS.hInsertAfter = TVI_LAST;
@@ -424,11 +424,11 @@ void SettingDialog::DoModal(HWND hWndParent)
 	}
 	
 	m_hWndWindowItems[BTN_OK] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_ACCEPT], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                           4, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 7, ScaleGui(154) + 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)IDOK, clsServerManager::hInstance, NULL);
-	                                           
+	                                             4, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 7, ScaleGui(154) + 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)IDOK, clsServerManager::hInstance, NULL);
+	                                             
 	m_hWndWindowItems[BTN_CANCEL] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_DISCARD], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                               4, rcParent.bottom - clsGuiSettingManager::iEditHeight - 4, ScaleGui(154) + 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)IDCANCEL, clsServerManager::hInstance, NULL);
-	                                               
+	                                                 4, rcParent.bottom - clsGuiSettingManager::iEditHeight - 4, ScaleGui(154) + 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)IDCANCEL, clsServerManager::hInstance, NULL);
+	                                                 
 	for (uint8_t ui8i = 0; ui8i < (sizeof(m_hWndWindowItems) / sizeof(m_hWndWindowItems[0])); ui8i++)
 	{
 		::SendMessage(m_hWndWindowItems[ui8i], WM_SETFONT, (WPARAM)clsGuiSettingManager::hFont, MAKELPARAM(TRUE, 0));

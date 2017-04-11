@@ -93,8 +93,8 @@ void LanguageManager::Load()
 #else
 		string sLanguageFile = ServerManager::m_sPath + "/language/" + string(SettingManager::m_Ptr->m_sTexts[SETTXT_LANGUAGE],
 #endif
-		                                                                         (size_t)SettingManager::m_Ptr->m_ui16TextsLens[SETTXT_LANGUAGE]) + ".xml";
-		                                                                         
+		                                                                        (size_t)SettingManager::m_Ptr->m_ui16TextsLens[SETTXT_LANGUAGE]) + ".xml";
+		                                                                        
 		TiXmlDocument doc(sLanguageFile.c_str());
 		if (doc.LoadFile() == false)
 		{
@@ -104,12 +104,12 @@ void LanguageManager::Load()
 				if (iMsgLen > 0)
 				{
 #ifdef _BUILD_GUI
-				::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+					::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-				AppendLog(ServerManager::m_pGlobalBuffer);
+					AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
+				}
 			}
-		}
 		}
 		else
 		{

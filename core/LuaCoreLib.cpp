@@ -1140,466 +1140,466 @@ static int GetUserData(lua_State * pLua)
 	
 	switch (ui8DataId)
 	{
-		case 0:
-			lua_pushliteral(pLua, "sMode");
-			if (u->m_sModes[0] != '\0')
-			{
-				lua_pushstring(pLua, u->m_sModes);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 1:
-			lua_pushliteral(pLua, "sMyInfoString");
-			if (u->m_sMyInfoOriginal != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sMyInfoOriginal, u->m_ui16MyInfoOriginalLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 2:
-			lua_pushliteral(pLua, "sDescription");
-			if (u->m_sDescription != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sDescription, (size_t)u->m_ui8DescriptionLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 3:
-			lua_pushliteral(pLua, "sTag");
-			if (u->m_sTag != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sTag, (size_t)u->m_ui8TagLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 4:
-			lua_pushliteral(pLua, "sConnection");
-			if (u->m_sConnection != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sConnection, (size_t)u->m_ui8ConnectionLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 5:
-			lua_pushliteral(pLua, "sEmail");
-			if (u->m_sEmail != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sEmail, (size_t)u->m_ui8EmailLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 6:
-			lua_pushliteral(pLua, "sClient");
-			if (u->m_sClient != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sClient, (size_t)u->m_ui8ClientLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 7:
-			lua_pushliteral(pLua, "sClientVersion");
-			if (u->m_sTagVersion != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sTagVersion, (size_t)u->m_ui8TagVersionLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-#ifdef FLYLINKDC_USE_VERSION
-		case 8:
-			lua_pushliteral(pLua, "sVersion");
-			if (u->m_sVersion != NULL)
-			{
-				lua_pushstring(pLua, u->m_sVersion);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-#endif
-		case 9:
-			lua_pushliteral(pLua, "bConnected");
-			u->m_ui8State == User::STATE_ADDED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 10:
-			lua_pushliteral(pLua, "bActive");
-			if ((u->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
-			{
-				(u->m_ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			}
-			else
-			{
-				(u->m_ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 11:
-			lua_pushliteral(pLua, "bOperator");
-			(u->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 12:
-			lua_pushliteral(pLua, "bUserCommand");
-			(u->m_ui32SupportBits & User::SUPPORTBIT_USERCOMMAND) == User::SUPPORTBIT_USERCOMMAND ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 13:
-			lua_pushliteral(pLua, "bQuickList");
-			(u->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 14:
-			lua_pushliteral(pLua, "bSuspiciousTag");
-			(u->m_ui32BoolBits & User::BIT_HAVE_BADTAG) == User::BIT_HAVE_BADTAG ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 15:
-			lua_pushliteral(pLua, "iProfile");
-			lua_pushinteger(pLua, u->m_i32Profile);
-			lua_rawset(pLua, 1);
-			break;
-		case 16:
-			lua_pushliteral(pLua, "iShareSize");
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, (double)u->m_ui64SharedSize);
-#else
-			lua_pushinteger(pLua, u->m_ui64SharedSize);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 17:
-			lua_pushliteral(pLua, "iHubs");
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui32Hubs);
-#else
-			lua_pushinteger(pLua, u->m_ui32Hubs);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 18:
-			lua_pushliteral(pLua, "iNormalHubs");
-#if LUA_VERSION_NUM < 503
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32NormalHubs);
-#else
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32NormalHubs);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 19:
-			lua_pushliteral(pLua, "iRegHubs");
-#if LUA_VERSION_NUM < 503
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32RegHubs);
-#else
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32RegHubs);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 20:
-			lua_pushliteral(pLua, "iOpHubs");
-#if LUA_VERSION_NUM < 503
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32OpHubs);
-#else
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32OpHubs);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 21:
-			lua_pushliteral(pLua, "iSlots");
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui32Slots);
-#else
-			lua_pushinteger(pLua, u->m_ui32Slots);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 22:
-			lua_pushliteral(pLua, "iLlimit");
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui32LLimit);
-#else
-			lua_pushinteger(pLua, u->m_ui32LLimit);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 23:
-			lua_pushliteral(pLua, "iDefloodWarns");
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui32DefloodWarnings);
-#else
-			lua_pushinteger(pLua, u->m_ui32DefloodWarnings);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 24:
-			lua_pushliteral(pLua, "iMagicByte");
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui8MagicByte);
-#else
-			lua_pushinteger(pLua, u->m_ui8MagicByte);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 25:
-			lua_pushliteral(pLua, "iLoginTime");
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, (double)u->m_tLoginTime);
-#else
-			lua_pushinteger(pLua, u->m_tLoginTime);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 26:
-			lua_pushliteral(pLua, "sCountryCode");
-			if (IpP2Country::m_Ptr->m_ui32Count != 0)
-			{
-				lua_pushlstring(pLua, IpP2Country::m_Ptr->GetCountry(u->m_ui8Country, false), 2);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 27:
+	case 0:
+		lua_pushliteral(pLua, "sMode");
+		if (u->m_sModes[0] != '\0')
 		{
-			lua_pushliteral(pLua, "sMac");
-			char sMac[18];
-			sMac[0] = 0;
-			if (GetMacAddress(u->m_sIP, sMac) == true)
-			{
-				lua_pushlstring(pLua, sMac, 17);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
+			lua_pushstring(pLua, u->m_sModes);
 		}
-		case 28:
-			lua_pushliteral(pLua, "bDescriptionChanged");
-			(u->m_ui32InfoBits & User::INFOBIT_DESCRIPTION_CHANGED) == User::INFOBIT_DESCRIPTION_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 29:
-			lua_pushliteral(pLua, "bTagChanged");
-			(u->m_ui32InfoBits & User::INFOBIT_TAG_CHANGED) == User::INFOBIT_TAG_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 30:
-			lua_pushliteral(pLua, "bConnectionChanged");
-			(u->m_ui32InfoBits & User::INFOBIT_CONNECTION_CHANGED) == User::INFOBIT_CONNECTION_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 31:
-			lua_pushliteral(pLua, "bEmailChanged");
-			(u->m_ui32InfoBits & User::INFOBIT_EMAIL_CHANGED) == User::INFOBIT_EMAIL_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 32:
-			lua_pushliteral(pLua, "bShareChanged");
-			(u->m_ui32InfoBits & User::INFOBIT_SHARE_CHANGED) == User::INFOBIT_SHARE_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			lua_rawset(pLua, 1);
-			break;
-		case 33:
-			lua_pushliteral(pLua, "sScriptedDescriptionShort");
-			if (u->m_sChangedDescriptionShort != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedDescriptionShort, u->m_ui8ChangedDescriptionShortLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 34:
-			lua_pushliteral(pLua, "sScriptedDescriptionLong");
-			if (u->m_sChangedDescriptionLong != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedDescriptionLong, u->m_ui8ChangedDescriptionLongLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 35:
-			lua_pushliteral(pLua, "sScriptedTagShort");
-			if (u->m_sChangedTagShort != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedTagShort, u->m_ui8ChangedTagShortLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 36:
-			lua_pushliteral(pLua, "sScriptedTagLong");
-			if (u->m_sChangedTagLong != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedTagLong, u->m_ui8ChangedTagLongLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 37:
-			lua_pushliteral(pLua, "sScriptedConnectionShort");
-			if (u->m_sChangedConnectionShort != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedConnectionShort, u->m_ui8ChangedConnectionShortLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 38:
-			lua_pushliteral(pLua, "sScriptedConnectionLong");
-			if (u->m_sChangedConnectionLong != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedConnectionLong, u->m_ui8ChangedConnectionLongLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 39:
-			lua_pushliteral(pLua, "sScriptedEmailShort");
-			if (u->m_sChangedEmailShort != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedEmailShort, u->m_ui8ChangedEmailShortLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 40:
-			lua_pushliteral(pLua, "sScriptedEmailLong");
-			if (u->m_sChangedEmailLong != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedEmailLong, u->m_ui8ChangedEmailLongLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			break;
-		case 41:
-			lua_pushliteral(pLua, "iScriptediShareSizeShort");
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, (double)u->m_ui64ChangedSharedSizeShort);
-#else
-			lua_pushinteger(pLua, u->m_ui64ChangedSharedSizeShort);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 42:
-			lua_pushliteral(pLua, "iScriptediShareSizeLong");
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, (double)u->m_ui64ChangedSharedSizeLong);
-#else
-			lua_pushinteger(pLua, u->m_ui64ChangedSharedSizeLong);
-#endif
-			lua_rawset(pLua, 1);
-			break;
-		case 43:
+		else
 		{
-			lua_pushliteral(pLua, "tIPs");
-			lua_newtable(pLua);
-			
-			int t = lua_gettop(pLua);
-			
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, 1);
-#else
-			lua_pushinteger(pLua, 1);
-#endif
-			lua_pushlstring(pLua, u->m_sIP, u->m_ui8IpLen);
-			lua_rawset(pLua, t);
-			
-			if (u->m_sIPv4[0] != '\0')
-			{
-#if LUA_VERSION_NUM < 503
-				lua_pushnumber(pLua, 2);
-#else
-				lua_pushinteger(pLua, 2);
-#endif
-				lua_pushlstring(pLua, u->m_sIPv4, u->m_ui8IPv4Len);
-				lua_rawset(pLua, t);
-			}
-			
-			lua_rawset(pLua, 1);
-			break;
-		}
-#ifdef USE_FLYLINKDC_EXT_JSON
-		case 100:
-		{
-			lua_pushliteral(pLua, "sExtJson");
-			if (u->m_user_ext_info && u->m_user_ext_info->GetExtJSONCommand().length())
-			{
-				lua_pushlstring(pLua, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			lua_rawset(pLua, 1);
-			return 1;
-		}
-#endif
-		default:
-			luaL_error(pLua, "bad argument #2 to 'GetUserData' (it's not valid id)");
-			lua_settop(pLua, 0);
-			
 			lua_pushnil(pLua);
-			return 1;
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 1:
+		lua_pushliteral(pLua, "sMyInfoString");
+		if (u->m_sMyInfoOriginal != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sMyInfoOriginal, u->m_ui16MyInfoOriginalLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 2:
+		lua_pushliteral(pLua, "sDescription");
+		if (u->m_sDescription != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sDescription, (size_t)u->m_ui8DescriptionLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 3:
+		lua_pushliteral(pLua, "sTag");
+		if (u->m_sTag != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sTag, (size_t)u->m_ui8TagLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 4:
+		lua_pushliteral(pLua, "sConnection");
+		if (u->m_sConnection != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sConnection, (size_t)u->m_ui8ConnectionLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 5:
+		lua_pushliteral(pLua, "sEmail");
+		if (u->m_sEmail != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sEmail, (size_t)u->m_ui8EmailLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 6:
+		lua_pushliteral(pLua, "sClient");
+		if (u->m_sClient != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sClient, (size_t)u->m_ui8ClientLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 7:
+		lua_pushliteral(pLua, "sClientVersion");
+		if (u->m_sTagVersion != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sTagVersion, (size_t)u->m_ui8TagVersionLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+#ifdef FLYLINKDC_USE_VERSION
+	case 8:
+		lua_pushliteral(pLua, "sVersion");
+		if (u->m_sVersion != NULL)
+		{
+			lua_pushstring(pLua, u->m_sVersion);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+#endif
+	case 9:
+		lua_pushliteral(pLua, "bConnected");
+		u->m_ui8State == User::STATE_ADDED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 10:
+		lua_pushliteral(pLua, "bActive");
+		if ((u->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
+		{
+			(u->m_ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		}
+		else
+		{
+			(u->m_ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 11:
+		lua_pushliteral(pLua, "bOperator");
+		(u->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 12:
+		lua_pushliteral(pLua, "bUserCommand");
+		(u->m_ui32SupportBits & User::SUPPORTBIT_USERCOMMAND) == User::SUPPORTBIT_USERCOMMAND ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 13:
+		lua_pushliteral(pLua, "bQuickList");
+		(u->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 14:
+		lua_pushliteral(pLua, "bSuspiciousTag");
+		(u->m_ui32BoolBits & User::BIT_HAVE_BADTAG) == User::BIT_HAVE_BADTAG ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 15:
+		lua_pushliteral(pLua, "iProfile");
+		lua_pushinteger(pLua, u->m_i32Profile);
+		lua_rawset(pLua, 1);
+		break;
+	case 16:
+		lua_pushliteral(pLua, "iShareSize");
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, (double)u->m_ui64SharedSize);
+#else
+		lua_pushinteger(pLua, u->m_ui64SharedSize);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 17:
+		lua_pushliteral(pLua, "iHubs");
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui32Hubs);
+#else
+		lua_pushinteger(pLua, u->m_ui32Hubs);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 18:
+		lua_pushliteral(pLua, "iNormalHubs");
+#if LUA_VERSION_NUM < 503
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32NormalHubs);
+#else
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32NormalHubs);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 19:
+		lua_pushliteral(pLua, "iRegHubs");
+#if LUA_VERSION_NUM < 503
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32RegHubs);
+#else
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32RegHubs);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 20:
+		lua_pushliteral(pLua, "iOpHubs");
+#if LUA_VERSION_NUM < 503
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32OpHubs);
+#else
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32OpHubs);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 21:
+		lua_pushliteral(pLua, "iSlots");
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui32Slots);
+#else
+		lua_pushinteger(pLua, u->m_ui32Slots);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 22:
+		lua_pushliteral(pLua, "iLlimit");
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui32LLimit);
+#else
+		lua_pushinteger(pLua, u->m_ui32LLimit);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 23:
+		lua_pushliteral(pLua, "iDefloodWarns");
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui32DefloodWarnings);
+#else
+		lua_pushinteger(pLua, u->m_ui32DefloodWarnings);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 24:
+		lua_pushliteral(pLua, "iMagicByte");
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui8MagicByte);
+#else
+		lua_pushinteger(pLua, u->m_ui8MagicByte);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 25:
+		lua_pushliteral(pLua, "iLoginTime");
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, (double)u->m_tLoginTime);
+#else
+		lua_pushinteger(pLua, u->m_tLoginTime);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 26:
+		lua_pushliteral(pLua, "sCountryCode");
+		if (IpP2Country::m_Ptr->m_ui32Count != 0)
+		{
+			lua_pushlstring(pLua, IpP2Country::m_Ptr->GetCountry(u->m_ui8Country, false), 2);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 27:
+	{
+		lua_pushliteral(pLua, "sMac");
+		char sMac[18];
+		sMac[0] = 0;
+		if (GetMacAddress(u->m_sIP, sMac) == true)
+		{
+			lua_pushlstring(pLua, sMac, 17);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	}
+	case 28:
+		lua_pushliteral(pLua, "bDescriptionChanged");
+		(u->m_ui32InfoBits & User::INFOBIT_DESCRIPTION_CHANGED) == User::INFOBIT_DESCRIPTION_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 29:
+		lua_pushliteral(pLua, "bTagChanged");
+		(u->m_ui32InfoBits & User::INFOBIT_TAG_CHANGED) == User::INFOBIT_TAG_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 30:
+		lua_pushliteral(pLua, "bConnectionChanged");
+		(u->m_ui32InfoBits & User::INFOBIT_CONNECTION_CHANGED) == User::INFOBIT_CONNECTION_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 31:
+		lua_pushliteral(pLua, "bEmailChanged");
+		(u->m_ui32InfoBits & User::INFOBIT_EMAIL_CHANGED) == User::INFOBIT_EMAIL_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 32:
+		lua_pushliteral(pLua, "bShareChanged");
+		(u->m_ui32InfoBits & User::INFOBIT_SHARE_CHANGED) == User::INFOBIT_SHARE_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		lua_rawset(pLua, 1);
+		break;
+	case 33:
+		lua_pushliteral(pLua, "sScriptedDescriptionShort");
+		if (u->m_sChangedDescriptionShort != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedDescriptionShort, u->m_ui8ChangedDescriptionShortLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 34:
+		lua_pushliteral(pLua, "sScriptedDescriptionLong");
+		if (u->m_sChangedDescriptionLong != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedDescriptionLong, u->m_ui8ChangedDescriptionLongLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 35:
+		lua_pushliteral(pLua, "sScriptedTagShort");
+		if (u->m_sChangedTagShort != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedTagShort, u->m_ui8ChangedTagShortLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 36:
+		lua_pushliteral(pLua, "sScriptedTagLong");
+		if (u->m_sChangedTagLong != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedTagLong, u->m_ui8ChangedTagLongLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 37:
+		lua_pushliteral(pLua, "sScriptedConnectionShort");
+		if (u->m_sChangedConnectionShort != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedConnectionShort, u->m_ui8ChangedConnectionShortLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 38:
+		lua_pushliteral(pLua, "sScriptedConnectionLong");
+		if (u->m_sChangedConnectionLong != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedConnectionLong, u->m_ui8ChangedConnectionLongLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 39:
+		lua_pushliteral(pLua, "sScriptedEmailShort");
+		if (u->m_sChangedEmailShort != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedEmailShort, u->m_ui8ChangedEmailShortLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 40:
+		lua_pushliteral(pLua, "sScriptedEmailLong");
+		if (u->m_sChangedEmailLong != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedEmailLong, u->m_ui8ChangedEmailLongLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		break;
+	case 41:
+		lua_pushliteral(pLua, "iScriptediShareSizeShort");
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, (double)u->m_ui64ChangedSharedSizeShort);
+#else
+		lua_pushinteger(pLua, u->m_ui64ChangedSharedSizeShort);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 42:
+		lua_pushliteral(pLua, "iScriptediShareSizeLong");
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, (double)u->m_ui64ChangedSharedSizeLong);
+#else
+		lua_pushinteger(pLua, u->m_ui64ChangedSharedSizeLong);
+#endif
+		lua_rawset(pLua, 1);
+		break;
+	case 43:
+	{
+		lua_pushliteral(pLua, "tIPs");
+		lua_newtable(pLua);
+		
+		int t = lua_gettop(pLua);
+		
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, 1);
+#else
+		lua_pushinteger(pLua, 1);
+#endif
+		lua_pushlstring(pLua, u->m_sIP, u->m_ui8IpLen);
+		lua_rawset(pLua, t);
+		
+		if (u->m_sIPv4[0] != '\0')
+		{
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(pLua, 2);
+#else
+			lua_pushinteger(pLua, 2);
+#endif
+			lua_pushlstring(pLua, u->m_sIPv4, u->m_ui8IPv4Len);
+			lua_rawset(pLua, t);
+		}
+		
+		lua_rawset(pLua, 1);
+		break;
+	}
+#ifdef USE_FLYLINKDC_EXT_JSON
+	case 100:
+	{
+		lua_pushliteral(pLua, "sExtJson");
+		if (u->m_user_ext_info && u->m_user_ext_info->GetExtJSONCommand().length())
+		{
+			lua_pushlstring(pLua, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		lua_rawset(pLua, 1);
+		return 1;
+	}
+#endif
+	default:
+		luaL_error(pLua, "bad argument #2 to 'GetUserData' (it's not valid id)");
+		lua_settop(pLua, 0);
+		
+		lua_pushnil(pLua);
+		return 1;
 	}
 	
 	lua_settop(pLua, 0);
@@ -1647,376 +1647,376 @@ static int GetUserValue(lua_State * pLua)
 	
 	switch (ui8DataId)
 	{
-		case 0:
-			if (u->m_sModes[0] != '\0')
-			{
-				lua_pushstring(pLua, u->m_sModes);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 1:
-			if (u->m_sMyInfoOriginal != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sMyInfoOriginal, u->m_ui16MyInfoOriginalLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 2:
-			if (u->m_sDescription != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sDescription, u->m_ui8DescriptionLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 3:
-			if (u->m_sTag != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sTag, u->m_ui8TagLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 4:
-			if (u->m_sConnection != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sConnection, u->m_ui8ConnectionLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 5:
-			if (u->m_sEmail != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sEmail, u->m_ui8EmailLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 6:
-			if (u->m_sClient != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sClient, u->m_ui8ClientLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 7:
-			if (u->m_sTagVersion != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sTagVersion, u->m_ui8TagVersionLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
+	case 0:
+		if (u->m_sModes[0] != '\0')
+		{
+			lua_pushstring(pLua, u->m_sModes);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 1:
+		if (u->m_sMyInfoOriginal != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sMyInfoOriginal, u->m_ui16MyInfoOriginalLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 2:
+		if (u->m_sDescription != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sDescription, u->m_ui8DescriptionLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 3:
+		if (u->m_sTag != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sTag, u->m_ui8TagLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 4:
+		if (u->m_sConnection != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sConnection, u->m_ui8ConnectionLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 5:
+		if (u->m_sEmail != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sEmail, u->m_ui8EmailLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 6:
+		if (u->m_sClient != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sClient, u->m_ui8ClientLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 7:
+		if (u->m_sTagVersion != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sTagVersion, u->m_ui8TagVersionLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
 #ifdef FLYLINKDC_USE_VERSION
-		case 8:
-			if (u->m_sVersion != NULL)
-			{
-				lua_pushstring(pLua, u->m_sVersion);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-#endif
-		case 9:
-			u->m_ui8State == User::STATE_ADDED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 10:
-			if ((u->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
-			{
-				(u->m_ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			}
-			else
-			{
-				(u->m_ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			}
-			return 1;
-		case 11:
-			(u->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 12:
-			(u->m_ui32SupportBits & User::SUPPORTBIT_USERCOMMAND) == User::SUPPORTBIT_USERCOMMAND ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 13:
-			(u->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 14:
-			(u->m_ui32BoolBits & User::BIT_HAVE_BADTAG) == User::BIT_HAVE_BADTAG ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 15:
-			lua_pushinteger(pLua, u->m_i32Profile);
-			return 1;
-		case 16:
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, (double)u->m_ui64SharedSize);
-#else
-			lua_pushinteger(pLua, u->m_ui64SharedSize);
-#endif
-			return 1;
-		case 17:
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui32Hubs);
-#else
-			lua_pushinteger(pLua, u->m_ui32Hubs);
-#endif
-			return 1;
-		case 18:
-#if LUA_VERSION_NUM < 503
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32NormalHubs);
-#else
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32NormalHubs);
-#endif
-			return 1;
-		case 19:
-#if LUA_VERSION_NUM < 503
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32RegHubs);
-#else
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32RegHubs);
-#endif
-			return 1;
-		case 20:
-#if LUA_VERSION_NUM < 503
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32OpHubs);
-#else
-			(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32OpHubs);
-#endif
-			return 1;
-		case 21:
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui32Slots);
-#else
-			lua_pushinteger(pLua, u->m_ui32Slots);
-#endif
-			return 1;
-		case 22:
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui32LLimit);
-#else
-			lua_pushinteger(pLua, u->m_ui32LLimit);
-#endif
-			return 1;
-		case 23:
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui32DefloodWarnings);
-#else
-			lua_pushinteger(pLua, u->m_ui32DefloodWarnings);
-#endif
-			return 1;
-		case 24:
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, u->m_ui8MagicByte);
-#else
-			lua_pushinteger(pLua, u->m_ui8MagicByte);
-#endif
-			return 1;
-		case 25:
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, (double)u->m_tLoginTime);
-#else
-			lua_pushinteger(pLua, u->m_tLoginTime);
-#endif
-			return 1;
-		case 26:
-			if (IpP2Country::m_Ptr->m_ui32Count != 0)
-			{
-				lua_pushlstring(pLua, IpP2Country::m_Ptr->GetCountry(u->m_ui8Country, false), 2);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 27:
+	case 8:
+		if (u->m_sVersion != NULL)
 		{
-			char sMac[18];
-			sMac[0] = 0;
-			if (GetMacAddress(u->m_sIP, sMac) == true)
-			{
-				lua_pushlstring(pLua, sMac, 17);
-				return 1;
-			}
-			else
-			{
-				lua_pushnil(pLua);
-				return 1;
-			}
+			lua_pushstring(pLua, u->m_sVersion);
 		}
-		case 28:
-			(u->m_ui32InfoBits & User::INFOBIT_DESCRIPTION_CHANGED) == User::INFOBIT_DESCRIPTION_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 29:
-			(u->m_ui32InfoBits & User::INFOBIT_TAG_CHANGED) == User::INFOBIT_TAG_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 30:
-			(u->m_ui32InfoBits & User::INFOBIT_CONNECTION_CHANGED) == User::INFOBIT_CONNECTION_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 31:
-			(u->m_ui32InfoBits & User::INFOBIT_EMAIL_CHANGED) == User::INFOBIT_EMAIL_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 32:
-			(u->m_ui32InfoBits & User::INFOBIT_SHARE_CHANGED) == User::INFOBIT_SHARE_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
-			return 1;
-		case 33:
-			if (u->m_sChangedDescriptionShort != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedDescriptionShort, u->m_ui8ChangedDescriptionShortLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 34:
-			if (u->m_sChangedDescriptionLong != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedDescriptionLong, u->m_ui8ChangedDescriptionLongLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 35:
-			if (u->m_sChangedTagShort != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedTagShort, u->m_ui8ChangedTagShortLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 36:
-			if (u->m_sChangedTagLong != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedTagLong, u->m_ui8ChangedTagLongLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 37:
-			if (u->m_sChangedConnectionShort != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedConnectionShort, u->m_ui8ChangedConnectionShortLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 38:
-			if (u->m_sChangedConnectionLong != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedConnectionLong, u->m_ui8ChangedConnectionLongLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 39:
-			if (u->m_sChangedEmailShort != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedEmailShort, u->m_ui8ChangedEmailShortLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 40:
-			if (u->m_sChangedEmailLong != NULL)
-			{
-				lua_pushlstring(pLua, u->m_sChangedEmailLong, u->m_ui8ChangedEmailLongLen);
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		case 41:
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, (double)u->m_ui64ChangedSharedSizeShort);
-#else
-			lua_pushinteger(pLua, u->m_ui64ChangedSharedSizeShort);
-#endif
-			return 1;
-		case 42:
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, (double)u->m_ui64ChangedSharedSizeLong);
-#else
-			lua_pushinteger(pLua, u->m_ui64ChangedSharedSizeLong);
-#endif
-			return 1;
-		case 43:
+		else
 		{
-			lua_newtable(pLua);
-			
-			int t = lua_gettop(pLua);
-			
-#if LUA_VERSION_NUM < 503
-			lua_pushnumber(pLua, 1);
-#else
-			lua_pushinteger(pLua, 1);
+			lua_pushnil(pLua);
+		}
+		return 1;
 #endif
-			lua_pushlstring(pLua, u->m_sIP, u->m_ui8IpLen);
-			lua_rawset(pLua, t);
-			
-			if (u->m_sIPv4[0] != '\0')
-			{
+	case 9:
+		u->m_ui8State == User::STATE_ADDED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 10:
+		if ((u->m_ui32BoolBits & User::BIT_IPV6) == User::BIT_IPV6)
+		{
+			(u->m_ui32BoolBits & User::BIT_IPV6_ACTIVE) == User::BIT_IPV6_ACTIVE ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		}
+		else
+		{
+			(u->m_ui32BoolBits & User::BIT_IPV4_ACTIVE) == User::BIT_IPV4_ACTIVE ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		}
+		return 1;
+	case 11:
+		(u->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 12:
+		(u->m_ui32SupportBits & User::SUPPORTBIT_USERCOMMAND) == User::SUPPORTBIT_USERCOMMAND ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 13:
+		(u->m_ui32SupportBits & User::SUPPORTBIT_QUICKLIST) == User::SUPPORTBIT_QUICKLIST ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 14:
+		(u->m_ui32BoolBits & User::BIT_HAVE_BADTAG) == User::BIT_HAVE_BADTAG ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 15:
+		lua_pushinteger(pLua, u->m_i32Profile);
+		return 1;
+	case 16:
 #if LUA_VERSION_NUM < 503
-				lua_pushnumber(pLua, 2);
+		lua_pushnumber(pLua, (double)u->m_ui64SharedSize);
 #else
-				lua_pushinteger(pLua, 2);
+		lua_pushinteger(pLua, u->m_ui64SharedSize);
 #endif
-				lua_pushlstring(pLua, u->m_sIPv4, u->m_ui8IPv4Len);
-				lua_rawset(pLua, t);
-			}
-			
+		return 1;
+	case 17:
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui32Hubs);
+#else
+		lua_pushinteger(pLua, u->m_ui32Hubs);
+#endif
+		return 1;
+	case 18:
+#if LUA_VERSION_NUM < 503
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32NormalHubs);
+#else
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32NormalHubs);
+#endif
+		return 1;
+	case 19:
+#if LUA_VERSION_NUM < 503
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32RegHubs);
+#else
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32RegHubs);
+#endif
+		return 1;
+	case 20:
+#if LUA_VERSION_NUM < 503
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushnumber(pLua, u->m_ui32OpHubs);
+#else
+		(u->m_ui32BoolBits & User::BIT_OLDHUBSTAG) == User::BIT_OLDHUBSTAG ? lua_pushnil(pLua) : lua_pushinteger(pLua, u->m_ui32OpHubs);
+#endif
+		return 1;
+	case 21:
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui32Slots);
+#else
+		lua_pushinteger(pLua, u->m_ui32Slots);
+#endif
+		return 1;
+	case 22:
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui32LLimit);
+#else
+		lua_pushinteger(pLua, u->m_ui32LLimit);
+#endif
+		return 1;
+	case 23:
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui32DefloodWarnings);
+#else
+		lua_pushinteger(pLua, u->m_ui32DefloodWarnings);
+#endif
+		return 1;
+	case 24:
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, u->m_ui8MagicByte);
+#else
+		lua_pushinteger(pLua, u->m_ui8MagicByte);
+#endif
+		return 1;
+	case 25:
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, (double)u->m_tLoginTime);
+#else
+		lua_pushinteger(pLua, u->m_tLoginTime);
+#endif
+		return 1;
+	case 26:
+		if (IpP2Country::m_Ptr->m_ui32Count != 0)
+		{
+			lua_pushlstring(pLua, IpP2Country::m_Ptr->GetCountry(u->m_ui8Country, false), 2);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 27:
+	{
+		char sMac[18];
+		sMac[0] = 0;
+		if (GetMacAddress(u->m_sIP, sMac) == true)
+		{
+			lua_pushlstring(pLua, sMac, 17);
 			return 1;
 		}
-#ifdef USE_FLYLINKDC_EXT_JSON
-		case 100:
+		else
 		{
-			if (u->m_user_ext_info && u->m_user_ext_info->GetExtJSONCommand().length())
-			{
-				lua_pushlstring(pLua, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
-			}
-			else
-			{
-				lua_pushnil(pLua);
-			}
-			return 1;
-		}
-#endif
-		default:
-			luaL_error(pLua, "bad argument #2 to 'GetUserValue' (it's not valid id)");
-			
 			lua_pushnil(pLua);
 			return 1;
+		}
+	}
+	case 28:
+		(u->m_ui32InfoBits & User::INFOBIT_DESCRIPTION_CHANGED) == User::INFOBIT_DESCRIPTION_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 29:
+		(u->m_ui32InfoBits & User::INFOBIT_TAG_CHANGED) == User::INFOBIT_TAG_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 30:
+		(u->m_ui32InfoBits & User::INFOBIT_CONNECTION_CHANGED) == User::INFOBIT_CONNECTION_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 31:
+		(u->m_ui32InfoBits & User::INFOBIT_EMAIL_CHANGED) == User::INFOBIT_EMAIL_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 32:
+		(u->m_ui32InfoBits & User::INFOBIT_SHARE_CHANGED) == User::INFOBIT_SHARE_CHANGED ? lua_pushboolean(pLua, 1) : lua_pushboolean(pLua, 0);
+		return 1;
+	case 33:
+		if (u->m_sChangedDescriptionShort != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedDescriptionShort, u->m_ui8ChangedDescriptionShortLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 34:
+		if (u->m_sChangedDescriptionLong != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedDescriptionLong, u->m_ui8ChangedDescriptionLongLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 35:
+		if (u->m_sChangedTagShort != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedTagShort, u->m_ui8ChangedTagShortLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 36:
+		if (u->m_sChangedTagLong != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedTagLong, u->m_ui8ChangedTagLongLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 37:
+		if (u->m_sChangedConnectionShort != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedConnectionShort, u->m_ui8ChangedConnectionShortLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 38:
+		if (u->m_sChangedConnectionLong != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedConnectionLong, u->m_ui8ChangedConnectionLongLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 39:
+		if (u->m_sChangedEmailShort != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedEmailShort, u->m_ui8ChangedEmailShortLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 40:
+		if (u->m_sChangedEmailLong != NULL)
+		{
+			lua_pushlstring(pLua, u->m_sChangedEmailLong, u->m_ui8ChangedEmailLongLen);
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	case 41:
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, (double)u->m_ui64ChangedSharedSizeShort);
+#else
+		lua_pushinteger(pLua, u->m_ui64ChangedSharedSizeShort);
+#endif
+		return 1;
+	case 42:
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, (double)u->m_ui64ChangedSharedSizeLong);
+#else
+		lua_pushinteger(pLua, u->m_ui64ChangedSharedSizeLong);
+#endif
+		return 1;
+	case 43:
+	{
+		lua_newtable(pLua);
+		
+		int t = lua_gettop(pLua);
+		
+#if LUA_VERSION_NUM < 503
+		lua_pushnumber(pLua, 1);
+#else
+		lua_pushinteger(pLua, 1);
+#endif
+		lua_pushlstring(pLua, u->m_sIP, u->m_ui8IpLen);
+		lua_rawset(pLua, t);
+		
+		if (u->m_sIPv4[0] != '\0')
+		{
+#if LUA_VERSION_NUM < 503
+			lua_pushnumber(pLua, 2);
+#else
+			lua_pushinteger(pLua, 2);
+#endif
+			lua_pushlstring(pLua, u->m_sIPv4, u->m_ui8IPv4Len);
+			lua_rawset(pLua, t);
+		}
+		
+		return 1;
+	}
+#ifdef USE_FLYLINKDC_EXT_JSON
+	case 100:
+	{
+		if (u->m_user_ext_info && u->m_user_ext_info->GetExtJSONCommand().length())
+		{
+			lua_pushlstring(pLua, u->m_user_ext_info->GetExtJSONCommand().c_str(), (size_t)u->m_user_ext_info->GetExtJSONCommand().length());
+		}
+		else
+		{
+			lua_pushnil(pLua);
+		}
+		return 1;
+	}
+#endif
+	default:
+		luaL_error(pLua, "bad argument #2 to 'GetUserValue' (it's not valid id)");
+		
+		lua_pushnil(pLua);
+		return 1;
 	}
 }
 //------------------------------------------------------------------------------
@@ -2133,7 +2133,7 @@ static int Kick(lua_State * pLua)
 	if (SettingManager::m_Ptr->m_bBools[SETBOOL_SEND_STATUS_MESSAGES] == true)
 	{
 		GlobalDataQueue::m_Ptr->StatusMessageFormat("Core.Kick", "<%s> *** %s %s IP %s %s %s %s: %s|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], pUser->m_sNick, LanguageManager::m_Ptr->m_sTexts[LAN_WITH_LWR], pUser->m_sIP, LanguageManager::m_Ptr->m_sTexts[LAN_WAS_KICKED_BY], sKicker,
-		                                              LanguageManager::m_Ptr->m_sTexts[LAN_BECAUSE_LWR], sReason);
+		                                            LanguageManager::m_Ptr->m_sTexts[LAN_BECAUSE_LWR], sReason);
 	}
 	
 	// disconnect the user
@@ -2189,11 +2189,11 @@ static int Redirect(lua_State * pLua)
 		return 1;
 	}
 	
-	pUser->SendFormat("Core.Redirect", false, "<%s> %s %s. %s: %s|$ForceMove %s|", 
-		SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOU_REDIR_TO], 
-		sAddress, LanguageManager::m_Ptr->m_sTexts[LAN_MESSAGE], sReason, sAddress);
-	
-	
+	pUser->SendFormat("Core.Redirect", false, "<%s> %s %s. %s: %s|$ForceMove %s|",
+	                  SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOU_REDIR_TO],
+	                  sAddress, LanguageManager::m_Ptr->m_sTexts[LAN_MESSAGE], sReason, sAddress);
+	                  
+	                  
 //	UdpDebug::m_Ptr->BroadcastFormat("[SYS] User %s (%s) redirected by script.", pUser->sNick, pUser->sIP);
 
 	pUser->Close();
@@ -2239,28 +2239,28 @@ static int DefloodWarn(lua_State * pLua)
 	{
 		switch (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_DEFLOOD_WARNING_ACTION])
 		{
-			case 0:
-				break;
-			case 1:
-				BanManager::m_Ptr->TempBan(u, LanguageManager::m_Ptr->m_sTexts[LAN_FLOODING], NULL, 0, 0, false);
-				break;
-			case 2:
-				BanManager::m_Ptr->TempBan(u, LanguageManager::m_Ptr->m_sTexts[LAN_FLOODING], NULL,
-				                             SettingManager::m_Ptr->m_i16Shorts[SETSHORT_DEFLOOD_TEMP_BAN_TIME], 0, false);
-				break;
-			case 3:
-			{
-				BanManager::m_Ptr->Ban(u, LanguageManager::m_Ptr->m_sTexts[LAN_FLOODING], NULL, false);
-				break;
-			}
-			default:
-				break;
+		case 0:
+			break;
+		case 1:
+			BanManager::m_Ptr->TempBan(u, LanguageManager::m_Ptr->m_sTexts[LAN_FLOODING], NULL, 0, 0, false);
+			break;
+		case 2:
+			BanManager::m_Ptr->TempBan(u, LanguageManager::m_Ptr->m_sTexts[LAN_FLOODING], NULL,
+			                           SettingManager::m_Ptr->m_i16Shorts[SETSHORT_DEFLOOD_TEMP_BAN_TIME], 0, false);
+			break;
+		case 3:
+		{
+			BanManager::m_Ptr->Ban(u, LanguageManager::m_Ptr->m_sTexts[LAN_FLOODING], NULL, false);
+			break;
+		}
+		default:
+			break;
 		}
 		
 		if (SettingManager::m_Ptr->m_bBools[SETBOOL_DEFLOOD_REPORT] == true)
 		{
 			GlobalDataQueue::m_Ptr->StatusMessageFormat("Core.DefloodWarn", "<%s> *** %s %s %s %s %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_FLOODER], u->m_sNick, LanguageManager::m_Ptr->m_sTexts[LAN_WITH_IP], u->m_sIP,
-			                                              LanguageManager::m_Ptr->m_sTexts[LAN_DISCONN_BY_SCRIPT]);
+			                                            LanguageManager::m_Ptr->m_sTexts[LAN_DISCONN_BY_SCRIPT]);
 		}
 		
 		UdpDebug::m_Ptr->BroadcastFormat("[SYS] Flood from %s (%s) - user closed by script.", u->m_sNick, u->m_sIP);
@@ -2841,144 +2841,144 @@ static int SetUserInfo(lua_State * pLua)
 		
 		switch (ui32DataToChange)
 		{
-			case 0:
-				pUser->m_sChangedDescriptionShort = User::SetUserInfo(pUser->m_sChangedDescriptionShort, pUser->m_ui8ChangedDescriptionShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
-				if (bPermanent == true)
-				{
-					pUser->m_ui32InfoBits |= User::INFOBIT_DESCRIPTION_SHORT_PERM;
-				}
-				else
-				{
-					pUser->m_ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_SHORT_PERM;
-				}
-				break;
-			case 1:
-				pUser->m_sChangedDescriptionLong = User::SetUserInfo(pUser->m_sChangedDescriptionLong, pUser->m_ui8ChangedDescriptionLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
-				if (bPermanent == true)
-				{
-					pUser->m_ui32InfoBits |= User::INFOBIT_DESCRIPTION_LONG_PERM;
-				}
-				else
-				{
-					pUser->m_ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_LONG_PERM;
-				}
-				break;
-			case 2:
-				pUser->m_sChangedTagShort = User::SetUserInfo(pUser->m_sChangedTagShort, pUser->m_ui8ChangedTagShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
-				if (bPermanent == true)
-				{
-					pUser->m_ui32InfoBits |= User::INFOBIT_TAG_SHORT_PERM;
-				}
-				else
-				{
-					pUser->m_ui32InfoBits &= ~User::INFOBIT_TAG_SHORT_PERM;
-				}
-				break;
-			case 3:
-				pUser->m_sChangedTagLong = User::SetUserInfo(pUser->m_sChangedTagLong, pUser->m_ui8ChangedTagLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
-				if (bPermanent == true)
-				{
-					pUser->m_ui32InfoBits |= User::INFOBIT_TAG_LONG_PERM;
-				}
-				else
-				{
-					pUser->m_ui32InfoBits &= ~User::INFOBIT_TAG_LONG_PERM;
-				}
-				break;
-			case 4:
-				pUser->m_sChangedConnectionShort = User::SetUserInfo(pUser->m_sChangedConnectionShort, pUser->m_ui8ChangedConnectionShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
-				if (bPermanent == true)
-				{
-					pUser->m_ui32InfoBits |= User::INFOBIT_CONNECTION_SHORT_PERM;
-				}
-				else
-				{
-					pUser->m_ui32InfoBits &= ~User::INFOBIT_CONNECTION_SHORT_PERM;
-				}
-				break;
-			case 5:
-				pUser->m_sChangedConnectionLong = User::SetUserInfo(pUser->m_sChangedConnectionLong, pUser->m_ui8ChangedConnectionLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
-				if (bPermanent == true)
-				{
-					pUser->m_ui32InfoBits |= User::INFOBIT_CONNECTION_LONG_PERM;
-				}
-				else
-				{
-					pUser->m_ui32InfoBits &= ~User::INFOBIT_CONNECTION_LONG_PERM;
-				}
-				break;
-			case 6:
-				pUser->m_sChangedEmailShort = User::SetUserInfo(pUser->m_sChangedEmailShort, pUser->m_ui8ChangedEmailShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
-				if (bPermanent == true)
-				{
-					pUser->m_ui32InfoBits |= User::INFOBIT_EMAIL_SHORT_PERM;
-				}
-				else
-				{
-					pUser->m_ui32InfoBits &= ~User::INFOBIT_EMAIL_SHORT_PERM;
-				}
-				break;
-			case 7:
-				pUser->m_sChangedEmailLong = User::SetUserInfo(pUser->m_sChangedEmailLong, pUser->m_ui8ChangedEmailLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
-				if (bPermanent == true)
-				{
-					pUser->m_ui32InfoBits |= User::INFOBIT_EMAIL_LONG_PERM;
-				}
-				else
-				{
-					pUser->m_ui32InfoBits &= ~User::INFOBIT_EMAIL_LONG_PERM;
-				}
-				break;
-			default:
-				break;
+		case 0:
+			pUser->m_sChangedDescriptionShort = User::SetUserInfo(pUser->m_sChangedDescriptionShort, pUser->m_ui8ChangedDescriptionShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
+			if (bPermanent == true)
+			{
+				pUser->m_ui32InfoBits |= User::INFOBIT_DESCRIPTION_SHORT_PERM;
+			}
+			else
+			{
+				pUser->m_ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_SHORT_PERM;
+			}
+			break;
+		case 1:
+			pUser->m_sChangedDescriptionLong = User::SetUserInfo(pUser->m_sChangedDescriptionLong, pUser->m_ui8ChangedDescriptionLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
+			if (bPermanent == true)
+			{
+				pUser->m_ui32InfoBits |= User::INFOBIT_DESCRIPTION_LONG_PERM;
+			}
+			else
+			{
+				pUser->m_ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_LONG_PERM;
+			}
+			break;
+		case 2:
+			pUser->m_sChangedTagShort = User::SetUserInfo(pUser->m_sChangedTagShort, pUser->m_ui8ChangedTagShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
+			if (bPermanent == true)
+			{
+				pUser->m_ui32InfoBits |= User::INFOBIT_TAG_SHORT_PERM;
+			}
+			else
+			{
+				pUser->m_ui32InfoBits &= ~User::INFOBIT_TAG_SHORT_PERM;
+			}
+			break;
+		case 3:
+			pUser->m_sChangedTagLong = User::SetUserInfo(pUser->m_sChangedTagLong, pUser->m_ui8ChangedTagLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
+			if (bPermanent == true)
+			{
+				pUser->m_ui32InfoBits |= User::INFOBIT_TAG_LONG_PERM;
+			}
+			else
+			{
+				pUser->m_ui32InfoBits &= ~User::INFOBIT_TAG_LONG_PERM;
+			}
+			break;
+		case 4:
+			pUser->m_sChangedConnectionShort = User::SetUserInfo(pUser->m_sChangedConnectionShort, pUser->m_ui8ChangedConnectionShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
+			if (bPermanent == true)
+			{
+				pUser->m_ui32InfoBits |= User::INFOBIT_CONNECTION_SHORT_PERM;
+			}
+			else
+			{
+				pUser->m_ui32InfoBits &= ~User::INFOBIT_CONNECTION_SHORT_PERM;
+			}
+			break;
+		case 5:
+			pUser->m_sChangedConnectionLong = User::SetUserInfo(pUser->m_sChangedConnectionLong, pUser->m_ui8ChangedConnectionLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
+			if (bPermanent == true)
+			{
+				pUser->m_ui32InfoBits |= User::INFOBIT_CONNECTION_LONG_PERM;
+			}
+			else
+			{
+				pUser->m_ui32InfoBits &= ~User::INFOBIT_CONNECTION_LONG_PERM;
+			}
+			break;
+		case 6:
+			pUser->m_sChangedEmailShort = User::SetUserInfo(pUser->m_sChangedEmailShort, pUser->m_ui8ChangedEmailShortLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
+			if (bPermanent == true)
+			{
+				pUser->m_ui32InfoBits |= User::INFOBIT_EMAIL_SHORT_PERM;
+			}
+			else
+			{
+				pUser->m_ui32InfoBits &= ~User::INFOBIT_EMAIL_SHORT_PERM;
+			}
+			break;
+		case 7:
+			pUser->m_sChangedEmailLong = User::SetUserInfo(pUser->m_sChangedEmailLong, pUser->m_ui8ChangedEmailLongLen, sData, szDataLen, sMyInfoPartsNames[ui32DataToChange]);
+			if (bPermanent == true)
+			{
+				pUser->m_ui32InfoBits |= User::INFOBIT_EMAIL_LONG_PERM;
+			}
+			else
+			{
+				pUser->m_ui32InfoBits &= ~User::INFOBIT_EMAIL_LONG_PERM;
+			}
+			break;
+		default:
+			break;
 		}
 	}
 	else if (lua_type(pLua, 3) == LUA_TNIL)
 	{
 		switch (ui32DataToChange)
 		{
-			case 0:
-				User::FreeInfo(pUser->m_sChangedDescriptionShort, pUser->m_ui8ChangedDescriptionShortLen);
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_SHORT_PERM;
-				break;
-			case 1:
-				User::FreeInfo(pUser->m_sChangedDescriptionLong, pUser->m_ui8ChangedDescriptionLongLen);
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_LONG_PERM;
-				break;
-			case 2:
-				User::FreeInfo(pUser->m_sChangedTagShort, pUser->m_ui8ChangedTagShortLen);
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_TAG_SHORT_PERM;
-				break;
-			case 3:
-				User::FreeInfo(pUser->m_sChangedTagLong, pUser->m_ui8ChangedTagLongLen);
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_TAG_LONG_PERM;
-				break;
-			case 4:
-				User::FreeInfo(pUser->m_sChangedConnectionShort, pUser->m_ui8ChangedConnectionShortLen);
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_CONNECTION_SHORT_PERM;
-				break;
-			case 5:
-				User::FreeInfo(pUser->m_sChangedConnectionLong, pUser->m_ui8ChangedConnectionLongLen);
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_CONNECTION_LONG_PERM;
-				break;
-			case 6:
-				User::FreeInfo(pUser->m_sChangedEmailShort, pUser->m_ui8ChangedEmailShortLen);
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_EMAIL_SHORT_PERM;
-				break;
-			case 7:
-				User::FreeInfo(pUser->m_sChangedEmailLong, pUser->m_ui8ChangedEmailLongLen);
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_EMAIL_LONG_PERM;
-				break;
-			case 8:
-				pUser->m_ui64ChangedSharedSizeShort = pUser->m_ui64SharedSize;
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_SHARE_SHORT_PERM;
-				break;
-			case 9:
-				pUser->m_ui64ChangedSharedSizeLong = pUser->m_ui64SharedSize;
-				pUser->m_ui32InfoBits &= ~User::INFOBIT_SHARE_LONG_PERM;
-				break;
-			default:
-				break;
+		case 0:
+			User::FreeInfo(pUser->m_sChangedDescriptionShort, pUser->m_ui8ChangedDescriptionShortLen);
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_SHORT_PERM;
+			break;
+		case 1:
+			User::FreeInfo(pUser->m_sChangedDescriptionLong, pUser->m_ui8ChangedDescriptionLongLen);
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_DESCRIPTION_LONG_PERM;
+			break;
+		case 2:
+			User::FreeInfo(pUser->m_sChangedTagShort, pUser->m_ui8ChangedTagShortLen);
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_TAG_SHORT_PERM;
+			break;
+		case 3:
+			User::FreeInfo(pUser->m_sChangedTagLong, pUser->m_ui8ChangedTagLongLen);
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_TAG_LONG_PERM;
+			break;
+		case 4:
+			User::FreeInfo(pUser->m_sChangedConnectionShort, pUser->m_ui8ChangedConnectionShortLen);
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_CONNECTION_SHORT_PERM;
+			break;
+		case 5:
+			User::FreeInfo(pUser->m_sChangedConnectionLong, pUser->m_ui8ChangedConnectionLongLen);
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_CONNECTION_LONG_PERM;
+			break;
+		case 6:
+			User::FreeInfo(pUser->m_sChangedEmailShort, pUser->m_ui8ChangedEmailShortLen);
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_EMAIL_SHORT_PERM;
+			break;
+		case 7:
+			User::FreeInfo(pUser->m_sChangedEmailLong, pUser->m_ui8ChangedEmailLongLen);
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_EMAIL_LONG_PERM;
+			break;
+		case 8:
+			pUser->m_ui64ChangedSharedSizeShort = pUser->m_ui64SharedSize;
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_SHARE_SHORT_PERM;
+			break;
+		case 9:
+			pUser->m_ui64ChangedSharedSizeLong = pUser->m_ui64SharedSize;
+			pUser->m_ui32InfoBits &= ~User::INFOBIT_SHARE_LONG_PERM;
+			break;
+		default:
+			break;
 		}
 	}
 	else if (lua_type(pLua, 3) == LUA_TNUMBER)

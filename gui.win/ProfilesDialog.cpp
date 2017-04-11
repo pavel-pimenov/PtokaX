@@ -85,199 +85,199 @@ LRESULT clsProfilesDialog::ProfilesDialogProc(UINT uMsg, WPARAM wParam, LPARAM l
 {
 	switch (uMsg)
 	{
-		case WM_WINDOWPOSCHANGED:
+	case WM_WINDOWPOSCHANGED:
+	{
+		RECT rcParent;
+		::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
+		
+		int iProfilesWidth = rcParent.right / 3;
+		
+		int iPermissionsWidth = rcParent.right - (iProfilesWidth + 17);
+		
+		::SetWindowPos(m_hWndWindowItems[BTN_CLEAR_ALL], NULL, iProfilesWidth + 11 + (iPermissionsWidth / 2), rcParent.bottom - clsGuiSettingManager::iEditHeight - 10,
+		               rcParent.right - (iProfilesWidth + 21 + (iPermissionsWidth / 2)), clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[BTN_SET_ALL], NULL, iProfilesWidth + 11, rcParent.bottom - clsGuiSettingManager::iEditHeight - 10, (iPermissionsWidth / 2) - 3, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[LV_PERMISSIONS], NULL, iProfilesWidth + 12, rcParent.top + clsGuiSettingManager::iGroupBoxMargin,
+		               rcParent.right - (iProfilesWidth + 23), rcParent.bottom - clsGuiSettingManager::iGroupBoxMargin - clsGuiSettingManager::iEditHeight - 14, SWP_NOZORDER);
+		::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_SETCOLUMNWIDTH, 0, iPermissionsWidth - 30);
+		::SetWindowPos(m_hWndWindowItems[GB_PERMISSIONS], NULL, iProfilesWidth + 4, rcParent.top, rcParent.right - (iProfilesWidth + 7), rcParent.bottom - 3,
+		               SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[BTN_MOVE_DOWN], NULL, (iProfilesWidth / 2) + 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
+		               iProfilesWidth - (iProfilesWidth / 2), clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[BTN_MOVE_UP], NULL, 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (iProfilesWidth / 2) - 1, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[LV_PROFILES], NULL, 0, 0, iProfilesWidth - 2, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 12, SWP_NOMOVE | SWP_NOZORDER);
+		::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETCOLUMNWIDTH, 0, iProfilesWidth - 6);
+		::SetWindowPos(m_hWndWindowItems[BTN_ADD_PROFILE], NULL, 0, 0, iProfilesWidth, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
+		
+		return 0;
+	}
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
 		{
-			RECT rcParent;
-			::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
+		case (BTN_ADD_PROFILE+100):
+		{
+			LineDialog * pNewProfileDlg = new (std::nothrow) LineDialog(&OnNewProfileOk);
 			
-			int iProfilesWidth = rcParent.right / 3;
-			
-			int iPermissionsWidth = rcParent.right - (iProfilesWidth + 17);
-			
-			::SetWindowPos(m_hWndWindowItems[BTN_CLEAR_ALL], NULL, iProfilesWidth + 11 + (iPermissionsWidth / 2), rcParent.bottom - clsGuiSettingManager::iEditHeight - 10,
-			               rcParent.right - (iProfilesWidth + 21 + (iPermissionsWidth / 2)), clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[BTN_SET_ALL], NULL, iProfilesWidth + 11, rcParent.bottom - clsGuiSettingManager::iEditHeight - 10, (iPermissionsWidth / 2) - 3, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[LV_PERMISSIONS], NULL, iProfilesWidth + 12, rcParent.top + clsGuiSettingManager::iGroupBoxMargin,
-			               rcParent.right - (iProfilesWidth + 23), rcParent.bottom - clsGuiSettingManager::iGroupBoxMargin - clsGuiSettingManager::iEditHeight - 14, SWP_NOZORDER);
-			::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_SETCOLUMNWIDTH, 0, iPermissionsWidth - 30);
-			::SetWindowPos(m_hWndWindowItems[GB_PERMISSIONS], NULL, iProfilesWidth + 4, rcParent.top, rcParent.right - (iProfilesWidth + 7), rcParent.bottom - 3,
-			               SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[BTN_MOVE_DOWN], NULL, (iProfilesWidth / 2) + 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
-			               iProfilesWidth - (iProfilesWidth / 2), clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[BTN_MOVE_UP], NULL, 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (iProfilesWidth / 2) - 1, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[LV_PROFILES], NULL, 0, 0, iProfilesWidth - 2, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 12, SWP_NOMOVE | SWP_NOZORDER);
-			::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETCOLUMNWIDTH, 0, iProfilesWidth - 6);
-			::SetWindowPos(m_hWndWindowItems[BTN_ADD_PROFILE], NULL, 0, 0, iProfilesWidth, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
+			if (pNewProfileDlg != NULL)
+			{
+				pNewProfileDlg->DoModal(m_hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_NEW_PROFILE_NAME], "");
+			}
 			
 			return 0;
 		}
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
+		case IDC_RENAME_PROFILE:
+		{
+			int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+			
+			if (iSel == -1)
 			{
-				case (BTN_ADD_PROFILE+100):
+				return 0;
+			}
+			
+			RenameProfile(iSel);
+			
+			return 0;
+		}
+		case IDC_REMOVE_PROFILE:
+		{
+			int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+			
+			if (iSel == -1 || ::MessageBox(m_hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+			{
+				return 0;
+			}
+			
+			if (clsProfileManager::mPtr->RemoveProfile((uint16_t)iSel) == false)
+			{
+				::MessageBox(m_hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_PROFILE_DEL_FAIL], g_sPtokaXTitle, MB_OK);
+			}
+			
+			return 0;
+		}
+		case BTN_SET_ALL:
+			ChangePermissionChecks(true);
+			return 0;
+		case BTN_CLEAR_ALL:
+			ChangePermissionChecks(false);
+			return 0;
+		case BTN_MOVE_UP:
+		{
+			int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+			
+			if (iSel == -1)
+			{
+				return 0;
+			}
+			
+			clsProfileManager::mPtr->MoveProfileUp((uint16_t)iSel);
+			
+			return 0;
+		}
+		case BTN_MOVE_DOWN:
+		{
+			int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+			
+			if (iSel == -1)
+			{
+				return 0;
+			}
+			
+			clsProfileManager::mPtr->MoveProfileDown((uint16_t)iSel);
+			
+			return 0;
+		}
+		case IDOK:   // NM_RETURN
+		{
+			if (::GetFocus() == m_hWndWindowItems[LV_PROFILES])
+			{
+				int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
+				
+				if (iSel == -1)
 				{
-					LineDialog * pNewProfileDlg = new (std::nothrow) LineDialog(&OnNewProfileOk);
-					
-					if (pNewProfileDlg != NULL)
-					{
-						pNewProfileDlg->DoModal(m_hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_NEW_PROFILE_NAME], "");
-					}
-					
 					return 0;
 				}
-				case IDC_RENAME_PROFILE:
+				
+				RenameProfile(iSel);
+				
+				return 0;
+			}
+			
+			break;
+		}
+		case IDCANCEL:
+			::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
+			return 0;
+		}
+		
+		break;
+	case WM_CONTEXTMENU:
+		OnContextMenu((HWND)wParam, lParam);
+		break;
+	case WM_NOTIFY:
+		if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[LV_PROFILES])
+		{
+			if (((LPNMHDR)lParam)->code == LVN_ITEMCHANGED)
+			{
+				OnProfileChanged((LPNMLISTVIEW)lParam);
+			}
+			else if (((LPNMHDR)lParam)->code == NM_DBLCLK)
+			{
+				if (((LPNMITEMACTIVATE)lParam)->iItem == -1)
 				{
-					int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
-					
-					if (iSel == -1)
-					{
-						return 0;
-					}
-					
-					RenameProfile(iSel);
-					
-					return 0;
-				}
-				case IDC_REMOVE_PROFILE:
-				{
-					int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
-					
-					if (iSel == -1 || ::MessageBox(m_hWndWindowItems[WINDOW_HANDLE], (string(clsLanguageManager::mPtr->sTexts[LAN_ARE_YOU_SURE], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_ARE_YOU_SURE]) + " ?").c_str(), g_sPtokaXTitle, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
-					{
-						return 0;
-					}
-					
-					if (clsProfileManager::mPtr->RemoveProfile((uint16_t)iSel) == false)
-					{
-						::MessageBox(m_hWndWindowItems[WINDOW_HANDLE], clsLanguageManager::mPtr->sTexts[LAN_PROFILE_DEL_FAIL], g_sPtokaXTitle, MB_OK);
-					}
-					
-					return 0;
-				}
-				case BTN_SET_ALL:
-					ChangePermissionChecks(true);
-					return 0;
-				case BTN_CLEAR_ALL:
-					ChangePermissionChecks(false);
-					return 0;
-				case BTN_MOVE_UP:
-				{
-					int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
-					
-					if (iSel == -1)
-					{
-						return 0;
-					}
-					
-					clsProfileManager::mPtr->MoveProfileUp((uint16_t)iSel);
-					
-					return 0;
-				}
-				case BTN_MOVE_DOWN:
-				{
-					int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
-					
-					if (iSel == -1)
-					{
-						return 0;
-					}
-					
-					clsProfileManager::mPtr->MoveProfileDown((uint16_t)iSel);
-					
-					return 0;
-				}
-				case IDOK:   // NM_RETURN
-				{
-					if (::GetFocus() == m_hWndWindowItems[LV_PROFILES])
-					{
-						int iSel = (int)::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_GETNEXTITEM, (WPARAM) - 1, LVNI_SELECTED);
-						
-						if (iSel == -1)
-						{
-							return 0;
-						}
-						
-						RenameProfile(iSel);
-						
-						return 0;
-					}
-					
 					break;
 				}
-				case IDCANCEL:
-					::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
-					return 0;
+				
+				RenameProfile(((LPNMITEMACTIVATE)lParam)->iItem);
+				
+				return 0;
 			}
-			
-			break;
-		case WM_CONTEXTMENU:
-			OnContextMenu((HWND)wParam, lParam);
-			break;
-		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[LV_PROFILES])
-			{
-				if (((LPNMHDR)lParam)->code == LVN_ITEMCHANGED)
-				{
-					OnProfileChanged((LPNMLISTVIEW)lParam);
-				}
-				else if (((LPNMHDR)lParam)->code == NM_DBLCLK)
-				{
-					if (((LPNMITEMACTIVATE)lParam)->iItem == -1)
-					{
-						break;
-					}
-					
-					RenameProfile(((LPNMITEMACTIVATE)lParam)->iItem);
-					
-					return 0;
-				}
-			}
-			else if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[LV_PERMISSIONS])
-			{
-				if (((LPNMHDR)lParam)->code == LVN_ITEMCHANGED)
-				{
-					OnPermissionChanged((LPNMLISTVIEW)lParam);
-				}
-			}
-			
-			break;
-		case WM_GETMINMAXINFO:
-		{
-			MINMAXINFO *mminfo = (MINMAXINFO*)lParam;
-			mminfo->ptMinTrackSize.x = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_PROFILES_WINDOW_WIDTH));
-			mminfo->ptMinTrackSize.y = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_PROFILES_WINDOW_HEIGHT));
-			
-			return 0;
 		}
-		case WM_CLOSE:
+		else if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[LV_PERMISSIONS])
 		{
-			RECT rcProfiles;
-			::GetWindowRect(m_hWndWindowItems[WINDOW_HANDLE], &rcProfiles);
-			
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_PROFILES_WINDOW_WIDTH, rcProfiles.right - rcProfiles.left);
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_PROFILES_WINDOW_HEIGHT, rcProfiles.bottom - rcProfiles.top);
-			
-			::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
-			clsServerManager::hWndActiveDialog = nullptr;
-			
-			break;
-		}
-		case WM_NCDESTROY:
-		{
-			HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
-			delete this;
-			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
-		}
-		case WM_SETFOCUS:
-			::SetFocus(m_hWndWindowItems[LV_PROFILES]);
-			return 0;
-		case WM_ACTIVATE:
-			if (LOWORD(wParam) != WA_INACTIVE)
+			if (((LPNMHDR)lParam)->code == LVN_ITEMCHANGED)
 			{
-				clsServerManager::hWndActiveDialog = m_hWndWindowItems[WINDOW_HANDLE];
+				OnPermissionChanged((LPNMLISTVIEW)lParam);
 			}
-			
-			break;
+		}
+		
+		break;
+	case WM_GETMINMAXINFO:
+	{
+		MINMAXINFO *mminfo = (MINMAXINFO*)lParam;
+		mminfo->ptMinTrackSize.x = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_PROFILES_WINDOW_WIDTH));
+		mminfo->ptMinTrackSize.y = ScaleGui(clsGuiSettingManager::mPtr->GetDefaultInteger(GUISETINT_PROFILES_WINDOW_HEIGHT));
+		
+		return 0;
+	}
+	case WM_CLOSE:
+	{
+		RECT rcProfiles;
+		::GetWindowRect(m_hWndWindowItems[WINDOW_HANDLE], &rcProfiles);
+		
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_PROFILES_WINDOW_WIDTH, rcProfiles.right - rcProfiles.left);
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_PROFILES_WINDOW_HEIGHT, rcProfiles.bottom - rcProfiles.top);
+		
+		::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
+		clsServerManager::hWndActiveDialog = nullptr;
+		
+		break;
+	}
+	case WM_NCDESTROY:
+	{
+		HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
+		delete this;
+		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+	case WM_SETFOCUS:
+		::SetFocus(m_hWndWindowItems[LV_PROFILES]);
+		return 0;
+	case WM_ACTIVATE:
+		if (LOWORD(wParam) != WA_INACTIVE)
+		{
+			clsServerManager::hWndActiveDialog = m_hWndWindowItems[WINDOW_HANDLE];
+		}
+		
+		break;
 	}
 	
 	return ::DefWindowProc(m_hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
@@ -308,10 +308,10 @@ void clsProfilesDialog::DoModal(HWND hWndParent)
 	int iY = (rcParent.top + ((rcParent.bottom - rcParent.top) / 2)) - (ScaleGuiDefaultsOnly(GUISETINT_PROFILES_WINDOW_HEIGHT) / 2);
 	
 	m_hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomProfilesDialog), clsLanguageManager::mPtr->sTexts[LAN_PROFILES],
-	                                                  WS_POPUP | WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	                                                  iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGuiDefaultsOnly(GUISETINT_PROFILES_WINDOW_WIDTH), ScaleGuiDefaultsOnly(GUISETINT_PROFILES_WINDOW_HEIGHT),
-	                                                  hWndParent, NULL, clsServerManager::hInstance, NULL);
-	                                                  
+	                                                    WS_POPUP | WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+	                                                    iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGuiDefaultsOnly(GUISETINT_PROFILES_WINDOW_WIDTH), ScaleGuiDefaultsOnly(GUISETINT_PROFILES_WINDOW_HEIGHT),
+	                                                    hWndParent, NULL, clsServerManager::hInstance, NULL);
+	                                                    
 	if (m_hWndWindowItems[WINDOW_HANDLE] == NULL)
 	{
 		return;
@@ -327,36 +327,36 @@ void clsProfilesDialog::DoModal(HWND hWndParent)
 	int iProfilesWidth = rcParent.right / 3;
 	
 	m_hWndWindowItems[BTN_ADD_PROFILE] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_ADD_NEW_PROFILE], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                    2, 2, iProfilesWidth, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_ADD_PROFILE + 100), clsServerManager::hInstance, NULL);
-	                                                    
+	                                                      2, 2, iProfilesWidth, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_ADD_PROFILE + 100), clsServerManager::hInstance, NULL);
+	                                                      
 	m_hWndWindowItems[LV_PROFILES] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_NOCOLUMNHEADER | LVS_REPORT | LVS_SHOWSELALWAYS |
-	                                                LVS_SINGLESEL, 3, clsGuiSettingManager::iEditHeight + 6, iProfilesWidth - 2, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 12, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                                  LVS_SINGLESEL, 3, clsGuiSettingManager::iEditHeight + 6, iProfilesWidth - 2, rcParent.bottom - (2 * clsGuiSettingManager::iEditHeight) - 12, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
 	::SendMessage(m_hWndWindowItems[LV_PROFILES], LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP);
 	
 	m_hWndWindowItems[BTN_MOVE_UP] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_MOVE_UP], WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (iProfilesWidth / 2) - 1, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_MOVE_UP, clsServerManager::hInstance, NULL);
-	                                                
-	m_hWndWindowItems[BTN_MOVE_DOWN] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_MOVE_DOWN], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                  (iProfilesWidth / 2) + 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, iProfilesWidth - (iProfilesWidth / 2), clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_MOVE_DOWN, clsServerManager::hInstance, NULL);
+	                                                  2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (iProfilesWidth / 2) - 1, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_MOVE_UP, clsServerManager::hInstance, NULL);
 	                                                  
+	m_hWndWindowItems[BTN_MOVE_DOWN] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_MOVE_DOWN], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+	                                                    (iProfilesWidth / 2) + 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, iProfilesWidth - (iProfilesWidth / 2), clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_MOVE_DOWN, clsServerManager::hInstance, NULL);
+	                                                    
 	m_hWndWindowItems[GB_PERMISSIONS] = ::CreateWindowEx(WS_EX_TRANSPARENT, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_PROFILE_PERMISSIONS],
-	                                                   WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | BS_GROUPBOX, iProfilesWidth + 4, 0, rcParent.right - (iProfilesWidth + 7), rcParent.bottom - 3,
-	                                                   m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
-	                                                   
+	                                                     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | BS_GROUPBOX, iProfilesWidth + 4, 0, rcParent.right - (iProfilesWidth + 7), rcParent.bottom - 3,
+	                                                     m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                                     
 	m_hWndWindowItems[LV_PERMISSIONS] = ::CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_NOCOLUMNHEADER | LVS_REPORT | LVS_SHOWSELALWAYS |
-	                                                   LVS_SINGLESEL, iProfilesWidth + 12, clsGuiSettingManager::iGroupBoxMargin, rcParent.right - (iProfilesWidth + 23), rcParent.bottom - clsGuiSettingManager::iGroupBoxMargin - clsGuiSettingManager::iEditHeight - 14,
-	                                                   m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                                     LVS_SINGLESEL, iProfilesWidth + 12, clsGuiSettingManager::iGroupBoxMargin, rcParent.right - (iProfilesWidth + 23), rcParent.bottom - clsGuiSettingManager::iGroupBoxMargin - clsGuiSettingManager::iEditHeight - 14,
+	                                                     m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
 	::SendMessage(m_hWndWindowItems[LV_PERMISSIONS], LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_CHECKBOXES);
 	
 	int iPermissionsWidth = rcParent.right - (iProfilesWidth + 17);
 	
 	m_hWndWindowItems[BTN_SET_ALL] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_SET_ALL], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                iProfilesWidth + 11, rcParent.bottom - clsGuiSettingManager::iEditHeight - 11, (iPermissionsWidth / 2) - 3, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_SET_ALL, clsServerManager::hInstance, NULL);
-	                                                
-	m_hWndWindowItems[BTN_CLEAR_ALL] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_CLEAR_ALL], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                  iProfilesWidth + 11 + (iPermissionsWidth / 2), rcParent.bottom - clsGuiSettingManager::iEditHeight - 11, rcParent.right - (iProfilesWidth + 21 + (iPermissionsWidth / 2)), clsGuiSettingManager::iEditHeight,
-	                                                  m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CLEAR_ALL, clsServerManager::hInstance, NULL);
+	                                                  iProfilesWidth + 11, rcParent.bottom - clsGuiSettingManager::iEditHeight - 11, (iPermissionsWidth / 2) - 3, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_SET_ALL, clsServerManager::hInstance, NULL);
 	                                                  
+	m_hWndWindowItems[BTN_CLEAR_ALL] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_CLEAR_ALL], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+	                                                    iProfilesWidth + 11 + (iPermissionsWidth / 2), rcParent.bottom - clsGuiSettingManager::iEditHeight - 11, rcParent.right - (iProfilesWidth + 21 + (iPermissionsWidth / 2)), clsGuiSettingManager::iEditHeight,
+	                                                    m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CLEAR_ALL, clsServerManager::hInstance, NULL);
+	                                                    
 	for (uint8_t ui8i = 0; ui8i < (sizeof(m_hWndWindowItems) / sizeof(m_hWndWindowItems[0])); ui8i++)
 	{
 		if (m_hWndWindowItems[ui8i] == NULL)

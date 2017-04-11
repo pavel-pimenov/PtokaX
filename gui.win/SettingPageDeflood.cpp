@@ -43,190 +43,190 @@ LRESULT SettingPageDeflood::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lPa
 	{
 		switch (LOWORD(wParam))
 		{
-			case EDT_GLOBAL_MAIN_CHAT_MSGS:
-			case EDT_GLOBAL_MAIN_CHAT_SECS:
-			case EDT_GLOBAL_MAIN_CHAT_SECS2:
-			case EDT_MAIN_CHAT_MSGS:
-			case EDT_MAIN_CHAT_SECS:
-			case EDT_MAIN_CHAT_MSGS2:
-			case EDT_MAIN_CHAT_SECS2:
-			case EDT_MAIN_CHAT_INTERVAL_MSGS:
-			case EDT_MAIN_CHAT_INTERVAL_SECS:
-			case EDT_SAME_MAIN_CHAT_MSGS:
-			case EDT_SAME_MAIN_CHAT_SECS:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 999);
-					
-					return 0;
-				}
+		case EDT_GLOBAL_MAIN_CHAT_MSGS:
+		case EDT_GLOBAL_MAIN_CHAT_SECS:
+		case EDT_GLOBAL_MAIN_CHAT_SECS2:
+		case EDT_MAIN_CHAT_MSGS:
+		case EDT_MAIN_CHAT_SECS:
+		case EDT_MAIN_CHAT_MSGS2:
+		case EDT_MAIN_CHAT_SECS2:
+		case EDT_MAIN_CHAT_INTERVAL_MSGS:
+		case EDT_MAIN_CHAT_INTERVAL_SECS:
+		case EDT_SAME_MAIN_CHAT_MSGS:
+		case EDT_SAME_MAIN_CHAT_SECS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 999);
 				
-				break;
-			case EDT_SAME_MULTI_MAIN_CHAT_MSGS:
-			case EDT_SAME_MULTI_MAIN_CHAT_LINES:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 2, 999);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_SAME_MULTI_MAIN_CHAT_MSGS:
+		case EDT_SAME_MULTI_MAIN_CHAT_LINES:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 2, 999);
 				
-				break;
-			case EDT_CTM_MSGS:
-			case EDT_CTM_SECS:
-			case EDT_CTM_MSGS2:
-			case EDT_CTM_SECS2:
-			case EDT_RCTM_MSGS:
-			case EDT_RCTM_SECS:
-			case EDT_RCTM_MSGS2:
-			case EDT_RCTM_SECS2:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 9999);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_CTM_MSGS:
+		case EDT_CTM_SECS:
+		case EDT_CTM_MSGS2:
+		case EDT_CTM_SECS2:
+		case EDT_RCTM_MSGS:
+		case EDT_RCTM_SECS:
+		case EDT_RCTM_MSGS2:
+		case EDT_RCTM_SECS2:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 9999);
 				
-				break;
-			case EDT_DEFLOOD_TEMP_BAN_TIME:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 32767);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_DEFLOOD_TEMP_BAN_TIME:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 32767);
 				
-				break;
-			case EDT_MAX_USERS_LOGINS:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 1000);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_MAX_USERS_LOGINS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 1000);
 				
-				break;
-			case CB_GLOBAL_MAIN_CHAT:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_GLOBAL_MAIN_CHAT], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_GLOBAL_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_GLOBAL_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_GLOBAL_MAIN_CHAT_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_GLOBAL_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_GLOBAL_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_GLOBAL_MAIN_CHAT_SEC], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_GLOBAL_MAIN_CHAT_FOR], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_GLOBAL_MAIN_CHAT_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_GLOBAL_MAIN_CHAT_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_GLOBAL_MAIN_CHAT_SEC2], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_MAIN_CHAT:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_MAIN_CHAT], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_MAIN_CHAT_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_MAIN_CHAT_SECONDS], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_MAIN_CHAT2:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_MAIN_CHAT2], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_MAIN_CHAT_MSGS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_MAIN_CHAT_MSGS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_MAIN_CHAT_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_MAIN_CHAT_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_MAIN_CHAT_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_MAIN_CHAT_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_SAME_MAIN_CHAT:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_SAME_MAIN_CHAT], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_SAME_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_SAME_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_SAME_MAIN_CHAT_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_SAME_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_SAME_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_SAME_MAIN_CHAT_SECONDS], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_SAME_MULTI_MAIN_CHAT:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_SAME_MULTI_MAIN_CHAT], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_SAME_MULTI_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_SAME_MULTI_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_SAME_MULTI_MAIN_CHAT_WITH], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_SAME_MULTI_MAIN_CHAT_LINES], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_SAME_MULTI_MAIN_CHAT_LINES], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_SAME_MULTI_MAIN_CHAT_LINES], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_CTM:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_CTM], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_CTM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_CTM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_CTM_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_CTM_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_CTM_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_CTM_SECONDS], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_CTM2:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_CTM2], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_CTM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_CTM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_CTM_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_CTM_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_CTM_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_CTM_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_RCTM:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_RCTM], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_RCTM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_RCTM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_RCTM_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_RCTM_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_RCTM_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_RCTM_SECONDS], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_RCTM2:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_RCTM2], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_RCTM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_RCTM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_RCTM_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_RCTM_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_RCTM_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_RCTM_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
+				return 0;
+			}
+			
+			break;
+		case CB_GLOBAL_MAIN_CHAT:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_GLOBAL_MAIN_CHAT], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_GLOBAL_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_GLOBAL_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_GLOBAL_MAIN_CHAT_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_GLOBAL_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_GLOBAL_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_GLOBAL_MAIN_CHAT_SEC], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_GLOBAL_MAIN_CHAT_FOR], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_GLOBAL_MAIN_CHAT_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_GLOBAL_MAIN_CHAT_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_GLOBAL_MAIN_CHAT_SEC2], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_MAIN_CHAT:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_MAIN_CHAT], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_MAIN_CHAT_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_MAIN_CHAT_SECONDS], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_MAIN_CHAT2:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_MAIN_CHAT2], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_MAIN_CHAT_MSGS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_MAIN_CHAT_MSGS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_MAIN_CHAT_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_MAIN_CHAT_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_MAIN_CHAT_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_MAIN_CHAT_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_SAME_MAIN_CHAT:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_SAME_MAIN_CHAT], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_SAME_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_SAME_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_SAME_MAIN_CHAT_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_SAME_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_SAME_MAIN_CHAT_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_SAME_MAIN_CHAT_SECONDS], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_SAME_MULTI_MAIN_CHAT:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_SAME_MULTI_MAIN_CHAT], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_SAME_MULTI_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_SAME_MULTI_MAIN_CHAT_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_SAME_MULTI_MAIN_CHAT_WITH], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_SAME_MULTI_MAIN_CHAT_LINES], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_SAME_MULTI_MAIN_CHAT_LINES], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_SAME_MULTI_MAIN_CHAT_LINES], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_CTM:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_CTM], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_CTM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_CTM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_CTM_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_CTM_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_CTM_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_CTM_SECONDS], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_CTM2:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_CTM2], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_CTM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_CTM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_CTM_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_CTM_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_CTM_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_CTM_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_RCTM:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_RCTM], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_RCTM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_RCTM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_RCTM_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_RCTM_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_RCTM_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_RCTM_SECONDS], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_RCTM2:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_RCTM2], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_RCTM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_RCTM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_RCTM_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_RCTM_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_RCTM_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_RCTM_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
 		}
 	}
 	

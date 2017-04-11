@@ -89,88 +89,88 @@ LRESULT ScriptEditorDialog::ScriptEditorDialogProc(UINT uMsg, WPARAM wParam, LPA
 {
 	switch (uMsg)
 	{
-		case WM_WINDOWPOSCHANGED:
+	case WM_WINDOWPOSCHANGED:
+	{
+		RECT rcParent;
+		::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
+		
+		::SetWindowPos(m_hWndWindowItems[BTN_SAVE_SCRIPT], NULL, (rcParent.right / 3) * 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
+		               rcParent.right - ((rcParent.right / 3) * 2) - 2, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[BTN_CHECK_SYNTAX], NULL, (rcParent.right / 3) + 1, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
+		               (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[BTN_LOAD_SCRIPT], NULL, 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
+		::SetWindowPos(m_hWndWindowItems[REDT_SCRIPT], NULL, 0, 0, rcParent.right - ScaleGui(40), rcParent.bottom - clsGuiSettingManager::iEditHeight - 4, SWP_NOMOVE | SWP_NOZORDER);
+		
+		return 0;
+	}
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
 		{
-			RECT rcParent;
-			::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
-			
-			::SetWindowPos(m_hWndWindowItems[BTN_SAVE_SCRIPT], NULL, (rcParent.right / 3) * 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
-			               rcParent.right - ((rcParent.right / 3) * 2) - 2, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[BTN_CHECK_SYNTAX], NULL, (rcParent.right / 3) + 1, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2,
-			               (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[BTN_LOAD_SCRIPT], NULL, 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, SWP_NOZORDER);
-			::SetWindowPos(m_hWndWindowItems[REDT_SCRIPT], NULL, 0, 0, rcParent.right - ScaleGui(40), rcParent.bottom - clsGuiSettingManager::iEditHeight - 4, SWP_NOMOVE | SWP_NOZORDER);
-			
+		case (REDT_SCRIPT+100):
+			if (HIWORD(wParam) == EN_UPDATE)
+			{
+				OnUpdate();
+			}
+			break;
+		case (BTN_LOAD_SCRIPT+100):
+			OnLoadScript();
+			return 0;
+		case BTN_CHECK_SYNTAX:
+			OnCheckSyntax();
+			return 0;
+		case BTN_SAVE_SCRIPT:
+			OnSaveScript();
+			return 0;
+		case IDOK:
+		case IDCANCEL:
+			::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
 			return 0;
 		}
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
-			{
-				case (REDT_SCRIPT+100):
-					if (HIWORD(wParam) == EN_UPDATE)
-					{
-						OnUpdate();
-					}
-					break;
-				case (BTN_LOAD_SCRIPT+100):
-					OnLoadScript();
-					return 0;
-				case BTN_CHECK_SYNTAX:
-					OnCheckSyntax();
-					return 0;
-				case BTN_SAVE_SCRIPT:
-					OnSaveScript();
-					return 0;
-				case IDOK:
-				case IDCANCEL:
-					::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
-					return 0;
-			}
-			
-			if (RichEditCheckMenuCommands(m_hWndWindowItems[REDT_SCRIPT], LOWORD(wParam)) == true)
-			{
-				return 0;
-			}
-			
-			break;
-		case WM_CONTEXTMENU:
-			OnContextMenu((HWND)wParam, lParam);
-			break;
-		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[REDT_SCRIPT] && ((LPNMHDR)lParam)->code == EN_LINK)
-			{
-				if (((ENLINK *)lParam)->msg == WM_LBUTTONUP)
-				{
-					RichEditOpenLink(m_hWndWindowItems[REDT_SCRIPT], (ENLINK *)lParam);
-				}
-			}
-			
-			break;
-		case WM_GETMINMAXINFO:
+		
+		if (RichEditCheckMenuCommands(m_hWndWindowItems[REDT_SCRIPT], LOWORD(wParam)) == true)
 		{
-			MINMAXINFO *mminfo = (MINMAXINFO*)lParam;
-			mminfo->ptMinTrackSize.x = ScaleGui(443);
-			mminfo->ptMinTrackSize.y = ScaleGui(454);
-			
 			return 0;
 		}
-		case WM_CLOSE:
-			::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
-			clsServerManager::hWndActiveDialog = nullptr;
-			break;
-		case WM_NCDESTROY:
+		
+		break;
+	case WM_CONTEXTMENU:
+		OnContextMenu((HWND)wParam, lParam);
+		break;
+	case WM_NOTIFY:
+		if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[REDT_SCRIPT] && ((LPNMHDR)lParam)->code == EN_LINK)
 		{
-			HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
-			delete this;
-			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+			if (((ENLINK *)lParam)->msg == WM_LBUTTONUP)
+			{
+				RichEditOpenLink(m_hWndWindowItems[REDT_SCRIPT], (ENLINK *)lParam);
+			}
 		}
-		case WM_SETFOCUS:
-		{
-			CHARRANGE cr = { 0, 0 };
-			::SendMessage(m_hWndWindowItems[REDT_SCRIPT], EM_EXSETSEL, 0, (LPARAM)&cr);
-			::SetFocus(m_hWndWindowItems[REDT_SCRIPT]);
-			return 0;
-		}
+		
+		break;
+	case WM_GETMINMAXINFO:
+	{
+		MINMAXINFO *mminfo = (MINMAXINFO*)lParam;
+		mminfo->ptMinTrackSize.x = ScaleGui(443);
+		mminfo->ptMinTrackSize.y = ScaleGui(454);
+		
+		return 0;
+	}
+	case WM_CLOSE:
+		::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
+		clsServerManager::hWndActiveDialog = nullptr;
+		break;
+	case WM_NCDESTROY:
+	{
+		HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
+		delete this;
+		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+	case WM_SETFOCUS:
+	{
+		CHARRANGE cr = { 0, 0 };
+		::SendMessage(m_hWndWindowItems[REDT_SCRIPT], EM_EXSETSEL, 0, (LPARAM)&cr);
+		::SetFocus(m_hWndWindowItems[REDT_SCRIPT]);
+		return 0;
+	}
 	}
 	
 	return ::DefWindowProc(m_hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
@@ -201,9 +201,9 @@ void ScriptEditorDialog::DoModal(HWND hWndParent)
 	int iY = (rcParent.top + ((rcParent.bottom - rcParent.top) / 2)) - (ScaleGui(454) / 2);
 	
 	m_hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomScriptEditorDialog), clsLanguageManager::mPtr->sTexts[LAN_SCRIPT_EDITOR],
-	                                                  WS_POPUP | WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGui(443), ScaleGui(454),
-	                                                  hWndParent, NULL, clsServerManager::hInstance, NULL);
-	                                                  
+	                                                    WS_POPUP | WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU | WS_SIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGui(443), ScaleGui(454),
+	                                                    hWndParent, NULL, clsServerManager::hInstance, NULL);
+	                                                    
 	if (m_hWndWindowItems[WINDOW_HANDLE] == NULL)
 	{
 		return;
@@ -217,14 +217,14 @@ void ScriptEditorDialog::DoModal(HWND hWndParent)
 	::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
 	
 	m_hWndWindowItems[REDT_SCRIPT] = ::CreateWindowEx(WS_EX_CLIENTEDGE, /*MSFTEDIT_CLASS*/RICHEDIT_CLASS, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_HSCROLL | WS_VSCROLL | ES_AUTOVSCROLL | ES_MULTILINE |
-	                                                ES_WANTRETURN, ScaleGui(40), 0, rcParent.right - ScaleGui(40), rcParent.bottom - clsGuiSettingManager::iEditHeight - 4, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(REDT_SCRIPT + 100), clsServerManager::hInstance, NULL);
+	                                                  ES_WANTRETURN, ScaleGui(40), 0, rcParent.right - ScaleGui(40), rcParent.bottom - clsGuiSettingManager::iEditHeight - 4, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(REDT_SCRIPT + 100), clsServerManager::hInstance, NULL);
 	::SendMessage(m_hWndWindowItems[REDT_SCRIPT], EM_EXLIMITTEXT, 0, (LPARAM)16777216);
 	::SendMessage(m_hWndWindowItems[REDT_SCRIPT], EM_AUTOURLDETECT, TRUE, 0);
 	::SendMessage(m_hWndWindowItems[REDT_SCRIPT], EM_SETEVENTMASK, 0, (LPARAM)::SendMessage(m_hWndWindowItems[REDT_SCRIPT], EM_GETEVENTMASK, 0, 0) | ENM_LINK);
 	
 	m_hWndWindowItems[BTN_LOAD_SCRIPT] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_LOAD_SCRIPT], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                    2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_LOAD_SCRIPT + 100), clsServerManager::hInstance, NULL);
-	                                                    
+	                                                      2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)(BTN_LOAD_SCRIPT + 100), clsServerManager::hInstance, NULL);
+	                                                      
 	{
 		DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON;
 		if (clsSettingManager::mPtr->bBools[SETBOOL_ENABLE_SCRIPTING] == false || clsServerManager::bServerRunning == false)
@@ -233,13 +233,13 @@ void ScriptEditorDialog::DoModal(HWND hWndParent)
 		}
 		
 		m_hWndWindowItems[BTN_CHECK_SYNTAX] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_CHECK_SYNTAX], dwStyle,
-		                                                     (rcParent.right / 3) + 1, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CHECK_SYNTAX, clsServerManager::hInstance, NULL);
+		                                                       (rcParent.right / 3) + 1, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, (rcParent.right / 3) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_CHECK_SYNTAX, clsServerManager::hInstance, NULL);
 	}
 	
 	m_hWndWindowItems[BTN_SAVE_SCRIPT] = ::CreateWindowEx(0, WC_BUTTON, clsLanguageManager::mPtr->sTexts[LAN_SAVE_SCRIPT], WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-	                                                    (rcParent.right / 3) * 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, rcParent.right - ((rcParent.right / 3) * 2) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_SAVE_SCRIPT,
-	                                                    clsServerManager::hInstance, NULL);
-	                                                    
+	                                                      (rcParent.right / 3) * 2, rcParent.bottom - clsGuiSettingManager::iEditHeight - 2, rcParent.right - ((rcParent.right / 3) * 2) - 2, clsGuiSettingManager::iEditHeight, m_hWndWindowItems[WINDOW_HANDLE], (HMENU)BTN_SAVE_SCRIPT,
+	                                                      clsServerManager::hInstance, NULL);
+	                                                      
 	for (uint8_t ui8i = 0; ui8i < (sizeof(m_hWndWindowItems) / sizeof(m_hWndWindowItems[0])); ui8i++)
 	{
 		if (m_hWndWindowItems[ui8i] == NULL)

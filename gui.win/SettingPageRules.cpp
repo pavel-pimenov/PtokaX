@@ -43,128 +43,128 @@ LRESULT SettingPageRules::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lPara
 	{
 		switch (LOWORD(wParam))
 		{
-			case EDT_NICK_LEN_MSG:
-			case EDT_NICK_LEN_REDIR_ADDR:
-			case EDT_SHARE_MSG:
-			case EDT_SHARE_REDIR_ADDR:
-				if (HIWORD(wParam) == EN_CHANGE)
+		case EDT_NICK_LEN_MSG:
+		case EDT_NICK_LEN_REDIR_ADDR:
+		case EDT_SHARE_MSG:
+		case EDT_SHARE_REDIR_ADDR:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				RemovePipes((HWND)lParam);
+				
+				return 0;
+			}
+			
+			break;
+		case EDT_MIN_NICK_LEN:
+		case EDT_MAX_NICK_LEN:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 64);
+				
+				uint16_t ui16Min = 0, ui16Max = 0;
+				
+				LRESULT lResult = ::SendMessage(hWndPageItems[UD_MIN_NICK_LEN], UDM_GETPOS, 0, 0);
+				if (HIWORD(lResult) == 0)
 				{
-					RemovePipes((HWND)lParam);
-					
-					return 0;
+					ui16Min = LOWORD(lResult);
 				}
 				
-				break;
-			case EDT_MIN_NICK_LEN:
-			case EDT_MAX_NICK_LEN:
-				if (HIWORD(wParam) == EN_CHANGE)
+				lResult = ::SendMessage(hWndPageItems[UD_MAX_NICK_LEN], UDM_GETPOS, 0, 0);
+				if (HIWORD(lResult) == 0)
 				{
-					MinMaxCheck((HWND)lParam, 0, 64);
-					
-					uint16_t ui16Min = 0, ui16Max = 0;
-					
-					LRESULT lResult = ::SendMessage(hWndPageItems[UD_MIN_NICK_LEN], UDM_GETPOS, 0, 0);
-					if (HIWORD(lResult) == 0)
-					{
-						ui16Min = LOWORD(lResult);
-					}
-					
-					lResult = ::SendMessage(hWndPageItems[UD_MAX_NICK_LEN], UDM_GETPOS, 0, 0);
-					if (HIWORD(lResult) == 0)
-					{
-						ui16Max = LOWORD(lResult);
-					}
-					
-					if (ui16Min == 0 && ui16Max == 0)
-					{
-						::EnableWindow(hWndPageItems[EDT_NICK_LEN_MSG], FALSE);
-						::EnableWindow(hWndPageItems[BTN_NICK_LEN_REDIR], FALSE);
-						::EnableWindow(hWndPageItems[EDT_NICK_LEN_REDIR_ADDR], FALSE);
-					}
-					else
-					{
-						::EnableWindow(hWndPageItems[EDT_NICK_LEN_MSG], TRUE);
-						::EnableWindow(hWndPageItems[BTN_NICK_LEN_REDIR], TRUE);
-						::EnableWindow(hWndPageItems[EDT_NICK_LEN_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_NICK_LEN_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-					}
-					
-					return 0;
+					ui16Max = LOWORD(lResult);
 				}
 				
-				break;
-			case BTN_NICK_LEN_REDIR:
-				if (HIWORD(wParam) == BN_CLICKED)
+				if (ui16Min == 0 && ui16Max == 0)
 				{
+					::EnableWindow(hWndPageItems[EDT_NICK_LEN_MSG], FALSE);
+					::EnableWindow(hWndPageItems[BTN_NICK_LEN_REDIR], FALSE);
+					::EnableWindow(hWndPageItems[EDT_NICK_LEN_REDIR_ADDR], FALSE);
+				}
+				else
+				{
+					::EnableWindow(hWndPageItems[EDT_NICK_LEN_MSG], TRUE);
+					::EnableWindow(hWndPageItems[BTN_NICK_LEN_REDIR], TRUE);
 					::EnableWindow(hWndPageItems[EDT_NICK_LEN_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_NICK_LEN_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
 				}
 				
-				break;
-			case EDT_MIN_SHARE:
-			case EDT_MAX_SHARE:
-				if (HIWORD(wParam) == EN_CHANGE)
+				return 0;
+			}
+			
+			break;
+		case BTN_NICK_LEN_REDIR:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[EDT_NICK_LEN_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_NICK_LEN_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case EDT_MIN_SHARE:
+		case EDT_MAX_SHARE:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 9999);
+				
+				uint16_t ui16Min = 0, ui16Max = 0;
+				
+				LRESULT lResult = ::SendMessage(hWndPageItems[UD_MIN_SHARE], UDM_GETPOS, 0, 0);
+				if (HIWORD(lResult) == 0)
 				{
-					MinMaxCheck((HWND)lParam, 0, 9999);
-					
-					uint16_t ui16Min = 0, ui16Max = 0;
-					
-					LRESULT lResult = ::SendMessage(hWndPageItems[UD_MIN_SHARE], UDM_GETPOS, 0, 0);
-					if (HIWORD(lResult) == 0)
-					{
-						ui16Min = LOWORD(lResult);
-					}
-					
-					lResult = ::SendMessage(hWndPageItems[UD_MAX_SHARE], UDM_GETPOS, 0, 0);
-					if (HIWORD(lResult) == 0)
-					{
-						ui16Max = LOWORD(lResult);
-					}
-					
-					if (ui16Min == 0 && ui16Max == 0)
-					{
-						::EnableWindow(hWndPageItems[EDT_SHARE_MSG], FALSE);
-						::EnableWindow(hWndPageItems[BTN_SHARE_REDIR], FALSE);
-						::EnableWindow(hWndPageItems[EDT_SHARE_REDIR_ADDR], FALSE);
-					}
-					else
-					{
-						::EnableWindow(hWndPageItems[EDT_SHARE_MSG], TRUE);
-						::EnableWindow(hWndPageItems[BTN_SHARE_REDIR], TRUE);
-						::EnableWindow(hWndPageItems[EDT_SHARE_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_SHARE_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
-					}
-					
-					return 0;
+					ui16Min = LOWORD(lResult);
 				}
 				
-				break;
-			case BTN_SHARE_REDIR:
-				if (HIWORD(wParam) == BN_CLICKED)
+				lResult = ::SendMessage(hWndPageItems[UD_MAX_SHARE], UDM_GETPOS, 0, 0);
+				if (HIWORD(lResult) == 0)
 				{
+					ui16Max = LOWORD(lResult);
+				}
+				
+				if (ui16Min == 0 && ui16Max == 0)
+				{
+					::EnableWindow(hWndPageItems[EDT_SHARE_MSG], FALSE);
+					::EnableWindow(hWndPageItems[BTN_SHARE_REDIR], FALSE);
+					::EnableWindow(hWndPageItems[EDT_SHARE_REDIR_ADDR], FALSE);
+				}
+				else
+				{
+					::EnableWindow(hWndPageItems[EDT_SHARE_MSG], TRUE);
+					::EnableWindow(hWndPageItems[BTN_SHARE_REDIR], TRUE);
 					::EnableWindow(hWndPageItems[EDT_SHARE_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_SHARE_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
 				}
 				
-				break;
-			case UD_MAIN_CHAT_LEN:
-			case UD_PM_LEN:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 0, 32767);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case BTN_SHARE_REDIR:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				::EnableWindow(hWndPageItems[EDT_SHARE_REDIR_ADDR], ::SendMessage(hWndPageItems[BTN_SHARE_REDIR], BM_GETCHECK, 0, 0) == BST_CHECKED ? TRUE : FALSE);
+			}
+			
+			break;
+		case UD_MAIN_CHAT_LEN:
+		case UD_PM_LEN:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 32767);
 				
-				break;
-			case UD_MAIN_CHAT_LINES:
-			case UD_PM_LINES:
-			case UD_SEARCH_MIN_LEN:
-			case UD_SEARCH_MAX_LEN:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 0, 999);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case UD_MAIN_CHAT_LINES:
+		case UD_PM_LINES:
+		case UD_SEARCH_MIN_LEN:
+		case UD_SEARCH_MAX_LEN:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 999);
 				
-				break;
+				return 0;
+			}
+			
+			break;
 		}
 	}
 	

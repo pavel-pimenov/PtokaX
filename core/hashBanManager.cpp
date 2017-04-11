@@ -1709,9 +1709,9 @@ void BanManager::LoadXML()
 			if (iMsgLen > 0)
 			{
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+				::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-			AppendLog(ServerManager::m_pGlobalBuffer);
+				AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 			}
 			exit(EXIT_FAILURE);
@@ -3747,8 +3747,8 @@ bool BanManager::RangeBan(const char * m_sIpFrom, const uint8_t * ui128FromIpHas
 		curBan = nxtBan;
 		nxtBan = curBan->m_pNext;
 		
-		if (memcmp(curBan->m_ui128FromIpHash, pRangeBan->m_ui128FromIpHash, 16) != 0 || 
-			memcmp(curBan->m_ui128ToIpHash, pRangeBan->m_ui128ToIpHash, 16) != 0)
+		if (memcmp(curBan->m_ui128FromIpHash, pRangeBan->m_ui128FromIpHash, 16) != 0 ||
+		        memcmp(curBan->m_ui128ToIpHash, pRangeBan->m_ui128ToIpHash, 16) != 0)
 		{
 			continue;
 		}
@@ -3812,7 +3812,7 @@ bool BanManager::RangeBan(const char * m_sIpFrom, const uint8_t * ui128FromIpHas
 //---------------------------------------------------------------------------
 
 bool BanManager::RangeTempBan(const char * m_sIpFrom, const uint8_t * ui128FromIpHash, const char * m_sIpTo, const uint8_t * ui128ToIpHash, const char * sReason, const char * sBy, const uint32_t minutes,
-                                 const time_t &expiretime, const bool bFull)
+                              const time_t &expiretime, const bool bFull)
 {
 	RangeBanItem * pRangeBan = new (std::nothrow) RangeBanItem();
 	if (pRangeBan == NULL)

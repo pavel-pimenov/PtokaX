@@ -182,69 +182,69 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
 			
 			switch (szParamLen)
 			{
-				case 7:
-					if (strnicmp(sParam, "/notray", 7) == NULL)
+			case 7:
+				if (strnicmp(sParam, "/notray", 7) == NULL)
+				{
+					clsServerManager::bCmdNoTray = true;
+				}
+				break;
+			case 10:
+				if (strnicmp(sParam, "/autostart", 10) == NULL)
+				{
+					clsServerManager::bCmdAutoStart = true;
+				}
+				break;
+			case 12:
+				if (strnicmp(sParam, "/noautostart", 12) == NULL)
+				{
+					clsServerManager::bCmdNoAutoStart = true;
+				}
+				break;
+			case 20:
+				if (strnicmp(sParam, "/generatexmllanguage", 20) == NULL)
+				{
+					clsLanguageManager::GenerateXmlExample();
+					return 0;
+				}
+				break;
+			default:
+				if (strnicmp(sParam, "-c ", 3) == NULL)
+				{
+					szLen = strlen(sParam + 3);
+					if (szLen == 0)
 					{
-						clsServerManager::bCmdNoTray = true;
-					}
-					break;
-				case 10:
-					if (strnicmp(sParam, "/autostart", 10) == NULL)
-					{
-						clsServerManager::bCmdAutoStart = true;
-					}
-					break;
-				case 12:
-					if (strnicmp(sParam, "/noautostart", 12) == NULL)
-					{
-						clsServerManager::bCmdNoAutoStart = true;
-					}
-					break;
-				case 20:
-					if (strnicmp(sParam, "/generatexmllanguage", 20) == NULL)
-					{
-						clsLanguageManager::GenerateXmlExample();
+						::MessageBox(NULL, "Missing config directory!", "Error!", MB_OK);
 						return 0;
 					}
-					break;
-				default:
-					if (strnicmp(sParam, "-c ", 3) == NULL)
+					
+					if (szLen >= 1 && sParam[0] != '\\' && sParam[0] != '/')
 					{
-						szLen = strlen(sParam + 3);
-						if (szLen == 0)
+						if (szLen < 4 || (sParam[1] != ':' || (sParam[2] != '\\' && sParam[2] != '/')))
 						{
-							::MessageBox(NULL, "Missing config directory!", "Error!", MB_OK);
+							::MessageBox(NULL, "Config directory must be absolute path!", "Error!", MB_OK);
 							return 0;
 						}
-						
-						if (szLen >= 1 && sParam[0] != '\\' && sParam[0] != '/')
+					}
+					
+					if (sParam[szLen - 1] == '/' || sParam[szLen - 1] == '\\')
+					{
+						clsServerManager::sPath = string(sParam, szLen - 1);
+					}
+					else
+					{
+						clsServerManager::sPath = string(sParam, szLen);
+					}
+					
+					if (DirExist(clsServerManager::sPath.c_str()) == false)
+					{
+						if (CreateDirectory(clsServerManager::sPath.c_str(), NULL) == 0)
 						{
-							if (szLen < 4 || (sParam[1] != ':' || (sParam[2] != '\\' && sParam[2] != '/')))
-							{
-								::MessageBox(NULL, "Config directory must be absolute path!", "Error!", MB_OK);
-								return 0;
-							}
-						}
-						
-						if (sParam[szLen - 1] == '/' || sParam[szLen - 1] == '\\')
-						{
-							clsServerManager::sPath = string(sParam, szLen - 1);
-						}
-						else
-						{
-							clsServerManager::sPath = string(sParam, szLen);
-						}
-						
-						if (DirExist(clsServerManager::sPath.c_str()) == false)
-						{
-							if (CreateDirectory(clsServerManager::sPath.c_str(), NULL) == 0)
-							{
-								::MessageBox(NULL, "Config directory not exist and can't be created!", "Error!", MB_OK);
-								return 0;
-							}
+							::MessageBox(NULL, "Config directory not exist and can't be created!", "Error!", MB_OK);
+							return 0;
 						}
 					}
-					break;
+				}
+				break;
 			}
 			
 			sParam = lpCmdLine + szi + 1;

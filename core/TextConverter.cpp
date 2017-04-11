@@ -218,17 +218,17 @@ size_t TextConverter::CheckUtf8AndConvert(const char * sInput, const uint8_t ui8
 		}
 		else if (errno == EILSEQ)
 		{
-				string sMsg = "[LOG] TextConverter::DoIconv iconv EILSEQ for param: " + string(sInput, ui8InputLen);
-				UdpDebug::m_Ptr->Broadcast(sMsg.c_str(), sMsg.size());
+			string sMsg = "[LOG] TextConverter::DoIconv iconv EILSEQ for param: " + string(sInput, ui8InputLen);
+			UdpDebug::m_Ptr->Broadcast(sMsg.c_str(), sMsg.size());
 		}
 		else if (errno == EINVAL)
 		{
 			string sMsg = "[LOG] TextConverter::DoIconv iconv EINVAL for param: " + string(sInput, ui8InputLen);
 			UdpDebug::m_Ptr->Broadcast(sMsg.c_str(), sMsg.size());
 		}
-			sOutput[0] = '\0';
-			return 0;
-		}
+		sOutput[0] = '\0';
+		return 0;
+	}
 	
 	sOutput[(ui8OutputSize - szOutbufLeft) - 1] = '\0';
 	return (ui8OutputSize - szOutbufLeft) - 1;

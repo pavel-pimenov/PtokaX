@@ -58,39 +58,39 @@ LRESULT clsUpdateDialog::UpdateDialogProc(UINT uMsg, WPARAM wParam, LPARAM lPara
 {
 	switch (uMsg)
 	{
-		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[REDT_UPDATE] && ((LPNMHDR)lParam)->code == EN_LINK)
-			{
-				if (((ENLINK *)lParam)->msg == WM_LBUTTONUP)
-				{
-					RichEditOpenLink(m_hWndWindowItems[REDT_UPDATE], (ENLINK *)lParam);
-				}
-			}
-			
-			break;
-		case WM_CLOSE:
-			::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
-			clsServerManager::hWndActiveDialog = nullptr;
-			break;
-		case WM_NCDESTROY:
+	case WM_NOTIFY:
+		if (((LPNMHDR)lParam)->hwndFrom == m_hWndWindowItems[REDT_UPDATE] && ((LPNMHDR)lParam)->code == EN_LINK)
 		{
-			HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
-			delete this;
-			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
-		}
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
+			if (((ENLINK *)lParam)->msg == WM_LBUTTONUP)
 			{
-				case IDOK:
-				case IDCANCEL:
-					::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
-					return 0;
+				RichEditOpenLink(m_hWndWindowItems[REDT_UPDATE], (ENLINK *)lParam);
 			}
-			
-			break;
-		case WM_SETFOCUS:
-			::SetFocus(m_hWndWindowItems[REDT_UPDATE]);
+		}
+		
+		break;
+	case WM_CLOSE:
+		::EnableWindow(::GetParent(m_hWndWindowItems[WINDOW_HANDLE]), TRUE);
+		clsServerManager::hWndActiveDialog = nullptr;
+		break;
+	case WM_NCDESTROY:
+	{
+		HWND hWnd = m_hWndWindowItems[WINDOW_HANDLE];
+		delete this;
+		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDOK:
+		case IDCANCEL:
+			::PostMessage(m_hWndWindowItems[WINDOW_HANDLE], WM_CLOSE, 0, 0);
 			return 0;
+		}
+		
+		break;
+	case WM_SETFOCUS:
+		::SetFocus(m_hWndWindowItems[REDT_UPDATE]);
+		return 0;
 	}
 	
 	return ::DefWindowProc(m_hWndWindowItems[WINDOW_HANDLE], uMsg, wParam, lParam);
@@ -121,9 +121,9 @@ void clsUpdateDialog::DoModal(HWND hWndParent)
 	int iY = (rcParent.top + ((rcParent.bottom - rcParent.top) / 2)) - (ScaleGui(460) / 2);
 	
 	m_hWndWindowItems[WINDOW_HANDLE] = ::CreateWindowEx(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE, MAKEINTATOM(atomUpdateDialog), clsLanguageManager::mPtr->sTexts[LAN_CHECKING_FOR_UPDATE],
-	                                                  WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGui(500), ScaleGui(460),
-	                                                  hWndParent, NULL, clsServerManager::hInstance, NULL);
-	                                                  
+	                                                    WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, iX >= 5 ? iX : 5, iY >= 5 ? iY : 5, ScaleGui(500), ScaleGui(460),
+	                                                    hWndParent, NULL, clsServerManager::hInstance, NULL);
+	                                                    
 	if (m_hWndWindowItems[WINDOW_HANDLE] == NULL)
 	{
 		return;
@@ -136,7 +136,7 @@ void clsUpdateDialog::DoModal(HWND hWndParent)
 	::GetClientRect(m_hWndWindowItems[WINDOW_HANDLE], &rcParent);
 	
 	m_hWndWindowItems[REDT_UPDATE] = ::CreateWindowEx(WS_EX_CLIENTEDGE, /*MSFTEDIT_CLASS*/RICHEDIT_CLASS, "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY,
-	                                                5, 5, rcParent.right - 10, rcParent.bottom - 10, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
+	                                                  5, 5, rcParent.right - 10, rcParent.bottom - 10, m_hWndWindowItems[WINDOW_HANDLE], NULL, clsServerManager::hInstance, NULL);
 	::SendMessage(m_hWndWindowItems[REDT_UPDATE], EM_SETBKGNDCOLOR, 0, ::GetSysColor(COLOR_3DFACE));
 	::SendMessage(m_hWndWindowItems[REDT_UPDATE], EM_AUTOURLDETECT, TRUE, 0);
 	::SendMessage(m_hWndWindowItems[REDT_UPDATE], EM_SETEVENTMASK, 0, (LPARAM)::SendMessage(m_hWndWindowItems[REDT_UPDATE], EM_GETEVENTMASK, 0, 0) | ENM_LINK);

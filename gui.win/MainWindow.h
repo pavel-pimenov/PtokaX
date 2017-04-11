@@ -29,47 +29,47 @@
 
 class clsMainWindow
 {
-	public:
-		static clsMainWindow * mPtr;
-		
-		HWND m_hWnd;
-		
-		HWND m_hWndWindowItems[1];
-		
-		enum enmWindowItems
-		{
-			TC_TABS
-		};
-		
-		clsMainWindow();
-		~clsMainWindow();
-		
-		static LRESULT CALLBACK StaticMainWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-		
-		HWND CreateEx();
-		
-		void UpdateSysTray() const;
-		void UpdateStats() const;
-		void UpdateTitleBar();
-		void UpdateLanguage();
-		void EnableStartButton(const BOOL &bEnable) const;
-		void SetStartButtonText(const char * sText) const;
-		void SetStatusValue(const char * sText) const;
-		void EnableGuiItems(const BOOL &bEnable) const;
-		static void SaveGuiSettings();
-	private:
-		uint64_t ui64LastTrayMouseMove;
-		
-		MainWindowPage * MainWindowPages[3];
-		
-		UINT uiTaskBarCreated;
-		
-		
-		LRESULT MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-		
-		void OnSelChanged();
-		
-		DISALLOW_COPY_AND_ASSIGN(clsMainWindow);
+public:
+	static clsMainWindow * mPtr;
+	
+	HWND m_hWnd;
+	
+	HWND m_hWndWindowItems[1];
+	
+	enum enmWindowItems
+	{
+		TC_TABS
+	};
+	
+	clsMainWindow();
+	~clsMainWindow();
+	
+	static LRESULT CALLBACK StaticMainWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
+	HWND CreateEx();
+	
+	void UpdateSysTray() const;
+	void UpdateStats() const;
+	void UpdateTitleBar();
+	void UpdateLanguage();
+	void EnableStartButton(const BOOL &bEnable) const;
+	void SetStartButtonText(const char * sText) const;
+	void SetStatusValue(const char * sText) const;
+	void EnableGuiItems(const BOOL &bEnable) const;
+	static void SaveGuiSettings();
+private:
+	uint64_t ui64LastTrayMouseMove;
+	
+	MainWindowPage * MainWindowPages[3];
+	
+	UINT uiTaskBarCreated;
+	
+	
+	LRESULT MainWindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
+	void OnSelChanged();
+	
+	DISALLOW_COPY_AND_ASSIGN(clsMainWindow);
 };
 //------------------------------------------------------------------------------
 

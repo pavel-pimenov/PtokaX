@@ -312,9 +312,9 @@ void SettingManager::Load()
 		if (iMsgLen > 0)
 		{
 #ifdef _BUILD_GUI
-		::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+			::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-		AppendLog(ServerManager::m_pGlobalBuffer);
+			AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 		}
 		
@@ -389,9 +389,9 @@ void SettingManager::LoadXML()
 			if (iMsgLen > 0)
 			{
 #ifdef _BUILD_GUI
-			::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
+				::MessageBox(NULL, ServerManager::m_pGlobalBuffer, g_sPtokaXTitle, MB_OK | MB_ICONERROR);
 #else
-			AppendLog(ServerManager::m_pGlobalBuffer);
+				AppendLog(ServerManager::m_pGlobalBuffer);
 #endif
 			}
 			
@@ -670,99 +670,99 @@ void SettingManager::SetBool(const size_t szBoolId, const bool bValue)
 	
 	switch (szBoolId)
 	{
-		case SETBOOL_REG_BOT:
-			UpdateBotsSameNick();
-			if (bValue == false)
-			{
-				DisableBot();
-			}
-			UpdateBot();
-			break;
-		case SETBOOL_REG_OP_CHAT:
-			UpdateBotsSameNick();
-			if (bValue == false)
-			{
-				DisableOpChat();
-			}
-			UpdateOpChat();
-			break;
-		case SETBOOL_USE_BOT_NICK_AS_HUB_SEC:
-			UpdateHubSec();
-			UpdateMOTD();
-			UpdateHubNameWelcome();
-			UpdateRegOnlyMessage();
-			UpdateShareLimitMessage();
-			UpdateSlotsLimitMessage();
-			UpdateHubSlotRatioMessage();
-			UpdateMaxHubsLimitMessage();
-			UpdateNoTagMessage();
-			UpdateNickLimitMessage();
-			break;
-		case SETBOOL_DISABLE_MOTD:
-		case SETBOOL_MOTD_AS_PM:
-			UpdateMOTD();
-			break;
-		case SETBOOL_REG_ONLY_REDIR:
-			UpdateRegOnlyMessage();
-			break;
-		case SETBOOL_SHARE_LIMIT_REDIR:
-			UpdateShareLimitMessage();
-			break;
-		case SETBOOL_SLOTS_LIMIT_REDIR:
-			UpdateSlotsLimitMessage();
-			break;
-		case SETBOOL_HUB_SLOT_RATIO_REDIR:
-			UpdateHubSlotRatioMessage();
-			break;
-		case SETBOOL_MAX_HUBS_LIMIT_REDIR:
-			UpdateMaxHubsLimitMessage();
-			break;
-		case SETBOOL_NICK_LIMIT_REDIR:
-			UpdateNickLimitMessage();
-			break;
-		case SETBOOL_ENABLE_TEXT_FILES:
-			if (bValue == true && m_bUpdateLocked == false)
-			{
-				TextFilesManager::m_Ptr->RefreshTextFiles();
-			}
-			break;
+	case SETBOOL_REG_BOT:
+		UpdateBotsSameNick();
+		if (bValue == false)
+		{
+			DisableBot();
+		}
+		UpdateBot();
+		break;
+	case SETBOOL_REG_OP_CHAT:
+		UpdateBotsSameNick();
+		if (bValue == false)
+		{
+			DisableOpChat();
+		}
+		UpdateOpChat();
+		break;
+	case SETBOOL_USE_BOT_NICK_AS_HUB_SEC:
+		UpdateHubSec();
+		UpdateMOTD();
+		UpdateHubNameWelcome();
+		UpdateRegOnlyMessage();
+		UpdateShareLimitMessage();
+		UpdateSlotsLimitMessage();
+		UpdateHubSlotRatioMessage();
+		UpdateMaxHubsLimitMessage();
+		UpdateNoTagMessage();
+		UpdateNickLimitMessage();
+		break;
+	case SETBOOL_DISABLE_MOTD:
+	case SETBOOL_MOTD_AS_PM:
+		UpdateMOTD();
+		break;
+	case SETBOOL_REG_ONLY_REDIR:
+		UpdateRegOnlyMessage();
+		break;
+	case SETBOOL_SHARE_LIMIT_REDIR:
+		UpdateShareLimitMessage();
+		break;
+	case SETBOOL_SLOTS_LIMIT_REDIR:
+		UpdateSlotsLimitMessage();
+		break;
+	case SETBOOL_HUB_SLOT_RATIO_REDIR:
+		UpdateHubSlotRatioMessage();
+		break;
+	case SETBOOL_MAX_HUBS_LIMIT_REDIR:
+		UpdateMaxHubsLimitMessage();
+		break;
+	case SETBOOL_NICK_LIMIT_REDIR:
+		UpdateNickLimitMessage();
+		break;
+	case SETBOOL_ENABLE_TEXT_FILES:
+		if (bValue == true && m_bUpdateLocked == false)
+		{
+			TextFilesManager::m_Ptr->RefreshTextFiles();
+		}
+		break;
 #ifdef _BUILD_GUI
-		case SETBOOL_ENABLE_TRAY_ICON:
-			if (m_bUpdateLocked == false)
-			{
-				MainWindow::m_Ptr->UpdateSysTray();
-			}
-			
-			break;
+	case SETBOOL_ENABLE_TRAY_ICON:
+		if (m_bUpdateLocked == false)
+		{
+			MainWindow::m_Ptr->UpdateSysTray();
+		}
+		
+		break;
 #endif
 #ifdef FLYLINKDC_REMOVE_REGISTER_THREAD
-		case SETBOOL_AUTO_REG:
-			if (m_bUpdateLocked == false)
-			{
-				ServerManager::UpdateAutoRegState();
-			}
-			break;
+	case SETBOOL_AUTO_REG:
+		if (m_bUpdateLocked == false)
+		{
+			ServerManager::UpdateAutoRegState();
+		}
+		break;
 #endif
-		case SETBOOL_ENABLE_SCRIPTING:
-			UpdateScripting();
-			break;
+	case SETBOOL_ENABLE_SCRIPTING:
+		UpdateScripting();
+		break;
 #if defined(_WITH_SQLITE) || defined(_WITH_POSTGRES) || defined(_WITH_MYSQL)
-		case SETBOOL_ENABLE_DATABASE:
-			if (m_bUpdateLocked == false)
-			{
-				UpdateDatabase();
-			}
-			
-			break;
+	case SETBOOL_ENABLE_DATABASE:
+		if (m_bUpdateLocked == false)
+		{
+			UpdateDatabase();
+		}
+		
+		break;
 #endif
-		case SETBOOL_RESOLVE_TO_IP:
-			if (m_bUpdateLocked == false)
-			{
-				ServerManager::ResolveHubAddress(true);
-			}
-			break;
-		default:
-			break;
+	case SETBOOL_RESOLVE_TO_IP:
+		if (m_bUpdateLocked == false)
+		{
+			ServerManager::ResolveHubAddress(true);
+		}
+		break;
+	default:
+		break;
 	}
 }
 //---------------------------------------------------------------------------
@@ -819,244 +819,244 @@ void SettingManager::SetShort(const size_t szShortId, const int16_t i16Value)
 	
 	switch (szShortId)
 	{
-		case SETSHORT_MIN_SHARE_LIMIT:
-		case SETSHORT_MAX_SHARE_LIMIT:
-			if (i16Value > 9999)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MIN_SHARE_UNITS:
-		case SETSHORT_MAX_SHARE_UNITS:
-			if (i16Value > 4)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_NO_TAG_OPTION:
-		case SETSHORT_FULL_MYINFO_OPTION:
-		case SETSHORT_GLOBAL_MAIN_CHAT_ACTION:
-		case SETSHORT_BRUTE_FORCE_PASS_PROTECT_BAN_TYPE:
-			if (i16Value > 2)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MAX_USERS:
-		case SETSHORT_DEFAULT_TEMP_BAN_TIME:
-		case SETSHORT_DEFLOOD_TEMP_BAN_TIME:
-		case SETSHORT_SR_MESSAGES:
-		case SETSHORT_SR_MESSAGES2:
-			if (i16Value == 0)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MIN_SLOTS_LIMIT:
-		case SETSHORT_MAX_SLOTS_LIMIT:
-		case SETSHORT_HUB_SLOT_RATIO_HUBS:
-		case SETSHORT_HUB_SLOT_RATIO_SLOTS:
-		case SETSHORT_MAX_HUBS_LIMIT:
-		case SETSHORT_MAX_CHAT_LINES:
-		case SETSHORT_MAX_PM_LINES:
-		case SETSHORT_MYINFO_DELAY:
-		case SETSHORT_MIN_SEARCH_LEN:
-		case SETSHORT_MAX_SEARCH_LEN:
-		case SETSHORT_MAX_PM_COUNT_TO_USER:
-			if (i16Value > 999)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MAIN_CHAT_MESSAGES:
-		case SETSHORT_MAIN_CHAT_TIME:
-		case SETSHORT_SAME_MAIN_CHAT_TIME:
-		case SETSHORT_PM_MESSAGES:
-		case SETSHORT_PM_TIME:
-		case SETSHORT_SAME_PM_TIME:
-		case SETSHORT_SEARCH_MESSAGES:
-		case SETSHORT_SEARCH_TIME:
-		case SETSHORT_SAME_SEARCH_TIME:
-		case SETSHORT_MYINFO_MESSAGES:
-		case SETSHORT_MYINFO_TIME:
-		case SETSHORT_GETNICKLIST_MESSAGES:
-		case SETSHORT_GETNICKLIST_TIME:
-		case SETSHORT_DEFLOOD_WARNING_COUNT:
-		case SETSHORT_GLOBAL_MAIN_CHAT_MESSAGES:
-		case SETSHORT_GLOBAL_MAIN_CHAT_TIME:
-		case SETSHORT_GLOBAL_MAIN_CHAT_TIMEOUT:
-		case SETSHORT_BRUTE_FORCE_PASS_PROTECT_TEMP_BAN_TIME:
-		case SETSHORT_MAIN_CHAT_MESSAGES2:
-		case SETSHORT_MAIN_CHAT_TIME2:
-		case SETSHORT_PM_MESSAGES2:
-		case SETSHORT_PM_TIME2:
-		case SETSHORT_SEARCH_MESSAGES2:
-		case SETSHORT_SEARCH_TIME2:
-		case SETSHORT_MYINFO_MESSAGES2:
-		case SETSHORT_MYINFO_TIME2:
-		case SETSHORT_CHAT_INTERVAL_MESSAGES:
-		case SETSHORT_CHAT_INTERVAL_TIME:
-		case SETSHORT_PM_INTERVAL_MESSAGES:
-		case SETSHORT_PM_INTERVAL_TIME:
-		case SETSHORT_SEARCH_INTERVAL_MESSAGES:
-		case SETSHORT_SEARCH_INTERVAL_TIME:
-			if (i16Value == 0 || i16Value > 999)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_CTM_MESSAGES:
-		case SETSHORT_CTM_TIME:
-		case SETSHORT_CTM_MESSAGES2:
-		case SETSHORT_CTM_TIME2:
-		case SETSHORT_RCTM_MESSAGES:
-		case SETSHORT_RCTM_TIME:
-		case SETSHORT_RCTM_MESSAGES2:
-		case SETSHORT_RCTM_TIME2:
-		case SETSHORT_SR_TIME:
-		case SETSHORT_SR_TIME2:
-		case SETSHORT_MAX_DOWN_KB:
-		case SETSHORT_MAX_DOWN_TIME:
-		case SETSHORT_MAX_DOWN_KB2:
-		case SETSHORT_MAX_DOWN_TIME2:
-			if (i16Value == 0 || i16Value > 9999)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_NEW_CONNECTIONS_COUNT:
-		case SETSHORT_NEW_CONNECTIONS_TIME:
-			if (i16Value == 0 || i16Value > 999)
-			{
-				return;
-			}
-			{
-				Lock l(csSetting);
-				m_i16Shorts[szShortId] = i16Value;
-				return;
-			}
-		case SETSHORT_SAME_MAIN_CHAT_MESSAGES:
-		case SETSHORT_SAME_MULTI_MAIN_CHAT_MESSAGES:
-		case SETSHORT_SAME_MULTI_MAIN_CHAT_LINES:
-		case SETSHORT_SAME_PM_MESSAGES:
-		case SETSHORT_SAME_MULTI_PM_MESSAGES:
-		case SETSHORT_SAME_MULTI_PM_LINES:
-		case SETSHORT_SAME_SEARCH_MESSAGES:
-			if (i16Value < 2 || i16Value > 999)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MAIN_CHAT_ACTION:
-		case SETSHORT_MAIN_CHAT_ACTION2:
-		case SETSHORT_SAME_MAIN_CHAT_ACTION:
-		case SETSHORT_SAME_MULTI_MAIN_CHAT_ACTION:
-		case SETSHORT_PM_ACTION:
-		case SETSHORT_PM_ACTION2:
-		case SETSHORT_SAME_PM_ACTION:
-		case SETSHORT_SAME_MULTI_PM_ACTION:
-		case SETSHORT_SEARCH_ACTION:
-		case SETSHORT_SEARCH_ACTION2:
-		case SETSHORT_SAME_SEARCH_ACTION:
-		case SETSHORT_MYINFO_ACTION:
-		case SETSHORT_MYINFO_ACTION2:
-		case SETSHORT_GETNICKLIST_ACTION:
-		case SETSHORT_CTM_ACTION:
-		case SETSHORT_CTM_ACTION2:
-		case SETSHORT_RCTM_ACTION:
-		case SETSHORT_RCTM_ACTION2:
-		case SETSHORT_SR_ACTION:
-		case SETSHORT_SR_ACTION2:
-		case SETSHORT_MAX_DOWN_ACTION:
-		case SETSHORT_MAX_DOWN_ACTION2:
-			if (i16Value > 6)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_DEFLOOD_WARNING_ACTION:
-			if (i16Value > 3)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MIN_NICK_LEN:
-		case SETSHORT_MAX_NICK_LEN:
-			if (i16Value > 64)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MAX_SIMULTANEOUS_LOGINS:
-			if (i16Value == 0 || i16Value > 1000)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MAX_MYINFO_LEN:
-			if (i16Value < 64 || i16Value > 512)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MAX_CTM_LEN:
-		case SETSHORT_MAX_RCTM_LEN:
-			if (i16Value == 0 || i16Value > 512)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MAX_SR_LEN:
-			if (i16Value == 0 || i16Value > 8192)
-			{
-				return;
-			}
-			break;
-		case SETSHORT_MAX_CONN_SAME_IP:
-		case SETSHORT_MIN_RECONN_TIME:
-			if (i16Value == 0 || i16Value > 256)
-			{
-				return;
-			}
-			break;
-		default:
-			break;
+	case SETSHORT_MIN_SHARE_LIMIT:
+	case SETSHORT_MAX_SHARE_LIMIT:
+		if (i16Value > 9999)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MIN_SHARE_UNITS:
+	case SETSHORT_MAX_SHARE_UNITS:
+		if (i16Value > 4)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_NO_TAG_OPTION:
+	case SETSHORT_FULL_MYINFO_OPTION:
+	case SETSHORT_GLOBAL_MAIN_CHAT_ACTION:
+	case SETSHORT_BRUTE_FORCE_PASS_PROTECT_BAN_TYPE:
+		if (i16Value > 2)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MAX_USERS:
+	case SETSHORT_DEFAULT_TEMP_BAN_TIME:
+	case SETSHORT_DEFLOOD_TEMP_BAN_TIME:
+	case SETSHORT_SR_MESSAGES:
+	case SETSHORT_SR_MESSAGES2:
+		if (i16Value == 0)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MIN_SLOTS_LIMIT:
+	case SETSHORT_MAX_SLOTS_LIMIT:
+	case SETSHORT_HUB_SLOT_RATIO_HUBS:
+	case SETSHORT_HUB_SLOT_RATIO_SLOTS:
+	case SETSHORT_MAX_HUBS_LIMIT:
+	case SETSHORT_MAX_CHAT_LINES:
+	case SETSHORT_MAX_PM_LINES:
+	case SETSHORT_MYINFO_DELAY:
+	case SETSHORT_MIN_SEARCH_LEN:
+	case SETSHORT_MAX_SEARCH_LEN:
+	case SETSHORT_MAX_PM_COUNT_TO_USER:
+		if (i16Value > 999)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MAIN_CHAT_MESSAGES:
+	case SETSHORT_MAIN_CHAT_TIME:
+	case SETSHORT_SAME_MAIN_CHAT_TIME:
+	case SETSHORT_PM_MESSAGES:
+	case SETSHORT_PM_TIME:
+	case SETSHORT_SAME_PM_TIME:
+	case SETSHORT_SEARCH_MESSAGES:
+	case SETSHORT_SEARCH_TIME:
+	case SETSHORT_SAME_SEARCH_TIME:
+	case SETSHORT_MYINFO_MESSAGES:
+	case SETSHORT_MYINFO_TIME:
+	case SETSHORT_GETNICKLIST_MESSAGES:
+	case SETSHORT_GETNICKLIST_TIME:
+	case SETSHORT_DEFLOOD_WARNING_COUNT:
+	case SETSHORT_GLOBAL_MAIN_CHAT_MESSAGES:
+	case SETSHORT_GLOBAL_MAIN_CHAT_TIME:
+	case SETSHORT_GLOBAL_MAIN_CHAT_TIMEOUT:
+	case SETSHORT_BRUTE_FORCE_PASS_PROTECT_TEMP_BAN_TIME:
+	case SETSHORT_MAIN_CHAT_MESSAGES2:
+	case SETSHORT_MAIN_CHAT_TIME2:
+	case SETSHORT_PM_MESSAGES2:
+	case SETSHORT_PM_TIME2:
+	case SETSHORT_SEARCH_MESSAGES2:
+	case SETSHORT_SEARCH_TIME2:
+	case SETSHORT_MYINFO_MESSAGES2:
+	case SETSHORT_MYINFO_TIME2:
+	case SETSHORT_CHAT_INTERVAL_MESSAGES:
+	case SETSHORT_CHAT_INTERVAL_TIME:
+	case SETSHORT_PM_INTERVAL_MESSAGES:
+	case SETSHORT_PM_INTERVAL_TIME:
+	case SETSHORT_SEARCH_INTERVAL_MESSAGES:
+	case SETSHORT_SEARCH_INTERVAL_TIME:
+		if (i16Value == 0 || i16Value > 999)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_CTM_MESSAGES:
+	case SETSHORT_CTM_TIME:
+	case SETSHORT_CTM_MESSAGES2:
+	case SETSHORT_CTM_TIME2:
+	case SETSHORT_RCTM_MESSAGES:
+	case SETSHORT_RCTM_TIME:
+	case SETSHORT_RCTM_MESSAGES2:
+	case SETSHORT_RCTM_TIME2:
+	case SETSHORT_SR_TIME:
+	case SETSHORT_SR_TIME2:
+	case SETSHORT_MAX_DOWN_KB:
+	case SETSHORT_MAX_DOWN_TIME:
+	case SETSHORT_MAX_DOWN_KB2:
+	case SETSHORT_MAX_DOWN_TIME2:
+		if (i16Value == 0 || i16Value > 9999)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_NEW_CONNECTIONS_COUNT:
+	case SETSHORT_NEW_CONNECTIONS_TIME:
+		if (i16Value == 0 || i16Value > 999)
+		{
+			return;
+		}
+		{
+			Lock l(csSetting);
+			m_i16Shorts[szShortId] = i16Value;
+			return;
+		}
+	case SETSHORT_SAME_MAIN_CHAT_MESSAGES:
+	case SETSHORT_SAME_MULTI_MAIN_CHAT_MESSAGES:
+	case SETSHORT_SAME_MULTI_MAIN_CHAT_LINES:
+	case SETSHORT_SAME_PM_MESSAGES:
+	case SETSHORT_SAME_MULTI_PM_MESSAGES:
+	case SETSHORT_SAME_MULTI_PM_LINES:
+	case SETSHORT_SAME_SEARCH_MESSAGES:
+		if (i16Value < 2 || i16Value > 999)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MAIN_CHAT_ACTION:
+	case SETSHORT_MAIN_CHAT_ACTION2:
+	case SETSHORT_SAME_MAIN_CHAT_ACTION:
+	case SETSHORT_SAME_MULTI_MAIN_CHAT_ACTION:
+	case SETSHORT_PM_ACTION:
+	case SETSHORT_PM_ACTION2:
+	case SETSHORT_SAME_PM_ACTION:
+	case SETSHORT_SAME_MULTI_PM_ACTION:
+	case SETSHORT_SEARCH_ACTION:
+	case SETSHORT_SEARCH_ACTION2:
+	case SETSHORT_SAME_SEARCH_ACTION:
+	case SETSHORT_MYINFO_ACTION:
+	case SETSHORT_MYINFO_ACTION2:
+	case SETSHORT_GETNICKLIST_ACTION:
+	case SETSHORT_CTM_ACTION:
+	case SETSHORT_CTM_ACTION2:
+	case SETSHORT_RCTM_ACTION:
+	case SETSHORT_RCTM_ACTION2:
+	case SETSHORT_SR_ACTION:
+	case SETSHORT_SR_ACTION2:
+	case SETSHORT_MAX_DOWN_ACTION:
+	case SETSHORT_MAX_DOWN_ACTION2:
+		if (i16Value > 6)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_DEFLOOD_WARNING_ACTION:
+		if (i16Value > 3)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MIN_NICK_LEN:
+	case SETSHORT_MAX_NICK_LEN:
+		if (i16Value > 64)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MAX_SIMULTANEOUS_LOGINS:
+		if (i16Value == 0 || i16Value > 1000)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MAX_MYINFO_LEN:
+		if (i16Value < 64 || i16Value > 512)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MAX_CTM_LEN:
+	case SETSHORT_MAX_RCTM_LEN:
+		if (i16Value == 0 || i16Value > 512)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MAX_SR_LEN:
+		if (i16Value == 0 || i16Value > 8192)
+		{
+			return;
+		}
+		break;
+	case SETSHORT_MAX_CONN_SAME_IP:
+	case SETSHORT_MIN_RECONN_TIME:
+		if (i16Value == 0 || i16Value > 256)
+		{
+			return;
+		}
+		break;
+	default:
+		break;
 	}
 	
 	m_i16Shorts[szShortId] = i16Value;
 	
 	switch (szShortId)
 	{
-		case SETSHORT_MIN_SHARE_LIMIT:
-		case SETSHORT_MIN_SHARE_UNITS:
-			UpdateMinShare();
-			UpdateShareLimitMessage();
-			break;
-		case SETSHORT_MAX_SHARE_LIMIT:
-		case SETSHORT_MAX_SHARE_UNITS:
-			UpdateMaxShare();
-			UpdateShareLimitMessage();
-			break;
-		case SETSHORT_MIN_SLOTS_LIMIT:
-		case SETSHORT_MAX_SLOTS_LIMIT:
-			UpdateSlotsLimitMessage();
-			break;
-		case SETSHORT_HUB_SLOT_RATIO_HUBS:
-		case SETSHORT_HUB_SLOT_RATIO_SLOTS:
-			UpdateHubSlotRatioMessage();
-			break;
-		case SETSHORT_MAX_HUBS_LIMIT:
-			UpdateMaxHubsLimitMessage();
-			break;
-		case SETSHORT_NO_TAG_OPTION:
-			UpdateNoTagMessage();
-			break;
-		case SETSHORT_MIN_NICK_LEN:
-		case SETSHORT_MAX_NICK_LEN:
-			UpdateNickLimitMessage();
-			break;
-		default:
-			break;
+	case SETSHORT_MIN_SHARE_LIMIT:
+	case SETSHORT_MIN_SHARE_UNITS:
+		UpdateMinShare();
+		UpdateShareLimitMessage();
+		break;
+	case SETSHORT_MAX_SHARE_LIMIT:
+	case SETSHORT_MAX_SHARE_UNITS:
+		UpdateMaxShare();
+		UpdateShareLimitMessage();
+		break;
+	case SETSHORT_MIN_SLOTS_LIMIT:
+	case SETSHORT_MAX_SLOTS_LIMIT:
+		UpdateSlotsLimitMessage();
+		break;
+	case SETSHORT_HUB_SLOT_RATIO_HUBS:
+	case SETSHORT_HUB_SLOT_RATIO_SLOTS:
+		UpdateHubSlotRatioMessage();
+		break;
+	case SETSHORT_MAX_HUBS_LIMIT:
+		UpdateMaxHubsLimitMessage();
+		break;
+	case SETSHORT_NO_TAG_OPTION:
+		UpdateNoTagMessage();
+		break;
+	case SETSHORT_MIN_NICK_LEN:
+	case SETSHORT_MAX_NICK_LEN:
+		UpdateNickLimitMessage();
+		break;
+	default:
+		break;
 	}
 }
 //---------------------------------------------------------------------------
@@ -1082,163 +1082,163 @@ void SettingManager::SetText(const size_t szTxtId, const char * sTxt, const size
 	
 	switch (szTxtId)
 	{
-		case SETTXT_HUB_NAME:
-		case SETTXT_HUB_ADDRESS:
-			if (szLen == 0 || szLen > 256 || strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)
-			{
-				return;
-			}
-			break;
-		case SETTXT_REG_ONLY_MSG:
-		case SETTXT_SHARE_LIMIT_MSG:
-		case SETTXT_SLOTS_LIMIT_MSG:
-		case SETTXT_HUB_SLOT_RATIO_MSG:
-		case SETTXT_MAX_HUBS_LIMIT_MSG:
-		case SETTXT_NO_TAG_MSG:
-		case SETTXT_NICK_LIMIT_MSG:
-			if (szLen == 0 || szLen > 256 || strchr(sTxt, '|') != NULL)
-			{
-				return;
-			}
-			break;
-		case SETTXT_BOT_NICK:
-			if (szLen == 0 || szLen > 64 || strpbrk(sTxt, " $|") != NULL)
-			{
-				return;
-			}
-			if (ServerManager::m_pServersS != NULL && m_bBotsSameNick == false)
-			{
-				ReservedNicksManager::m_Ptr->DelReservedNick(m_sTexts[SETTXT_BOT_NICK]);
-			}
-			if (m_bBools[SETBOOL_REG_BOT] == true)
-			{
-				DisableBot();
-			}
-			break;
-		case SETTXT_OP_CHAT_NICK:
-			if (szLen == 0 || szLen > 64 || strpbrk(sTxt, " $|") != NULL)
-			{
-				return;
-			}
-			if (ServerManager::m_pServersS != NULL && m_bBotsSameNick == false)
-			{
-				ReservedNicksManager::m_Ptr->DelReservedNick(m_sTexts[SETTXT_OP_CHAT_NICK]);
-			}
-			if (m_bBools[SETBOOL_REG_OP_CHAT] == true)
-			{
-				DisableOpChat();
-			}
-			break;
-		case SETTXT_ADMIN_NICK:
-			if (szLen == 0 || szLen > 64 || strpbrk(sTxt, " $|") != NULL)
-			{
-				return;
-			}
-		case SETTXT_TCP_PORTS:
-			if (szLen == 0 || szLen > 64)
-			{
-				return;
-			}
-			break;
-		case SETTXT_UDP_PORT:
-			if (szLen == 0 || szLen > 5)
-			{
-				return;
-			}
-			UpdateUDPPort();
-			break;
-		case SETTXT_CHAT_COMMANDS_PREFIXES:
-			if (szLen == 0 || szLen > 5 || strchr(sTxt, '|') != NULL || strchr(sTxt, ' ') != NULL)
-			{
-				return;
-			}
-			break;
-		case SETTXT_HUB_DESCRIPTION:
-		case SETTXT_HUB_TOPIC:
-			if (szLen > 256 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)))
-			{
-				return;
-			}
-			break;
-		case SETTXT_REDIRECT_ADDRESS:
-		case SETTXT_REG_ONLY_REDIR_ADDRESS:
-		case SETTXT_SHARE_LIMIT_REDIR_ADDRESS:
-		case SETTXT_SLOTS_LIMIT_REDIR_ADDRESS:
-		case SETTXT_HUB_SLOT_RATIO_REDIR_ADDRESS:
-		case SETTXT_MAX_HUBS_LIMIT_REDIR_ADDRESS:
-		case SETTXT_NO_TAG_REDIR_ADDRESS:
-		case SETTXT_TEMP_BAN_REDIR_ADDRESS:
-		case SETTXT_PERM_BAN_REDIR_ADDRESS:
-		case SETTXT_NICK_LIMIT_REDIR_ADDRESS:
-		case SETTXT_MSG_TO_ADD_TO_BAN_MSG:
-			if (szLen > 256 || (szLen != 0 && strchr(sTxt, '|') != NULL))
-			{
-				return;
-			}
-			break;
-		case SETTXT_REGISTER_SERVERS:
-			if (szLen > 1024)
-			{
-				return;
-			}
-			break;
-		case SETTXT_BOT_DESCRIPTION:
-		case SETTXT_BOT_EMAIL:
-			if (szLen > 64 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)))
-			{
-				return;
-			}
-			if (m_bBools[SETBOOL_REG_BOT] == true)
-			{
-				DisableBot(false);
-			}
-			break;
-		case SETTXT_OP_CHAT_DESCRIPTION:
-		case SETTXT_OP_CHAT_EMAIL:
-			if (szLen > 64 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)))
-			{
-				return;
-			}
-			if (m_bBools[SETBOOL_REG_OP_CHAT] == true)
-			{
-				DisableOpChat(false);
-			}
-			break;
-		case SETTXT_HUB_OWNER_EMAIL:
-			if (szLen > 64 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)))
-			{
-				return;
-			}
-			break;
-		case SETTXT_LANGUAGE:
+	case SETTXT_HUB_NAME:
+	case SETTXT_HUB_ADDRESS:
+		if (szLen == 0 || szLen > 256 || strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)
+		{
+			return;
+		}
+		break;
+	case SETTXT_REG_ONLY_MSG:
+	case SETTXT_SHARE_LIMIT_MSG:
+	case SETTXT_SLOTS_LIMIT_MSG:
+	case SETTXT_HUB_SLOT_RATIO_MSG:
+	case SETTXT_MAX_HUBS_LIMIT_MSG:
+	case SETTXT_NO_TAG_MSG:
+	case SETTXT_NICK_LIMIT_MSG:
+		if (szLen == 0 || szLen > 256 || strchr(sTxt, '|') != NULL)
+		{
+			return;
+		}
+		break;
+	case SETTXT_BOT_NICK:
+		if (szLen == 0 || szLen > 64 || strpbrk(sTxt, " $|") != NULL)
+		{
+			return;
+		}
+		if (ServerManager::m_pServersS != NULL && m_bBotsSameNick == false)
+		{
+			ReservedNicksManager::m_Ptr->DelReservedNick(m_sTexts[SETTXT_BOT_NICK]);
+		}
+		if (m_bBools[SETBOOL_REG_BOT] == true)
+		{
+			DisableBot();
+		}
+		break;
+	case SETTXT_OP_CHAT_NICK:
+		if (szLen == 0 || szLen > 64 || strpbrk(sTxt, " $|") != NULL)
+		{
+			return;
+		}
+		if (ServerManager::m_pServersS != NULL && m_bBotsSameNick == false)
+		{
+			ReservedNicksManager::m_Ptr->DelReservedNick(m_sTexts[SETTXT_OP_CHAT_NICK]);
+		}
+		if (m_bBools[SETBOOL_REG_OP_CHAT] == true)
+		{
+			DisableOpChat();
+		}
+		break;
+	case SETTXT_ADMIN_NICK:
+		if (szLen == 0 || szLen > 64 || strpbrk(sTxt, " $|") != NULL)
+		{
+			return;
+		}
+	case SETTXT_TCP_PORTS:
+		if (szLen == 0 || szLen > 64)
+		{
+			return;
+		}
+		break;
+	case SETTXT_UDP_PORT:
+		if (szLen == 0 || szLen > 5)
+		{
+			return;
+		}
+		UpdateUDPPort();
+		break;
+	case SETTXT_CHAT_COMMANDS_PREFIXES:
+		if (szLen == 0 || szLen > 5 || strchr(sTxt, '|') != NULL || strchr(sTxt, ' ') != NULL)
+		{
+			return;
+		}
+		break;
+	case SETTXT_HUB_DESCRIPTION:
+	case SETTXT_HUB_TOPIC:
+		if (szLen > 256 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)))
+		{
+			return;
+		}
+		break;
+	case SETTXT_REDIRECT_ADDRESS:
+	case SETTXT_REG_ONLY_REDIR_ADDRESS:
+	case SETTXT_SHARE_LIMIT_REDIR_ADDRESS:
+	case SETTXT_SLOTS_LIMIT_REDIR_ADDRESS:
+	case SETTXT_HUB_SLOT_RATIO_REDIR_ADDRESS:
+	case SETTXT_MAX_HUBS_LIMIT_REDIR_ADDRESS:
+	case SETTXT_NO_TAG_REDIR_ADDRESS:
+	case SETTXT_TEMP_BAN_REDIR_ADDRESS:
+	case SETTXT_PERM_BAN_REDIR_ADDRESS:
+	case SETTXT_NICK_LIMIT_REDIR_ADDRESS:
+	case SETTXT_MSG_TO_ADD_TO_BAN_MSG:
+		if (szLen > 256 || (szLen != 0 && strchr(sTxt, '|') != NULL))
+		{
+			return;
+		}
+		break;
+	case SETTXT_REGISTER_SERVERS:
+		if (szLen > 1024)
+		{
+			return;
+		}
+		break;
+	case SETTXT_BOT_DESCRIPTION:
+	case SETTXT_BOT_EMAIL:
+		if (szLen > 64 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)))
+		{
+			return;
+		}
+		if (m_bBools[SETBOOL_REG_BOT] == true)
+		{
+			DisableBot(false);
+		}
+		break;
+	case SETTXT_OP_CHAT_DESCRIPTION:
+	case SETTXT_OP_CHAT_EMAIL:
+		if (szLen > 64 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)))
+		{
+			return;
+		}
+		if (m_bBools[SETBOOL_REG_OP_CHAT] == true)
+		{
+			DisableOpChat(false);
+		}
+		break;
+	case SETTXT_HUB_OWNER_EMAIL:
+		if (szLen > 64 || (szLen != 0 && (strchr(sTxt, '$') != NULL || strchr(sTxt, '|') != NULL)))
+		{
+			return;
+		}
+		break;
+	case SETTXT_LANGUAGE:
 #ifdef _WIN32
-			if (szLen != 0 && FileExist((ServerManager::m_sPath + "\\language\\" + string(sTxt, szLen) + ".xml").c_str()) == false)
-			{
+		if (szLen != 0 && FileExist((ServerManager::m_sPath + "\\language\\" + string(sTxt, szLen) + ".xml").c_str()) == false)
+		{
 #else
-			if (szLen != 0 && FileExist((ServerManager::m_sPath + "/language/" + string(sTxt, szLen) + ".xml").c_str()) == false)
-			{
+		if (szLen != 0 && FileExist((ServerManager::m_sPath + "/language/" + string(sTxt, szLen) + ".xml").c_str()) == false)
+		{
 #endif
-				return;
-			}
-			break;
-		case SETTXT_IPV4_ADDRESS:
-			if (szLen > 15)
-			{
-				return;
-			}
-			break;
-		case SETTXT_IPV6_ADDRESS:
-			if (szLen > 39)
-			{
-				return;
-			}
-			break;
-		default:
-			if (szLen > 4096)
-			{
-				return;
-			}
-			break;
+			return;
+		}
+		break;
+	case SETTXT_IPV4_ADDRESS:
+		if (szLen > 15)
+		{
+			return;
+		}
+		break;
+	case SETTXT_IPV6_ADDRESS:
+		if (szLen > 39)
+		{
+			return;
+		}
+		break;
+	default:
+		if (szLen > 4096)
+		{
+			return;
+		}
+		break;
 	}
 	
 //	const bool isLock = szTxtId == SETTXT_HUB_NAME || szTxtId == SETTXT_HUB_ADDRESS || szTxtId == SETTXT_HUB_DESCRIPTION;
@@ -1272,145 +1272,145 @@ void SettingManager::SetText(const size_t szTxtId, const char * sTxt, const size
 	}
 	switch (szTxtId)
 	{
-		case SETTXT_BOT_NICK:
-			UpdateHubSec();
-			UpdateMOTD();
-			UpdateHubNameWelcome();
-			UpdateRegOnlyMessage();
-			UpdateShareLimitMessage();
-			UpdateSlotsLimitMessage();
-			UpdateHubSlotRatioMessage();
-			UpdateMaxHubsLimitMessage();
-			UpdateNoTagMessage();
-			UpdateNickLimitMessage();
-			UpdateBotsSameNick();
-			
-			if (ServerManager::m_pServersS != NULL && m_bBotsSameNick == false)
-			{
-				ReservedNicksManager::m_Ptr->AddReservedNick(m_sTexts[SETTXT_BOT_NICK]);
-			}
-			
-			UpdateBot();
-			
-			break;
-		case SETTXT_BOT_DESCRIPTION:
-		case SETTXT_BOT_EMAIL:
-			UpdateBot(false);
-			break;
-		case SETTXT_OP_CHAT_NICK:
-			UpdateBotsSameNick();
-			if (ServerManager::m_pServersS != NULL && m_bBotsSameNick == false)
-			{
-				ReservedNicksManager::m_Ptr->AddReservedNick(m_sTexts[SETTXT_OP_CHAT_NICK]);
-			}
-			UpdateOpChat();
-			break;
-		case SETTXT_HUB_TOPIC:
-		case SETTXT_HUB_NAME:
+	case SETTXT_BOT_NICK:
+		UpdateHubSec();
+		UpdateMOTD();
+		UpdateHubNameWelcome();
+		UpdateRegOnlyMessage();
+		UpdateShareLimitMessage();
+		UpdateSlotsLimitMessage();
+		UpdateHubSlotRatioMessage();
+		UpdateMaxHubsLimitMessage();
+		UpdateNoTagMessage();
+		UpdateNickLimitMessage();
+		UpdateBotsSameNick();
+		
+		if (ServerManager::m_pServersS != NULL && m_bBotsSameNick == false)
+		{
+			ReservedNicksManager::m_Ptr->AddReservedNick(m_sTexts[SETTXT_BOT_NICK]);
+		}
+		
+		UpdateBot();
+		
+		break;
+	case SETTXT_BOT_DESCRIPTION:
+	case SETTXT_BOT_EMAIL:
+		UpdateBot(false);
+		break;
+	case SETTXT_OP_CHAT_NICK:
+		UpdateBotsSameNick();
+		if (ServerManager::m_pServersS != NULL && m_bBotsSameNick == false)
+		{
+			ReservedNicksManager::m_Ptr->AddReservedNick(m_sTexts[SETTXT_OP_CHAT_NICK]);
+		}
+		UpdateOpChat();
+		break;
+	case SETTXT_HUB_TOPIC:
+	case SETTXT_HUB_NAME:
 #ifdef _BUILD_GUI
-			if (m_bUpdateLocked == false)
-			{
-				MainWindow::m_Ptr->UpdateTitleBar();
-			}
+		if (m_bUpdateLocked == false)
+		{
+			MainWindow::m_Ptr->UpdateTitleBar();
+		}
 #endif
-			UpdateHubNameWelcome();
-			UpdateHubName();
-			
-			if (UdpDebug::m_Ptr != NULL)
-			{
-				UdpDebug::m_Ptr->UpdateHubName();
-			}
-			break;
-		case SETTXT_LANGUAGE:
-			UpdateLanguage();
-			UpdateHubNameWelcome();
-			break;
-		case SETTXT_REDIRECT_ADDRESS:
-			UpdateRedirectAddress();
-			if (m_bBools[SETBOOL_REG_ONLY_REDIR] == true)
-			{
-				UpdateRegOnlyMessage();
-			}
-			if (m_bBools[SETBOOL_SHARE_LIMIT_REDIR] == true)
-			{
-				UpdateShareLimitMessage();
-			}
-			if (m_bBools[SETBOOL_SLOTS_LIMIT_REDIR] == true)
-			{
-				UpdateSlotsLimitMessage();
-			}
-			if (m_bBools[SETBOOL_HUB_SLOT_RATIO_REDIR] == true)
-			{
-				UpdateHubSlotRatioMessage();
-			}
-			if (m_bBools[SETBOOL_MAX_HUBS_LIMIT_REDIR] == true)
-			{
-				UpdateMaxHubsLimitMessage();
-			}
-			if (m_i16Shorts[SETSHORT_NO_TAG_OPTION] == 2)
-			{
-				UpdateNoTagMessage();
-			}
-			if (m_sTexts[SETTXT_TEMP_BAN_REDIR_ADDRESS] != NULL)
-			{
-				UpdateTempBanRedirAddress();
-			}
-			if (m_sTexts[SETTXT_PERM_BAN_REDIR_ADDRESS] != NULL)
-			{
-				UpdatePermBanRedirAddress();
-			}
-			if (m_bBools[SETBOOL_NICK_LIMIT_REDIR] == true)
-			{
-				UpdateNickLimitMessage();
-			}
-			break;
-		case SETTXT_REG_ONLY_MSG:
-		case SETTXT_REG_ONLY_REDIR_ADDRESS:
+		UpdateHubNameWelcome();
+		UpdateHubName();
+		
+		if (UdpDebug::m_Ptr != NULL)
+		{
+			UdpDebug::m_Ptr->UpdateHubName();
+		}
+		break;
+	case SETTXT_LANGUAGE:
+		UpdateLanguage();
+		UpdateHubNameWelcome();
+		break;
+	case SETTXT_REDIRECT_ADDRESS:
+		UpdateRedirectAddress();
+		if (m_bBools[SETBOOL_REG_ONLY_REDIR] == true)
+		{
 			UpdateRegOnlyMessage();
-			break;
-		case SETTXT_SHARE_LIMIT_MSG:
-		case SETTXT_SHARE_LIMIT_REDIR_ADDRESS:
+		}
+		if (m_bBools[SETBOOL_SHARE_LIMIT_REDIR] == true)
+		{
 			UpdateShareLimitMessage();
-			break;
-		case SETTXT_SLOTS_LIMIT_MSG:
-		case SETTXT_SLOTS_LIMIT_REDIR_ADDRESS:
+		}
+		if (m_bBools[SETBOOL_SLOTS_LIMIT_REDIR] == true)
+		{
 			UpdateSlotsLimitMessage();
-			break;
-		case SETTXT_HUB_SLOT_RATIO_MSG:
-		case SETTXT_HUB_SLOT_RATIO_REDIR_ADDRESS:
+		}
+		if (m_bBools[SETBOOL_HUB_SLOT_RATIO_REDIR] == true)
+		{
 			UpdateHubSlotRatioMessage();
-			break;
-		case SETTXT_MAX_HUBS_LIMIT_MSG:
-		case SETTXT_MAX_HUBS_LIMIT_REDIR_ADDRESS:
+		}
+		if (m_bBools[SETBOOL_MAX_HUBS_LIMIT_REDIR] == true)
+		{
 			UpdateMaxHubsLimitMessage();
-			break;
-		case SETTXT_NO_TAG_MSG:
-		case SETTXT_NO_TAG_REDIR_ADDRESS:
+		}
+		if (m_i16Shorts[SETSHORT_NO_TAG_OPTION] == 2)
+		{
 			UpdateNoTagMessage();
-			break;
-		case SETTXT_TEMP_BAN_REDIR_ADDRESS:
+		}
+		if (m_sTexts[SETTXT_TEMP_BAN_REDIR_ADDRESS] != NULL)
+		{
 			UpdateTempBanRedirAddress();
-			break;
-		case SETTXT_PERM_BAN_REDIR_ADDRESS:
+		}
+		if (m_sTexts[SETTXT_PERM_BAN_REDIR_ADDRESS] != NULL)
+		{
 			UpdatePermBanRedirAddress();
-			break;
-		case SETTXT_NICK_LIMIT_MSG:
-		case SETTXT_NICK_LIMIT_REDIR_ADDRESS:
+		}
+		if (m_bBools[SETBOOL_NICK_LIMIT_REDIR] == true)
+		{
 			UpdateNickLimitMessage();
-			break;
-		case SETTXT_TCP_PORTS:
-			UpdateTCPPorts();
-			break;
-		case SETTXT_HUB_ADDRESS:
-		case SETTXT_IPV4_ADDRESS:
-		case SETTXT_IPV6_ADDRESS:
-			if (m_bUpdateLocked == false)
-			{
-				ServerManager::ResolveHubAddress(true);
-			}
-			break;
-		default:
-			break;
+		}
+		break;
+	case SETTXT_REG_ONLY_MSG:
+	case SETTXT_REG_ONLY_REDIR_ADDRESS:
+		UpdateRegOnlyMessage();
+		break;
+	case SETTXT_SHARE_LIMIT_MSG:
+	case SETTXT_SHARE_LIMIT_REDIR_ADDRESS:
+		UpdateShareLimitMessage();
+		break;
+	case SETTXT_SLOTS_LIMIT_MSG:
+	case SETTXT_SLOTS_LIMIT_REDIR_ADDRESS:
+		UpdateSlotsLimitMessage();
+		break;
+	case SETTXT_HUB_SLOT_RATIO_MSG:
+	case SETTXT_HUB_SLOT_RATIO_REDIR_ADDRESS:
+		UpdateHubSlotRatioMessage();
+		break;
+	case SETTXT_MAX_HUBS_LIMIT_MSG:
+	case SETTXT_MAX_HUBS_LIMIT_REDIR_ADDRESS:
+		UpdateMaxHubsLimitMessage();
+		break;
+	case SETTXT_NO_TAG_MSG:
+	case SETTXT_NO_TAG_REDIR_ADDRESS:
+		UpdateNoTagMessage();
+		break;
+	case SETTXT_TEMP_BAN_REDIR_ADDRESS:
+		UpdateTempBanRedirAddress();
+		break;
+	case SETTXT_PERM_BAN_REDIR_ADDRESS:
+		UpdatePermBanRedirAddress();
+		break;
+	case SETTXT_NICK_LIMIT_MSG:
+	case SETTXT_NICK_LIMIT_REDIR_ADDRESS:
+		UpdateNickLimitMessage();
+		break;
+	case SETTXT_TCP_PORTS:
+		UpdateTCPPorts();
+		break;
+	case SETTXT_HUB_ADDRESS:
+	case SETTXT_IPV4_ADDRESS:
+	case SETTXT_IPV6_ADDRESS:
+		if (m_bUpdateLocked == false)
+		{
+			ServerManager::ResolveHubAddress(true);
+		}
+		break;
+	default:
+		break;
 	}
 }
 //---------------------------------------------------------------------------
@@ -2574,8 +2574,8 @@ void SettingManager::UpdateBot(const bool bNickChanged/* = true*/)
 	}
 	
 	GlobalDataQueue::m_Ptr->AddQueueItem(m_sPreTexts[SETPRETXT_HUB_BOT_MYINFO], m_ui16PreTextsLens[SETPRETXT_HUB_BOT_MYINFO],
-	                                       m_sPreTexts[SETPRETXT_HUB_BOT_MYINFO], m_ui16PreTextsLens[SETPRETXT_HUB_BOT_MYINFO], GlobalDataQueue::CMD_MYINFO);
-	                                       
+	                                     m_sPreTexts[SETPRETXT_HUB_BOT_MYINFO], m_ui16PreTextsLens[SETPRETXT_HUB_BOT_MYINFO], GlobalDataQueue::CMD_MYINFO);
+	                                     
 	if (bNickChanged == true)
 	{
 		GlobalDataQueue::m_Ptr->OpListStore(m_sTexts[SETTXT_BOT_NICK]);

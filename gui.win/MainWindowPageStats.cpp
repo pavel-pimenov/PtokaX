@@ -49,57 +49,57 @@ LRESULT MainWindowPageStats::MainWindowPageProc(UINT uMsg, WPARAM wParam, LPARAM
 {
 	switch (uMsg)
 	{
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case BTN_START_STOP:
+			if (clsServerManager::bServerRunning == false)
 			{
-				case BTN_START_STOP:
-					if (clsServerManager::bServerRunning == false)
-					{
-						if (clsServerManager::Start() == false)
-						{
-							::SetWindowText(hWndPageItems[LBL_STATUS_VALUE],
-							                (string(clsLanguageManager::mPtr->sTexts[LAN_READY], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_READY]) + ".").c_str());
-						}
-						::SetFocus(hWndPageItems[BTN_START_STOP]);
-					}
-					else
-					{
-						clsServerManager::Stop();
-						::SetFocus(clsMainWindow::SettingDialog::m_Ptr->m_hWndWindowItems[clsMainWindow::TC_TABS]);
-					}
-					
-					return 0;
-				case BTN_REDIRECT_ALL:
-					OnRedirectAll();
-					return 0;
-				case BTN_MASS_MSG:
-					OnMassMessage();
-					return 0;
+				if (clsServerManager::Start() == false)
+				{
+					::SetWindowText(hWndPageItems[LBL_STATUS_VALUE],
+					                (string(clsLanguageManager::mPtr->sTexts[LAN_READY], (size_t)clsLanguageManager::mPtr->ui16TextsLens[LAN_READY]) + ".").c_str());
+				}
+				::SetFocus(hWndPageItems[BTN_START_STOP]);
+			}
+			else
+			{
+				clsServerManager::Stop();
+				::SetFocus(clsMainWindow::SettingDialog::m_Ptr->m_hWndWindowItems[clsMainWindow::TC_TABS]);
 			}
 			
-			break;
-		case WM_WINDOWPOSCHANGED:
-		{
-			int iX = ((WINDOWPOS*)lParam)->cx;
-			
-			::SetWindowPos(hWndPageItems[BTN_START_STOP], NULL, 0, 0, iX - 8, ScaleGui(40), SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[GB_STATS], NULL, 0, 0, iX - 10, clsGuiSettingManager::iGroupBoxMargin + (8 * clsGuiSettingManager::iTextHeight) + 2, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[LBL_STATUS_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[LBL_JOINS_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[LBL_PARTS_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[LBL_ACTIVE_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[LBL_ONLINE_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[LBL_PEAK_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[LBL_RECEIVED_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[LBL_SENT_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[BTN_REDIRECT_ALL], NULL, 0, 0, iX - 8, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
-			::SetWindowPos(hWndPageItems[BTN_MASS_MSG], NULL, 0, 0, iX - 8, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
-			
+			return 0;
+		case BTN_REDIRECT_ALL:
+			OnRedirectAll();
+			return 0;
+		case BTN_MASS_MSG:
+			OnMassMessage();
 			return 0;
 		}
-		case WM_SETFOCUS:
-			::SetFocus(hWndPageItems[BTN_START_STOP]);
-			return 0;
+		
+		break;
+	case WM_WINDOWPOSCHANGED:
+	{
+		int iX = ((WINDOWPOS*)lParam)->cx;
+		
+		::SetWindowPos(hWndPageItems[BTN_START_STOP], NULL, 0, 0, iX - 8, ScaleGui(40), SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[GB_STATS], NULL, 0, 0, iX - 10, clsGuiSettingManager::iGroupBoxMargin + (8 * clsGuiSettingManager::iTextHeight) + 2, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[LBL_STATUS_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[LBL_JOINS_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[LBL_PARTS_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[LBL_ACTIVE_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[LBL_ONLINE_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[LBL_PEAK_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[LBL_RECEIVED_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[LBL_SENT_VALUE], NULL, 0, 0, iX - (ScaleGui(150) + 31), clsGuiSettingManager::iTextHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[BTN_REDIRECT_ALL], NULL, 0, 0, iX - 8, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
+		::SetWindowPos(hWndPageItems[BTN_MASS_MSG], NULL, 0, 0, iX - 8, clsGuiSettingManager::iEditHeight, SWP_NOMOVE | SWP_NOZORDER);
+		
+		return 0;
+	}
+	case WM_SETFOCUS:
+		::SetFocus(hWndPageItems[BTN_START_STOP]);
+		return 0;
 	}
 	
 	return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);

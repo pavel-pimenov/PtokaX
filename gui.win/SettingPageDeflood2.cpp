@@ -43,143 +43,143 @@ LRESULT SettingPageDeflood2::SettingPageProc(UINT uMsg, WPARAM wParam, LPARAM lP
 	{
 		switch (LOWORD(wParam))
 		{
-			case EDT_PM_MSGS:
-			case EDT_PM_SECS:
-			case EDT_PM_MSGS2:
-			case EDT_PM_SECS2:
-			case EDT_PM_INTERVAL_MSGS:
-			case EDT_PM_INTERVAL_SECS:
-			case EDT_SAME_PM_MSGS:
-			case EDT_SAME_PM_SECS:
-			case EDT_WARN_COUNT:
-			case EDT_NEW_CONNS_FROM_SAME_IP_COUNT:
-			case EDT_NEW_CONNS_FROM_SAME_IP_TIME:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 999);
-					
-					return 0;
-				}
+		case EDT_PM_MSGS:
+		case EDT_PM_SECS:
+		case EDT_PM_MSGS2:
+		case EDT_PM_SECS2:
+		case EDT_PM_INTERVAL_MSGS:
+		case EDT_PM_INTERVAL_SECS:
+		case EDT_SAME_PM_MSGS:
+		case EDT_SAME_PM_SECS:
+		case EDT_WARN_COUNT:
+		case EDT_NEW_CONNS_FROM_SAME_IP_COUNT:
+		case EDT_NEW_CONNS_FROM_SAME_IP_TIME:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 999);
 				
-				break;
-			case EDT_SAME_MULTI_PM_MSGS:
-			case EDT_SAME_MULTI_PM_LINES:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 2, 999);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_SAME_MULTI_PM_MSGS:
+		case EDT_SAME_MULTI_PM_LINES:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 2, 999);
 				
-				break;
-			case EDT_PM_LIMIT_TO_ONE_USER_FROM_MULTIPLE_USERS:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 0, 999);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_PM_LIMIT_TO_ONE_USER_FROM_MULTIPLE_USERS:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 0, 999);
 				
-				break;
-			case EDT_RECEIVED_DATA_KB:
-			case EDT_RECEIVED_DATA_SECS:
-			case EDT_RECEIVED_DATA_KB2:
-			case EDT_RECEIVED_DATA_SECS2:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 9999);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_RECEIVED_DATA_KB:
+		case EDT_RECEIVED_DATA_SECS:
+		case EDT_RECEIVED_DATA_KB2:
+		case EDT_RECEIVED_DATA_SECS2:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 9999);
 				
-				break;
-			case EDT_MAX_USERS_FROM_SAME_IP:
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					MinMaxCheck((HWND)lParam, 1, 256);
-					
-					return 0;
-				}
+				return 0;
+			}
+			
+			break;
+		case EDT_MAX_USERS_FROM_SAME_IP:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				MinMaxCheck((HWND)lParam, 1, 256);
 				
-				break;
-			case CB_PM:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_PM], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_PM_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_PM_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_PM_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_PM_SECONDS], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_PM2:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_PM2], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_PM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_PM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_PM_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_PM_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_PM_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_PM_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_SAME_PM:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_SAME_PM], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_SAME_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_SAME_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_SAME_PM_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_SAME_PM_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_SAME_PM_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_SAME_PM_SECONDS], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_SAME_MULTI_PM:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_SAME_MULTI_PM], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_SAME_MULTI_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_SAME_MULTI_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_SAME_MULTI_PM_WITH], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_SAME_MULTI_PM_LINES], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_SAME_MULTI_PM_LINES], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_SAME_MULTI_PM_LINES], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_RECEIVED_DATA:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_RECEIVED_DATA], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_RECEIVED_DATA_KB], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_RECEIVED_DATA_KB], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_RECEIVED_DATA_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_RECEIVED_DATA_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_RECEIVED_DATA_SECS], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_RECEIVED_DATA_SECONDS], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
-			case CB_RECEIVED_DATA2:
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
-					uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_RECEIVED_DATA2], CB_GETCURSEL, 0, 0);
-					::EnableWindow(hWndPageItems[EDT_RECEIVED_DATA_KB2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_RECEIVED_DATA_KB2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_RECEIVED_DATA_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[EDT_RECEIVED_DATA_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[UD_RECEIVED_DATA_SECS2], ui32Action == 0 ? FALSE : TRUE);
-					::EnableWindow(hWndPageItems[LBL_RECEIVED_DATA_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
-				}
-				
-				break;
+				return 0;
+			}
+			
+			break;
+		case CB_PM:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_PM], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_PM_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_PM_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_PM_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_PM_SECONDS], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_PM2:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_PM2], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_PM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_PM_MSGS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_PM_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_PM_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_PM_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_PM_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_SAME_PM:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_SAME_PM], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_SAME_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_SAME_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_SAME_PM_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_SAME_PM_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_SAME_PM_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_SAME_PM_SECONDS], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_SAME_MULTI_PM:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_SAME_MULTI_PM], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_SAME_MULTI_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_SAME_MULTI_PM_MSGS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_SAME_MULTI_PM_WITH], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_SAME_MULTI_PM_LINES], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_SAME_MULTI_PM_LINES], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_SAME_MULTI_PM_LINES], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_RECEIVED_DATA:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_RECEIVED_DATA], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_RECEIVED_DATA_KB], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_RECEIVED_DATA_KB], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_RECEIVED_DATA_DIVIDER], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_RECEIVED_DATA_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_RECEIVED_DATA_SECS], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_RECEIVED_DATA_SECONDS], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
+		case CB_RECEIVED_DATA2:
+			if (HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				uint32_t ui32Action = (uint32_t)::SendMessage(hWndPageItems[CB_RECEIVED_DATA2], CB_GETCURSEL, 0, 0);
+				::EnableWindow(hWndPageItems[EDT_RECEIVED_DATA_KB2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_RECEIVED_DATA_KB2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_RECEIVED_DATA_DIVIDER2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[EDT_RECEIVED_DATA_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[UD_RECEIVED_DATA_SECS2], ui32Action == 0 ? FALSE : TRUE);
+				::EnableWindow(hWndPageItems[LBL_RECEIVED_DATA_SECONDS2], ui32Action == 0 ? FALSE : TRUE);
+			}
+			
+			break;
 		}
 	}
 	

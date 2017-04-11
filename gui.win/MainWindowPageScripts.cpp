@@ -67,95 +67,95 @@ LRESULT clsMainWindowPageScripts::MainWindowPageProc(UINT uMsg, WPARAM wParam, L
 {
 	switch (uMsg)
 	{
-		case WM_SETFOCUS:
+	case WM_SETFOCUS:
+	{
+		CHARRANGE cr = { 0, 0 };
+		::SendMessage(hWndPageItems[REDT_SCRIPTS_ERRORS], EM_EXSETSEL, 0, (LPARAM)&cr);
+		::SetFocus(hWndPageItems[REDT_SCRIPTS_ERRORS]);
+		return 0;
+	}
+	case WM_WINDOWPOSCHANGED:
+	{
+		RECT rcMain = { 0, 0, ((WINDOWPOS*)lParam)->cx, ((WINDOWPOS*)lParam)->cy };
+		SetSplitterRect(&rcMain);
+		
+		return 0;
+	}
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
 		{
-			CHARRANGE cr = { 0, 0 };
-			::SendMessage(hWndPageItems[REDT_SCRIPTS_ERRORS], EM_EXSETSEL, 0, (LPARAM)&cr);
-			::SetFocus(hWndPageItems[REDT_SCRIPTS_ERRORS]);
+		case BTN_OPEN_SCRIPT_EDITOR:
+		{
+			OpenScriptEditor();
 			return 0;
 		}
-		case WM_WINDOWPOSCHANGED:
-		{
-			RECT rcMain = { 0, 0, ((WINDOWPOS*)lParam)->cx, ((WINDOWPOS*)lParam)->cy };
-			SetSplitterRect(&rcMain);
-			
+		case BTN_REFRESH_SCRIPTS:
+			RefreshScripts();
+			return 0;
+		case BTN_MOVE_UP:
+			MoveUp();
+			return 0;
+		case BTN_MOVE_DOWN:
+			MoveDown();
+			return 0;
+		case BTN_RESTART_SCRIPTS:
+			RestartScripts();
+			return 0;
+		case IDC_OPEN_IN_EXT_EDITOR:
+			OpenInExternalEditor();
+			return 0;
+		case IDC_OPEN_IN_SCRIPT_EDITOR:
+			OpenInScriptEditor();
+			return 0;
+		case IDC_DELETE_SCRIPT:
+			DeleteScript();
 			return 0;
 		}
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
+		
+		if (RichEditCheckMenuCommands(hWndPageItems[REDT_SCRIPTS_ERRORS], LOWORD(wParam)) == true)
+		{
+			return 0;
+		}
+		
+		break;
+	case WM_CONTEXTMENU:
+		OnContextMenu((HWND)wParam, lParam);
+		break;
+	case WM_NOTIFY:
+		if (((LPNMHDR)lParam)->hwndFrom == hWndPageItems[LV_SCRIPTS])
+		{
+			if (((LPNMHDR)lParam)->code == LVN_ITEMCHANGED)
 			{
-				case BTN_OPEN_SCRIPT_EDITOR:
-				{
-					OpenScriptEditor();
-					return 0;
-				}
-				case BTN_REFRESH_SCRIPTS:
-					RefreshScripts();
-					return 0;
-				case BTN_MOVE_UP:
-					MoveUp();
-					return 0;
-				case BTN_MOVE_DOWN:
-					MoveDown();
-					return 0;
-				case BTN_RESTART_SCRIPTS:
-					RestartScripts();
-					return 0;
-				case IDC_OPEN_IN_EXT_EDITOR:
-					OpenInExternalEditor();
-					return 0;
-				case IDC_OPEN_IN_SCRIPT_EDITOR:
-					OpenInScriptEditor();
-					return 0;
-				case IDC_DELETE_SCRIPT:
-					DeleteScript();
-					return 0;
+				OnItemChanged((LPNMLISTVIEW)lParam);
 			}
-			
-			if (RichEditCheckMenuCommands(hWndPageItems[REDT_SCRIPTS_ERRORS], LOWORD(wParam)) == true)
+			else if (((LPNMHDR)lParam)->code == NM_DBLCLK)
 			{
+				if (((LPNMITEMACTIVATE)lParam)->iItem == -1)
+				{
+					break;
+				}
+				
+				OnDoubleClick((LPNMITEMACTIVATE)lParam);
+				
 				return 0;
 			}
-			
-			break;
-		case WM_CONTEXTMENU:
-			OnContextMenu((HWND)wParam, lParam);
-			break;
-		case WM_NOTIFY:
-			if (((LPNMHDR)lParam)->hwndFrom == hWndPageItems[LV_SCRIPTS])
+		}
+		else if (((LPNMHDR)lParam)->hwndFrom == hWndPageItems[REDT_SCRIPTS_ERRORS] && ((LPNMHDR)lParam)->code == EN_LINK)
+		{
+			if (((ENLINK *)lParam)->msg == WM_LBUTTONUP)
 			{
-				if (((LPNMHDR)lParam)->code == LVN_ITEMCHANGED)
-				{
-					OnItemChanged((LPNMLISTVIEW)lParam);
-				}
-				else if (((LPNMHDR)lParam)->code == NM_DBLCLK)
-				{
-					if (((LPNMITEMACTIVATE)lParam)->iItem == -1)
-					{
-						break;
-					}
-					
-					OnDoubleClick((LPNMITEMACTIVATE)lParam);
-					
-					return 0;
-				}
+				RichEditOpenLink(clsMainWindowPageScripts::mPtr->hWndPageItems[clsMainWindowPageScripts::REDT_SCRIPTS_ERRORS], (ENLINK *)lParam);
+				return 1;
 			}
-			else if (((LPNMHDR)lParam)->hwndFrom == hWndPageItems[REDT_SCRIPTS_ERRORS] && ((LPNMHDR)lParam)->code == EN_LINK)
-			{
-				if (((ENLINK *)lParam)->msg == WM_LBUTTONUP)
-				{
-					RichEditOpenLink(clsMainWindowPageScripts::mPtr->hWndPageItems[clsMainWindowPageScripts::REDT_SCRIPTS_ERRORS], (ENLINK *)lParam);
-					return 1;
-				}
-			}
-			
-			break;
-		case WM_DESTROY:
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_SCRIPTS_SPLITTER, iPercentagePos);
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_SCRIPT_NAMES, (int)::SendMessage(hWndPageItems[LV_SCRIPTS], LVM_GETCOLUMNWIDTH, 0, 0));
-			clsGuiSettingManager::mPtr->SetInteger(GUISETINT_SCRIPT_MEMORY_USAGES, (int)::SendMessage(hWndPageItems[LV_SCRIPTS], LVM_GETCOLUMNWIDTH, 1, 0));
-			
-			break;
+		}
+		
+		break;
+	case WM_DESTROY:
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_SCRIPTS_SPLITTER, iPercentagePos);
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_SCRIPT_NAMES, (int)::SendMessage(hWndPageItems[LV_SCRIPTS], LVM_GETCOLUMNWIDTH, 0, 0));
+		clsGuiSettingManager::mPtr->SetInteger(GUISETINT_SCRIPT_MEMORY_USAGES, (int)::SendMessage(hWndPageItems[LV_SCRIPTS], LVM_GETCOLUMNWIDTH, 1, 0));
+		
+		break;
 	}
 	
 	if (BasicSplitterProc(uMsg, wParam, lParam) == true)

@@ -363,7 +363,7 @@ static int AddReg(lua_State * pLua)
 			return 1;
 		}
 		
-
+		
 		
 		pUser->SetBuffer(ProfileManager::m_Ptr->m_ppProfilesTable[ui16Profile]->m_sName);
 		pUser->m_ui32BoolBits |= User::BIT_WAITING_FOR_PASS;
