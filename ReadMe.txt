@@ -1,3 +1,8 @@
+<a href="https://scan.coverity.com/projects/pavel-pimenov-ptokax">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/12518/badge.svg"/>
+</a>
+
 PtokaX 0.5.2.2
 ---------------
 
