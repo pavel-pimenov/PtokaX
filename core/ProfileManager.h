@@ -118,9 +118,9 @@ class ProfileManager
 		
 		bool IsAllowed(const User * pUser, const uint32_t ui32Option) const;
 		bool IsProfileAllowed(const int32_t i32Profile, const uint32_t ui32Option) const;
-		int32_t AddProfile(const char * name);
-		int32_t GetProfileIndex(const char * name);
-		int32_t RemoveProfileByName(const char * name);
+		int32_t AddProfile(const char * sName);
+		int32_t GetProfileIndex(const char * sName);
+		int32_t RemoveProfileByName(const char * sName);
 		void MoveProfileDown(const uint16_t ui16Profile);
 		void MoveProfileUp(const uint16_t ui16Profile);
 		void ChangeProfileName(const uint16_t ui16Profile, const char * sName, const size_t szLen);

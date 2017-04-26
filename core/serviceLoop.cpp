@@ -681,7 +681,7 @@ void ServiceLoop::ReceiveLoop()
 	AcceptedSocket * CurSck = NULL,
 	                 * NextSck = nullptr;
 	{
-		Lock l(csAcceptQueue);
+		Lock l(m_csAcceptQueue);
 		
 		if (m_pAcceptedSocketsS != NULL)
 		{
@@ -863,7 +863,7 @@ void ServiceLoop::ReceiveLoop()
 				curUser->m_ui32BoolBits |= User::BIT_HAVE_SHARECOUNTED;
 				
 #ifdef _BUILD_GUI
-				if (::SendMessage(MainWindowPageUsersChat::m_Ptr->hWndPageItems[MainWindowPageUsersChat::BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_CHECKED)
+				if (::SendMessage(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::BTN_AUTO_UPDATE_USERLIST], BM_GETCHECK, 0, 0) == BST_CHECKED)
 				{
 					MainWindowPageUsersChat::m_Ptr->AddUser(curUser);
 				}
@@ -1298,7 +1298,7 @@ void ServiceLoop::AcceptSocket(int& s, const sockaddr_storage &addr)
 	
 	pNewSocket->m_pNext = NULL;
 	
-	Lock l(csAcceptQueue);
+	Lock l(m_csAcceptQueue);
 	
 	if (m_pAcceptedSocketsS == NULL)
 	{

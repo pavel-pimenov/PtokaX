@@ -21,8 +21,6 @@
 #define stdincH
 //---------------------------------------------------------------------------
 
-#define USE_FLYLINKDC_EXT_JSON
-
 #ifndef _WIN32
 #define _REENTRANT 1
 #define __STDC_FORMAT_MACROS 1

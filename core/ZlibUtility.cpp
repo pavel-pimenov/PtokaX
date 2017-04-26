@@ -106,7 +106,7 @@ char * ZlibUtility::CreateZPipe(const char *sInData, const size_t szInDataSize, 
 	stream.avail_in = (uInt)szInDataSize;
 	
 	stream.next_out = (Bytef*)m_pZbuffer + 5;
-	stream.avail_out = (uInt)(m_szZbufferSize - 5);
+	stream.avail_out = (uInt)m_szZbufferSize-5;
 	
 	// compress
 	if (deflate(&stream, Z_FINISH) != Z_STREAM_END)
@@ -182,7 +182,7 @@ char * ZlibUtility::CreateZPipe(const char *sInData, const size_t szInDataSize, 
 	stream.avail_in = (uInt)szInDataSize;
 	
 	stream.next_out = (Bytef*)m_pZbuffer + 5;
-	stream.avail_out = (uInt)(m_szZbufferSize - 5);
+	stream.avail_out = (uInt)m_szZbufferSize-5;
 	
 	// compress
 	if (deflate(&stream, Z_FINISH) != Z_STREAM_END)

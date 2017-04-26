@@ -621,14 +621,14 @@ void SettingManager::Save()
 
 bool SettingManager::GetBool(const size_t szBoolId)
 {
-	Lock l(csSetting);
+	Lock l(m_csSetting);
 	bool bValue = m_bBools[szBoolId];
 	return bValue;
 }
 //---------------------------------------------------------------------------
 uint16_t SettingManager::GetFirstPort()
 {
-	Lock l(csSetting);
+	Lock l(m_csSetting);
 	uint16_t iValue = m_ui16PortNumbers[0];
 	return iValue;
 }
@@ -636,7 +636,7 @@ uint16_t SettingManager::GetFirstPort()
 
 int16_t SettingManager::GetShort(const size_t szShortId)
 {
-	Lock l(csSetting);
+	Lock l(m_csSetting);
 	int16_t iValue = m_i16Shorts[szShortId];
 	return iValue;
 }
@@ -644,7 +644,7 @@ int16_t SettingManager::GetShort(const size_t szShortId)
 
 void SettingManager::GetText(const size_t szTxtId, char * sMsg)
 {
-	Lock l(csSetting);
+	Lock l(m_csSetting);
 	if (m_sTexts[szTxtId] != NULL)
 	{
 		strcat(sMsg, m_sTexts[szTxtId]);
@@ -661,7 +661,7 @@ void SettingManager::SetBool(const size_t szBoolId, const bool bValue)
 	
 	if (szBoolId == SETBOOL_ANTI_MOGLO)
 	{
-		Lock l(csSetting);
+		Lock l(m_csSetting);
 		m_bBools[szBoolId] = bValue;
 		return;
 	}
@@ -931,7 +931,7 @@ void SettingManager::SetShort(const size_t szShortId, const int16_t i16Value)
 				return;
 			}
 			{
-				Lock l(csSetting);
+				Lock l(m_csSetting);
 				m_i16Shorts[szShortId] = i16Value;
 				return;
 			}
@@ -1243,7 +1243,7 @@ void SettingManager::SetText(const size_t szTxtId, const char * sTxt, const size
 	
 //	const bool isLock = szTxtId == SETTXT_HUB_NAME || szTxtId == SETTXT_HUB_ADDRESS || szTxtId == SETTXT_HUB_DESCRIPTION;
 	{
-		Lock l(csSetting);
+		Lock l(m_csSetting);
 		
 		if (szLen == 0)
 		{
@@ -2437,7 +2437,7 @@ void SettingManager::UpdateTCPPorts()
 			}
 			else
 			{
-				Lock l(csSetting);
+				Lock l(m_csSetting);
 				m_ui16PortNumbers[ui8ActualPort] = (uint16_t)atoi(sPort);
 			}
 			

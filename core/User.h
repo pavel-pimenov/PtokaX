@@ -22,10 +22,6 @@
 #define UserH
 //---------------------------------------------------------------------------
 
-#ifndef USE_FLYLINKDC_EXT_JSON
-#define USE_FLYLINKDC_EXT_JSON
-#endif
-
 //---------------------------------------------------------------------------
 struct User; // needed for next struct, and next struct must be defined before user :-/
 //---------------------------------------------------------------------------
@@ -414,10 +410,11 @@ struct User
 	}
 	void SendTextDelayed(const string & sText);
 	
+	void logInvalidUser(int p_id, const char * p_buffer, int p_len, bool p_is_send);
+
 #ifdef USE_FLYLINKDC_EXT_JSON
 	ExtJSONInfo * m_user_ext_info;
 	
-	void logInvalidUser(int p_id, const char * p_buffer, int p_len, bool p_is_send);
 	void initExtJSON(const char* p_json)
 	{
 		if (m_user_ext_info == NULL)
@@ -502,7 +499,7 @@ struct User
 	
 	void AddMeOrIPv4Check();
 	
-	static char * SetUserInfo(char * sOldData, uint8_t &ui8OldDataLen, const char * sNewData, size_t szNewDataLen, const char * sDataName);
+	static char * SetUserInfo(char * sOldData, uint8_t &ui8OldDataLen, const char * sNewData, const size_t szNewDataLen, const char * sDataName);
 	
 	void RemFromSendBuf(const char * sData, const uint32_t ui32Len, const uint32_t ui32SendBufLen);
 	

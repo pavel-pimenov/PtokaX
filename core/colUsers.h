@@ -26,9 +26,7 @@ struct User;
 static const uint32_t NICKLISTSIZE = 1024 * 8;
 static const uint32_t OPLISTSIZE = 512;
 //---------------------------------------------------------------------------
-#ifdef USE_FLYLINKDC_EXT_JSON
 #include <vector>
-#endif
 
 class Users
 {

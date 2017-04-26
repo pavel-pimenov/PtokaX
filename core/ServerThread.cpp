@@ -162,7 +162,7 @@ void ServerThread::Run()
 					{
 #endif
 					EventQueue::m_Ptr->AddThread(EventQueue::EVENT_SRVTHREAD_MSG,
-					                             ("[ERR] accept() for port " + string(m_ui16Port) + " has returned error.").c_str());
+					                               ("[ERR] accept() for port " + string(m_ui16Port) + " has returned error.").c_str());
 				}
 #ifndef _WIN32
 			}
@@ -208,7 +208,7 @@ void ServerThread::Run()
 			if (Listen(true) == true)
 			{
 				EventQueue::m_Ptr->AddThread(EventQueue::EVENT_SRVTHREAD_MSG,
-				                             ("[SYS] Server socket for port " + string(m_ui16Port) + " sucessfully recovered from suspend state.").c_str());
+				                               ("[SYS] Server socket for port " + string(m_ui16Port) + " sucessfully recovered from suspend state.").c_str());
 			}
 			else
 			{
@@ -284,7 +284,7 @@ bool ServerThread::Listen(const bool bSilent/* = false*/)
 		if (bSilent == true)
 		{
 			EventQueue::m_Ptr->AddThread(EventQueue::EVENT_SRVTHREAD_MSG,
-			                             ("[ERR] Server socket setsockopt error: " + string(errno) + " for port: " + string(m_ui16Port)).c_str());
+			                               ("[ERR] Server socket setsockopt error: " + string(errno) + " for port: " + string(m_ui16Port)).c_str());
 		}
 		else
 		{
@@ -361,9 +361,9 @@ bool ServerThread::Listen(const bool bSilent/* = false*/)
 		{
 			EventQueue::m_Ptr->AddThread(EventQueue::EVENT_SRVTHREAD_MSG,
 #ifdef _WIN32
-			                             ("[ERR] Server socket bind error: " + string(WSErrorStr(err)) + " (" + string(err) + ") for port: " + string(m_ui16Port)).c_str());
+			                               ("[ERR] Server socket bind error: " + string(WSErrorStr(err)) + " (" + string(err) + ") for port: " + string(m_ui16Port)).c_str());
 #else
-			                             ("[ERR] Server socket bind error: " + string(ErrnoStr(errno)) + " (" + string(errno) + ") for port: " + string(m_ui16Port)).c_str());
+			                               ("[ERR] Server socket bind error: " + string(ErrnoStr(errno)) + " (" + string(errno) + ") for port: " + string(m_ui16Port)).c_str());
 #endif
 		}
 		else
@@ -427,18 +427,18 @@ bool ServerThread::isFlooder(SOCKET& s, const sockaddr_storage &addr)
 bool ServerThread::isFlooder(int& s, const sockaddr_storage &addr)
 {
 #endif
-	Hash128 m_ui128IpHash;
+	Hash128 ui128IpHash;
 	
 	if (addr.ss_family == AF_INET6)
 	{
-		memcpy(m_ui128IpHash, &((struct sockaddr_in6 *)&addr)->sin6_addr, 16);
+		memcpy(ui128IpHash, &((struct sockaddr_in6 *)&addr)->sin6_addr, 16);
 	}
 	else
 	{
 		const auto l_ip4 = ((struct sockaddr_in *)&addr)->sin_addr.s_addr;
-		m_ui128IpHash[10] = 255;
-		m_ui128IpHash[11] = 255;
-		memcpy(m_ui128IpHash, &l_ip4, 4);
+		ui128IpHash[10] = 255;
+		ui128IpHash[11] = 255;
+		memcpy(ui128IpHash, &l_ip4, 4);
 	}
 	
 	int16_t iConDefloodCount = SettingManager::m_Ptr->GetShort(SETSHORT_NEW_CONNECTIONS_COUNT);
@@ -452,7 +452,7 @@ bool ServerThread::isFlooder(int& s, const sockaddr_storage &addr)
 		cur = nxt;
 		nxt = cur->m_pNext;
 		
-		if (memcmp(m_ui128IpHash, cur->m_ui128IpHash, 16) == 0)
+		if (memcmp(ui128IpHash, cur->m_ui128IpHash, 16) == 0)
 		{
 			if (cur->m_ui64Time + ((uint64_t)iConDefloodTime) >= ServerManager::m_ui64ActualTick)
 			{
@@ -480,7 +480,7 @@ bool ServerThread::isFlooder(int& s, const sockaddr_storage &addr)
 		}
 	}
 	
-	AntiConFlood * pNewItem = new (std::nothrow) AntiConFlood(m_ui128IpHash);
+	AntiConFlood * pNewItem = new (std::nothrow) AntiConFlood(ui128IpHash);
 	if (pNewItem == NULL)
 	{
 		AppendDebugLog("%s - [MEM] Cannot allocate pNewItem  in theLoop::isFlooder\n");
@@ -542,18 +542,18 @@ void ServerThread::ResumeSck()
 void ServerThread::SuspendSck(const uint32_t ui32Time)
 {
 	if (m_bActive == true)
-	{
-		Lock l(m_csServerThread);
-		if (ui32Time != 0)
 		{
-			m_ui32SuspendTime = ui32Time;
-		}
-		else
-		{
-			m_bSuspended = true;
-			m_ui32SuspendTime = 1;
-		}
+			Lock l(m_csServerThread);
+			if (ui32Time != 0)
+			{
+				m_ui32SuspendTime = ui32Time;
+			}
+			else
+			{
+				m_bSuspended = true;
+				m_ui32SuspendTime = 1;
+			}
 		safe_closesocket(m_Server);
-	}
+      }
 }
 //---------------------------------------------------------------------------

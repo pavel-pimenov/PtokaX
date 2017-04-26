@@ -47,7 +47,7 @@ EventQueue * EventQueue::m_Ptr = NULL;
 
 EventQueue::Event::Event(const char* p_message) : m_pPrev(NULL), m_pNext(NULL), m_ui8Id(0)
 {
-	memset(&m_ui128IpHash, 0, 16);
+    memset(&m_ui128IpHash, 0, 16);
 	if (p_message)
 	{
 		m_sMsg = p_message;
@@ -85,7 +85,7 @@ EventQueue::~EventQueue()
 }
 //---------------------------------------------------------------------------
 
-void EventQueue::AddNormal(uint8_t ui8Id, const char * sMsg)
+void EventQueue::AddNormal(const uint8_t ui8Id, const char * sMsg)
 {
 	if (ui8Id != EVENT_RSTSCRIPT && ui8Id != EVENT_STOPSCRIPT)
 	{
@@ -130,7 +130,7 @@ void EventQueue::AddNormal(uint8_t ui8Id, const char * sMsg)
 }
 //---------------------------------------------------------------------------
 
-void EventQueue::AddThread(uint8_t ui8Id, const char * sMsg, const sockaddr_storage * sas/* = NULL*/)
+void EventQueue::AddThread(const uint8_t ui8Id, const char * sMsg, const sockaddr_storage * sas/* = NULL*/)
 {
 	Event * pNewEvent = new (std::nothrow) Event(sMsg);
 	
@@ -195,60 +195,60 @@ void EventQueue::ProcessEvents()
 		
 		switch (cur->m_ui8Id)
 		{
-		case EVENT_RESTART:
-			ServerManager::m_bIsRestart = true;
-			ServerManager::Stop();
-			break;
-		case EVENT_RSTSCRIPTS:
-			ScriptManager::m_Ptr->Restart();
-			break;
-		case EVENT_RSTSCRIPT:
-		{
-			Script * pScript = ScriptManager::m_Ptr->FindScript(cur->m_sMsg);
-			if (pScript == NULL || pScript->m_bEnabled == false || pScript->m_pLua == NULL)
+			case EVENT_RESTART:
+				ServerManager::m_bIsRestart = true;
+				ServerManager::Stop();
+				break;
+			case EVENT_RSTSCRIPTS:
+				ScriptManager::m_Ptr->Restart();
+				break;
+			case EVENT_RSTSCRIPT:
 			{
-				return;
-			}
-			
-			ScriptManager::m_Ptr->StopScript(pScript, false);
-			
-			ScriptManager::m_Ptr->StartScript(pScript, false);
-			
-			break;
-		}
-		case EVENT_STOPSCRIPT:
-		{
-			Script * pScript = ScriptManager::m_Ptr->FindScript(cur->m_sMsg);
-			if (pScript == NULL || pScript->m_bEnabled == false || pScript->m_pLua == NULL)
-			{
-				return;
-			}
-			
-			ScriptManager::m_Ptr->StopScript(pScript, true);
-			
-			break;
-		}
-		case EVENT_STOP_SCRIPTING:
-			if (SettingManager::m_Ptr->m_bBools[SETBOOL_ENABLE_SCRIPTING] == true)
-			{
-				SettingManager::m_Ptr->m_bBools[SETBOOL_ENABLE_SCRIPTING] = false;
-				ScriptManager::m_Ptr->OnExit(true);
-				ScriptManager::m_Ptr->Stop();
-			}
-			
-			break;
-		case EVENT_SHUTDOWN:
-			if (ServerManager::m_bIsClose == true)
-			{
+				Script * pScript = ScriptManager::m_Ptr->FindScript(cur->m_sMsg);
+				if (pScript == NULL || pScript->m_bEnabled == false || pScript->m_pLua == NULL)
+				{
+					return;
+				}
+				
+				ScriptManager::m_Ptr->StopScript(pScript, false);
+				
+				ScriptManager::m_Ptr->StartScript(pScript, false);
+				
 				break;
 			}
-			
-			ServerManager::m_bIsClose = true;
-			ServerManager::Stop();
-			
-			break;
-		default:
-			break;
+			case EVENT_STOPSCRIPT:
+			{
+				Script * pScript = ScriptManager::m_Ptr->FindScript(cur->m_sMsg);
+				if (pScript == NULL || pScript->m_bEnabled == false || pScript->m_pLua == NULL)
+				{
+					return;
+				}
+				
+				ScriptManager::m_Ptr->StopScript(pScript, true);
+				
+				break;
+			}
+			case EVENT_STOP_SCRIPTING:
+				if (SettingManager::m_Ptr->m_bBools[SETBOOL_ENABLE_SCRIPTING] == true)
+				{
+					SettingManager::m_Ptr->m_bBools[SETBOOL_ENABLE_SCRIPTING] = false;
+					ScriptManager::m_Ptr->OnExit(true);
+					ScriptManager::m_Ptr->Stop();
+				}
+				
+				break;
+			case EVENT_SHUTDOWN:
+				if (ServerManager::m_bIsClose == true)
+				{
+					break;
+				}
+				
+				ServerManager::m_bIsClose = true;
+				ServerManager::Stop();
+				
+				break;
+			default:
+				break;
 		}
 		delete cur;
 	}
@@ -269,71 +269,71 @@ void EventQueue::ProcessEvents()
 		
 		switch (cur->m_ui8Id)
 		{
-		case EVENT_REGSOCK_MSG:
-		{
-			UdpDebug::m_Ptr->Broadcast(cur->m_sMsg);
-			break;
-		}
-		case EVENT_SRVTHREAD_MSG:
-		{
-			UdpDebug::m_Ptr->Broadcast(cur->m_sMsg);
-			break;
-		}
-#ifdef FLYLINKDC_USE_UDP_THREAD
-		case EVENT_UDP_SR:
-		{
-			const size_t szMsgLen = cur->m_sMsg.length();
-			ServerManager::m_ui64BytesRead += (uint64_t)szMsgLen;
-			if (szMsgLen > 4)
+			case EVENT_REGSOCK_MSG:
 			{
-				char *temp = (char *)strchr(cur->m_sMsg.c_str() + 4, ' ');
-				if (temp == NULL)
-				{
-					break;
-				}
-				
-				size_t szLen = (temp - cur->m_sMsg.c_str()) - 4;
-				if (szLen > 64 || szLen == 0)
-				{
-					break;
-				}
-				
-				// terminate nick, needed for strcasecmp in HashManager
-				temp[0] = '\0';
-				
-				User *u = HashManager::m_Ptr->FindUser(cur->m_sMsg.c_str() + 4, szLen);
-				if (u == NULL)
-				{
-					break;
-				}
-				
-				// add back space after nick...
-				temp[0] = ' ';
-				
-				if (memcmp(cur->m_ui128IpHash, u->m_ui128IpHash, 16) != 0)
-				{
-					break;
-				}
-				
-#ifdef _BUILD_GUI
-				if (::SendMessage(MainWindowPageUsersChat::m_Ptr->hWndPageItems[MainWindowPageUsersChat::BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED)
-				{
-					char msg[128];
-					int imsglen = sprintf(msg, "UDP > %s (%s) > ", u->m_sNick, u->m_sIP);
-					if (CheckSprintf(imsglen, 128, "EventQueue::ProcessEvents") == true)
-					{
-						RichEditAppendText(MainWindowPageUsersChat::m_Ptr->hWndPageItems[MainWindowPageUsersChat::REDT_CHAT], (string(msg, imsglen) + cur->sMsg.c_str()).c_str());
-					}
-				}
-#endif
-				
-				DcCommands::m_Ptr->SRFromUDP(u, cur->sMsg.c_str(), szMsgLen);
+				UdpDebug::m_Ptr->Broadcast(cur->m_sMsg);
+				break;
 			}
-			break;
-		}
+			case EVENT_SRVTHREAD_MSG:
+			{
+				UdpDebug::m_Ptr->Broadcast(cur->m_sMsg);
+				break;
+			}
+#ifdef FLYLINKDC_USE_UDP_THREAD
+			case EVENT_UDP_SR:
+			{
+				const size_t szMsgLen = cur->m_sMsg.length();
+				ServerManager::m_ui64BytesRead += (uint64_t)szMsgLen;
+				if (szMsgLen > 4)
+				{
+					char *temp = (char *)strchr(cur->m_sMsg.c_str() + 4, ' ');
+					if (temp == NULL)
+					{
+						break;
+					}
+					
+					size_t szLen = (temp - cur->m_sMsg.c_str()) - 4;
+					if (szLen > 64 || szLen == 0)
+					{
+						break;
+					}
+					
+					// terminate nick, needed for strcasecmp in HashManager
+					temp[0] = '\0';
+					
+					User *pUser = HashManager::m_Ptr->FindUser(cur->m_sMsg.c_str() + 4, szLen);
+					if (pUser == NULL)
+					{
+						break;
+					}
+					
+					// add back space after nick...
+					temp[0] = ' ';
+					
+					if (memcmp(cur->m_ui128IpHash, pUser->m_ui128IpHash, 16) != 0)
+					{
+						break;
+					}
+					
+#ifdef _BUILD_GUI
+					if (::SendMessage(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED)
+					{
+				char sMsg[128];
+				int iMsgLen = snprintf(sMsg, 128, "UDP > %s (%s) > ", pUser->m_sNick, pUser->m_sIP);
+				if(iMsgLen > 0)
+						{
+					RichEditAppendText(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::REDT_CHAT], (string(sMsg, iMsgLen)+cur->m_sMsg).c_str());
+						}
+					}
+#endif
+					
+			DcCommand command = { pUser, cur->m_sMsg.c_str(), cur->m_sMsg.length() };
+			DcCommands::m_Ptr->SRFromUDP(&command);
+				break;
+			}
 #endif // FLYLINKDC_USE_UDP_THREAD
-		default:
-			break;
+			default:
+				break;
 		}
 		
 		delete cur;

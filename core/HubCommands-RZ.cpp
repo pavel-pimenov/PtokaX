@@ -41,7 +41,6 @@
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #ifdef _WITH_SQLITE
 #include "DB-SQLite.h"
-#include <sqlite3.h>
 #elif _WITH_POSTGRES
 #include "DB-PostgreSQL.h"
 #include <libpq-fe.h>
@@ -530,6 +529,7 @@ bool HubCommands::Stats(ChatCommand * pChatCommand)   // !stat !stats !statistic
 		return true;
 	}
 	Statinfo += "CPU usage (60 sec avg): " + string(cpuusage, iLen);
+	
 	char cputime[64];
 	iLen = snprintf(cputime, 64, "%01I64d:%02d:%02d", icpuSec / (60 * 60), (int32_t)((icpuSec / 60) % 60), (int32_t)(icpuSec % 60));
 	if (iLen <= 0)
@@ -537,8 +537,8 @@ bool HubCommands::Stats(ChatCommand * pChatCommand)   // !stat !stats !statistic
 		return true;
 	}
 	Statinfo += "CPU time: " + string(cputime, iLen) + "\r\n";
-#endif
-	
+#endif	
+
 	PROCESS_MEMORY_COUNTERS pmc;
 	memset(&pmc, 0, sizeof(PROCESS_MEMORY_COUNTERS));
 	pmc.cb = sizeof(pmc);
@@ -558,7 +558,7 @@ bool HubCommands::Stats(ChatCommand * pChatCommand)   // !stat !stats !statistic
 	}
 	Statinfo += "CPU usage (60 sec avg): " + string(cpuusage, iLen);
 #endif // FLYLINKDC_USE_CPU_STAT
-	
+
 	struct rusage rs;
 	
 	getrusage(RUSAGE_SELF, &rs);

@@ -92,7 +92,7 @@ bool ServerManager::m_bCmdAutoStart = false, ServerManager::m_bCmdNoAutoStart = 
                     ServerManager::m_bUseIPv6 = true, ServerManager::m_bIPv6DualStack = false;
 
 #ifdef FLYLINKDC_USE_CPU_STAT
-double ServerManager::m_daCpuUsage[60];
+double ServerManager::m_dCpuUsages[60];
 double ServerManager::m_dCpuUsage = 0;
 #endif
 
@@ -149,7 +149,7 @@ void ServerManager::OnSecTimer()
 	getrusage(RUSAGE_SELF, &rs);
 	
 	double dcpuSec = double(rs.ru_utime.tv_sec) + (double(rs.ru_utime.tv_usec) / 1000000) +
-	                 double(rs.ru_stime.tv_sec) + (double(rs.ru_stime.tv_usec) / 1000000);
+	                       double(rs.ru_stime.tv_sec) + (double(rs.ru_stime.tv_usec) / 1000000);
 	m_dCpuUsage = dcpuSec - m_dCpuUsages[m_ui8MinTick];
 	m_dCpuUsages[m_ui8MinTick] = dcpuSec;
 #endif
@@ -394,7 +394,7 @@ void ServerManager::Initialize()
 		exit(EXIT_FAILURE);
 	}
 #ifdef FLYLINKDC_USE_DB
-#if defined(_WITH_SQLITE)
+#if defined(_WITH_SQLITE)	
 	
 	TextConverter::m_Ptr = new (std::nothrow) TextConverter();
 	if (TextConverter::m_Ptr == NULL)
@@ -402,7 +402,7 @@ void ServerManager::Initialize()
 		AppendDebugLog("%s - [MEM] Cannot allocate TextConverter::m_Ptr in ServerInitialize\n");
 		exit(EXIT_FAILURE);
 	}
-#endif
+#endif	
 #endif
 	
 	LanguageManager::m_Ptr = new (std::nothrow) LanguageManager();
@@ -470,6 +470,8 @@ void ServerManager::Initialize()
 		AppendDebugLog("%s - [MEM] Cannot allocate MainWindow::m_Ptr in ServerInitialize\n");
 		exit(EXIT_FAILURE);
 	}
+	
+	m_hMainWindow = MainWindow::m_Ptr->m_hWnd;
 #endif
 	
 	SettingManager::m_Ptr->UpdateAll();
@@ -484,7 +486,7 @@ void ServerManager::Initialize()
 	}
 	
 #ifdef FLYLINKDC_REMOVE_REGISTER_THREAD
-	regtimer = 0;
+	m_upRegTimer = 0;
 #endif
 #endif
 }
@@ -534,18 +536,17 @@ bool ServerManager::Start()
 			break;
 		}
 		
-		if (SettingManager::m_Ptr->m_bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true || (m_bUseIPv6 == true && m_bIPv6DualStack == false))
-		{
-			if (m_bUseIPv6 == true)
+		if(m_bUseIPv6 == false)
 			{
-				CreateServerThread(AF_INET6, SettingManager::m_Ptr->m_ui16PortNumbers[ui8i]);
-			}
-			
 			CreateServerThread(AF_INET, SettingManager::m_Ptr->m_ui16PortNumbers[ui8i]);
+			continue;
 		}
-		else
+		
+		CreateServerThread(AF_INET6, SettingManager::m_Ptr->m_ui16PortNumbers[ui8i]);
+		
+		if(SettingManager::m_Ptr->m_bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true || m_bIPv6DualStack == false)
 		{
-			CreateServerThread(m_bUseIPv6 == true ? AF_INET6 : AF_INET, SettingManager::m_Ptr->m_ui16PortNumbers[ui8i]);
+			CreateServerThread(AF_INET, SettingManager::m_Ptr->m_ui16PortNumbers[ui8i]);
 		}
 	}
 	
@@ -565,7 +566,7 @@ bool ServerManager::Start()
 //  if(tlsenabled == true) {
 	/*        TLSManager = new (std::nothrow) TLSMan();
 	        if(TLSManager == NULL) {
-	            AppendDebugLog("%s - [MEM] Cannot allocate TLSManager in ServerStart\n");
+	            AppendDebugLog("%s - [MEM] Cannot allocate TLSManager in ServerStart\n", 0);
 	            exit(EXIT_FAILURE);
 	        }*/
 //  }
@@ -649,22 +650,18 @@ bool ServerManager::Start()
 #ifdef FLYLINKDC_USE_UDP_THREAD
 	if ((uint16_t)atoi(SettingManager::m_Ptr->m_sTexts[SETTXT_UDP_PORT]) != 0)
 	{
-		if (SettingManager::m_Ptr->m_bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true || (m_bUseIPv6 == true && bIPv6DualStack == false))
+		if(m_bUseIPv6 == false)
 		{
-#ifdef FLYLINKDC_USE_UDP_THREAD_IP6
-			if (m_bUseIPv6 == true)
-			{
-				UDPThread::m_PtrIPv6 = UDPThread::Create(AF_INET6);
-			}
-#endif
-			
-			UDPThread::m_PtrIPv4 = UDPThread::Create(AF_INET);
+			UDPThread::m_PtrIPv6 = UDPThread::Create(AF_INET);
 		}
 		else
+			{
+				UDPThread::m_PtrIPv6 = UDPThread::Create(AF_INET6);
+			
+			if(SettingManager::m_Ptr->m_bBools[SETBOOL_BIND_ONLY_SINGLE_IP] == true || m_bIPv6DualStack == false)
 		{
-#ifdef FLYLINKDC_USE_UDP_THREAD_IP6
-			UDPThread::m_PtrIPv6 = UDPThread::Create(m_bUseIPv6 == true ? AF_INET6 : AF_INET);
-#endif
+				UDPThread::m_PtrIPv6 = UDPThread::Create(AF_INET);
+			}
 		}
 	}
 #endif
@@ -914,7 +911,7 @@ void ServerManager::FinalClose()
 	safe_delete(ZlibUtility::m_Ptr);
 	safe_delete(LanguageManager::m_Ptr);
 #ifdef FLYLINKDC_USE_DB
-#if defined(_WITH_SQLITE)
+#if defined(_WITH_SQLITE)	
 	safe_delete(TextConverter::m_Ptr);
 #endif
 #endif
@@ -926,7 +923,7 @@ void ServerManager::FinalClose()
 #endif
 	
 #ifdef __MACH__
-	mach_port_deallocate(mach_task_self(), ServerManager::m_csMachClock);
+	mach_port_deallocate(mach_task_self(), csMachClock);
 #endif
 	
 	DeleteGlobalBuffer();
@@ -936,7 +933,7 @@ void ServerManager::FinalClose()
 	WSACleanup();
 	
 #ifndef _WIN_IOT
-	::PostMessage(NULL, WM_PX_DO_LOOP, 0, 0);
+	::PostQuitMessage(0);
 #endif
 #endif
 }
@@ -1032,7 +1029,7 @@ void ServerManager::UpdateServers()
 		if (bFound == false)
 		{
 			if (m_bUseIPv6 == false)
-			{
+				{
 				CreateServerThread(AF_INET, SettingManager::m_Ptr->m_ui16PortNumbers[ui8i]);
 				continue;
 			}
@@ -1181,7 +1178,7 @@ void ServerManager::CreateServerThread(const int iAddrFamily, const uint16_t ui1
 void ServerManager::CommandLineSetup()
 {
 	printf("%s built on %s %s\n\n", g_sPtokaXTitle, __DATE__, __TIME__);
-	printf("Welcome to PtokaX configuration setup.\nDirectory for PtokaX configuration is: %s\nWhen this directory is wrong, then exit this setup.\nTo specify correct configuration directory start PtokaX with -c configdir parameter.", ServerManager::m_sPath.c_str());
+	printf("Welcome to PtokaX configuration setup.\nDirectory for PtokaX configuration is: %s\nWhen this directory is wrong, then exit this setup.\nTo specify correct configuration directory start PtokaX with -c configdir parameter.", m_sPath.c_str());
 	
 	const char sMenu[] = "\n\nAvailable options:\n"
 	                     "1. Basic setup. Only few things required for PtokaX run.\n"
@@ -1203,24 +1200,24 @@ void ServerManager::CommandLineSetup()
 		
 		switch (iChar)
 		{
-		case '1':
-			SettingManager::m_Ptr->CmdLineBasicSetup();
-			printf("%s", sMenu);
-			continue;
-		case '2':
-			SettingManager::m_Ptr->CmdLineCompleteSetup();
-			printf("%s", sMenu);
-			continue;
-		case '3':
-			RegManager::m_Ptr->AddRegCmdLine();
-			printf("%s", sMenu);
-			continue;
-		case '4':
-			printf("%s ending...\n", g_sPtokaXTitle);
-			break;
-		default:
-			printf("Unknown option: %c\nYour choice: ", iChar);
-			continue;
+			case '1':
+				SettingManager::m_Ptr->CmdLineBasicSetup();
+				printf("%s", sMenu);
+				continue;
+			case '2':
+				SettingManager::m_Ptr->CmdLineCompleteSetup();
+				printf("%s", sMenu);
+				continue;
+			case '3':
+				RegManager::m_Ptr->AddRegCmdLine();
+				printf("%s", sMenu);
+				continue;
+			case '4':
+				printf("%s ending...\n", g_sPtokaXTitle);
+				break;
+			default:
+				printf("Unknown option: %c\nYour choice: ", iChar);
+				continue;
 		}
 		
 		break;
@@ -1260,8 +1257,8 @@ bool ServerManager::ResolveHubAddress(const bool bSilent/* = false*/)
 					int err = WSAGetLastError();
 #ifdef _BUILD_GUI
 					::MessageBox(MainWindow::m_Ptr->m_hWnd, (string(LanguageManager::m_Ptr->m_sTexts[LAN_RESOLVING_OF_HOSTNAME], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_RESOLVING_OF_HOSTNAME]) + " '" + string(SettingManager::m_Ptr->m_sTexts[SETTXT_HUB_ADDRESS]) + "' " +
-					                                         string(LanguageManager::m_Ptr->m_sTexts[LAN_HAS_FAILED], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_HAS_FAILED]) + ".\n" + string(LanguageManager::m_Ptr->m_sTexts[LAN_ERROR_CODE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_ERROR_CODE]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ")\n\n" +
-					                                         string(LanguageManager::m_Ptr->m_sTexts[LAN_CHECK_THE_ADDRESS_PLEASE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_CHECK_THE_ADDRESS_PLEASE]) + ".").c_str(), LanguageManager::m_Ptr->m_sTexts[LAN_ERROR], MB_OK | MB_ICONERROR);
+					                                           string(LanguageManager::m_Ptr->m_sTexts[LAN_HAS_FAILED], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_HAS_FAILED]) + ".\n" + string(LanguageManager::m_Ptr->m_sTexts[LAN_ERROR_CODE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_ERROR_CODE]) + ": " + string(WSErrorStr(err)) + " (" + string(err) + ")\n\n" +
+					                                           string(LanguageManager::m_Ptr->m_sTexts[LAN_CHECK_THE_ADDRESS_PLEASE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_CHECK_THE_ADDRESS_PLEASE]) + ".").c_str(), LanguageManager::m_Ptr->m_sTexts[LAN_ERROR], MB_OK | MB_ICONERROR);
 #else
 					AppendLog(string(LanguageManager::m_Ptr->m_sTexts[LAN_RESOLVING_OF_HOSTNAME], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_RESOLVING_OF_HOSTNAME]) +
 					          " '" + string(SettingManager::m_Ptr->m_sTexts[SETTXT_HUB_ADDRESS]) + "' " + string(LanguageManager::m_Ptr->m_sTexts[LAN_HAS_FAILED], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_HAS_FAILED]) + ".\n" + string(LanguageManager::m_Ptr->m_sTexts[LAN_ERROR_CODE], (size_t)LanguageManager::m_Ptr->m_ui16TextsLens[LAN_ERROR_CODE]) +

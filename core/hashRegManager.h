@@ -49,7 +49,7 @@ struct RegUser
 	RegUser();
 	~RegUser();
 	
-	static RegUser * CreateReg(const char * sRegNick, size_t szRegNickLen, const char * sRegPassword, size_t szRegPassLen, const uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile);
+	static RegUser * CreateReg(const char * sRegNick, const size_t szRegNickLen, const char * sRegPassword, const size_t szRegPassLen, const uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile);
 	bool UpdatePassword(const char * sNewPass, const size_t szNewLen);
 	DISALLOW_COPY_AND_ASSIGN(RegUser);
 };
@@ -57,41 +57,41 @@ struct RegUser
 
 class RegManager
 {
-private:
-	RegUser * m_pTable[65536];
-	
-	uint8_t m_ui8SaveCalls;
-	
-	DISALLOW_COPY_AND_ASSIGN(RegManager);
-	
-	void LoadXML();
-public:
-	static RegManager * m_Ptr;
-	
-	RegUser * m_pRegListS, * m_pRegListE;
-	
-	RegManager(void);
-	~RegManager(void);
-	
-	bool AddNew(const char * sNick, const char * sPasswd, const uint16_t iProfile);
-	
-	void Add(RegUser * pReg);
-	void Add2Table(RegUser * pReg);
-	static void ChangeReg(RegUser * pReg, const char * sNewPasswd, const uint16_t ui16NewProfile);
-	void Delete(RegUser * pReg, const bool bFromGui = false);
-	void Rem(RegUser * pReg);
-	void RemFromTable(RegUser * pReg);
-	
-	RegUser * Find(const char * sNick, const size_t szNickLen);
-	RegUser * Find(User * pUser);
-	RegUser * Find(const uint32_t ui32Hash, const char * sNick);
-	
-	void Load(void);
-	void Save(const bool bSaveOnChange = false, const bool bSaveOnTime = false);
-	
-	void HashPasswords() const;
-	
-	void AddRegCmdLine();
+	private:
+		RegUser * m_pTable[65536];
+		
+		uint8_t m_ui8SaveCalls;
+		
+		DISALLOW_COPY_AND_ASSIGN(RegManager);
+		
+		void LoadXML();
+	public:
+		static RegManager * m_Ptr;
+		
+		RegUser * m_pRegListS, * m_pRegListE;
+		
+		RegManager(void);
+		~RegManager(void);
+		
+		bool AddNew(const char * sNick, const char * sPasswd, const uint16_t iProfile);
+		
+		void Add(RegUser * pReg);
+		void Add2Table(RegUser * pReg);
+		static void ChangeReg(RegUser * pReg, const char * sNewPasswd, const uint16_t ui16NewProfile);
+		void Delete(RegUser * pReg, const bool bFromGui = false);
+		void Rem(RegUser * pReg);
+		void RemFromTable(RegUser * pReg);
+		
+		RegUser * Find(const char * sNick, const size_t szNickLen);
+		RegUser * Find(User * pUser);
+		RegUser * Find(const uint32_t ui32Hash, const char * sNick);
+		
+		void Load(void);
+		void Save(const bool bSaveOnChange = false, const bool bSaveOnTime = false);
+		
+		void HashPasswords() const;
+		
+		void AddRegCmdLine();
 };
 //---------------------------------------------------------------------------
 

@@ -757,9 +757,9 @@ User::~User()
 	ServerManager::m_ui32Parts++;
 	
 #ifdef _BUILD_GUI
-	if (::SendMessage(MainWindowPageUsersChat::m_Ptr->hWndPageItems[MainWindowPageUsersChat::BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED)
+	if (::SendMessage(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED)
 	{
-		RichEditAppendText(MainWindowPageUsersChat::m_Ptr->hWndPageItems[MainWindowPageUsersChat::REDT_CHAT], ("x User removed: " + string(m_sNick, m_ui8NickLen) + " (Socket " + string(m_Socket) + ")").c_str());
+		RichEditAppendText(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::REDT_CHAT], ("x User removed: " + string(m_sNick, m_ui8NickLen) + " (Socket " + string(m_Socket) + ")").c_str());
 	}
 #endif
 	
@@ -1120,7 +1120,6 @@ void User::SendChar(const char * sText, const size_t szTextLen)
 	}
 }
 //---------------------------------------------------------------------------
-#ifdef USE_FLYLINKDC_EXT_JSON
 #ifdef _WIN32
 static const char g_badChars[] =
 {
@@ -1136,6 +1135,27 @@ static const char g_badChars[] =
 	31, '<', '>', '\\', '/', '"', '|', '?', '*', 0
 };
 #endif
+
+#ifdef USE_FLYLINKDC_EXT_JSON
+void User::SendCharDelayedExtJSON()
+{
+	if (isSupportExtJSON())
+	{
+		if (!Users::m_Ptr->m_AllExtJSON.empty())
+		{
+			SendCharDelayed(Users::m_Ptr->m_AllExtJSON.c_str(), Users::m_Ptr->m_AllExtJSON.size());
+#ifdef _WIN32
+#ifdef _PtokaX_TESTING_
+			//  string l_log = string(Users::m_Ptr->m_AllExtJSON.c_str(), Users::m_Ptr->m_AllExtJSON.size());
+			//  l_log += "\r\n";
+			//  AppendDebugLog(l_log.c_str());
+#endif
+#endif
+		}
+	}
+}
+#endif // USE_FLYLINKDC_EXT_JSON
+//---------------------------------------------------------------------------
 
 void User::logInvalidUser(int p_id, const char * p_buffer, int p_len, bool p_is_send)
 {
@@ -1173,7 +1193,7 @@ void User::logInvalidUser(int p_id, const char * p_buffer, int p_len, bool p_is_
 		l_name += "-error-MAX_INT8";
 	if (m_is_max_ip_len)
 		l_name += "-error-MAX_IP_LEN";
-		
+
 	l_name += ".log";
 	std::ofstream l_file_out(l_name, std::ios_base::app);
 	if (!l_file_out.is_open())
@@ -1194,34 +1214,16 @@ void User::logInvalidUser(int p_id, const char * p_buffer, int p_len, bool p_is_
 		sBuf[0] = 0;
 		strftime(sBuf, 64, "\r\n%c :::::", acc_tm);
 		l_file_out << sBuf << " Nick = [ " << m_sNick <<
-		           " ] RecvBufDataLen = " << m_ui32RecvBufDataLen  <<
-		           " RecvBufLen = " << m_ui32RecvBufLen <<
-		           " ] SendBufDataLen = " << m_ui32SendBufDataLen <<
-		           " SendBufLen = " << m_ui32SendBufLen <<
-		           " Command: " << p_id << ": ";
+			" ] RecvBufDataLen = " << m_ui32RecvBufDataLen <<
+			" RecvBufLen = " << m_ui32RecvBufLen <<
+			" ] SendBufDataLen = " << m_ui32SendBufDataLen <<
+			" SendBufLen = " << m_ui32SendBufLen <<
+			" Command: " << p_id << ": ";
 		l_file_out.write(p_buffer, p_len);
 		//l_file_out << std::endl;
 	}
-	
+
 }
-void User::SendCharDelayedExtJSON()
-{
-	if (isSupportExtJSON())
-	{
-		if (!Users::m_Ptr->m_AllExtJSON.empty())
-		{
-			SendCharDelayed(Users::m_Ptr->m_AllExtJSON.c_str(), Users::m_Ptr->m_AllExtJSON.size());
-#ifdef _WIN32
-#ifdef _PtokaX_TESTING_
-			//  string l_log = string(Users::m_Ptr->m_AllExtJSON.c_str(), Users::m_Ptr->m_AllExtJSON.size());
-			//  l_log += "\r\n";
-			//  AppendDebugLog(l_log.c_str());
-#endif
-#endif
-		}
-	}
-}
-#endif // USE_FLYLINKDC_EXT_JSON
 //---------------------------------------------------------------------------
 
 void User::SendCharDelayed(const char * sText, const size_t szTextLen)
@@ -2945,7 +2947,7 @@ void User::AddPrcsdCmd(const uint8_t ui8Type, const char * sCommand, const size_
 					m_ui32BoolBits |= BIT_ERROR;
 					Close();
 					
-					AppendDebugLogFormat("[MEM] Cannot reallocate %" PRIu64 " bytes in User::AddPrcsdCmd\n", (uint64_t)(cur->m_ui32Len + szCommandLen + 1));
+					AppendDebugLogFormat("[MEM] Cannot reallocate %zu bytes in User::AddPrcsdCmd\n", cur->m_ui32Len+szCommandLen+1);
 					
 					return;
 				}
@@ -3067,7 +3069,7 @@ void User::AddMeOrIPv4Check()
 }
 //---------------------------------------------------------------------------
 
-char * User::SetUserInfo(char* sOldData, uint8_t &ui8OldDataLen, const char * sNewData, size_t szNewDataLen, const char * /* sDataName */)
+char * User::SetUserInfo(char* sOldData, uint8_t &ui8OldDataLen, const char * sNewData, const size_t szNewDataLen, const char * /* sDataName */)
 {
 	User::FreeInfo(sOldData, ui8OldDataLen);
 	

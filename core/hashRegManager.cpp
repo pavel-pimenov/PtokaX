@@ -64,7 +64,7 @@ RegUser::~RegUser()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-RegUser * RegUser::CreateReg(const char * sRegNick, size_t szRegNickLen, const char * sRegPassword, size_t szRegPassLen, const uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile)
+RegUser * RegUser::CreateReg(const char * sRegNick, const size_t szRegNickLen, const char * sRegPassword, const size_t szRegPassLen, const uint8_t * ui8RegPassHash, const uint16_t ui16RegProfile)
 {
 	RegUser * pReg = new (std::nothrow) RegUser();
 	
@@ -973,7 +973,7 @@ void RegManager::HashPasswords() const
 			{
 				pCurReg->m_sPass = sOldPass;
 				
-				AppendDebugLog("%s - [MEM] Cannot reallocate 64 bytes for m_sPass->m_ui8PassHash in RegManager::HashPasswords\n");
+				AppendDebugLog("%s - [MEM] Cannot reallocate 64 bytes for sPass->ui8PassHash in RegManager::HashPasswords\n");
 				
 				continue;
 			}

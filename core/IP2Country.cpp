@@ -530,31 +530,31 @@ IpP2Country::~IpP2Country()
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const char * IpP2Country::Find(const uint8_t * m_ui128IpHash, const bool bCountryName)
+const char * IpP2Country::Find(const uint8_t * ui128IpHash, const bool bCountryName)
 {
 	bool bIPv4 = false;
 	uint32_t ui32IpHash = 0;
 	
-	if (ServerManager::m_bUseIPv6 == false || IN6_IS_ADDR_V4MAPPED((in6_addr *)m_ui128IpHash))
+	if(ServerManager::m_bUseIPv6 == false || IN6_IS_ADDR_V4MAPPED((in6_addr *)ui128IpHash))
 	{
 		bIPv4 = true;
 		
-		ui32IpHash = 16777216 * m_ui128IpHash[12] + 65536 * m_ui128IpHash[13] + 256 * m_ui128IpHash[14] + m_ui128IpHash[15];
+		ui32IpHash = 16777216 * ui128IpHash[12] + 65536 * ui128IpHash[13] + 256 * ui128IpHash[14] + ui128IpHash[15];
 	}
 	
 	if (bIPv4 == false)
 	{
-		if (m_ui128IpHash[0] == 32 && m_ui128IpHash[1] == 2)  // 6to4 tunnel
+		if(ui128IpHash[0] == 32 && ui128IpHash[1] == 2)   // 6to4 tunnel
 		{
 			bIPv4 = true;
 			
-			ui32IpHash = 16777216 * m_ui128IpHash[2] + 65536 * m_ui128IpHash[3] + 256 * m_ui128IpHash[4] + m_ui128IpHash[5];
+			ui32IpHash = 16777216 * ui128IpHash[2] + 65536 * ui128IpHash[3] + 256 * ui128IpHash[4] + ui128IpHash[5];
 		}
-		else if (m_ui128IpHash[0] == 32 && m_ui128IpHash[1] == 1 && m_ui128IpHash[2] == 0 && m_ui128IpHash[3] == 0)    // teredo tunnel
+		else if(ui128IpHash[0] == 32 && ui128IpHash[1] == 1 && ui128IpHash[2] == 0 && ui128IpHash[3] == 0)     // teredo tunnel
 		{
 			bIPv4 = true;
 			
-			ui32IpHash = (16777216 * m_ui128IpHash[12] + 65536 * m_ui128IpHash[13] + 256 * m_ui128IpHash[14] + m_ui128IpHash[15]) ^ 0xffffffff;
+			ui32IpHash = (16777216 * ui128IpHash[12] + 65536 * ui128IpHash[13] + 256 * ui128IpHash[14] + ui128IpHash[15]) ^ 0xffffffff;
 		}
 	}
 	
@@ -579,7 +579,7 @@ const char * IpP2Country::Find(const uint8_t * m_ui128IpHash, const bool bCountr
 	{
 		for (uint32_t ui32i = 0; ui32i < m_ui32IPv6Count; ui32i++)
 		{
-			if (memcmp(m_ui128IPv6RangeFrom + (ui32i * 16), m_ui128IpHash, 16) <= 0 && memcmp(m_ui128IPv6RangeTo + (ui32i * 16), m_ui128IpHash, 16) >= 0)
+			if(memcmp(m_ui128IPv6RangeFrom+(ui32i*16), ui128IpHash, 16) <= 0 && memcmp(m_ui128IPv6RangeTo+(ui32i*16), ui128IpHash, 16) >= 0)
 			{
 				if (bCountryName == false)
 				{
@@ -604,31 +604,31 @@ const char * IpP2Country::Find(const uint8_t * m_ui128IpHash, const bool bCountr
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-uint8_t IpP2Country::Find(const uint8_t * m_ui128IpHash)
+uint8_t IpP2Country::Find(const uint8_t * ui128IpHash)
 {
 	bool bIPv4 = false;
 	uint32_t ui32IpHash = 0;
 	
-	if (ServerManager::m_bUseIPv6 == false || IN6_IS_ADDR_V4MAPPED((in6_addr *)m_ui128IpHash))
+	if(ServerManager::m_bUseIPv6 == false || IN6_IS_ADDR_V4MAPPED((in6_addr *)ui128IpHash))
 	{
 		bIPv4 = true;
 		
-		ui32IpHash = 16777216 * m_ui128IpHash[12] + 65536 * m_ui128IpHash[13] + 256 * m_ui128IpHash[14] + m_ui128IpHash[15];
+		ui32IpHash = 16777216 * ui128IpHash[12] + 65536 * ui128IpHash[13] + 256 * ui128IpHash[14] + ui128IpHash[15];
 	}
 	
 	if (bIPv4 == false)
 	{
-		if (m_ui128IpHash[0] == 32 && m_ui128IpHash[1] == 2)  // 6to4 tunnel
+		if(ui128IpHash[0] == 32 && ui128IpHash[1] == 2)   // 6to4 tunnel
 		{
 			bIPv4 = true;
 			
-			ui32IpHash = 16777216 * m_ui128IpHash[2] + 65536 * m_ui128IpHash[3] + 256 * m_ui128IpHash[4] + m_ui128IpHash[5];
+			ui32IpHash = 16777216 * ui128IpHash[2] + 65536 * ui128IpHash[3] + 256 * ui128IpHash[4] + ui128IpHash[5];
 		}
-		else if (m_ui128IpHash[0] == 32 && m_ui128IpHash[1] == 1 && m_ui128IpHash[2] == 0 && m_ui128IpHash[3] == 0)    // teredo tunnel
+		else if(ui128IpHash[0] == 32 && ui128IpHash[1] == 1 && ui128IpHash[2] == 0 && ui128IpHash[3] == 0)     // teredo tunnel
 		{
 			bIPv4 = true;
 			
-			ui32IpHash = (16777216 * m_ui128IpHash[12] + 65536 * m_ui128IpHash[13] + 256 * m_ui128IpHash[14] + m_ui128IpHash[15]) ^ 0xffffffff;
+			ui32IpHash = (16777216 * ui128IpHash[12] + 65536 * ui128IpHash[13] + 256 * ui128IpHash[14] + ui128IpHash[15]) ^ 0xffffffff;
 		}
 	}
 	
@@ -646,7 +646,7 @@ uint8_t IpP2Country::Find(const uint8_t * m_ui128IpHash)
 	{
 		for (uint32_t ui32i = 0; ui32i < m_ui32IPv6Count; ui32i++)
 		{
-			if (memcmp(m_ui128IPv6RangeFrom + (ui32i * 16), m_ui128IpHash, 16) <= 0 && memcmp(m_ui128IPv6RangeTo + (ui32i * 16), m_ui128IpHash, 16) >= 0)
+			if(memcmp(m_ui128IPv6RangeFrom+(ui32i*16), ui128IpHash, 16) <= 0 && memcmp(m_ui128IPv6RangeTo+(ui32i*16), ui128IpHash, 16) >= 0)
 			{
 				return m_ui8IPv6RangeCI[ui32i];
 			}
