@@ -535,13 +535,13 @@ void SettingManager::Save()
 	for (size_t szi = 0; szi < SETBOOL_IDS_END; szi++)
 	{
 		// Don't save empty hint
-		if (SetBoolCom[szi] != '\0')
+		if (SetBoolCom[szi] != NULL)
 		{
 			fputs(SetBoolCom[szi], fSettingsFile);
 		}
 		
 		// Don't save setting with empty id
-		if (SetBoolStr[szi][0] == '\0')
+		if (SetBoolStr[szi][0] == NULL)
 		{
 			continue;
 		}
@@ -564,13 +564,13 @@ void SettingManager::Save()
 	for (size_t szi = 0; szi < SETSHORT_IDS_END; szi++)
 	{
 		// Don't save empty hint
-		if (SetShortCom[szi] != '\0')
+		if (SetShortCom[szi] != NULL)
 		{
 			fputs(SetShortCom[szi], fSettingsFile);
 		}
 		
 		// Don't save setting with empty id
-		if (SetShortStr[szi][0] == '\0')
+		if (SetShortStr[szi][0] == NULL)
 		{
 			continue;
 		}
@@ -593,13 +593,13 @@ void SettingManager::Save()
 	for (size_t szi = 0; szi < SETTXT_IDS_END; szi++)
 	{
 		// Don't save empty hint
-		if (SetTxtCom[szi] != '\0')
+		if (SetTxtCom[szi] != NULL)
 		{
 			fputs(SetTxtCom[szi], fSettingsFile);
 		}
 		
 		// Don't save setting with empty id
-		if (SetTxtStr[szi][0] == '\0')
+		if (SetTxtStr[szi][0] == NULL)
 		{
 			continue;
 		}
