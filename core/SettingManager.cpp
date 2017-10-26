@@ -1134,6 +1134,7 @@ void SettingManager::SetText(const size_t szTxtId, const char * sTxt, const size
 			{
 				return;
 			}
+			break;
 		case SETTXT_TCP_PORTS:
 			if (szLen == 0 || szLen > 64)
 			{

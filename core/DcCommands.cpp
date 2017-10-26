@@ -744,6 +744,7 @@ void DcCommands::PreProcessData(DcCommand * pDcCommand)
 							To(pDcCommand);
 							return;
 						}
+						break;
 					case 'K':
 						if (*((uint32_t *)(pDcCommand->m_sCommand + 2)) == ui32ick)
 						{

@@ -777,7 +777,6 @@ static bool ScriptOnError(Script * pScript, const char * sErrorMsg, const size_t
 		size_t szLen = 0;
 		const char * stmp = (char*)lua_tolstring(pScript->m_pLua, -1, &szLen);
 		
-		string sMsg(stmp, szLen);
 		
 #ifdef _BUILD_GUI
 		RichEditAppendText(MainWindowPageScripts::m_Ptr->m_hWndPageItems[MainWindowPageScripts::REDT_SCRIPTS_ERRORS],
@@ -789,6 +788,7 @@ static bool ScriptOnError(Script * pScript, const char * sErrorMsg, const size_t
 		                    
 		if (SettingManager::m_Ptr->m_bBools[SETBOOL_LOG_SCRIPT_ERRORS] == true)
 		{
+			const string sMsg(stmp, szLen);
 			AppendLog(sMsg, true);
 		}
 		

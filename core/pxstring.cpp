@@ -341,6 +341,8 @@ string & string::operator=(const char * sTxt)
 
 string & string::operator=(const string & sStr)
 {
+	if (this == &sStr)
+		return *this;
 	if (m_sData != sEmpty)
 	{
 		free(m_sData);
