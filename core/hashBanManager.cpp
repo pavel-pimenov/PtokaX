@@ -2611,6 +2611,7 @@ void BanManager::Ban(User * pUser, const char * sReason, const char * sBy, const
 		}
 		pBan->m_sReason[szReasonLen] = '\0';
 	}
+
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
 		return;
@@ -2649,7 +2650,37 @@ bool BanManager::AddBanInternal(const char * sBy, BanItemBase * pBan, const char
 }
 
 //---------------------------------------------------------------------------
+static bool CreateReason(BanItemBase * pBan, const char * sReason, const char* pFunctionName)
+{
+	if (sReason != NULL)
+	{
+		size_t szReasonLen = strlen(sReason);
+		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
+		if (pBan->m_sReason == NULL)
+		{
+			delete pBan;
 
+			AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sReason in %s\n", szReasonLen > 511 ? 512 : szReasonLen + 1, pFunctionName);
+
+			return true;
+		}
+
+		if (szReasonLen > 511)
+		{
+			memcpy(pBan->m_sReason, sReason, 508);
+			pBan->m_sReason[510] = '.';
+			pBan->m_sReason[509] = '.';
+			pBan->m_sReason[508] = '.';
+			szReasonLen = 511;
+		}
+		else
+		{
+			memcpy(pBan->m_sReason, sReason, szReasonLen);
+		}
+		pBan->m_sReason[szReasonLen] = '\0';
+	}
+	return false;
+}
 char BanManager::BanIp(User * pUser, const char * sIp, const char * sReason, const char * sBy, const bool bFull)
 {
 	BanItem * pBan = new (std::nothrow) BanItem();
@@ -2729,33 +2760,8 @@ char BanManager::BanIp(User * pUser, const char * sIp, const char * sReason, con
 		return 2;
 	}
 	
-	if (sReason != NULL)
-	{
-		size_t szReasonLen = strlen(sReason);
-		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->m_sReason == NULL)
-		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sReason in BanManager::BanIp\n", szReasonLen > 511 ? 512 : szReasonLen+1);
-			
+	if (CreateReason(pBan, sReason, __FUNCTION__))
 			return 1;
-		}
-		
-		if (szReasonLen > 511)
-		{
-			memcpy(pBan->m_sReason, sReason, 508);
-			pBan->m_sReason[510] = '.';
-			pBan->m_sReason[509] = '.';
-			pBan->m_sReason[508] = '.';
-			szReasonLen = 511;
-		}
-		else
-		{
-			memcpy(pBan->m_sReason, sReason, szReasonLen);
-		}
-		pBan->m_sReason[szReasonLen] = '\0';
-	}
 	
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
@@ -2876,34 +2882,10 @@ bool BanManager::NickBan(User * pUser, const char * sNick, const char * sReason,
 			}
 		}
 	}
-	
-	if (sReason != NULL)
+	if (CreateReason(pBan, sReason, __FUNCTION__))
 	{
-		size_t szReasonLen = strlen(sReason);
-		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->m_sReason == NULL)
-		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sReason in BanManager::NickBan\n", szReasonLen > 511 ? 512 : szReasonLen+1);
-			
 			return false;
 		}
-		
-		if (szReasonLen > 511)
-		{
-			memcpy(pBan->m_sReason, sReason, 508);
-			pBan->m_sReason[510] = '.';
-			pBan->m_sReason[509] = '.';
-			pBan->m_sReason[508] = '.';
-			szReasonLen = 511;
-		}
-		else
-		{
-			memcpy(pBan->m_sReason, sReason, szReasonLen);
-		}
-		pBan->m_sReason[szReasonLen] = '\0';
-	}
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
 		return false;
@@ -3140,35 +3122,11 @@ void BanManager::TempBan(User * pUser, const char * sReason, const char * sBy, c
 		Rem(curBan);
 		delete curBan;
 	}
-	
-	if (sReason != NULL)
-	{
-		size_t szReasonLen = strlen(sReason);
-		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->m_sReason == NULL)
+	if (CreateReason(pBan, sReason, __FUNCTION__))
 		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sReason in BanManager::TempBan\n", szReasonLen > 511 ? 512 : szReasonLen+1);
-			
 			return;
 		}
 		
-		if (szReasonLen > 511)
-		{
-			memcpy(pBan->m_sReason, sReason, 508);
-			pBan->m_sReason[510] = '.';
-			pBan->m_sReason[509] = '.';
-			pBan->m_sReason[508] = '.';
-			szReasonLen = 511;
-		}
-		else
-		{
-			memcpy(pBan->m_sReason, sReason, szReasonLen);
-		}
-		pBan->m_sReason[szReasonLen] = '\0';
-	}
-	
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
 		return;
@@ -3269,35 +3227,11 @@ char BanManager::TempBanIp(User * pUser, const char * sIp, const char * sReason,
 		
 		return 2;
 	}
-	
-	if (sReason != NULL)
+	if (CreateReason(pBan, sReason, __FUNCTION__))
 	{
-		size_t szReasonLen = strlen(sReason);
-		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->m_sReason == NULL)
-		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sReason in BanManager::TempBanIp\n", szReasonLen > 511 ? 512 : szReasonLen+1);
-			
 			return 1;
 		}
 		
-		if (szReasonLen > 511)
-		{
-			memcpy(pBan->m_sReason, sReason, 508);
-			pBan->m_sReason[510] = '.';
-			pBan->m_sReason[509] = '.';
-			pBan->m_sReason[508] = '.';
-			szReasonLen = 511;
-		}
-		else
-		{
-			memcpy(pBan->m_sReason, sReason, szReasonLen);
-		}
-		pBan->m_sReason[szReasonLen] = '\0';
-	}
-	
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
 		return 1;
@@ -3440,35 +3374,11 @@ bool BanManager::NickTempBan(User * pUser, const char * sNick, const char * sRea
 			}
 		}
 	}
-	
-	if (sReason != NULL)
-	{
-		size_t szReasonLen = strlen(sReason);
-		pBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pBan->m_sReason == NULL)
+	if (CreateReason(pBan, sReason, __FUNCTION__))
 		{
-			delete pBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sReason in BanManager::NickTempBan\n", szReasonLen > 511 ? 512 : szReasonLen+1);
-			
 			return false;
 		}
 		
-		if (szReasonLen > 511)
-		{
-			memcpy(pBan->m_sReason, sReason, 508);
-			pBan->m_sReason[510] = '.';
-			pBan->m_sReason[509] = '.';
-			pBan->m_sReason[508] = '.';
-			szReasonLen = 511;
-		}
-		else
-		{
-			memcpy(pBan->m_sReason, sReason, szReasonLen);
-		}
-		pBan->m_sReason[szReasonLen] = '\0';
-	}
-	
 	if (AddBanInternal(sBy, pBan, __FUNCTION__) == false)
 	{
 		return false;
@@ -3770,35 +3680,11 @@ bool BanManager::RangeBan(const char * m_sIpFrom, const uint8_t * ui128FromIpHas
 		
 		return false;
 	}
-	
-	if (sReason != NULL)
-	{
-		size_t szReasonLen = strlen(sReason);
-		pRangeBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pRangeBan->m_sReason == NULL)
+	if (CreateReason(pRangeBan, sReason, __FUNCTION__))
 		{
-			delete pRangeBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sReason in BanManager::RangeBan\n", szReasonLen > 511 ? 512 : szReasonLen+1);
-			
 			return false;
 		}
 		
-		if (szReasonLen > 511)
-		{
-			memcpy(pRangeBan->m_sReason, sReason, 508);
-			pRangeBan->m_sReason[510] = '.';
-			pRangeBan->m_sReason[509] = '.';
-			pRangeBan->m_sReason[508] = '.';
-			szReasonLen = 511;
-		}
-		else
-		{
-			memcpy(pRangeBan->m_sReason, sReason, szReasonLen);
-		}
-		pRangeBan->m_sReason[szReasonLen] = '\0';
-	}
-	
 	if (AddBanInternal(sBy, pRangeBan, __FUNCTION__) == false)
 	{
 		return false;
@@ -3889,35 +3775,11 @@ bool BanManager::RangeTempBan(const char * m_sIpFrom, const uint8_t * ui128FromI
 		
 		return false;
 	}
-	
-	if (sReason != NULL)
+	if (CreateReason(pRangeBan, sReason, __FUNCTION__))
 	{
-		size_t szReasonLen = strlen(sReason);
-		pRangeBan->m_sReason = (char *)malloc(szReasonLen > 511 ? 512 : szReasonLen + 1);
-		if (pRangeBan->m_sReason == NULL)
-		{
-			delete pRangeBan;
-			
-			AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sReason in BanManager::RangeTempBan\n", szReasonLen > 511 ? 512 : szReasonLen+1);
-			
 			return false;
 		}
 		
-		if (szReasonLen > 511)
-		{
-			memcpy(pRangeBan->m_sReason, sReason, 508);
-			pRangeBan->m_sReason[510] = '.';
-			pRangeBan->m_sReason[509] = '.';
-			pRangeBan->m_sReason[508] = '.';
-			szReasonLen = 511;
-		}
-		else
-		{
-			memcpy(pRangeBan->m_sReason, sReason, szReasonLen);
-		}
-		pRangeBan->m_sReason[szReasonLen] = '\0';
-	}
-	
 	if (AddBanInternal(sBy, pRangeBan, __FUNCTION__) == false)
 	{
 		return false;

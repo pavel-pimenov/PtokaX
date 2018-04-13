@@ -1978,10 +1978,10 @@ void User::SetBuffer(const char * sKickMsg, size_t szLen /* = 0*/)
 			return;
 		}
 		memcpy(m_LogInOut.m_pBuffer, sKickMsg, 508);
-		m_LogInOut.m_pBuffer[511] = '\0';
 		m_LogInOut.m_pBuffer[510] = '.';
 		m_LogInOut.m_pBuffer[509] = '.';
 		m_LogInOut.m_pBuffer[508] = '.';
+		m_LogInOut.m_pBuffer[511] = '\0';
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
