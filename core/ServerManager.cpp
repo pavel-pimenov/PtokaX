@@ -1166,9 +1166,10 @@ void ServerManager::CreateServerThread(const int iAddrFamily, const uint16_t ui1
 	else
 	{
 		delete pServer;
+        pServer = NULL;
 	}
 	
-	if (bResume == true)
+	if (bResume == true && pServer)
 	{
 		pServer->Resume();
 	}
