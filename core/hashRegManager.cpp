@@ -31,6 +31,7 @@
 #include "SettingManager.h"
 #include "User.h"
 #include "utility.h"
+#include "tinyxml.h"
 //---------------------------------------------------------------------------
 #ifdef _BUILD_GUI
 #include "../gui.win/RegisteredUserDialog.h"
@@ -43,7 +44,7 @@ static const char sPtokaXRegiteredUsers[] = "PtokaX Registered Users";
 static const size_t szPtokaXRegiteredUsersLen = sizeof(sPtokaXRegiteredUsers) - 1;
 //---------------------------------------------------------------------------
 
-RegUser::RegUser() : m_tLastBadPass(0), m_sNick(NULL), m_pPrev(NULL), m_pNext(NULL), m_pHashTablePrev(NULL), m_pHashTableNext(NULL), m_ui32Hash(0), m_ui16Profile(0), m_ui8BadPassCount(0), m_bPassHash(false)
+RegUser::RegUser() : m_tLastBadPass(0), m_pPrev(NULL), m_pNext(NULL), m_pHashTablePrev(NULL), m_pHashTableNext(NULL), m_ui32Hash(0), m_ui16Profile(0), m_ui8BadPassCount(0), m_bPassHash(false)
 {
 	m_sPass = nullptr;
 }
@@ -51,8 +52,6 @@ RegUser::RegUser() : m_tLastBadPass(0), m_sNick(NULL), m_pPrev(NULL), m_pNext(NU
 
 RegUser::~RegUser()
 {
-	free(m_sNick);
-	
 	if (m_bPassHash == true)
 	{
 		free(m_ui8PassHash);
@@ -75,16 +74,7 @@ RegUser * RegUser::CreateReg(const char * sRegNick, const size_t szRegNickLen, c
 		return NULL;
 	}
 	
-	pReg->m_sNick = (char *)malloc(szRegNickLen + 1);
-	if (pReg->m_sNick == NULL)
-	{
-		AppendDebugLogFormat("[MEM] Cannot allocate %zu bytes for m_sNick in RegUser::RegUser\n", szRegNickLen+1);
-		
-		delete pReg;
-		return NULL;
-	}
-	memcpy(pReg->m_sNick, sRegNick, szRegNickLen);
-	pReg->m_sNick[szRegNickLen] = '\0';
+	pReg->m_sNick = std::string(sRegNick, szRegNickLen);
 	
 	if (ui8RegPassHash != NULL)
 	{
@@ -262,7 +252,7 @@ bool RegManager::AddNew(const char * sNick, const char * sPasswd, const uint16_t
 		return true;
 	}
 	
-	User * AddedUser = HashManager::m_Ptr->FindUser(pNewUser->m_sNick, strlen(pNewUser->m_sNick));
+	User * AddedUser = HashManager::m_Ptr->FindUser(pNewUser->m_sNick);
 	
 	if (AddedUser != NULL)
 	{
@@ -282,9 +272,12 @@ bool RegManager::AddNew(const char * sNick, const char * sPasswd, const uint16_t
 			
 			if (((AddedUser->m_ui32BoolBits & User::BIT_OPERATOR) == User::BIT_OPERATOR) == true)
 			{
+				// alex82 ... HideUserKey / Прячем ключ юзера
+				if (((AddedUser->m_ui32InfoBits & User::INFOBIT_HIDE_KEY) == User::INFOBIT_HIDE_KEY) == false)
+				{
 				Users::m_Ptr->Add2OpList(AddedUser);
 				GlobalDataQueue::m_Ptr->OpListStore(AddedUser->m_sNick);
-				
+				}
 				if (bAllowedOpChat != ProfileManager::m_Ptr->IsAllowed(AddedUser, ProfileManager::ALLOWEDOPCHAT))
 				{
 					if (SettingManager::m_Ptr->m_bBools[SETBOOL_REG_OP_CHAT] == true &&
@@ -368,7 +361,7 @@ void RegManager::ChangeReg(RegUser * pReg, const char * sNewPasswd, const uint16
 		return;
 	}
 	
-	User *ChangedUser = HashManager::m_Ptr->FindUser(pReg->m_sNick, strlen(pReg->m_sNick));
+	User *ChangedUser = HashManager::m_Ptr->FindUser(pReg->m_sNick);
 	if (ChangedUser != NULL && ChangedUser->m_i32Profile != (int32_t)ui16NewProfile)
 	{
 		bool bAllowedOpChat = ProfileManager::m_Ptr->IsAllowed(ChangedUser, ProfileManager::ALLOWEDOPCHAT);
@@ -381,14 +374,38 @@ void RegManager::ChangeReg(RegUser * pReg, const char * sNewPasswd, const uint16
 			if (ProfileManager::m_Ptr->IsAllowed(ChangedUser, ProfileManager::HASKEYICON) == true)
 			{
 				ChangedUser->m_ui32BoolBits |= User::BIT_OPERATOR;
+				// alex82 ... HideUserKey / Прячем ключ юзера
+				if (((ChangedUser->m_ui32InfoBits & User::INFOBIT_HIDE_KEY) == User::INFOBIT_HIDE_KEY) == false) {
 				Users::m_Ptr->Add2OpList(ChangedUser);
 				GlobalDataQueue::m_Ptr->OpListStore(ChangedUser->m_sNick);
+			}
 			}
 			else
 			{
 				ChangedUser->m_ui32BoolBits &= ~User::BIT_OPERATOR;
+				// alex82 ... HideUserKey / Прячем ключ юзера
+				if (((ChangedUser->m_ui32InfoBits & User::INFOBIT_HIDE_KEY) == User::INFOBIT_HIDE_KEY) == false) {
+					// alex82 ... Исправили отправку OpList
+					int imsgLen = sprintf(ServerManager::m_pGlobalBuffer, "$Quit %s|", ChangedUser->m_sNick);
+					if (CheckSprintf(imsgLen, 128, "RegManager::ChangeReg1") == true) {
+						GlobalDataQueue::m_Ptr->AddQueueItem(ServerManager::m_pGlobalBuffer, imsgLen, NULL, 0, GlobalDataQueue::CMD_QUIT);
+					}
+					switch (SettingManager::m_Ptr->m_ui8FullMyINFOOption) {
+					case 0:
+						GlobalDataQueue::m_Ptr->AddQueueItem(ChangedUser->m_sMyInfoLong, ChangedUser->m_ui16MyInfoLongLen, NULL, 0, GlobalDataQueue::CMD_MYINFO);
+						break;
+					case 1:
+						GlobalDataQueue::m_Ptr->AddQueueItem(ChangedUser->m_sMyInfoShort, ChangedUser->m_ui16MyInfoShortLen, ChangedUser->m_sMyInfoLong, ChangedUser->m_ui16MyInfoLongLen, GlobalDataQueue::CMD_MYINFO);
+						break;
+					case 2:
+						GlobalDataQueue::m_Ptr->AddQueueItem(ChangedUser->m_sMyInfoShort, ChangedUser->m_ui16MyInfoShortLen, NULL, 0, GlobalDataQueue::CMD_MYINFO);
+						break;
+					default:
+						break;
+					}
 				Users::m_Ptr->DelFromOpList(ChangedUser->m_sNick);
 			}
+		}
 		}
 		
 		if (bAllowedOpChat != ProfileManager::m_Ptr->IsAllowed(ChangedUser, ProfileManager::ALLOWEDOPCHAT))
@@ -436,7 +453,7 @@ void RegManager::Delete(RegUser * pReg, const bool /*bFromGui = false*/)
 #endif
 	if (ServerManager::m_bServerRunning == true)
 	{
-		User * pRemovedUser = HashManager::m_Ptr->FindUser(pReg->m_sNick, strlen(pReg->m_sNick));
+		User * pRemovedUser = HashManager::m_Ptr->FindUser(pReg->m_sNick);
 		
 		if (pRemovedUser != NULL)
 		{
@@ -555,7 +572,7 @@ RegUser* RegManager::Find(const char * sNick, const size_t szNickLen)
 		cur = next;
 		next = cur->m_pHashTableNext;
 		
-		if (cur->m_ui32Hash == ui32Hash && strcasecmp(cur->m_sNick, sNick) == 0)
+		if (cur->m_ui32Hash == ui32Hash && strcasecmp(cur->m_sNick.c_str(), sNick) == 0)
 		{
 			return cur;
 		}
@@ -577,7 +594,7 @@ RegUser* RegManager::Find(User * pUser)
 		cur = next;
 		next = cur->m_pHashTableNext;
 		
-		if (cur->m_ui32Hash == pUser->m_ui32NickHash && strcasecmp(cur->m_sNick, pUser->m_sNick) == 0)
+		if (cur->m_ui32Hash == pUser->m_ui32NickHash && strcasecmp(cur->m_sNick.c_str(), pUser->m_sNick) == 0)
 		{
 			return cur;
 		}
@@ -599,7 +616,7 @@ RegUser* RegManager::Find(const uint32_t ui32Hash, const char * sNick)
 		cur = next;
 		next = cur->m_pHashTableNext;
 		
-		if (cur->m_ui32Hash == ui32Hash && strcasecmp(cur->m_sNick, sNick) == 0)
+		if (cur->m_ui32Hash == ui32Hash && strcasecmp(cur->m_sNick.c_str(), sNick) == 0)
 		{
 			return cur;
 		}
@@ -920,8 +937,8 @@ void RegManager::Save(const bool bSaveOnChange/* = false*/, const bool bSaveOnTi
 		curReg = next;
 		next = curReg->m_pNext;
 		
-		pxbRegs.m_ui16ItemLengths[0] = (uint16_t)strlen(curReg->m_sNick);
-		pxbRegs.m_pItemDatas[0] = (void *)curReg->m_sNick;
+		pxbRegs.m_ui16ItemLengths[0] = uint16_t(curReg->m_sNick.length());
+		pxbRegs.m_pItemDatas[0] = (void *)curReg->m_sNick.c_str();
 		pxbRegs.m_ui8ItemValues[0] = PXBReader::PXB_STRING;
 		
 		if (curReg->m_bPassHash == true)

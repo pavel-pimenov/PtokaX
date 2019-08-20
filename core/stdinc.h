@@ -31,7 +31,6 @@
 #ifdef _WIN32
 #include <malloc.h>
 #endif
-#include <string.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <math.h>
@@ -82,7 +81,6 @@
 #ifdef _WIN32
 #define TIXML_USE_STL
 #endif
-#include <tinyxml.h>
 #ifdef _WIN32
 #define PSAPI_VERSION 1 // [+]FlylinkDC++
 #include <psapi.h>
@@ -111,12 +109,18 @@
 //---------------------------------------------------------------------------
 #define PtokaXVersionString "0.5.2.2"
 #define BUILD_NUMBER "556"
+#define ModString " / Alex82 Mod's support v.04 (part.)"
+
+#ifndef USE_FLYLINKDC_EXT_JSON
+  #define USE_FLYLINKDC_EXT_JSON
+#endif
+
 #ifdef USE_FLYLINKDC_EXT_JSON
-const char g_sPtokaXTitle[] = "PtokaX DC Hub for FlylinkDC++ " PtokaXVersionString
+const char g_sPtokaXTitle[] = "PtokaX + JSON DC Hub for FlylinkDC++ " PtokaXVersionString
 #else
-const char g_sPtokaXTitle[] = "PtokaX++ DC Hub " PtokaXVersionString
+const char g_sPtokaXTitle[] = "PtokaX DC Hub for FlylinkDC++" PtokaXVersionString
 #endif // USE_FLYLINKDC_EXT_JSON
-                              " [build " BUILD_NUMBER "]";
+			" [build " BUILD_NUMBER "] " ModString;
 #ifdef _WIN32
 #define strcasecmp stricmp
 #define strncasecmp strnicmp

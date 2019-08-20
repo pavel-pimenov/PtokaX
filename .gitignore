@@ -72,3 +72,9 @@ valgrind*.log
 /compiled/*.7z
 /*.opendb
 /*.db
+callgrind.out.*
+*.VC.db
+*.opendb
+strace_out
+*.log
+

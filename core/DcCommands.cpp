@@ -106,7 +106,9 @@ DcCommands::~DcCommands()
 // Process DC data form User
 void DcCommands::PreProcessData(DcCommand * pDcCommand)
 {
+#ifdef USE_FLYLINKDC_EXT_JSON
 	bool bCheck = true; // TODO 
+#endif
 #ifdef _BUILD_GUI
 	// Full raw data trace for better logging
 	if (::SendMessage(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -693,9 +695,12 @@ void DcCommands::PreProcessData(DcCommand * pDcCommand)
 										
 										pDcCommand->m_pUser->m_ui32BoolBits |= User::BIT_OPERATOR;
 										
+										// alex82 ... HideUserKey / Прячем ключ юзера
+										if (((pDcCommand->m_pUser->m_ui32InfoBits & User::INFOBIT_HIDE_KEY) == User::INFOBIT_HIDE_KEY) == false)
+										{
 										Users::m_Ptr->Add2OpList(pDcCommand->m_pUser);
 										GlobalDataQueue::m_Ptr->OpListStore(pDcCommand->m_pUser->m_sNick);
-										
+										}
 										if (ProfileManager::m_Ptr->IsAllowed(pDcCommand->m_pUser, ProfileManager::ALLOWEDOPCHAT) == true)
 										{
 											if (SettingManager::m_Ptr->m_bBools[SETBOOL_REG_OP_CHAT] == true &&
@@ -3665,7 +3670,7 @@ bool DcCommands::ValidateUserNick(DcCommand * pDcCommand,User * pUser, char * sN
 			{
 				pUser->SendFormat("DcCommands::ValidateUserNick1", false, "<%s> %s '%c' ! %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOUR_NICK_CONTAINS_ILLEGAL_CHARACTER], sNick[ui32i], LanguageManager::m_Ptr->m_sTexts[LAN_PLS_CORRECT_IT_AND_GET_BACK_AGAIN]);
 				
-//				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick with bad chars (%s) from %s (%s) - user closed.", Nick, pUser->sNick, pUser->sIP);
+//				UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick with bad chars (%s) from %s (%s) - user closed.", Nick, pUser->m_sNick, pUser->m_sIP);
 
 				pUser->Close();
 				return false;
@@ -3675,7 +3680,7 @@ bool DcCommands::ValidateUserNick(DcCommand * pDcCommand,User * pUser, char * sN
 				{
 					pUser->SendFormat("DcCommands::ValidateUserNick2", false, "<%s> %s! %s.|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_YOUR_NICK_CONTAINS_ILLEGAL_WHITE_CHARACTER], LanguageManager::m_Ptr->m_sTexts[LAN_PLS_CORRECT_IT_AND_GET_BACK_AGAIN]);
 					
-//					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick with white chars (%s) from %s (%s) - user closed.", Nick, pUser->sNick, pUser->sIP);
+//					UdpDebug::m_Ptr->BroadcastFormat("[SYS] Nick with white chars (%s) from %s (%s) - user closed.", Nick, pUser->m_sNick, pUser->m_sIP);
 
 					pUser->Close();
 					return false;
@@ -3692,7 +3697,7 @@ bool DcCommands::ValidateUserNick(DcCommand * pDcCommand,User * pUser, char * sN
 	{
 		pUser->SendFormat("DcCommands::ValidateUserNick3", false, "<%s> %s. %s.|$ValidateDenide %s|", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_THE_NICK_IS_RESERVED_FOR_SOMEONE_OTHER], LanguageManager::m_Ptr->m_sTexts[LAN_CHANGE_YOUR_NICK_AND_GET_BACK_AGAIN], sNick);
 		
-//		UdpDebug::m_Ptr->BroadcastFormat("[SYS] Reserved nick (%s) from %s (%s) - user closed.", Nick, pUser->sNick, pUser->sIP);
+//		UdpDebug::m_Ptr->BroadcastFormat("[SYS] Reserved nick (%s) from %s (%s) - user closed.", Nick, pUser->m_sNick, pUser->m_sIP);
 
 		pUser->Close();
 		return false;
@@ -3760,7 +3765,7 @@ bool DcCommands::ValidateUserNick(DcCommand * pDcCommand,User * pUser, char * sN
 		{
 			pUser->SendChar(pUser->m_LogInOut.m_pBan->m_sMessage, pUser->m_LogInOut.m_pBan->m_ui32Len);
 			
-			// UdpDebug::m_Ptr->BroadcastFormat("[SYS] uBanned user %s (%s) - user closed.", pUser->sNick, pUser->sIP);
+			// UdpDebug::m_Ptr->BroadcastFormat("[SYS] uBanned user %s (%s) - user closed.", pUser->m_sNick, pUser->m_sIP);
 			
 			pUser->Close();
 			return false;
@@ -3782,7 +3787,7 @@ bool DcCommands::ValidateUserNick(DcCommand * pDcCommand,User * pUser, char * sN
 		{
 			pUser->SendFormat("DcCommands::ValidateUserNick5", false, "$HubIsFull|<%s> %s. %u %s.|%s", SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_HUB_SEC], LanguageManager::m_Ptr->m_sTexts[LAN_THIS_HUB_IS_FULL], ServerManager::m_ui32Logged, LanguageManager::m_Ptr->m_sTexts[LAN_USERS_ONLINE_LWR],
 			                  (SettingManager::m_Ptr->m_bBools[SETBOOL_REDIRECT_WHEN_HUB_FULL] == true && SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_REDIRECT_ADDRESS] != NULL) ? SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_REDIRECT_ADDRESS] : "");
-//			UdpDebug::m_Ptr->BroadcastFormat("[SYS] Hub full for %s (%s) - user closed.", pUser->sNick, pUser->sIP);
+//			UdpDebug::m_Ptr->BroadcastFormat("[SYS] Hub full for %s (%s) - user closed.", pUser->m_sNick, pUser->m_sIP);
 
 			pUser->Close();
 			return false;
@@ -3920,7 +3925,7 @@ bool DcCommands::ValidateUserNickFinally(bool pIsNotReg, User * pUser, const siz
 		        (SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MAX_NICK_LEN] != 0 && szNickLen > (uint32_t)SettingManager::m_Ptr->m_i16Shorts[SETSHORT_MAX_NICK_LEN]))
 		{
 			pUser->SendChar(SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_NICK_LIMIT_MSG], SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_NICK_LIMIT_MSG]);
-			// UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad nick length (%d) from %s (%s) - user closed.", (int)szNickLen, pUser->sNick, pUser->sIP);
+			// UdpDebug::m_Ptr->BroadcastFormat("[SYS] Bad nick length (%d) from %s (%s) - user closed.", (int)szNickLen, pUser->m_sNick, pUser->m_sIP);
 			
 			pUser->Close();
 			return false;
@@ -3930,7 +3935,7 @@ bool DcCommands::ValidateUserNickFinally(bool pIsNotReg, User * pUser, const siz
 		{
 			pUser->SendChar(SettingManager::m_Ptr->m_sPreTexts[SettingManager::SETPRETXT_REG_ONLY_MSG], SettingManager::m_Ptr->m_ui16PreTextsLens[SettingManager::SETPRETXT_REG_ONLY_MSG]);
 			
-//			UdpDebug::m_Ptr->BroadcastFormat("[SYS] Hub for reg only %s (%s) - user closed.", pUser->sNick, pUser->sIP);
+//			UdpDebug::m_Ptr->BroadcastFormat("[SYS] Hub for reg only %s (%s) - user closed.", pUser->m_sNick, pUser->m_sIP);
 
 			pUser->Close();
 			return false;
@@ -4078,12 +4083,7 @@ void DcCommands::ProcessCmds(User * pUser)
 					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " HubURL", 7);
 					iSupportsLen += 7;
 				}
-				if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64)
-				{
-					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " IP64", 5);
-					iSupportsLen += 5;
-				}
-// FlylinkDC++				
+
 				if ((pUser->m_ui32SupportBits & User::SUPPORTBIT_IP64) == User::SUPPORTBIT_IP64)
 				{
 					memcpy(ServerManager::m_pGlobalBuffer + iSupportsLen, " IP64", 5);
@@ -4206,7 +4206,8 @@ void DcCommands::ProcessCmds(User * pUser)
 		{
 			pUser->HasSuspiciousTag();
 		}
-		
+		// alex82 ... HideUser / Скрытие юзера
+		if (((pUser->m_ui32InfoBits & User::INFOBIT_HIDDEN) == User::INFOBIT_HIDDEN) == false) {
 		if (SettingManager::m_Ptr->m_ui8FullMyINFOOption == 0)
 		{
 			if (pUser->GenerateMyInfoLong() == false)
@@ -4225,7 +4226,6 @@ void DcCommands::ProcessCmds(User * pUser)
 			{
 				GlobalDataQueue::m_Ptr->AddQueueItem(pUser->m_sMyInfoLong, pUser->m_ui16MyInfoLongLen, NULL, 0, GlobalDataQueue::CMD_OPS);
 			}
-			
 			return;
 		}
 		else if (SettingManager::m_Ptr->m_ui8FullMyINFOOption == 2)
@@ -4246,7 +4246,6 @@ void DcCommands::ProcessCmds(User * pUser)
 			{
 				GlobalDataQueue::m_Ptr->AddQueueItem(pUser->m_sMyInfoShort, pUser->m_ui16MyInfoShortLen, NULL, 0, GlobalDataQueue::CMD_OPS);
 			}
-			
 			return;
 		}
 		
@@ -4273,7 +4272,7 @@ void DcCommands::ProcessCmds(User * pUser)
 		}
 		
 		GlobalDataQueue::m_Ptr->AddQueueItem(sShortMyINFO, szShortMyINFOLen, pUser->m_sMyInfoLong, pUser->m_ui16MyInfoLongLen, GlobalDataQueue::CMD_MYINFO);
-	}
+
 #ifdef USE_FLYLINKDC_EXT_JSON
 	if ((pUser->m_ui32BoolBits & User::BIT_PRCSD_EXT_JSON) == User::BIT_PRCSD_EXT_JSON)
 	{
@@ -4301,6 +4300,8 @@ void DcCommands::ProcessCmds(User * pUser)
 		}
 	}
 #endif // USE_FLYLINKDC_EXT_JSON    
+		}	// HideUser
+	}	// MyINFO
 }
 //---------------------------------------------------------------------------
 

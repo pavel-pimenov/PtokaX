@@ -83,7 +83,7 @@ static bool UserProcessLines(User * pUser, const uint32_t ui32NewDataStart)
 			const uint32_t ui32CommandLen = (uint32_t)(((pUser->m_pRecvBuf + ui32i) - pBuffer) + 1);
 			if (pBuffer[0] == '|')
 			{
-				//UdpDebug->BroadcastFormat("[SYS] heartbeat from %s (%s).", pUser->Nick, pUser->sIP);
+				//UdpDebug->BroadcastFormat("[SYS] heartbeat from %s (%s).", pUser->Nick, pUser->m_sIP);
 				//send(Sck, "|", 1, 0);
 			}
 			else if (ui32CommandLen <= (pUser->m_ui8State < User::STATE_ADDME ? 1024U : 65536U))
@@ -699,8 +699,9 @@ User::User() : m_ui64SharedSize(0), m_ui64ChangedSharedSizeShort(0), m_ui64Chang
 	m_ui8NickLen(9), m_ui8IpLen(0), m_ui8ConnectionLen(0), m_ui8DescriptionLen(0), m_ui8EmailLen(0), m_ui8TagLen(0), m_ui8ClientLen(14), m_ui8TagVersionLen(0),
 	m_ui8Country(246), m_ui8State(User::STATE_SOCKET_ACCEPTED), m_ui8IPv4Len(0),
 	m_ui8ChangedDescriptionShortLen(0), m_ui8ChangedDescriptionLongLen(0), m_ui8ChangedTagShortLen(0), m_ui8ChangedTagLongLen(0),
-	m_ui8ChangedConnectionShortLen(0), m_ui8ChangedConnectionLongLen(0), m_ui8ChangedEmailShortLen(0), m_ui8ChangedEmailLongLen(0)
-    ,m_last_recv_tick(0)
+	m_ui8ChangedConnectionShortLen(0), m_ui8ChangedConnectionLongLen(0), m_ui8ChangedEmailShortLen(0), m_ui8ChangedEmailLongLen(0),
+    m_last_recv_tick(0),m_is_invalid_json(false), m_is_json_user(false)
+
 #ifdef FLYLINKDC_USE_VERSION
 	,m_sVersion(NULL)
 #endif
@@ -759,7 +760,7 @@ User::~User()
 #ifdef _BUILD_GUI
 	if (::SendMessage(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::BTN_SHOW_COMMANDS], BM_GETCHECK, 0, 0) == BST_CHECKED)
 	{
-		RichEditAppendText(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::REDT_CHAT], ("x User removed: " + string(m_sNick, m_ui8NickLen) + " (Socket " + string(m_Socket) + ")").c_str());
+		RichEditAppendText(MainWindowPageUsersChat::m_Ptr->m_hWndPageItems[MainWindowPageUsersChat::REDT_CHAT], ("x User removed: " + px_string(m_sNick, m_ui8NickLen) + " (Socket " + px_string(m_Socket) + ")").c_str());
 	}
 #endif
 	
@@ -2017,12 +2018,16 @@ void User::Close(const bool bNoQuit/* = false*/)
 		// and fix disconnect on send error too =)
 		if (bNoQuit == false)
 		{
+			// alex82 ... HideUser / Скрытие юзера
+			// alex82 ... NoQuit / Подавляем $Quit для юзера
+			if (((m_ui32InfoBits & INFOBIT_HIDDEN) == INFOBIT_HIDDEN) == false && ((m_ui32InfoBits & INFOBIT_NO_QUIT) == INFOBIT_NO_QUIT) == false)
+			{
 			int iMsgLen = snprintf(ServerManager::m_pGlobalBuffer, ServerManager::m_szGlobalBufferSize, "$Quit %s|", m_sNick);
-			if (iMsgLen > 0)
+				if (CheckSprintf(iMsgLen, ServerManager::m_szGlobalBufferSize, "User::Close") == true)
 			{
 				GlobalDataQueue::m_Ptr->AddQueueItem(ServerManager::m_pGlobalBuffer, iMsgLen, NULL, 0, GlobalDataQueue::CMD_QUIT);
 			}
-			
+			}
 			Users::m_Ptr->Add2RecTimes(this);
 		}
 		
@@ -2052,7 +2057,8 @@ void User::Close(const bool bNoQuit/* = false*/)
 		ScriptManager::m_Ptr->UserDisconnected(this);
 	}
 	
-	if (m_ui8State > STATE_ADDME_2LOOP)
+	// + alex82 ... HideUser / Скрытие юзера
+	if (((m_ui32InfoBits & INFOBIT_HIDDEN) == User::INFOBIT_HIDDEN) == false && m_ui8State > STATE_ADDME_2LOOP)
 	{
 		ServerManager::m_ui32Logged--;
 	}

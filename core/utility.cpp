@@ -1007,6 +1007,40 @@ bool HaveOnlyNumbers(char *sData, const uint16_t ui16Len)
 	return true;
 }
 //---------------------------------------------------------------------------
+// + alex82 ... from MOD
+bool CheckSprintf(const int &iRetVal, const size_t &szMax, const char * sMsg) {
+	if (iRetVal > 0) {
+		if (szMax != 0 && iRetVal >= (int)szMax) {
+            px_string sDbgstr = "%s - [ERR] sprintf high value " + px_string(iRetVal) + "/" + px_string((uint64_t)szMax) + " in " + px_string(sMsg) + "\n";
+			AppendDebugLog(sDbgstr.c_str()/*, 0*/);
+			return false;
+		}
+	}
+	else {
+        px_string sDbgstr = "%s - [ERR] sprintf low value " + px_string(iRetVal) + " in " + px_string(sMsg) + "\n";
+		AppendDebugLog(sDbgstr.c_str()/*, 0*/);
+		return false;
+	}
+	return true;
+}
+//---------------------------------------------------------------------------
+
+bool CheckSprintf1(const int &iRetVal, const size_t &szLenVal, const size_t &szMax, const char * sMsg) {
+	if (iRetVal > 0) {
+		if (szMax != 0 && szLenVal >= szMax) {
+            px_string sDbgstr = "%s - [ERR] sprintf high value " + px_string((uint64_t)szLenVal) + "/" + px_string((uint64_t)szMax) + " in " + px_string(sMsg) + "\n";
+			AppendDebugLog(sDbgstr.c_str()/*, 0*/);
+			return false;
+		}
+	}
+	else {
+        px_string sDbgstr = "%s - [ERR] sprintf low value " + px_string(iRetVal) + " in " + px_string(sMsg) + "\n";
+		AppendDebugLog(sDbgstr.c_str()/*, 0*/);
+		return false;
+	}
+	return true;
+}
+//---------------------------------------------------------------------------
 
 void AppendLog(const char* sData, const bool bScript/* == false*/)
 {
@@ -1478,13 +1512,13 @@ bool GetMacAddress(const char * sIP, char * sMac)
 #ifdef _WIN32
 	uint32_t uiIP = ::inet_addr(sIP);
 	
-	MIB_IPNETTABLE * pINT = (MIB_IPNETTABLE *)new (std::nothrow) char[131072]; // TODO
+	MIB_IPNETTABLE * pINT = (MIB_IPNETTABLE *)new (std::nothrow) char[PTOKAX_GLOBAL_BUFF_SIZE]; // TODO
 	if (pINT == NULL)
 	{
 		return false;
 	}
 	
-	ULONG ulSize = 131072;
+	ULONG ulSize = PTOKAX_GLOBAL_BUFF_SIZE;
 	DWORD dwRes = ::GetIpNetTable(pINT, &ulSize, TRUE);
 	if (dwRes == NO_ERROR)
 	{
@@ -1556,7 +1590,7 @@ bool GetMacAddress(const char * sIP, char * sMac)
 
 void CreateGlobalBuffer()
 {
-	ServerManager::m_szGlobalBufferSize = 131072;
+	ServerManager::m_szGlobalBufferSize = PTOKAX_GLOBAL_BUFF_SIZE;
 	ServerManager::m_pGlobalBuffer = (char *)calloc(ServerManager::m_szGlobalBufferSize, 1);
 	if (ServerManager::m_pGlobalBuffer == NULL)
 	{
@@ -1601,7 +1635,7 @@ bool CheckAndResizeGlobalBuffer(const size_t szWantedSize)
 
 void ReduceGlobalBuffer()
 {
-	if (ServerManager::m_szGlobalBufferSize == 131072)
+	if (ServerManager::m_szGlobalBufferSize == PTOKAX_GLOBAL_BUFF_SIZE)
 	{
 		return;
 	}
@@ -1609,7 +1643,7 @@ void ReduceGlobalBuffer()
 	size_t szOldSize = ServerManager::m_szGlobalBufferSize;
 	char * sOldBuf = ServerManager::m_pGlobalBuffer;
 	
-	ServerManager::m_szGlobalBufferSize = 131072;
+	ServerManager::m_szGlobalBufferSize = PTOKAX_GLOBAL_BUFF_SIZE;
 	
 	ServerManager::m_pGlobalBuffer = (char *)realloc(sOldBuf, ServerManager::m_szGlobalBufferSize);
 	if (ServerManager::m_pGlobalBuffer == NULL)
